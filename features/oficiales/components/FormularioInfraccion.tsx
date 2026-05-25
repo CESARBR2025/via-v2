@@ -7,11 +7,23 @@ import { CustomSelect } from './CustomSelect';
 import { useOnlineStatus } from '@/lib/online';
 
 
-export interface ViewArticulosLista {
-    id: number;
-    numero: number;
+export interface ViewFraccionLista {
+    id: string;
+    articulo_id: string;
+    numero: string;
     descripcion: string;
-    orden: number;
+    monto_umas: string;
+    clasificacion: string;
+    activo: boolean;
+}
+
+export interface ViewArticulosLista {
+    id: string;
+    numero: string;
+    descripcion: string;
+    activo: boolean;
+
+    fracciones?: ViewFraccionLista[];
 }
 
 export interface ViewBuscarIDArticulo {
@@ -1074,7 +1086,7 @@ export default function FormularioInfraccion() {
 
 
     const artSeleccionado = articulos.find(
-        (a) => a.id === Number(datos.articulo)
+        (a) => a.id === datos.articulo
     );
     const conceptoSeleccionado = conceptos.find(
         (c) => c.id === Number(datos.concepto)
@@ -2610,7 +2622,7 @@ export default function FormularioInfraccion() {
                                     (f) => f.id === val
                                 );
 
-                                console.log(fraccionSeleccionada.clasificacion);
+
 
                                 setDatos((prev: typeof datosIniciales) => ({
 
@@ -2658,7 +2670,7 @@ export default function FormularioInfraccion() {
                     );
 
                     const fraccionSeleccionada =
-                        articuloSeleccionado?.fracciones.find(
+                        articuloSeleccionado?.fracciones?.find(
                             (f) => f.id === datos.fraccion
                         );
 
@@ -2727,7 +2739,7 @@ export default function FormularioInfraccion() {
                 {datos.articulo &&
                     (() => {
                         const artSeleccionado = articulos.find(
-                            (a) => a.id === Number(datos.articulo)
+                            (a) => a.id === datos.articulo
                         );
                         return artSeleccionado ? (
                             <div className="mt-4 flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 border border-blue-200">
