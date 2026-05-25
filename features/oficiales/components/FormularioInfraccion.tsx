@@ -3259,6 +3259,7 @@ export default function FormularioInfraccion() {
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 text-center space-y-2">
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
                         Estatus del Pago url = {urlVistaCiudadano} TEST CAMBIO COMPLETO
+                        QUE MAS TOCA HACERRR
                     </span>
 
                     {estatusPago === 'PENDIENTE' ? (
