@@ -8,8 +8,15 @@ export default async function Page({
 
     console.log('ID:', id);
 
+
+    const baseUrl =
+        process.env.NODE_ENV === 'production'
+            ? 'https://via-v2.vercel.app'
+            : 'http://localhost:3000';
+
+
     const res = await fetch(
-        `${process.env.NEXT_PUBLIC_APP_URL}/api/infracciones/registradas/${id}`,
+        `${baseUrl}/api/infracciones/registradas/${id}`,
         { cache: 'no-store' }
     );
 

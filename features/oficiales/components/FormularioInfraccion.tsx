@@ -3241,8 +3241,16 @@ export default function FormularioInfraccion() {
         console.log(infraccionCreada)
 
 
+        const baseUrl =
+            process.env.NODE_ENV === 'production'
+                ? 'https://via-v2.vercel.app'
+                : 'http://localhost:3000';
+
+
         const urlVistaCiudadano =
-            `${process.env.NEXT_PUBLIC_APP_URL}/infracciones/${infraccionCreada.id}`;
+            `${baseUrl}/infracciones/${infraccionCreada.id}`;
+
+
 
         return (
             <div className="space-y-6 max-w-xl mx-auto pb-8 animate-fade-in">
