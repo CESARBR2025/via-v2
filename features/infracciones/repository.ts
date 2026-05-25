@@ -127,7 +127,6 @@ export class InfraccionesRepository {
         color,
 
 
-
         tipo_garantia,
         garantia_entregada,
         motivo_retencion,
