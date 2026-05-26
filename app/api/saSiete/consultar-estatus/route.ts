@@ -28,8 +28,8 @@ export async function POST(req: NextRequest) {
 
     const datosOrden = JSON.stringify({
       OrdenPagoID: ordenPagoId,
-      UsuarioID: "PREDIAL",
-      PWD: "PREDIAL",
+      UsuarioID: process.env.KEY_USER_VALIDATE_STATUS,
+      PWD: process.env.KEY_PD_VALIDATE_STATUS,
     });
 
     // =====================================================
