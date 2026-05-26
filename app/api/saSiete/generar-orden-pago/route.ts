@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { POOL_PG as pool } from "@/lib/db";
 
 const SA7_URL =
-  "https://sanjuandelrio.sytes.net:3044/api/sasiete/qas/generar-orden-completa";
+  "https://sanjuandelrio.sytes.net:3044/api/sasiete/generar-orden-completa";
 
 export async function POST(req: NextRequest) {
   try {
