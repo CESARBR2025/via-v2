@@ -1,5 +1,5 @@
 'use client';
-import { Car, FileText, User, Camera, Pencil, CheckCircle, MapPin, QrCode, Info, RefreshCw } from 'lucide-react';
+import { Car, FileText, User, Camera, Pencil, CheckCircle, MapPin, QrCode, Info, RefreshCw, Loader2 } from 'lucide-react';
 import { QRCodeCanvas } from "qrcode.react";
 import MapaSelector, { AddressData } from './MapaSelector';
 import React, { useState, useEffect, useRef } from 'react';
@@ -941,6 +941,7 @@ export default function FormularioInfraccion() {
     const [, setPrecision] = useState(0);
     const [intentoAvanzar, setIntentoAvanzar] = useState(false);
     const stepScrollRef = useRef<HTMLDivElement>(null);
+    const [pagado, setPagado] = useState(false);
 
     // Saber si quiere pagar
     const [deseaPagar, setDeseaPagar] = useState<boolean | null>(null);
@@ -1045,7 +1046,85 @@ export default function FormularioInfraccion() {
     console.log(datos)
 
 
+    // PARA POOLING EN VALIDAR PAGO:
+    const verificarPago = async () => {
 
+
+
+
+        // EVITAR REQUESTS DUPLICADOS
+
+        if (loading) return;
+
+        try {
+
+            // id de la infracción actual
+
+
+
+
+            const response = await fetch(
+                `/api/saSiete/buscar-orden?infraccion_id=${infraccionCreada?.id}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                console.error('Error obteniendo orden:', result.message);
+                return;
+            }
+
+            const ordenPagoId = result.data?.orden_pago_id;
+
+            console.log('ORDEN PAGO ID:', ordenPagoId);
+
+            setLoading(true);
+
+            const res = await fetch(
+                `/api/pagosInfracciones/verificar/${ordenPagoId}/${infraccionCreada?.id}`,
+                {
+                    method: 'GET',
+                    cache: 'no-store',
+                }
+            );
+
+            const data = await res.json();
+
+            console.log('VERIFICAR PAGO:', data);
+
+            // =============================================
+            // PAGADO
+            // =============================================
+
+            if (data.pagado) {
+
+                setPagado(true);
+
+
+
+
+                return;
+            }
+
+        } catch (error) {
+
+            console.error(
+                'ERROR VERIFICANDO PAGO:',
+                error
+            );
+
+        } finally {
+
+            setLoading(false);
+
+        }
+    };
 
 
     //================================== Estados para busqueda de marcas, modelos, colores y estados
@@ -3316,6 +3395,68 @@ export default function FormularioInfraccion() {
         const urlVistaCiudadano =
             `${baseUrl}/infracciones/${infraccionCreada.id}`;
 
+        // =========================
+        // PAGO VALIDADO
+        // =========================
+        if (pagado) {
+            return (
+                <div className="max-w-xl mx-auto pb-8 animate-fade-in">
+
+                    <div className="bg-white rounded-3xl border border-emerald-100 shadow-xl overflow-hidden">
+
+                        <div className="p-10 text-center space-y-8">
+
+                            {/* ICON */}
+                            <div className="w-28 h-28 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto">
+                                <CheckCircle
+                                    size={60}
+                                    className="text-emerald-600"
+                                />
+                            </div>
+
+                            {/* TEXTO */}
+                            <div className="space-y-3">
+
+                                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 text-sm font-bold">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                    Pago Confirmado
+                                </span>
+
+                                <h2 className="text-3xl font-black text-emerald-700 leading-tight">
+                                    EL CIUDADANO PUEDE CONTINUAR SU CAMINO
+                                </h2>
+
+                                <p className="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+                                    El pago fue validado correctamente y la infracción
+                                    quedó liquidada en el sistema.
+                                </p>
+
+                            </div>
+
+                            {/* BOTON */}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    window.location.reload();
+                                }}
+                                className="
+                                w-full bg-emerald-600 hover:bg-emerald-700
+                                text-white font-bold text-sm
+                                py-4 px-4 rounded-2xl
+                                transition-all active:scale-[0.98]
+                            "
+                            >
+                                Salir
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            );
+        }
+
         return (
             <div className="space-y-6 max-w-xl mx-auto pb-8 animate-fade-in">
 
@@ -3403,128 +3544,113 @@ export default function FormularioInfraccion() {
                 {deseaPagar === true && (
                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
-                        {estatusPago === 'PENDIENTE' ? (
-                            <div className="p-8 text-center space-y-6">
+                        <div className="p-8 text-center space-y-6">
 
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-700 border border-amber-500/20 text-sm font-bold">
-                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                                    Esperando Pago del Ciudadano
+                            {/* STATUS */}
+                            <div className="
+                            inline-flex items-center gap-2 px-4 py-1.5 rounded-full
+                            bg-amber-500/10 text-amber-700 border border-amber-500/20
+                            text-sm font-bold
+                        ">
+                                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+
+                                Esperando Pago del Ciudadano
+                            </div>
+
+                            {/* QR HEADER */}
+                            <div className="space-y-2">
+                                <h3 className="text-lg font-bold text-[#0b3b60]">
+                                    Escanear Código QR
+                                </h3>
+
+                                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                                    Solicite al ciudadano escanear el código para acceder al portal de pago.
+                                </p>
+                            </div>
+
+                            {/* QR */}
+                            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-6">
+
+                                <div className="flex justify-center">
+                                    <QRCodeCanvas
+                                        value={urlVistaCiudadano}
+                                        size={220}
+                                        includeMargin
+                                    />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <h3 className="text-lg font-bold text-[#0b3b60]">
-                                        Escanear Código QR
-                                    </h3>
+                                <span className="text-[10px] font-mono text-slate-400 break-all">
+                                    {infraccionCreada.folio}
+                                </span>
 
-                                    <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                                        Solicite al ciudadano escanear el código para acceder al portal de pago.
-                                    </p>
-                                </div>
+                            </div>
 
-                                {/* QR */}
-                                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-6">
+                            {/* GARANTIA */}
+                            <div className="text-left bg-blue-50/50 rounded-xl p-4 border border-blue-100/50 flex gap-3">
+                                <Info
+                                    size={16}
+                                    className="text-[#0076aa] shrink-0 mt-0.5"
+                                />
 
-                                    <div className="flex justify-center">
-                                        <QRCodeCanvas
-                                            value={urlVistaCiudadano}
-                                            size={220}
-                                            includeMargin
+                                <p className="text-xs text-slate-600 leading-relaxed">
+                                    La garantía seleccionada{" "}
+                                    <strong className="text-[#0b3b60]">
+                                        ({datos.garantiaSeleccionada || 'Mencionada'})
+                                    </strong>{" "}
+                                    quedará resguardada hasta validar el pago.
+                                </p>
+                            </div>
+
+                            {/* DEBUG */}
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    window.open(urlVistaCiudadano, '_blank')
+                                }
+                                className="
+                                w-full flex items-center justify-center gap-2
+                                bg-slate-900 hover:bg-black
+                                text-white font-bold text-sm
+                                py-3 px-4 rounded-xl
+                            "
+                            >
+                                Abrir vista ciudadana
+                            </button>
+
+                            {/* VERIFICAR */}
+                            <button
+                                onClick={verificarPago}
+                                disabled={loading}
+                                className="
+                                h-12 px-6 rounded-2xl
+                                bg-emerald-600
+                                hover:bg-emerald-700
+                                disabled:opacity-50
+                                text-white font-bold
+                                flex items-center justify-center gap-2
+                                w-full
+                            "
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2
+                                            size={18}
+                                            className="animate-spin"
                                         />
-                                    </div>
 
-                                    <span className="text-[10px] font-mono text-slate-400 break-all">
-                                        {infraccionCreada.folio}
-                                    </span>
+                                        Verificando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle size={18} />
 
-                                </div>
+                                        Verificar pago
+                                    </>
+                                )}
+                            </button>
 
-                                {/* GARANTIA */}
-                                <div className="text-left bg-blue-50/50 rounded-xl p-4 border border-blue-100/50 flex gap-3">
-                                    <Info
-                                        size={16}
-                                        className="text-[#0076aa] shrink-0 mt-0.5"
-                                    />
+                        </div>
 
-                                    <p className="text-xs text-slate-600 leading-relaxed">
-                                        La garantía seleccionada{" "}
-                                        <strong className="text-[#0b3b60]">
-                                            ({datos.garantiaSeleccionada || 'Mencionada'})
-                                        </strong>{" "}
-                                        quedará resguardada hasta validar el pago.
-                                    </p>
-                                </div>
-
-                                {/* DEBUG */}
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        window.open(urlVistaCiudadano, '_blank')
-                                    }
-                                    className="
-                                    w-full flex items-center justify-center gap-2
-                                    bg-slate-900 hover:bg-black
-                                    text-white font-bold text-sm
-                                    py-3 px-4 rounded-xl
-                                "
-                                >
-                                    Abrir vista ciudadana
-                                </button>
-
-                                {/* VERIFICAR */}
-                                <button
-                                    type="button"
-                                    onClick={() => setEstatusPago('PAGADO')}
-                                    className="
-                                    w-full flex items-center justify-center gap-2
-                                    bg-[#0076aa] hover:bg-[#0b3b60]
-                                    text-white font-bold text-sm
-                                    py-3 px-4 rounded-xl
-                                "
-                                >
-                                    <RefreshCw
-                                        size={15}
-                                        className="animate-spin-slow"
-                                    />
-
-                                    Verificar Estatus de Pago
-                                </button>
-
-                            </div>
-                        ) : (
-                            <div className="p-8 text-center space-y-6">
-
-                                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-500 border border-emerald-500/20">
-                                    <CheckCircle size={36} />
-                                </div>
-
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-800">
-                                        Pago Confirmado
-                                    </h3>
-
-                                    <p className="text-xs text-slate-500 mt-2">
-                                        La transacción se realizó correctamente.
-                                    </p>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setCurrentStep?.(0);
-                                        setEstatusPago('PENDIENTE');
-                                        setDeseaPagar(null);
-                                    }}
-                                    className="
-                                    w-full bg-slate-800 hover:bg-slate-950
-                                    text-white font-bold text-sm
-                                    py-3 px-4 rounded-xl
-                                "
-                                >
-                                    Finalizar y Salir
-                                </button>
-
-                            </div>
-                        )}
                     </div>
                 )}
             </div>
