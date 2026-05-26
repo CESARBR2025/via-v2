@@ -54,6 +54,8 @@ export interface CrearInfraccionDTO {
 }
 
 export interface InfraccionDB {
+  clasificacion: string;
+
   id: string;
 
   folio: string;
@@ -138,6 +140,19 @@ export interface InfraccionDB {
 // Datos de infracción que se enviarán a la vista ciudadana
 
 export interface InfraccionDetalleDTO {
+  orden_pago_local_id: string | null;
+  orden_pago_id: string | null;
+  estatus_orden_pago: string | null;
+  url_pago: string | null;
+  url_guardado: string | null;
+  folio_orden: string | null;
+  fecha_vencimiento: string | null;
+  total_pesos: number | null;
+  total_umas: number | null;
+  created_at: string | null;
+
+  clasificacion: string;
+
   id: string;
   folio: string;
 
@@ -174,4 +189,7 @@ export interface InfraccionDetalleDTO {
 
   articuloId: string;
   fraccionId: string;
+  nombreInfractor: string | null;
+  apellidoPaternoInfractor: string | null;
+  apellidoMaternoInfractor: string | null;
 }

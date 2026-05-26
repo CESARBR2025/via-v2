@@ -68,6 +68,8 @@ export class InfraccionesService {
       return {
         id: infraccion.id,
         folio: infraccion.folio,
+        clasificacion: infraccion.clasificacion,
+        concepto: infraccion.concept_id,
       };
     } catch (error) {
       console.error("[SERVICE][INFRACCIONES][CREAR]", error);

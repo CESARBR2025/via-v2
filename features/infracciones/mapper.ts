@@ -79,6 +79,7 @@ export const mapCrearInfraccionToDB = (
 
 export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
   return {
+    clasificacion: row.clasificacion,
     id: row.id,
     folio: row.folio,
 
@@ -114,5 +115,21 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
 
     articuloId: row.articulo_id,
     fraccionId: row.fraccion_id,
+
+    nombreInfractor: row.nombre_infractor,
+    apellidoPaternoInfractor: row.apellido_paterno_infractor,
+    apellidoMaternoInfractor: row.apellido_materno_infractor,
+
+    orden_pago_local_id: row.orden_pago_local_id,
+    orden_pago_id: row.orden_pago_id,
+
+    estatus_orden_pago: row.estatus_orden_pago,
+    url_pago: row.url_pago,
+    url_guardado: row.url_guardado,
+    folio_orden: row.folio_orden,
+    fecha_vencimiento: row.fecha_vencimiento,
+    total_pesos: Number(row.total_pesos),
+    total_umas: Number(row.total_umas),
+    created_at: row.created_at,
   };
 };

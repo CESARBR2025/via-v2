@@ -931,6 +931,7 @@ export default function FormularioInfraccion() {
         } catch { }
         return 0;
     });
+    console.log(currentStep)
     const [files, setFiles] = useState<File[]>([]);
     const [success, setSuccess] = useState<string | null | boolean>(null);
     const [loading, setLoading] = useState(false);
@@ -940,6 +941,9 @@ export default function FormularioInfraccion() {
     const [, setPrecision] = useState(0);
     const [intentoAvanzar, setIntentoAvanzar] = useState(false);
     const stepScrollRef = useRef<HTMLDivElement>(null);
+
+    // Saber si quiere pagar
+    const [deseaPagar, setDeseaPagar] = useState<boolean | null>(null);
 
     // Infracción nueva creada:
     const [infraccionCreada, setInfraccionCreada] = useState<{
@@ -1329,13 +1333,26 @@ export default function FormularioInfraccion() {
         setError(null);
     };
 
-    const handleConfirmarRegistro = async () => {
+    const handleRegistrarNuevaInfraccion = async () => {
         if (!datos) return;
+        console.log(datos)
+
+        // Armar nombre de infractor
+
+
 
         setLoading(true);
         setError(null);
         try {
+
             setStatus('loading');
+
+
+
+
+
+
+
 
             const res = await fetch('/api/infracciones/registrar', {
                 method: 'POST',
@@ -1350,18 +1367,70 @@ export default function FormularioInfraccion() {
                 throw new Error(
                     nuevaInfraccion.message || 'Error al registrar infracción'
                 );
-            // if (datos.agregarEvidencia && files.length > 0) {
-            //     const fd = new FormData();
-            //     files.forEach((f) => fd.append('evidencias', f));
-            //     const resE = await fetch(
-            //         `/api/infracciones/evidencias/${nuevaInfraccion}`,
-            //         { method: 'POST', body: fd }
-            //     );
-            //     if (!resE.ok) {
-            //         const e = await resE.json();
-            //         throw new Error(e.message || 'Error al subir evidencias');
-            //     }
-            // }
+
+
+            const concepto = nuevaInfraccion.data.concepto;
+            const clasificacion = nuevaInfraccion.data.clasificacion;
+            const nombreUsuario = datos.nombreInfractor
+            const apellidosUsuario = `${datos.apPaternoInfractor} ${datos.apMaternoInfractor}`.trim();
+            const folio = nuevaInfraccion.data.folio;
+            console.log(clasificacion)
+            console.log(nombreUsuario)
+            console.log(apellidosUsuario)
+            console.log(concepto)
+            console.log(folio)
+
+            // =========================================
+            // GENERAR ORDEN DE PAGO SA7
+            // =========================================
+
+            const responseOrdenPago = await fetch(
+                "/api/saSiete/generar-orden-pago",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+
+                    body: JSON.stringify({
+                        infraccion_id: nuevaInfraccion.data.id,
+
+                        folio: nuevaInfraccion.data.folio,
+
+                        concepto_id: concepto,
+
+                        clasificacion,
+
+                        nombre_usuario: nombreUsuario,
+
+                        apellidos_usuario: apellidosUsuario,
+                    }),
+                }
+            );
+
+            const dataOrdenPago = await responseOrdenPago.json();
+
+            console.log("ORDEN PAGO:", dataOrdenPago);
+
+            if (!responseOrdenPago.ok) {
+                throw new Error(
+                    dataOrdenPago.message ||
+                    "Error generando orden de pago"
+                );
+            }
+
+
+
+
+
+
+            // Esperar 2 segundos
+            setTimeout(() => {
+
+                // Avanzar automáticamente al step 8
+                setCurrentStep(7);
+            }, 2000);
+
             setStatus('success');
             localStorage.removeItem(STORAGE_KEY);
             setDraftRecuperado(false);
@@ -3238,186 +3307,226 @@ export default function FormularioInfraccion() {
 
     const renderPago = () => {
         if (!infraccionCreada) return null;
-        console.log(infraccionCreada)
-
 
         const baseUrl =
             process.env.NODE_ENV === 'production'
                 ? 'https://via-v2.vercel.app'
                 : 'http://localhost:3000';
 
-
         const urlVistaCiudadano =
             `${baseUrl}/infracciones/${infraccionCreada.id}`;
-
-
 
         return (
             <div className="space-y-6 max-w-xl mx-auto pb-8 animate-fade-in">
 
-                {/* HEADER ESTATUS */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 text-center space-y-2">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
-                        Estatus del Pago url = {urlVistaCiudadano} TEST CAMBIO COMPLETO
-                        QUE MAS TOCA HACERRR
-                    </span>
+                {/* HEADER */}
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
 
-                    {estatusPago === 'PENDIENTE' ? (
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-700 border border-amber-500/20 text-sm font-bold">
-                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                            Esperando Pago del Ciudadano
+                    <div className="text-center">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
+                            Pago de Infracción
+                        </span>
+                    </div>
+
+                    {/* PREGUNTA */}
+                    <div className="space-y-3">
+
+                        <h3 className="text-sm font-bold text-slate-700">
+                            ¿Ciudadano desea pagar al instante?
+                        </h3>
+
+                        <div className="flex gap-3">
+
+                            <button
+                                type="button"
+                                onClick={() => setDeseaPagar(true)}
+                                className={`
+                                flex-1 py-3 rounded-xl font-bold text-sm transition-all
+                                ${deseaPagar === true
+                                        ? 'bg-emerald-600 text-white'
+                                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}
+                            `}
+                            >
+                                Sí
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setDeseaPagar(false)}
+                                className={`
+                                flex-1 py-3 rounded-xl font-bold text-sm transition-all
+                                ${deseaPagar === false
+                                        ? 'bg-red-500 text-white'
+                                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}
+                            `}
+                            >
+                                No
+                            </button>
+
                         </div>
-                    ) : (
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 text-sm font-bold animate-bounce">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                            ¡Infracción Pagada Exitosamente!
-                        </div>
-                    )}
+                    </div>
                 </div>
 
-                {/* CONTENIDO PRINCIPAL */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                {/* ======================= */}
+                {/* NO PAGAR */}
+                {/* ======================= */}
+                {deseaPagar === false && (
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
 
-                    {/* ===================== */}
-                    {/* PENDIENTE */}
-                    {/* ===================== */}
-                    {estatusPago === 'PENDIENTE' ? (
-                        <div className="p-8 text-center space-y-6">
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                            <p className="text-sm text-amber-700 leading-relaxed">
+                                La infracción quedó registrada sin pago inmediato.
+                            </p>
+                        </div>
 
-                            <div className="space-y-2">
-                                <h3 className="text-lg font-bold text-[#0b3b60]">
-                                    Pago con Código QR
-                                </h3>
-                                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                                    Solicite al ciudadano que escanee el siguiente código con su teléfono celular para acceder a la pasarela de pago seguro.
-                                </p>
-                            </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                window.location.reload();
+                            }}
+                            className="
+                            w-full bg-slate-800 hover:bg-slate-950
+                            text-white font-bold text-sm
+                            py-3 px-4 rounded-xl
+                            transition-all active:scale-[0.98]
+                        "
+                        >
+                            Finalizar y Salir
+                        </button>
 
-                            {/* QR */}
-                            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-6">
+                    </div>
+                )}
 
-                                <div className="flex justify-center">
-                                    <QRCodeCanvas
-                                        value={urlVistaCiudadano}
-                                        size={200}
-                                        includeMargin
-                                    />
+                {/* ======================= */}
+                {/* SI PAGAR */}
+                {/* ======================= */}
+                {deseaPagar === true && (
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+
+                        {estatusPago === 'PENDIENTE' ? (
+                            <div className="p-8 text-center space-y-6">
+
+                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-700 border border-amber-500/20 text-sm font-bold">
+                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                    Esperando Pago del Ciudadano
                                 </div>
 
-                                <span className="text-[10px] font-mono text-slate-400 break-all">
-                                    {infraccionCreada.folio}
-                                </span>
-                            </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-lg font-bold text-[#0b3b60]">
+                                        Escanear Código QR
+                                    </h3>
 
-                            <div className="pt-2">
+                                    <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                                        Solicite al ciudadano escanear el código para acceder al portal de pago.
+                                    </p>
+                                </div>
+
+                                {/* QR */}
+                                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-6">
+
+                                    <div className="flex justify-center">
+                                        <QRCodeCanvas
+                                            value={urlVistaCiudadano}
+                                            size={220}
+                                            includeMargin
+                                        />
+                                    </div>
+
+                                    <span className="text-[10px] font-mono text-slate-400 break-all">
+                                        {infraccionCreada.folio}
+                                    </span>
+
+                                </div>
+
+                                {/* GARANTIA */}
+                                <div className="text-left bg-blue-50/50 rounded-xl p-4 border border-blue-100/50 flex gap-3">
+                                    <Info
+                                        size={16}
+                                        className="text-[#0076aa] shrink-0 mt-0.5"
+                                    />
+
+                                    <p className="text-xs text-slate-600 leading-relaxed">
+                                        La garantía seleccionada{" "}
+                                        <strong className="text-[#0b3b60]">
+                                            ({datos.garantiaSeleccionada || 'Mencionada'})
+                                        </strong>{" "}
+                                        quedará resguardada hasta validar el pago.
+                                    </p>
+                                </div>
+
+                                {/* DEBUG */}
                                 <button
                                     type="button"
                                     onClick={() =>
                                         window.open(urlVistaCiudadano, '_blank')
                                     }
-                                    className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-black text-white font-bold text-sm py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98]"
+                                    className="
+                                    w-full flex items-center justify-center gap-2
+                                    bg-slate-900 hover:bg-black
+                                    text-white font-bold text-sm
+                                    py-3 px-4 rounded-xl
+                                "
                                 >
-                                    Abrir vista ciudadana (debug)
+                                    Abrir vista ciudadana
                                 </button>
-                            </div>
 
-                            {/* INFO */}
-                            <div className="text-left bg-blue-50/50 rounded-xl p-4 border border-blue-100/50 flex gap-3">
-                                <Info size={16} className="text-[#0076aa] shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-600 leading-relaxed">
-                                    La garantía seleccionada{" "}
-                                    <strong className="text-[#0b3b60]">
-                                        ({datos.garantiaSeleccionada || 'Mencionada'})
-                                    </strong>{" "}
-                                    quedará resguardada hasta validar el pago.
-                                </p>
-                            </div>
-
-                            {/* BOTÓN VERIFICAR */}
-                            <div className="pt-2">
+                                {/* VERIFICAR */}
                                 <button
                                     type="button"
                                     onClick={() => setEstatusPago('PAGADO')}
-                                    className="w-full flex items-center justify-center gap-2 bg-[#0076aa] hover:bg-[#0b3b60] text-white font-bold text-sm py-3 px-4 rounded-xl shadow-md shadow-blue-900/10 transition-all active:scale-[0.98]"
+                                    className="
+                                    w-full flex items-center justify-center gap-2
+                                    bg-[#0076aa] hover:bg-[#0b3b60]
+                                    text-white font-bold text-sm
+                                    py-3 px-4 rounded-xl
+                                "
                                 >
-                                    <RefreshCw size={15} className="animate-spin-slow" />
+                                    <RefreshCw
+                                        size={15}
+                                        className="animate-spin-slow"
+                                    />
+
                                     Verificar Estatus de Pago
                                 </button>
+
                             </div>
+                        ) : (
+                            <div className="p-8 text-center space-y-6">
 
-                        </div>
-                    ) : (
-                        /* ===================== */
-                        /* PAGADO */
-                        /* ===================== */
-                        <div className="p-8 text-center space-y-6 animate-scale-up">
-
-                            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-500 border border-emerald-500/20">
-                                <CheckCircle size={36} />
-                            </div>
-
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-bold text-slate-800">
-                                    Transacción Confirmada
-                                </h3>
-                                <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
-                                    El cobro digital se aplicó correctamente.
-                                </p>
-                            </div>
-
-                            {/* TICKET */}
-                            <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 divide-y divide-slate-200/60 text-left text-xs text-slate-600">
-
-                                <div className="pb-2.5 flex justify-between">
-                                    <span className="font-semibold text-slate-400">
-                                        Folio:
-                                    </span>
-                                    <span className="font-mono font-bold text-slate-700">
-                                        {infraccionCreada.folio}
-                                    </span>
+                                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-500 border border-emerald-500/20">
+                                    <CheckCircle size={36} />
                                 </div>
 
-                                <div className="py-2.5 flex justify-between">
-                                    <span className="font-semibold text-slate-400">
-                                        Concepto:
-                                    </span>
-                                    <span className="font-bold text-[#0b3b60] truncate max-w-[200px]">
-                                        {datos.conceptoDescripcion?.toUpperCase() ||
-                                            "INFRACCIÓN DIGITAL"}
-                                    </span>
+                                <div>
+                                    <h3 className="text-xl font-bold text-slate-800">
+                                        Pago Confirmado
+                                    </h3>
+
+                                    <p className="text-xs text-slate-500 mt-2">
+                                        La transacción se realizó correctamente.
+                                    </p>
                                 </div>
 
-                                <div className="pt-2.5 flex justify-between items-center">
-                                    <span className="font-semibold text-slate-400">
-                                        Monto:
-                                    </span>
-                                    <span className="font-bold text-base text-[#00ae6f]">
-                                        {datos.fraccionMonto
-                                            ? `$${datos.fraccionMonto} MXN`
-                                            : '—'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* BOTÓN SALIR */}
-                            <div className="pt-2">
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        alert("Saliendo...");
                                         setCurrentStep?.(0);
                                         setEstatusPago('PENDIENTE');
+                                        setDeseaPagar(null);
                                     }}
-                                    className="w-full bg-slate-800 hover:bg-slate-950 text-white font-bold text-sm py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98]"
+                                    className="
+                                    w-full bg-slate-800 hover:bg-slate-950
+                                    text-white font-bold text-sm
+                                    py-3 px-4 rounded-xl
+                                "
                                 >
                                     Finalizar y Salir
                                 </button>
+
                             </div>
-
-                        </div>
-                    )}
-
-                </div>
+                        )}
+                    </div>
+                )}
             </div>
         );
     };
@@ -3679,178 +3788,145 @@ export default function FormularioInfraccion() {
                     </button>
 
                     {/* Botón Siguiente / Registrar */}
-                    {currentStep < steps.length - 1 ? (
-                        <div className="flex flex-col items-end gap-1">
-                            <button
-                                type="button"
-                                onClick={goNext}
-                                className="
-                  flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl
-                  bg-[#0076aa] text-white text-sm font-semibold
-                  hover:bg-[#0b3b60] active:scale-95
-                  shadow-sm transition-all duration-200
-                "
-                            >
-                                Siguiente
-                                <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="m9 5 7 7-7 7"
-                                    />
-                                </svg>
-                            </button>
 
-                            {/* Mensaje de validación */}
-                            {intentoAvanzar && !isStepValid && (
-                                <p className="text-[11px] text-red-500 font-medium flex items-center gap-1 whitespace-nowrap">
-                                    <svg
-                                        className="w-3 h-3 shrink-0"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <circle cx="12" cy="12" r="10" />
-                                        <path strokeLinecap="round" d="M12 8v4m0 4h.01" />
-                                    </svg>
-                                    Completa todos los campos requeridos
-                                </p>
-                            )}
-                        </div>
-                    ) : (
+                    {currentStep === 6 ? (
                         <button
-                            type="submit"
-                            onClick={handleConfirmarRegistro}
+                            type="button"
+                            onClick={handleRegistrarNuevaInfraccion}
                             disabled={!isOnline || loading}
                             className="
-                flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl
-                bg-emerald-600 text-white text-[14px] sm:text-sm font-semibold
-                hover:bg-emerald-700 active:scale-95
-                shadow-sm transition-all duration-200
-                disabled:opacity-50 disabled:cursor-not-allowed
-              "
+            flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl
+            bg-emerald-600 text-white text-sm font-semibold
+        "
                         >
+                            Registrar infracción
+                        </button>
+                    ) : currentStep < steps.length - 1 ? (
+                        <button
+                            type="button"
+                            onClick={goNext}
+                        >
+                            Siguiente
+                        </button>
+                    ) : null}
+
+                    {/* Mensaje de validación */}
+                    {intentoAvanzar && !isStepValid && (
+                        <p className="text-[11px] text-red-500 font-medium flex items-center gap-1 whitespace-nowrap">
                             <svg
-                                className="w-4 h-4"
+                                className="w-3 h-3 shrink-0"
                                 fill="none"
                                 stroke="currentColor"
-                                strokeWidth="2.5"
+                                strokeWidth="2"
                                 viewBox="0 0 24 24"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                />
+                                <circle cx="12" cy="12" r="10" />
+                                <path strokeLinecap="round" d="M12 8v4m0 4h.01" />
                             </svg>
-                            {!isOnline ? 'Sin conexión' : 'Registrar'}
-                        </button>
+                            Completa todos los campos requeridos
+                        </p>
                     )}
                 </div>
+
             </footer>
 
             {/* ── MODAL DE ESTADO ── */}
-            {status !== 'idle' && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-                        {/* Loading */}
-                        {status === 'loading' && (
-                            <div className="p-8 flex flex-col items-center gap-4">
-                                <div className="w-14 h-14 rounded-full bg-sky-50 flex items-center justify-center">
-                                    <div className="w-7 h-7 border-[3px] border-[#0076aa] border-t-transparent rounded-full animate-spin" />
-                                </div>
-                                <div className="text-center">
-                                    <p className="font-bold text-slate-800">
-                                        Registrando infracción
-                                    </p>
-                                    <p className="text-sm text-slate-400 mt-1">
-                                        Esto tomará unos segundos…
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Éxito */}
-                        {status === 'success' && (
-                            <div className="flex flex-col items-center">
-                                <div className="w-full h-1.5 bg-emerald-500 rounded-t-2xl" />
+            {
+                status !== 'idle' && (
+                    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+                            {/* Loading */}
+                            {status === 'loading' && (
                                 <div className="p-8 flex flex-col items-center gap-4">
-                                    <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
-                                        <svg
-                                            className="w-7 h-7 text-emerald-600"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2.5"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="m4.5 12.75 6 6 9-13.5"
-                                            />
-                                        </svg>
+                                    <div className="w-14 h-14 rounded-full bg-sky-50 flex items-center justify-center">
+                                        <div className="w-7 h-7 border-[3px] border-[#0076aa] border-t-transparent rounded-full animate-spin" />
                                     </div>
                                     <div className="text-center">
                                         <p className="font-bold text-slate-800">
-                                            ¡Infracción registrada!
+                                            Registrando infracción
                                         </p>
-                                        <p className="text-sm text-slate-400 mt-1">{message}</p>
+                                        <p className="text-sm text-slate-400 mt-1">
+                                            Esto tomará unos segundos…
+                                        </p>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setStatus('idle')}
-                                        className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition"
-                                    >
-                                        Aceptar
-                                    </button>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* Error */}
-                        {status === 'error' && (
-                            <div className="flex flex-col items-center">
-                                <div className="w-full h-1.5 bg-red-500 rounded-t-2xl" />
-                                <div className="p-8 flex flex-col items-center gap-4">
-                                    <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
-                                        <svg
-                                            className="w-7 h-7 text-red-500"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2.5"
-                                            viewBox="0 0 24 24"
+                            {/* Éxito */}
+                            {status === 'success' && (
+                                <div className="flex flex-col items-center">
+                                    <div className="w-full h-1.5 bg-emerald-500 rounded-t-2xl" />
+                                    <div className="p-8 flex flex-col items-center gap-4">
+                                        <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
+                                            <svg
+                                                className="w-7 h-7 text-emerald-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2.5"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="m4.5 12.75 6 6 9-13.5"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="font-bold text-slate-800">
+                                                ¡Infracción registrada!
+                                            </p>
+                                            <p className="text-sm text-slate-400 mt-1">{message}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setStatus('idle')}
+                                            className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition"
                                         >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-                                            />
-                                        </svg>
+                                            Aceptar
+                                        </button>
                                     </div>
-                                    <div className="text-center">
-                                        <p className="font-bold text-slate-800">Ocurrió un error</p>
-                                        <p className="text-sm text-slate-400 mt-1">{message}</p>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setStatus('idle')}
-                                        className="w-full py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition"
-                                    >
-                                        Intentar de nuevo
-                                    </button>
                                 </div>
-                            </div>
-                        )}
+                            )}
+
+                            {/* Error */}
+                            {status === 'error' && (
+                                <div className="flex flex-col items-center">
+                                    <div className="w-full h-1.5 bg-red-500 rounded-t-2xl" />
+                                    <div className="p-8 flex flex-col items-center gap-4">
+                                        <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                                            <svg
+                                                className="w-7 h-7 text-red-500"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2.5"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="font-bold text-slate-800">Ocurrió un error</p>
+                                            <p className="text-sm text-slate-400 mt-1">{message}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setStatus('idle')}
+                                            className="w-full py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition"
+                                        >
+                                            Intentar de nuevo
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
-        </form>
+                )
+            }
+        </form >
     );
 }

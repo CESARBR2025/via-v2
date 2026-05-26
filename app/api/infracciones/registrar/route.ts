@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     console.log(payload);
 
     const infraccion = await InfraccionesService.crear(payload);
-
+    console.log(infraccion);
     return NextResponse.json(
       {
         ok: true,
