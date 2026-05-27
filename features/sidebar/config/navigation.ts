@@ -1,21 +1,69 @@
-import { Home, FileText, Shield, Settings } from "lucide-react";
+import { Home, FileExclamationPoint, FileClockIcon } from "lucide-react";
 
 import { UserRole } from "../types";
 
 export const navigationByRole: Record<UserRole, any[]> = {
   oficial: [
+    // =====================================
+    // SECCIÓN
+    // =====================================
+
     {
-      label: "Registrar",
-      href: "/oficiales/captura",
-      icon: Home,
+      title: "Infracciones",
+
+      items: [
+        {
+          label: "Capturar",
+          href: "/oficiales/captura",
+          icon: Home,
+        },
+        {
+          label: "Realizadas",
+          href: "/oficiales/realizadas",
+          icon: FileExclamationPoint,
+        },
+      ],
     },
   ],
 
   oficiales: [
+    // =====================================
+    // SECCIÓN
+    // =====================================
+
     {
-      label: "Registrar",
-      href: "/oficiales/captura",
-      icon: Home,
+      title: "Infracciones",
+
+      items: [
+        {
+          label: "Capturar",
+          href: "/oficiales/capturar",
+          icon: Home,
+        },
+        {
+          label: "Realizadas",
+          href: "/oficiales/realizadas",
+          icon: Home,
+        },
+      ],
+    },
+  ],
+
+  infracciones: [
+    // =====================================
+    // SECCIÓN
+    // =====================================
+
+    {
+      title: "Infracciones Registradas",
+
+      items: [
+        {
+          label: "Consultar Infracciones",
+          href: "/depInfracciones/dashboard",
+          icon: FileClockIcon,
+        },
+      ],
     },
   ],
 };

@@ -8,6 +8,12 @@ type SidebarStore = {
   openMobile: () => void;
   closeMobile: () => void;
   toggleMobile: () => void;
+
+  // DESKTOP
+
+  collapsed: boolean;
+
+  toggleCollapsed: () => void;
 };
 
 export const useSidebarStore = create<SidebarStore>((set) => ({
@@ -20,5 +26,16 @@ export const useSidebarStore = create<SidebarStore>((set) => ({
   toggleMobile: () =>
     set((state) => ({
       mobileOpen: !state.mobileOpen,
+    })),
+
+  // =====================================
+  // DESKTOP
+  // =====================================
+
+  collapsed: false,
+
+  toggleCollapsed: () =>
+    set((state) => ({
+      collapsed: !state.collapsed,
     })),
 }));

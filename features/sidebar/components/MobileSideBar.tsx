@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -95,8 +97,8 @@ export default function MobileSidebar({
                     fixed top-0 left-0 bottom-0
                     z-50
                     w-72
-                    bg-white
-                    border-r border-slate-200
+                    bg-[#1A2732]
+                    border-r border-slate-800
                     p-4
                     transition-transform duration-300
                     md:hidden
@@ -111,25 +113,33 @@ export default function MobileSidebar({
 
                 {/* HEADER */}
 
-                <div className="
-                    h-16
-                    flex items-center
-                    justify-between
-                ">
+                <div
+                    className="
+                        h-16
+                        flex items-center
+                        justify-between
+                    "
+                >
 
-                    <h2 className="
-                        text-2xl font-black
-                        text-[#0b3b60]
-                    ">
-                        VIA
-                    </h2>
+                    <Image
+                        src="/ui/via-logo.png"
+                        alt="VIA"
+                        width={150}
+                        height={50}
+                        priority
+                        className="
+                            h-auto
+                            object-contain
+                        "
+                    />
 
                     <button
                         onClick={closeMobile}
                         className="
                             w-10 h-10 rounded-xl
-                            hover:bg-slate-100
+                            hover:bg-white/10
                             flex items-center justify-center
+                            text-white
                         "
                     >
                         <X size={20} />
@@ -139,17 +149,54 @@ export default function MobileSidebar({
 
                 {/* NAV */}
 
-                <nav className="
-                    mt-6
-                    flex flex-col gap-2
-                ">
+                <nav
+                    className="
+                        mt-6
+                        flex flex-col gap-8
+                    "
+                >
 
-                    {navigation.map((item) => (
+                    {navigation.map((section) => (
 
-                        <SidebarItem
-                            key={item.href}
-                            {...item}
-                        />
+                        <div
+                            key={section.title}
+                            className="space-y-2"
+                        >
+
+                            {/* TITLE */}
+
+                            <p
+                                className="
+                                    px-3
+                                    text-[11px]
+                                    font-black
+                                    tracking-widest
+                                    text-slate-400
+                                "
+                            >
+                                {section.title}
+                            </p>
+
+                            {/* ITEMS */}
+
+                            <div
+                                className="
+                                    flex flex-col gap-1
+                                "
+                            >
+
+                                {section.items.map((item: any) => (
+
+                                    <SidebarItem
+                                        key={item.href}
+                                        {...item}
+                                    />
+
+                                ))}
+
+                            </div>
+
+                        </div>
 
                     ))}
 

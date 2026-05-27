@@ -1,1 +1,1 @@
-export type UserRole = "oficial" | "oficiales";
+export type UserRole = "oficial" | "oficiales" | "infracciones";

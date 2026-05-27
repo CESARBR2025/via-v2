@@ -1,0 +1,82 @@
+// service/infraccion.service.ts
+
+import { DepInfraccionesRepository } from "./repository";
+
+import { mapInfraccionListItem } from "./mappers";
+
+import { getHoyYAyerRange } from "@/lib/utils/dataRange";
+export class DepInfraccionesService {
+  static async listar(params: { page: number; limit: number }) {
+    try {
+      // 1. Calcular paginación
+      const offset = (params.page - 1) * params.limit;
+
+      console.log("[SERVICE][INFRACCIONES][LISTAR] Params:", params);
+
+      // 2. Rango de fechas (hoy + ayer)
+      const { from, to } = getHoyYAyerRange();
+
+      console.log("[SERVICE][INFRACCIONES][LISTAR] Rango fechas:", {
+        from,
+        to,
+      });
+
+      // 3. Queries en paralelo
+      const [listResult, total] = await Promise.all([
+        DepInfraccionesRepository.findList({
+          from,
+          to,
+          limit: params.limit,
+          offset,
+        }),
+
+        DepInfraccionesRepository.countList({
+          from,
+          to,
+        }),
+      ]);
+
+      console.log("[SERVICE][INFRACCIONES][LISTAR] Resultado:", {
+        rows: listResult.rows?.length ?? 0,
+        total,
+      });
+
+      // 4. Mapear
+      const data = listResult.rows.map(mapInfraccionListItem);
+
+      // 5. Response
+      return {
+        data,
+        page: params.page,
+        limit: params.limit,
+        total,
+      };
+    } catch (error) {
+      console.error("[SERVICE][INFRACCIONES][LISTAR] ERROR:", error);
+
+      if (error && typeof error === "object") {
+        console.error("DETAIL:", (error as any).detail);
+        console.error("MESSAGE:", (error as any).message);
+        console.error("CODE:", (error as any).code);
+        console.error("TABLE:", (error as any).table);
+        console.error("COLUMN:", (error as any).column);
+        console.error("CONSTRAINT:", (error as any).constraint);
+      }
+
+      throw error;
+    }
+  }
+
+  // Detalles de infra
+  static async obtenerDetalle(id: string) {
+    try {
+      console.log(id);
+      const data = await DepInfraccionesRepository.findById(id);
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error("[SERVICE][DETALLE]", error);
+      throw error;
+    }
+  }
+}

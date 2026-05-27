@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useSidebarStore }
+    from "@/stores/sideBarStore";
+
 type Props = {
     label: string;
     href: string;
@@ -17,25 +20,59 @@ export default function SidebarItem({
 
     const pathname = usePathname();
 
-    const active = pathname === href;
+    const { collapsed } =
+        useSidebarStore();
+
+    const active =
+        pathname === href;
 
     return (
         <Link
             href={href}
+            title={collapsed ? label : ""}
             className={`
-                flex items-center gap-3
-                h-12 px-4 rounded-2xl
-                transition-all
-                font-medium
-                ${active
-                    ? "bg-[#0b3b60] text-white"
-                    : "text-slate-600 hover:bg-slate-100"
-                }
-            `}
-        >
-            <Icon size={20} />
+        group
+        relative
+        flex items-center
+        h-12 rounded-2xl
+        transition-all duration-200
+        font-medium
 
-            <span>{label}</span>
+        ${collapsed
+                    ? "justify-center px-0"
+                    : "gap-3 px-4"
+                }
+
+        ${active
+                    ? "bg-[#0b3b60] text-white"
+                    : "text-slate-300 hover:bg-white/10 hover:text-white"
+                }
+      `}
+        >
+
+            {/* ICON */}
+
+            <Icon
+                size={20}
+                className="
+          shrink-0
+        "
+            />
+
+            {/* LABEL */}
+
+            {!collapsed && (
+
+                <span
+                    className="
+            whitespace-nowrap
+          "
+                >
+                    {label}
+                </span>
+
+            )}
+
         </Link>
     );
 }

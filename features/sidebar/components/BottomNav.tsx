@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { navigationByRole }
   from "../config/navigation";
 
-import { UserRole } from "../types";
+import { UserRole }
+  from "../types";
 
 type Props = {
   role: UserRole;
@@ -18,8 +19,15 @@ export default function BottomNav({
 
   const pathname = usePathname();
 
+  // =====================================
+  // OBTENER TODOS LOS ITEMS
+  // =====================================
+
   const navigation =
-    navigationByRole[role] || [];
+    navigationByRole[role]
+      ?.flatMap(
+        (section) => section.items
+      ) || [];
 
   return (
     <div className="
