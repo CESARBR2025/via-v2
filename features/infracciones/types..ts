@@ -193,3 +193,65 @@ export interface InfraccionDetalleDTO {
   apellidoPaternoInfractor: string | null;
   apellidoMaternoInfractor: string | null;
 }
+
+// Interfaz a usar en el store
+export interface DatosInfraccion {
+  //======== FASE 1 ========
+  estaCiudadanoPresente: boolean | null;
+  esCiudadanoTitular: boolean | null;
+
+  //======== FASE 2 ========
+  latitud: number | null;
+  longitud: number | null;
+
+  calle: string;
+  numero: string;
+  colonia: string;
+  codigoPostal: string;
+  municipio: string;
+  estado: string;
+
+  //======== FASE 3 ========
+  presentaIne: boolean | null;
+
+  correoInfractor: string;
+  curpInfractor: string;
+
+  nombreInfractor: string;
+  apMaternoInfractor: string;
+  apPaternoInfractor: string;
+
+  //======== FASE 4 ========
+  marca: string;
+  modelo: string;
+  anio: string;
+  color: string;
+  placa: string;
+  noSerie: string;
+  estadoOrigen: string;
+
+  tipoVehiculo: string;
+
+  servicio: string;
+  otroServicio: string;
+
+  //======== FASE 5 ========
+  articuloId: string;
+  articuloDescripcion: string;
+  articuloNumero: string;
+
+  fraccionId: string;
+  fraccionDescripcion: string;
+  fraccionNumero: string;
+  fraccionMonto: string;
+  fraccionClasificacion: string;
+
+  garantiaSeleccionada: string;
+
+  motivoRetencionVehiculo: string;
+
+  gruaInvolucrada: string;
+
+  //======== FASE 6 ========
+  agregarEvidencia: boolean | null;
+}
