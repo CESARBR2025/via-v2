@@ -22,44 +22,13 @@ import { ProcesoModal } from '@/features/infracciones/components/steps/ProcesoMo
 // IMPORTS - Zustand Store
 // ═══════════════════════════════════════════════════════════════════
 import { useInfraccionStore } from '@/stores/useInfraccionStore';
+import { ArticulosInterfaceProps, ProcesoEstado, ViewArticulosLista } from '@/features/infracciones/types.';
 
 // ═══════════════════════════════════════════════════════════════════
 // TIPOS
 // ═══════════════════════════════════════════════════════════════════
-export interface ViewFraccionLista {
-    id: string;
-    articulo_id: string;
-    numero: string;
-    descripcion: string;
-    monto_umas: string;
-    clasificacion: string;
-    activo: boolean;
-}
 
-export interface ViewArticulosLista {
-    id: string;
-    numero: string;
-    descripcion: string;
-    activo: boolean;
-    fracciones?: ViewFraccionLista[];
-}
 
-export interface ViewBuscarIDArticulo {
-    id: number;
-    descripcion: string;
-}
-
-type ArticulosInterfaceProps = {
-    success: boolean;
-    data: ViewArticulosLista[];
-};
-
-export type ProcesoEstado =
-    | 'inicio'
-    | 'creando'
-    | 'orden'
-    | 'completado'
-    | 'error';
 
 // ═══════════════════════════════════════════════════════════════════
 // CLASES TAILWIND - Reutilización de estilos

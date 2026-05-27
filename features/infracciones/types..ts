@@ -255,3 +255,40 @@ export interface DatosInfraccion {
   //======== FASE 6 ========
   agregarEvidencia: boolean;
 }
+
+// Formulario de infraccion types
+
+export type ProcesoEstado =
+  | "inicio"
+  | "creando"
+  | "orden"
+  | "completado"
+  | "error";
+
+export interface ViewFraccionLista {
+  id: string;
+  articulo_id: string;
+  numero: string;
+  descripcion: string;
+  monto_umas: string;
+  clasificacion: string;
+  activo: boolean;
+}
+
+export interface ViewArticulosLista {
+  id: string;
+  numero: string;
+  descripcion: string;
+  activo: boolean;
+  fracciones?: ViewFraccionLista[];
+}
+
+export interface ViewBuscarIDArticulo {
+  id: number;
+  descripcion: string;
+}
+
+export type ArticulosInterfaceProps = {
+  success: boolean;
+  data: ViewArticulosLista[];
+};

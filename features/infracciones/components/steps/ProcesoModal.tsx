@@ -1,4 +1,4 @@
-import { ProcesoEstado } from "@/features/oficiales/components/FormularioInfraccion";
+import { ProcesoEstado } from "../../types.";
 
 interface ProcesoModalProps {
     estado: ProcesoEstado;
