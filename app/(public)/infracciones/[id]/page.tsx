@@ -15,6 +15,7 @@ export default async function Page({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
+    console.log(id)
 
     const baseUrl =
         process.env.NODE_ENV === 'production'
