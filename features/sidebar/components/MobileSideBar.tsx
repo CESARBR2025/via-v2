@@ -4,15 +4,23 @@ import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
-import { navigation } from "../config/navigation";
-
-
 import SidebarItem from "./SideBarItem";
 
+import { navigationByRole }
+    from "../config/navigation";
 
-import { useSidebarStore } from "@/stores/sideBarStore";
+import { useSidebarStore }
+    from "@/stores/sideBarStore";
 
-export default function MobileSidebar() {
+import { UserRole } from "../types";
+
+type Props = {
+    role: UserRole;
+};
+
+export default function MobileSidebar({
+    role,
+}: Props) {
 
     const pathname = usePathname();
 
@@ -20,6 +28,9 @@ export default function MobileSidebar() {
         mobileOpen,
         closeMobile,
     } = useSidebarStore();
+
+    const navigation =
+        navigationByRole[role] || [];
 
     // ==========================================
     // CERRAR AL NAVEGAR

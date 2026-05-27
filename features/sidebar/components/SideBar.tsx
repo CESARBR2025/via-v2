@@ -1,9 +1,23 @@
 "use client";
 
-import { navigation } from "../config/navigation";
+import { navigationByRole }
+  from "../config/navigation";
+
 import SidebarItem from "./SideBarItem";
 
-export default function Sidebar() {
+
+type Props = {
+  role: string;
+};
+
+export default function Sidebar({
+  role,
+}: Props) {
+
+  const navigation =
+    navigationByRole[
+    role as keyof typeof navigationByRole
+    ] || [];
 
   return (
     <aside className="
@@ -14,24 +28,28 @@ export default function Sidebar() {
             flex-col
             p-4
         ">
+      {/* HEADER */}
 
-      {/* LOGO */}
-
-      <div className="px-2 py-4">
-
-        <h1 className="
-                    text-2xl
-                    font-black
-                    text-[#0b3b60]
+      <div className="
+                    h-16
+                    flex items-center
+                    justify-between
                 ">
+
+        <h2 className="
+                        text-2xl font-black
+                        text-[#0b3b60]
+                    ">
           VIA
-        </h1>
+        </h2>
+
+
 
       </div>
 
-      {/* NAV */}
-
-      <nav className="flex flex-col gap-2 mt-6">
+      <nav className="
+                flex flex-col gap-2
+            ">
 
         {navigation.map((item) => (
 

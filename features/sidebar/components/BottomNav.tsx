@@ -3,11 +3,23 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { navigation } from "../config/navigation";
+import { navigationByRole }
+  from "../config/navigation";
 
-export default function BottomNav() {
+import { UserRole } from "../types";
+
+type Props = {
+  role: UserRole;
+};
+
+export default function BottomNav({
+  role,
+}: Props) {
 
   const pathname = usePathname();
+
+  const navigation =
+    navigationByRole[role] || [];
 
   return (
     <div className="
@@ -34,6 +46,8 @@ export default function BottomNav() {
                             flex-1 flex flex-col
                             items-center justify-center
                             text-xs gap-1
+                            transition-colors
+
                             ${active
                 ? "text-[#0b3b60]"
                 : "text-slate-500"
