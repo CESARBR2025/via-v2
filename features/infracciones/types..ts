@@ -253,5 +253,5 @@ export interface DatosInfraccion {
   gruaInvolucrada: string;
 
   //======== FASE 6 ========
-  agregarEvidencia: boolean | null;
+  agregarEvidencia: boolean;
 }

@@ -1,73 +1,73 @@
 import React from 'react';
 import { Card } from '../ui/Card';
 import { CardTitle } from '../ui/CardTitle';
-
-// Reutilizamos o mapeamos los componentes de tu UI Kit (Card, CardTitle, etc.)
-// Asumo que estos componentes ya están importados globalmente o en tu ecosistema.
+import { useInfraccionStore } from '@/stores/useInfraccionStore';
 
 interface PasoEvidenciasProps {
-    datos: {
-        agregarEvidencia?: boolean;
-        [key: string]: any; // Permitir otras propiedades del formulario
-    };
-    setDatos: React.Dispatch<React.SetStateAction<any>>;
     files: File[];
     setFiles: React.Dispatch<React.SetStateAction<File[]>>;
     loading?: boolean;
 }
 
 export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
-    datos,
-    setDatos,
     files,
     setFiles,
     loading = false,
 }) => {
+    // normalización segura (evita null)
+    const datos = useInfraccionStore((s) => s.datos);
+    const actualizarDatos = useInfraccionStore((s) => s.actualizarDatos);
+
+    const agregarEvidencia = datos.agregarEvidencia === true;
+
     return (
         <Card>
             <CardTitle>Evidencias fotográficas</CardTitle>
+
             <p className="text-sm text-slate-500 mb-5">
                 Las fotografías son opcionales pero fortalecen el expediente de infracción.
             </p>
 
-            {/* Toggle Switch */}
+            {/* Toggle */}
             <label
                 className={`
                     flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 w-fit
-                    ${datos.agregarEvidencia ? 'border-[#3071E7] bg-blue-50' : 'border-slate-200 hover:border-slate-300'}
+                    ${agregarEvidencia ? 'border-[#3071E7] bg-blue-50' : 'border-slate-200 hover:border-slate-300'}
                 `}
             >
                 <div
                     className={`
                         w-10 h-6 rounded-full relative transition-all duration-300
-                        ${datos.agregarEvidencia ? 'bg-[#3071E7]' : 'bg-slate-300'}
+                        ${agregarEvidencia ? 'bg-[#3071E7]' : 'bg-slate-300'}
                     `}
                 >
                     <div
                         className={`
                             absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all duration-300
-                            ${datos.agregarEvidencia ? 'left-5' : 'left-1'}
+                            ${agregarEvidencia ? 'left-5' : 'left-1'}
                         `}
                     />
                 </div>
+
                 <input
                     type="checkbox"
-                    checked={!!datos.agregarEvidencia}
+                    checked={agregarEvidencia}
                     onChange={(e) =>
-                        setDatos((prev: any) => ({
-                            ...prev,
+                        actualizarDatos({
                             agregarEvidencia: e.target.checked,
-                        }))
+                        })
                     }
+
                     className="sr-only"
                 />
+
                 <span className="text-sm font-medium text-slate-700">
                     Agregar evidencia fotográfica
                 </span>
             </label>
 
-            {/* Área Dropzone / Input de Archivos Condicional */}
-            {datos.agregarEvidencia && (
+            {/* Upload */}
+            {agregarEvidencia && (
                 <div className="mt-5 animate-fadeIn">
                     <label
                         className="
@@ -92,6 +92,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                                 />
                             </svg>
                         </div>
+
                         <div className="text-center">
                             <p className="text-sm font-semibold text-[#0076aa]">
                                 Seleccionar fotografías
@@ -100,10 +101,10 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                                 PNG, JPG o HEIC · Múltiples archivos permitidos
                             </p>
                         </div>
+
                         <input
                             disabled={loading}
                             type="file"
-                            name="evidencias"
                             multiple
                             accept="image/*"
                             onChange={(e) => {
@@ -115,31 +116,19 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                         />
                     </label>
 
-                    {/* Badge List de Archivos Seleccionados */}
+                    {/* Files */}
                     {files.length > 0 && (
                         <div className="mt-4 space-y-2">
                             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
                                 {files.length} archivo(s) seleccionado(s)
                             </p>
+
                             <div className="flex flex-wrap gap-2">
                                 {files.map((f, i) => (
                                     <span
                                         key={`${f.name}-${i}`}
                                         className="inline-flex items-center gap-1.5 text-xs bg-blue-50 text-[#0076aa] border border-blue-200 px-3 py-1.5 rounded-full"
                                     >
-                                        <svg
-                                            className="w-3.5 h-3.5"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M13.5 12h.008v.008H13.5V12zm0 0h.008v.008H13.5V12zm0 0H12m1.5 0v-.375m0 0H12m1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125h1.5c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H13.5z"
-                                            />
-                                        </svg>
                                         {f.name}
                                     </span>
                                 ))}

@@ -4,7 +4,15 @@ import { datosIniciales } from "@/features/infracciones/constants";
 
 import { DatosInfraccion } from "@/features/infracciones/types.";
 
+//? ============== FUNCIONALIDAD ===================================
 interface InfraccionStore {
+  //========================
+  // CURP BUSQUEDA
+  //========================
+  curpStatus: "idle" | "loading" | "found" | "not_found" | "error";
+  setCurpStatus: (status: InfraccionStore["curpStatus"]) => void;
+  setCurpLoading: (value: boolean) => void;
+
   //========================
   // FORMULARIO
   //========================
@@ -50,6 +58,14 @@ interface InfraccionStore {
 }
 
 export const useInfraccionStore = create<InfraccionStore>((set) => ({
+  //? ============== IMPLEMENTACION ===================================
+  //========================
+  // CURP BUSQUEDA
+  //========================
+  curpStatus: "idle",
+  setCurpStatus: (status) => set({ curpStatus: status }),
+  setCurpLoading: (value) => set({ loading: value }), // o crea curpLoading si prefieres separado
+
   //========================
   // FORMULARIO
   //========================

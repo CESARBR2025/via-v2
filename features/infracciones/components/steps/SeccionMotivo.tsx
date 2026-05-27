@@ -61,7 +61,7 @@ export const SeccionMotivo: React.FC<SeccionMotivoProps> = ({
                             const art = articulos.find((a) => a.id === val);
 
                             actualizarDatos({
-                                articuloId: val,
+                                articuloId: String(val),
                                 articuloNumero: art?.numero?.toString() ?? '0',
                                 articuloDescripcion: art?.descripcion ?? '',
                                 fraccionId: '',

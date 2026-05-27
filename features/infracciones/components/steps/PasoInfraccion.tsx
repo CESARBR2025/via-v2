@@ -1,12 +1,12 @@
 import React from 'react';
 import { SeccionGarantia } from './SeccionGarantia';
 import { SeccionMotivo } from './SeccionMotivo';
-import { useInfraccionStore } from '@/stores/useInfraccionStore';
+
+
 
 
 
 interface PasoInfraccionProps {
-
     articulos: any[];
     cargandoArticulos: boolean;
     loading: boolean;
@@ -24,15 +24,10 @@ export const PasoInfraccion: React.FC<PasoInfraccionProps> = ({
     fieldError,
 }) => {
 
-    const datos = useInfraccionStore((s) => s.datos);
-    const actualizarDatos = useInfraccionStore((s) => s.actualizarDatos);
-    console.log(datos)
 
     return (
         <div className="space-y-5">
             <SeccionMotivo
-                datos={datos}
-                setDatos={actualizarDatos}
                 articulos={articulos}
                 cargandoArticulos={cargandoArticulos}
                 loading={loading}
@@ -40,8 +35,6 @@ export const PasoInfraccion: React.FC<PasoInfraccionProps> = ({
             />
 
             <SeccionGarantia
-                datos={datos}
-                setDatos={actualizarDatos}
                 loading={loading}
                 fieldError={fieldError}
                 selectBase={selectBase}
