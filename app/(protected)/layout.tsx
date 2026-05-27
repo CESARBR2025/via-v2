@@ -1,27 +1,54 @@
-
 import BottomNav from "@/features/sidebar/components/BottomNav";
 import Header from "@/features/sidebar/components/Header";
+
 import Sidebar from "@/features/sidebar/components/SideBar";
+import MobileSidebar from "@/features/sidebar/components/MobileSideBar";
 
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+
     return (
-        <div className="flex h-screen  overflow-hidden bg-[#F8FAFC]">
-            {/* Sidebar visible en md+ */}
+        <div className="
+            flex h-screen
+            overflow-hidden
+            bg-[#F8FAFC]
+        ">
+
+            {/* DESKTOP */}
+
             <Sidebar />
 
-            <div className="flex flex-col flex-1 overflow-hidden">
-                {/* Header fijo SIEMPRE visible */}
+            {/* MOBILE */}
+
+            <MobileSidebar />
+
+            {/* CONTENT */}
+
+            <div className="
+                flex flex-col flex-1
+                overflow-hidden
+            ">
+
                 <Header />
 
-                {/* Contenido con scroll */}
-                <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6 bg-white">
+                <main className="
+                    flex-1 overflow-y-auto
+                    p-4 md:p-6
+                    pb-20 md:pb-6
+                ">
                     {children}
                 </main>
+
             </div>
 
-            {/* Bottom nav SOLO móvil */}
+            {/* MOBILE TABBAR */}
+
             <BottomNav />
+
         </div>
     );
 }

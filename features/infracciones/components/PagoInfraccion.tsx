@@ -23,6 +23,7 @@ export default function PagoInfraccion({
     urlPago,
     estatus,
 }: Props) {
+    console.log(estatus)
 
     const router = useRouter();
 
@@ -31,7 +32,7 @@ export default function PagoInfraccion({
     const [loading, setLoading] = useState(false);
 
     const [pagado, setPagado] = useState(
-        estatus === 'PAGADA'
+        estatus === 'P'
     );
 
     const [mostrandoExito, setMostrandoExito] =
@@ -249,9 +250,11 @@ export default function PagoInfraccion({
 
                     <div className="
                         bg-white rounded-3xl
-                        w-full max-w-5xl
+                        w-full max-w-4xl
+                        h-[90vh]
                         overflow-hidden
                         shadow-2xl
+                        flex flex-col
                     ">
 
                         {/* HEADER */}

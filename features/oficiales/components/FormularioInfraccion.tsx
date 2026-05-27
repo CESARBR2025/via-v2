@@ -687,7 +687,7 @@ export default function FormularioInfraccion() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col flex-1 min-h-0 bg-slate-50 max-w-4xl mx-auto w-full mt-4 sm:mt-4 rounded"
+            className="flex flex-col flex-1 min-h-0 bg-slate-50  mx-auto w-full mt-4 sm:mt-4 rounded"
         >
             {/* ───────────────────────────────────────────────────────────────
           MODAL DE PROCESO - Feedback visual durante registro
@@ -866,7 +866,7 @@ export default function FormularioInfraccion() {
           MAIN CONTENT - Renderizar paso actual
           ════════════════════════════════════════════════════════════════ */}
             <main className="flex-1 min-h-0 overflow-y-auto">
-                <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-5">
+                <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-5">
                     {/* Título y descripción del paso activo */}
                     <div>
                         <h2 className="text-xl font-bold text-slate-900 leading-tight">
