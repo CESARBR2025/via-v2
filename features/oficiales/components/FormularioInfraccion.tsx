@@ -54,6 +54,13 @@ type ArticulosInterfaceProps = {
     data: ViewArticulosLista[];
 };
 
+export type ProcesoEstado =
+    | 'inicio'
+    | 'creando'
+    | 'orden'
+    | 'completado'
+    | 'error';
+
 // ═══════════════════════════════════════════════════════════════════
 // CLASES TAILWIND - Reutilización de estilos
 // ═══════════════════════════════════════════════════════════════════
@@ -72,20 +79,7 @@ const inputError = `
   transition-all duration-200 shadow-sm
 `;
 
-const selectBase = `
-  w-full rounded-xl border border-slate-300 bg-white px-4 py-3
-  text-sm text-slate-800
-  focus:border-[#0076aa] focus:ring-2 focus:ring-[#0076aa]/20 focus:outline-none
-  transition-all duration-200 shadow-sm appearance-none
-  disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed
-`;
 
-const selectError = `
-  w-full rounded-xl border border-red-300 bg-red-50/30 px-4 py-3
-  text-sm text-slate-800 appearance-none
-  focus:border-red-400 focus:ring-2 focus:ring-red-400/20 focus:outline-none
-  transition-all duration-200 shadow-sm
-`;
 
 // ═══════════════════════════════════════════════════════════════════
 // COMPONENTE PRINCIPAL
@@ -108,8 +102,7 @@ export default function FormularioInfraccion() {
     // MODAL DE PROCESO - Estados para feedback visual del registro
     // ───────────────────────────────────────────────────────────────────
     const [procesoModal, setModalState] = useState<
-        'inicio' | 'creando' | 'orden' | 'completado' | 'error'
-    >('inicio');
+        ProcesoEstado>('inicio')
     const [procesoMensaje, setProcesoMensaje] = useState('');
 
     // ───────────────────────────────────────────────────────────────────

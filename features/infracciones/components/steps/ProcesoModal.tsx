@@ -1,4 +1,12 @@
-export function ProcesoModal({ estado, mensaje }) {
+import { ProcesoEstado } from "@/features/oficiales/components/FormularioInfraccion";
+
+interface ProcesoModalProps {
+    estado: ProcesoEstado;
+    mensaje?: string;
+}
+
+
+export function ProcesoModal({ estado, mensaje }: ProcesoModalProps) {
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-xl shadow-lg w-80 text-center">
