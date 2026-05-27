@@ -143,7 +143,8 @@ export class InfraccionesRepository {
         ops.fecha_vencimiento,
         ops.total_pesos,
         ops.total_umas,
-        ops.created_at AS orden_pago_created_at
+        ops.created_at AS orden_pago_created_at,
+        ops.concepto_id
 
     FROM v2_infracciones i
 

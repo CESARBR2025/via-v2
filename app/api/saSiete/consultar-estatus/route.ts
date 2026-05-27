@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const { ordenPagoId } = body;
+    console.log(ordenPagoId);
 
     if (!ordenPagoId) {
       return NextResponse.json(

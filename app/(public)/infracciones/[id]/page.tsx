@@ -26,13 +26,16 @@ export default async function Page({
             ? 'https://via-v2.vercel.app'
             : 'http://localhost:3000';
 
+    console.log("paso")
+    console.log(`${baseUrl}/api/infracciones/registradas/${id}`)
     const res = await fetch(
         `${baseUrl}/api/infracciones/registradas/${id}`,
-        { cache: 'no-store' }
+
     );
-
+    console.log('paso')
     const responseDataInfraccion = await res.json();
-
+    console.log('paso')
+    console.log(responseDataInfraccion)
     const infraccion = responseDataInfraccion.data;
     console.log("Infracción obtenida en page.tsx:", infraccion);
 

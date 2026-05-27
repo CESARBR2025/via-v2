@@ -23,6 +23,7 @@ import { ProcesoModal } from '@/features/infracciones/components/steps/ProcesoMo
 // ═══════════════════════════════════════════════════════════════════
 import { useInfraccionStore } from '@/stores/useInfraccionStore';
 import { ArticulosInterfaceProps, ProcesoEstado, ViewArticulosLista } from '@/features/infracciones/types.';
+import { generarOrdenPago } from '@/features/saSiete/services';
 
 // ═══════════════════════════════════════════════════════════════════
 // TIPOS
@@ -599,30 +600,16 @@ export default function FormularioInfraccion() {
             let orden;
 
             try {
-                const resOrden = await fetch(
-                    '/api/saSiete/generar-orden-pago',
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            infraccion_id: nuevaInfraccion.data.id,
-                            nombre_usuario: storeData.nombreInfractor,
-                            apellidos_usuario: `${storeData.apPaternoInfractor} ${storeData.apMaternoInfractor}`.trim(),
-                            concepto_id: nuevaInfraccion.data.concepto,
-                            folio: nuevaInfraccion.data.folio,
-                        }),
-                    }
-                );
 
-                const dataOrden = await resOrden.json();
+                orden = await generarOrdenPago({
+                    infraccion_id: nuevaInfraccion.data.id,
+                    nombre_usuario: storeData.nombreInfractor,
+                    apellidos_usuario: `${storeData.apPaternoInfractor} ${storeData.apMaternoInfractor}`.trim(),
+                    concepto_id: nuevaInfraccion.data.concepto,
+                    folio: nuevaInfraccion.data.folio,
+                })
 
-                if (!resOrden.ok) {
-                    throw new Error(
-                        dataOrden.message || 'Error generando orden de pago'
-                    );
-                }
 
-                orden = dataOrden;
 
                 console.log('💰 Orden creada:', orden);
             } catch (error) {

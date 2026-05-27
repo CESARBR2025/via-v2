@@ -131,5 +131,6 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
     total_pesos: Number(row.total_pesos),
     total_umas: Number(row.total_umas),
     created_at: row.created_at,
+    concepto_id: row.concepto_id,
   };
 };

@@ -36,12 +36,13 @@ export async function GET(
     // =====================================================
     // CONSULTAR ENDPOINT INTERNO SA7
     // =====================================================
-
+    console.log("entro");
     const baseUrl =
       process.env.NODE_ENV === "production"
         ? "https://via-v2.vercel.app"
         : "http://localhost:3000";
 
+    console.log(`${baseUrl}/api/saSiete/consultar-estatus`);
     const sa7Response = await fetch(
       `${baseUrl}/api/saSiete/consultar-estatus`,
       {

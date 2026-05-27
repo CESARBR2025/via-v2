@@ -140,6 +140,7 @@ export interface InfraccionDB {
 // Datos de infracción que se enviarán a la vista ciudadana
 
 export interface InfraccionDetalleDTO {
+  concepto_id: string;
   orden_pago_local_id: string | null;
   orden_pago_id: string | null;
   estatus_orden_pago: string | null;
