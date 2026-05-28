@@ -31,48 +31,39 @@ export default function SidebarItem({
             href={href}
             title={collapsed ? label : ""}
             className={`
-        group
-        relative
-        flex items-center
-        h-12 rounded-2xl
-        transition-all duration-200
-        font-medium
+                group relative flex items-center
+                h-[42px] rounded-xl
+                transition-all duration-200
+                font-medium text-sm
 
-        ${collapsed
-                    ? "justify-center px-0"
-                    : "gap-3 px-4"
+                ${collapsed
+                    ? "justify-center w-[42px] mx-auto"
+                    : "gap-3 px-3"
                 }
 
-        ${active
-                    ? "bg-[#0b3b60] text-white"
-                    : "text-slate-300 hover:bg-white/10 hover:text-white"
+                ${active
+                    ? "bg-[#1F69E7] text-white shadow-sm shadow-[#1F69E7]/20"
+                    : "text-white/60 hover:bg-white/[0.07] hover:text-white/90"
                 }
-      `}
+            `}
         >
-
-            {/* ICON */}
-
             <Icon
                 size={20}
-                className="
-          shrink-0
-        "
+                className={`
+                    shrink-0
+                    transition-colors duration-200
+                    ${active
+                        ? "text-white"
+                        : "text-white/40 group-hover:text-white/70"
+                    }
+                `}
             />
 
-            {/* LABEL */}
-
             {!collapsed && (
-
-                <span
-                    className="
-            whitespace-nowrap
-          "
-                >
+                <span className="whitespace-nowrap">
                     {label}
                 </span>
-
             )}
-
         </Link>
     );
 }

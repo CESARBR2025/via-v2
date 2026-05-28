@@ -6,14 +6,12 @@ type Props = {
     label: string;
     icon: any;
     onClick: () => void;
-    danger?: boolean;
 };
 
 export default function SidebarActionItem({
     label,
     icon: Icon,
     onClick,
-    danger = false,
 }: Props) {
     const { collapsed } = useSidebarStore();
 
@@ -22,24 +20,30 @@ export default function SidebarActionItem({
             onClick={onClick}
             title={collapsed ? label : ""}
             className={`
-        group
-        relative
-        flex items-center
-        h-12 rounded-2xl
-        transition-all duration-200
-        font-medium w-full
+                group relative flex items-center
+                h-[42px] rounded-xl
+                transition-all duration-200
+                font-medium text-sm w-full
 
-        ${collapsed ? "justify-center px-0" : "gap-3 px-4"}
-
-        ${danger
-                    ? "text-red-400 hover:bg-red-500/10 hover:text-red-300"
-                    : "text-slate-300 hover:bg-white/10 hover:text-white"
+                ${collapsed
+                    ? "justify-center w-[42px] mx-auto"
+                    : "gap-3 px-3"
                 }
-      `}
-        >
-            <Icon size={20} className="shrink-0" />
 
-            {!collapsed && <span className="whitespace-nowrap">{label}</span>}
+                text-red-400/80
+                hover:bg-red-500/10 hover:text-red-300
+            `}
+        >
+            <Icon
+                size={20}
+                className="shrink-0 text-red-400/60 group-hover:text-red-300 transition-colors duration-200"
+            />
+
+            {!collapsed && (
+                <span className="whitespace-nowrap">
+                    {label}
+                </span>
+            )}
         </button>
     );
 }

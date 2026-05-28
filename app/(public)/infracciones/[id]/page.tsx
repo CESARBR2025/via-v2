@@ -26,13 +26,7 @@ export default async function Page({
     const responseDataInfraccion = await res.json();
     const infraccion = responseDataInfraccion.data;
 
-    const nombreInfractor: string = [
-        responseDataInfraccion.data.nombreInfractor,
-        responseDataInfraccion.data.apellidoPaternoInfractor,
-        responseDataInfraccion.data.apellidoMaternoInfractor,
-    ]
-        .filter(Boolean)
-        .join(' ');
+
 
     return (
         <main

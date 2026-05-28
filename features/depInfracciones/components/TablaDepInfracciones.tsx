@@ -5,7 +5,6 @@ import { Eye, Search, X, FileText, Layers } from 'lucide-react';
 // IMPORTANTE: Ajusta la ruta de importación según dónde guardaste el archivo del modal
 import { ModalDetalleInfraccion } from './ModalDetallesInfraccion';
 
-
 type Infraccion = {
     id: string;
     folio: string;
@@ -79,124 +78,147 @@ export default function TablaDepInfracciones({ data }: Props) {
             setLoading(false);
         }
     }
+    console.log(detalle)
+
+    // Helper para mapear los badges según los tokens exactos de tu `tables.badge`
+    function getBadgeStyles(estatus: string) {
+        switch (estatus.toUpperCase()) {
+            case 'PAGADA':
+                return { bg: 'bg-[#EAF8F1]', text: 'text-[#1F7A4D]' };
+            case 'PENDIENTE':
+            case 'PROCESO':
+                return { bg: 'bg-[#FFF4E8]', text: 'text-[#B76A1E]' };
+            default:
+                return { bg: 'bg-[#FFF0F0]', text: 'text-[#B54747]' };
+        }
+    }
 
     return (
-        <div className="rounded-3xl bg-white border border-slate-200/80 text-sm w-full mx-auto flex flex-col flex-1 min-h-0 overflow-hidden shadow-xl shadow-[#0b3b60]/05">
-
+        <div
+            style={{
+                fontFamily: "'Poppins', sans-serif",
+                boxShadow: "0px 4px 18px rgba(31, 105, 231, 0.05)"
+            }}
+            className="rounded-[16px] bg-white border border-[#EAF1FC] text-sm w-full mx-auto flex flex-col flex-1 min-h-0 overflow-hidden"
+        >
             {/* HEADER */}
-            <div className="shrink-0 px-6 py-4 flex items-center justify-between border-b border-slate-100">
+            <div className="shrink-0 px-6 py-5 flex items-center justify-between border-b border-[#EAF1FC]">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#0076aa] flex items-center justify-center text-white">
-                        <FileText size={18} />
+                    {/* Icon Container con el Soft Blue y Primary */}
+                    <div className="w-10 h-10 rounded-xl bg-[#F0F4FF] flex items-center justify-center text-[#1F69E7]">
+                        <FileText size={20} />
                     </div>
 
                     <div>
-                        <h2 className="font-bold text-[#0b3b60]">
+                        <h2 className="text-[18px] font-semibold text-[#1A2340] tracking-tight">
                             Infracciones
                         </h2>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-[12px] text-[#8A96B0] mt-0.5">
                             Lista operativa (hoy + ayer)
                         </p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-[#0076aa] font-bold">
-                    <Layers size={14} />
-                    {filteredRows.length} / {data.total}
+                {/* Badge de Conteo Global */}
+                <div className="flex items-center gap-1.5 bg-[#F0F4FF] text-[#1F69E7] font-medium text-xs px-2.5 py-1 rounded-lg">
+                    <Layers size={13} />
+                    <span>{filteredRows.length} / {data.total}</span>
                 </div>
             </div>
 
-            {/* SEARCH */}
-            <div className="px-6 py-3 border-b">
+            {/* SEARCH BAR */}
+            <div className="px-6 py-4 border-b border-[#EAF1FC] bg-[#FAFBFF]">
                 <div className="relative max-w-sm">
                     <Search
-                        size={14}
-                        className="absolute left-3 top-2.5 text-slate-400"
+                        size={15}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A96B0]"
                     />
 
                     <input
                         value={searchGlobal}
                         onChange={(e) => setSearchGlobal(e.target.value)}
-                        placeholder="Buscar folio, placa o ID"
-                        className="w-full pl-9 pr-8 py-2 text-sm border rounded-lg focus:outline-none focus:border-[#0076aa]"
+                        placeholder="Buscar folio, placa o ID..."
+                        className="w-full pl-10 pr-8 py-2 text-[14px] bg-white border border-[#DDE3F0] rounded-xl text-[#1A2340] placeholder-[#8A96B0] transition-all focus:outline-none focus:border-[#1F69E7] focus:ring-4 focus:ring-[#1F69E7]/[0.08]"
                     />
 
                     {searchGlobal && (
                         <button
                             onClick={() => setSearchGlobal('')}
-                            className="absolute right-2 top-2 text-slate-400 hover:text-red-500"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A96B0] hover:text-[#E55353] transition"
                         >
-                            <X size={14} />
-                            /</button>
+                            <X size={15} />
+                        </button>
                     )}
                 </div>
             </div>
 
-            {/* TABLE */}
+            {/* TABLE CONTAINER */}
             <div className="flex-1 overflow-auto">
-                <table className="w-full text-sm">
-                    <thead className="sticky top-0 bg-slate-50 border-b z-10">
+                <table className="w-full text-[14px] border-collapse">
+                    <thead className="sticky top-0 bg-[#F8FAFF] border-b border-[#EAF1FC] z-10">
                         <tr>
-                            <th className="text-left p-3">Folio</th>
-                            <th className="text-left p-3">Estatus</th>
-                            <th className="text-left p-3">Placa</th>
-                            <th className="text-left p-3">Fecha</th>
-                            <th className="text-right p-3">Acción</th>
+                            <th className="text-left px-6 py-3.5 text-[13px] font-semibold text-[#6B778C]">Folio</th>
+                            <th className="text-left px-6 py-3.5 text-[13px] font-semibold text-[#6B778C]">Estatus</th>
+                            <th className="text-left px-6 py-3.5 text-[13px] font-semibold text-[#6B778C]">Placa</th>
+                            <th className="text-left px-6 py-3.5 text-[13px] font-semibold text-[#6B778C]">Fecha</th>
+                            <th className="text-right px-6 py-3.5 text-[13px] font-semibold text-[#6B778C]">Acción</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        {filteredRows.map((row) => (
-                            <tr
-                                key={row.id}
-                                className="border-b hover:bg-slate-50 transition"
-                            >
-                                <td className="p-3 font-mono text-xs text-[#0b3b60]">
-                                    {row.folio}
-                                </td>
+                    <tbody className="divide-y divide-[#F1F4FA]">
+                        {filteredRows.map((row) => {
+                            const badge = getBadgeStyles(row.estatus);
+                            return (
+                                <tr
+                                    key={row.id}
+                                    className="bg-white hover:bg-[#F7FAFF] transition-colors"
+                                >
+                                    <td className="px-6 py-3.5 font-mono text-[12px] font-medium text-[#1A2340]">
+                                        {row.folio}
+                                    </td>
 
-                                <td className="p-3">
-                                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${row.estatus === 'PAGADA'
-                                            ? 'bg-emerald-50 text-emerald-700'
-                                            : 'bg-amber-50 text-amber-700'
-                                        }`}>
-                                        {row.estatus}
-                                    </span>
-                                </td>
+                                    <td className="px-6 py-3.5">
+                                        <span className={`inline-flex items-center px-2.5 py-1 text-[12px] font-medium rounded-full ${badge.bg} ${badge.text}`}>
+                                            {row.estatus}
+                                        </span>
+                                    </td>
 
-                                <td className="p-3 text-slate-600">
-                                    {row.placa ?? '-'}
-                                </td>
+                                    <td className="px-6 py-3.5 font-medium text-[#6B778C]">
+                                        {row.placa ?? '-'}
+                                    </td>
 
-                                <td className="p-3 text-xs text-slate-500">
-                                    {formatDate(row.created_at)}
-                                </td>
+                                    <td className="px-6 py-3.5 text-[13px] text-[#8A96B0]">
+                                        {formatDate(row.created_at)}
+                                    </td>
 
-                                <td className="p-3 text-right">
-                                    <button
-                                        onClick={() => handleOpenDetalle(row.id)}
-                                        className="inline-flex items-center gap-1 bg-[#0076aa] text-white px-3 py-1 rounded text-xs hover:opacity-90 transition shadow-sm"
-                                    >
-                                        <Eye size={12} />
-                                        Detalles
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                                    <td className="px-6 py-3.5 text-right">
+                                        <button
+                                            onClick={() => handleOpenDetalle(row.id)}
+                                            className="inline-flex items-center gap-1.5 bg-[#1F69E7] text-white px-3.5 py-1.5 rounded-lg text-xs font-medium hover:bg-[#3E83F0] active:bg-[#1857C3] transition shadow-sm shadow-[#1F69E7]/10"
+                                        >
+                                            <Eye size={13} />
+                                            Detalles
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
 
                 {filteredRows.length === 0 && (
-                    <div className="p-10 text-center text-slate-400">
-                        Sin infracciones
+                    <div className="p-12 text-center text-[#8A96B0] text-[14px]">
+                        Sin infracciones encontradas
                     </div>
                 )}
             </div>
 
             {/* FOOTER */}
-            <div className="px-6 py-3 border-t bg-slate-50 text-xs text-slate-500 flex justify-between">
+            <div className="px-6 py-3.5 border-t border-[#EAF1FC] bg-[#FAFBFF] text-[12px] text-[#8A96B0] flex justify-between items-center font-medium">
                 <span>Mostrando {filteredRows.length} registros</span>
-                <span>Página {data.page}</span>
+                <span className="bg-[#EAF1FC] text-[#6B778C] px-2 py-0.5 rounded-md text-[11px]">
+                    Página {data.page}
+                </span>
             </div>
 
             {/* MODAL DETALLE DE INFRACCIÓN */}
@@ -206,7 +228,6 @@ export default function TablaDepInfracciones({ data }: Props) {
                 loading={loading}
                 detalle={detalle}
             />
-
         </div>
     );
 }

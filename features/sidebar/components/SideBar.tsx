@@ -4,8 +4,8 @@ import Image from "next/image";
 
 import {
   LogOut,
-  PanelLeftClose,
-  PanelLeftOpen,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import { navigationByRole }
@@ -57,15 +57,15 @@ export default function Sidebar({
     <aside
       className={`
         hidden md:flex
-        border-r border-slate-200
-        bg-[#1A2732]
+        border-r border-white/[0.06]
+        bg-[#13294B]
         flex-col
         overflow-y-auto
-        transition-all duration-300
+        transition-all duration-300 ease-in-out
 
         ${collapsed
-          ? "w-24 p-3"
-          : "w-72 p-4"
+          ? "w-[72px] py-4 px-3"
+          : "w-64 py-5 px-4"
         }
       `}
     >
@@ -79,6 +79,7 @@ export default function Sidebar({
             ? "justify-center"
             : "justify-between"
           }
+          min-h-[52px]
         `}
       >
 
@@ -93,144 +94,138 @@ export default function Sidebar({
             priority
             className="
               h-auto
-              object-contain
+              object-contain brightness-0 invert
             "
           />
-
-
         )}
 
-        {/* MINI LOGO */}
-
         {collapsed && (
-
           <div
             className="
-              w-12 h-12 rounded-2xl
-              bg-[#243544]
+              w-10 h-10 rounded-xl
+              bg-[#1F69E7]
               flex items-center justify-center
-              text-white font-black text-lg
+              text-white font-black text-base
+              shadow-lg shadow-[#1F69E7]/25
             "
           >
             V
           </div>
-
         )}
 
         {/* TOGGLE */}
 
         <button
           onClick={toggleCollapsed}
-          className="
-            w-10 h-10 rounded-xl
-            hover:bg-white/10
+          className={`
+            w-8 h-8 rounded-lg
+            hover:bg-white/[0.08]
             flex items-center justify-center
-            text-slate-300
-            transition
-          "
+            text-white/50 hover:text-white
+            transition-colors duration-200
+            ${collapsed ? "hidden" : ""}
+          `}
         >
-
-          {collapsed ? (
-            <PanelLeftOpen size={20} />
-          ) : (
-            <PanelLeftClose size={20} />
-          )}
-
+          <ChevronLeft size={16} strokeWidth={2.5} />
         </button>
 
       </div>
+
+      {/* COLLAPSE TOGGLE (when collapsed) */}
+
+      {collapsed && (
+        <button
+          onClick={toggleCollapsed}
+          className="
+            mt-3 w-full h-8 rounded-lg
+            hover:bg-white/[0.08]
+            flex items-center justify-center
+            text-white/50 hover:text-white
+            transition-colors duration-200
+          "
+        >
+          <ChevronRight size={16} strokeWidth={2.5} />
+        </button>
+      )}
 
       {/* NAV */}
 
       <nav
         className="
           flex flex-col
-          gap-8
-          mt-8
+          gap-6
+          mt-6
+          flex-1
         "
       >
-
         {sections.map((section) => (
-
           <div
             key={section.title}
-            className="space-y-3"
+            className="space-y-2"
           >
 
-            {/* SECTION TITLE */}
-
             {!collapsed && (
-
               <p
                 className="
                   px-3
                   text-[11px]
-                  font-black
-                  tracking-[0.2em]
+                  font-semibold
+                  tracking-[0.1em]
                   uppercase
-                  text-slate-500
+                  text-white/40
                 "
               >
                 {section.title}
               </p>
-
             )}
-
-            {/* ITEMS */}
 
             <div
               className="
-                flex flex-col gap-1
+                flex flex-col gap-0.5
               "
             >
-
               {section.items.map((item: any) => (
-
                 <SidebarItem
                   key={item.href}
                   {...item}
                 />
-
               ))}
-
             </div>
 
           </div>
-
         ))}
-
       </nav>
 
       {/* FOOTER */}
 
-      <div
-        className="
-          mt-auto pt-6
-        "
-      >
-
+      <div className="
+        pt-4 mt-auto
+        border-t border-white/[0.06]
+      ">
         {!collapsed && (
-
           <div
             className="
-              rounded-2xl
-              bg-[#243544]
-              p-4
-              border border-white/5
+              rounded-xl
+              bg-white/[0.04]
+              p-2
+              border border-white/[0.06]
             "
           >
-
             <SidebarActionItem
               label="Cerrar sesión"
               icon={LogOut}
               onClick={handleLogout}
-              danger
             />
-
           </div>
-
         )}
 
+        {collapsed && (
+          <SidebarActionItem
+            label="Cerrar sesión"
+            icon={LogOut}
+            onClick={handleLogout}
+          />
+        )}
       </div>
 
     </aside>

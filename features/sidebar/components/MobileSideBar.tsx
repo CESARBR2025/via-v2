@@ -34,41 +34,20 @@ export default function MobileSidebar({
     const navigation =
         navigationByRole[role] || [];
 
-    // ==========================================
-    // CERRAR AL NAVEGAR
-    // ==========================================
-
     useEffect(() => {
-
         closeMobile();
-
     }, [pathname]);
 
-    // ==========================================
-    // BLOQUEAR SCROLL BODY
-    // ==========================================
-
     useEffect(() => {
-
         if (mobileOpen) {
-
             document.body.style.overflow =
                 "hidden";
-
         } else {
-
-            document.body.style.overflow =
-                "";
-
+            document.body.style.overflow = "";
         }
-
         return () => {
-
-            document.body.style.overflow =
-                "";
-
+            document.body.style.overflow = "";
         };
-
     }, [mobileOpen]);
 
     return (
@@ -79,7 +58,7 @@ export default function MobileSidebar({
                 onClick={closeMobile}
                 className={`
                     fixed inset-0 z-40
-                    bg-black/50
+                    bg-black/40 backdrop-blur-sm
                     transition-opacity duration-300
                     md:hidden
 
@@ -97,12 +76,13 @@ export default function MobileSidebar({
                     fixed top-0 left-0 bottom-0
                     z-50
                     w-72
-                    bg-[#1A2732]
-                    border-r border-slate-800
-                    p-4
-                    transition-transform duration-300
+                    bg-[#13294B]
+                    border-r border-white/[0.06]
+                    p-5
+                    transition-transform duration-300 ease-in-out
                     md:hidden
                     flex flex-col
+                    shadow-2xl
 
                     ${mobileOpen
                         ? "translate-x-0"
@@ -115,91 +95,78 @@ export default function MobileSidebar({
 
                 <div
                     className="
-                        h-16
                         flex items-center
                         justify-between
+                        min-h-[52px]
                     "
                 >
-
                     <Image
                         src="/ui/via-logo.png"
                         alt="VIA"
-                        width={150}
-                        height={50}
+                        width={130}
+                        height={45}
                         priority
                         className="
                             h-auto
-                            object-contain
+                            object-contain brightness-0 invert
                         "
                     />
 
                     <button
                         onClick={closeMobile}
                         className="
-                            w-10 h-10 rounded-xl
-                            hover:bg-white/10
+                            w-9 h-9 rounded-lg
+                            hover:bg-white/[0.08]
                             flex items-center justify-center
-                            text-white
+                            text-white/50 hover:text-white
+                            transition-colors
                         "
                     >
-                        <X size={20} />
+                        <X size={18} />
                     </button>
-
                 </div>
 
                 {/* NAV */}
 
                 <nav
                     className="
-                        mt-6
-                        flex flex-col gap-8
+                        mt-8
+                        flex flex-col gap-6
+                        flex-1
                     "
                 >
-
                     {navigation.map((section) => (
-
                         <div
                             key={section.title}
                             className="space-y-2"
                         >
-
-                            {/* TITLE */}
-
                             <p
                                 className="
                                     px-3
                                     text-[11px]
-                                    font-black
-                                    tracking-widest
-                                    text-slate-400
+                                    font-semibold
+                                    tracking-[0.1em]
+                                    uppercase
+                                    text-white/40
                                 "
                             >
                                 {section.title}
                             </p>
 
-                            {/* ITEMS */}
-
                             <div
                                 className="
-                                    flex flex-col gap-1
+                                    flex flex-col gap-0.5
                                 "
                             >
-
                                 {section.items.map((item: any) => (
-
                                     <SidebarItem
                                         key={item.href}
                                         {...item}
                                     />
-
                                 ))}
-
                             </div>
-
                         </div>
-
                     ))}
-
                 </nav>
 
             </aside>

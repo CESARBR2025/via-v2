@@ -14,8 +14,7 @@ export default function LogoutButton() {
                 method: "POST",
             });
         } finally {
-            logoutStore(); // limpia Zustand
-
+            logoutStore();
             router.replace("/login");
         }
     };
@@ -23,9 +22,18 @@ export default function LogoutButton() {
     return (
         <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg w-full"
+            className="
+                flex items-center gap-2
+                px-3 py-2.5
+                rounded-xl
+                text-sm font-medium
+                text-red-400/80
+                hover:bg-red-500/10 hover:text-red-300
+                transition-all duration-200
+                w-full
+            "
         >
-            <LogOut size={18} />
+            <LogOut size={18} className="shrink-0" />
             <span>Cerrar sesión</span>
         </button>
     );

@@ -19,10 +19,6 @@ export default function BottomNav({
 
   const pathname = usePathname();
 
-  // =====================================
-  // OBTENER TODOS LOS ITEMS
-  // =====================================
-
   const navigation =
     navigationByRole[role]
       ?.flatMap(
@@ -30,14 +26,15 @@ export default function BottomNav({
       ) || [];
 
   return (
-    <div className="
-            md:hidden
-            fixed bottom-0 left-0 right-0
-            h-16 bg-white
-            border-t border-slate-200
-            z-40
-            flex
-        ">
+    <nav className="
+      md:hidden
+      fixed bottom-0 left-0 right-0
+      h-[64px] bg-[#FFFFFF]
+      border-t border-[#EAF1FC]
+      z-40
+      flex
+      shadow-[0_-2px_12px_rgba(31,105,231,0.04)]
+    ">
 
       {navigation.map((item) => {
 
@@ -51,24 +48,38 @@ export default function BottomNav({
             key={item.href}
             href={item.href}
             className={`
-                            flex-1 flex flex-col
-                            items-center justify-center
-                            text-xs gap-1
-                            transition-colors
+              flex-1 flex flex-col
+              items-center justify-center
+              text-[11px] font-medium gap-1
+              transition-all duration-200
+              relative
 
-                            ${active
-                ? "text-[#0b3b60]"
-                : "text-slate-500"
+              ${active
+                ? "text-[#1F69E7]"
+                : "text-[#8A96B0] hover:text-[#6B778C]"
               }
-                        `}
+            `}
           >
-            <Icon size={20} />
+            {active && (
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#1F69E7] rounded-b-full" />
+            )}
+
+            <Icon
+              size={20}
+              className={`
+                transition-colors duration-200
+                ${active
+                  ? "text-[#1F69E7]"
+                  : "text-[#8A96B0]"
+                }
+              `}
+            />
 
             <span>{item.label}</span>
           </Link>
         );
       })}
 
-    </div>
+    </nav>
   );
 }
