@@ -27,8 +27,8 @@ export default function LogoutButton() {
                 px-3 py-2.5
                 rounded-xl
                 text-sm font-medium
-                text-red-400/80
-                hover:bg-red-500/10 hover:text-red-300
+                text-[#EF4444]
+                hover:bg-[rgba(239,68,68,0.10)]
                 transition-all duration-200
                 w-full
             "

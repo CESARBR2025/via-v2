@@ -32,7 +32,7 @@ export default function SidebarItem({
             title={collapsed ? label : ""}
             className={`
                 group relative flex items-center
-                h-[42px] rounded-xl
+                h-[42px] rounded-lg
                 transition-all duration-200
                 font-medium text-sm
 
@@ -42,27 +42,24 @@ export default function SidebarItem({
                 }
 
                 ${active
-                    ? "bg-[#1F69E7] text-white shadow-sm shadow-[#1F69E7]/20"
-                    : "text-white/60 hover:bg-white/[0.07] hover:text-white/90"
+                    ? "bg-white/20 text-white"
+                    : "text-white/60 hover:bg-white/[0.10] hover:text-white"
                 }
             `}
         >
             <Icon
                 size={20}
                 className={`
-                    shrink-0
-                    transition-colors duration-200
+                    shrink-0 transition-colors duration-200
                     ${active
                         ? "text-white"
-                        : "text-white/40 group-hover:text-white/70"
+                        : "text-white/45 group-hover:text-white/80"
                     }
                 `}
             />
 
             {!collapsed && (
-                <span className="whitespace-nowrap">
-                    {label}
-                </span>
+                <span className="whitespace-nowrap">{label}</span>
             )}
         </Link>
     );

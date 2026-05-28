@@ -34,14 +34,14 @@ export default function Header() {
 
   return (
     <header className="
-      h-16 border-b border-[#EAF1FC]
+      h-16 border-b border-[#E8EEF9]
       bg-[#FFFFFF]
       px-4 md:px-6
       flex items-center justify-between
       gap-4
     ">
 
-      {/* LEFT: hamburger + title */}
+      {/* LEFT */}
 
       <div className="flex items-center gap-3 min-w-0">
         <button
@@ -49,66 +49,65 @@ export default function Header() {
           className="
             md:hidden
             w-9 h-9 rounded-lg
-            hover:bg-[#EFF4FE]
+            hover:bg-[#F1F5F9]
             flex items-center justify-center
-            text-[#6B778C] hover:text-[#1A2340]
+            text-[#64748B] hover:text-[#0F172A]
             transition-colors duration-200
           "
         >
           <Menu size={20} strokeWidth={2} />
         </button>
 
-        <div className="md:hidden h-6 w-px bg-[#EAF1FC]" />
+        <div className="md:hidden h-6 w-px bg-[#E8EEF9]" />
 
         <h1 className="
-          text-[14px] md:text-[16px]
-          font-semibold text-[#1A2340]
+          text-[18px] md:text-[22px]
+          font-semibold text-[#0F172A]
           truncate
         ">
           {title}
         </h1>
       </div>
 
-      {/* RIGHT: user card */}
+      {/* RIGHT — user card */}
 
       <div className="
         hidden sm:flex items-center gap-3
         px-3 py-1.5 rounded-xl
-        hover:bg-[#EFF4FE]
+        hover:bg-[#F1F5F9]
         transition-colors duration-200
         cursor-default
       ">
         <div
           className="
             w-[38px] h-[38px] rounded-xl
-            bg-gradient-to-br from-[#1F69E7] to-[#3E83F0]
+            bg-gradient-to-br from-[#1D4ED8] to-[#3B82F6]
             flex items-center justify-center
-            text-white font-semibold text-sm
-            shadow-[0_4px_12px_rgba(31,105,231,0.20)]
+            text-[#FFFFFF] font-semibold text-sm
+            shadow-[0_4px_12px_rgba(29,78,216,0.20)]
           "
         >
           {simulatedUser.name.charAt(0)}
         </div>
 
         <div className="flex flex-col leading-tight">
-          <span className="text-[14px] font-semibold text-[#1A2340] max-w-[140px] truncate">
+          <span className="text-[14px] font-semibold text-[#0F172A] max-w-[140px] truncate">
             {simulatedUser.name}
           </span>
-          <span className="text-[12px] font-medium text-[#8A96B0]">
+          <span className="text-[12px] font-medium text-[#64748B]">
             {simulatedUser.role}
           </span>
         </div>
       </div>
 
-      {/* Mobile user avatar (icon only) */}
-
+      {/* Mobile avatar */}
       <div className="
         sm:hidden
         w-[34px] h-[34px] rounded-lg
-        bg-gradient-to-br from-[#1F69E7] to-[#3E83F0]
+        bg-gradient-to-br from-[#1D4ED8] to-[#3B82F6]
         flex items-center justify-center
-        text-white font-semibold text-xs
-        shadow-[0_4px_12px_rgba(31,105,231,0.20)]
+        text-[#FFFFFF] font-semibold text-xs
+        shadow-[0_4px_12px_rgba(29,78,216,0.20)]
       ">
         {simulatedUser.name.charAt(0)}
       </div>

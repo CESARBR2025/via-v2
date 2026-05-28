@@ -30,10 +30,10 @@ export default function BottomNav({
       md:hidden
       fixed bottom-0 left-0 right-0
       h-[64px] bg-[#FFFFFF]
-      border-t border-[#EAF1FC]
+      border-t border-[#E8EEF9]
       z-40
       flex
-      shadow-[0_-2px_12px_rgba(31,105,231,0.04)]
+      shadow-[0_-2px_8px_rgba(15,30,80,0.06)]
     ">
 
       {navigation.map((item) => {
@@ -55,13 +55,13 @@ export default function BottomNav({
               relative
 
               ${active
-                ? "text-[#1F69E7]"
-                : "text-[#8A96B0] hover:text-[#6B778C]"
+                ? "text-[#1D4ED8]"
+                : "text-[#94A3B8] hover:text-[#64748B]"
               }
             `}
           >
             {active && (
-              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#1F69E7] rounded-b-full" />
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#1D4ED8] rounded-b-full" />
             )}
 
             <Icon
@@ -69,8 +69,8 @@ export default function BottomNav({
               className={`
                 transition-colors duration-200
                 ${active
-                  ? "text-[#1F69E7]"
-                  : "text-[#8A96B0]"
+                  ? "text-[#1D4ED8]"
+                  : "text-[#94A3B8]"
                 }
               `}
             />

@@ -21,7 +21,7 @@ export default function SidebarActionItem({
             title={collapsed ? label : ""}
             className={`
                 group relative flex items-center
-                h-[42px] rounded-xl
+                h-[42px] rounded-lg
                 transition-all duration-200
                 font-medium text-sm w-full
 
@@ -30,19 +30,17 @@ export default function SidebarActionItem({
                     : "gap-3 px-3"
                 }
 
-                text-red-400/80
-                hover:bg-red-500/10 hover:text-red-300
+                text-red-300
+                hover:bg-white/10 hover:text-red-200
             `}
         >
             <Icon
                 size={20}
-                className="shrink-0 text-red-400/60 group-hover:text-red-300 transition-colors duration-200"
+                className="shrink-0 text-red-300/70 group-hover:text-red-200 transition-colors duration-200"
             />
 
             {!collapsed && (
-                <span className="whitespace-nowrap">
-                    {label}
-                </span>
+                <span className="whitespace-nowrap">{label}</span>
             )}
         </button>
     );

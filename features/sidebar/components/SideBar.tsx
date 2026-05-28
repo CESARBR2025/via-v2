@@ -56,21 +56,31 @@ export default function Sidebar({
   return (
     <aside
       className={`
-        hidden md:flex
-        border-r border-white/[0.06]
-        bg-[#13294B]
-        flex-col
-        overflow-y-auto
-        transition-all duration-300 ease-in-out
+  hidden md:flex
+  flex-col
+  overflow-y-auto
+  relative
 
-        ${collapsed
+  bg-gradient-to-b
+  from-[#1E3A8A]
+  via-[#1D4ED8]
+  to-[#1E40AF]
+
+  border-r border-white/10
+  shadow-[0_8px_32px_rgba(15,23,42,0.18)]
+
+  backdrop-blur-xl
+
+  transition-all duration-300 ease-in-out
+
+  ${collapsed
           ? "w-[72px] py-4 px-3"
           : "w-64 py-5 px-4"
         }
-      `}
+`}
     >
 
-      {/* HEADER */}
+      {/* ═══ HEADER ═══ */}
 
       <div
         className={`
@@ -83,8 +93,6 @@ export default function Sidebar({
         `}
       >
 
-        {/* LOGO */}
-
         {!collapsed && (
           <Image
             src="/ui/via-logo.png"
@@ -92,34 +100,28 @@ export default function Sidebar({
             width={100}
             height={60}
             priority
-            className="
-              h-auto
-              object-contain brightness-0 invert
-            "
+            className="h-auto object-contain brightness-0 invert"
           />
         )}
 
         {collapsed && (
           <div
             className="
-              w-10 h-10 rounded-xl
-              bg-[#1F69E7]
+              w-10 h-10 rounded-lg
+              bg-white/20
               flex items-center justify-center
-              text-white font-black text-base
-              shadow-lg shadow-[#1F69E7]/25
+              text-[#FFFFFF] font-black text-base
             "
           >
             V
           </div>
         )}
 
-        {/* TOGGLE */}
-
         <button
           onClick={toggleCollapsed}
           className={`
             w-8 h-8 rounded-lg
-            hover:bg-white/[0.08]
+            hover:bg-white/[0.12]
             flex items-center justify-center
             text-white/50 hover:text-white
             transition-colors duration-200
@@ -131,14 +133,12 @@ export default function Sidebar({
 
       </div>
 
-      {/* COLLAPSE TOGGLE (when collapsed) */}
-
       {collapsed && (
         <button
           onClick={toggleCollapsed}
           className="
             mt-3 w-full h-8 rounded-lg
-            hover:bg-white/[0.08]
+            hover:bg-white/[0.12]
             flex items-center justify-center
             text-white/50 hover:text-white
             transition-colors duration-200
@@ -148,47 +148,25 @@ export default function Sidebar({
         </button>
       )}
 
-      {/* NAV */}
+      {/* ═══ NAV ═══ */}
 
-      <nav
-        className="
-          flex flex-col
-          gap-6
-          mt-6
-          flex-1
-        "
-      >
+      <nav className="flex flex-col gap-6 mt-6 flex-1">
         {sections.map((section) => (
-          <div
-            key={section.title}
-            className="space-y-2"
-          >
+          <div key={section.title} className="space-y-2">
 
             {!collapsed && (
-              <p
-                className="
-                  px-3
-                  text-[11px]
-                  font-semibold
-                  tracking-[0.1em]
-                  uppercase
-                  text-white/40
-                "
-              >
+              <p className="
+                px-3
+                text-[11px] font-semibold tracking-[0.1em] uppercase
+                text-white/45
+              ">
                 {section.title}
               </p>
             )}
 
-            <div
-              className="
-                flex flex-col gap-0.5
-              "
-            >
+            <div className="flex flex-col gap-0.5">
               {section.items.map((item: any) => (
-                <SidebarItem
-                  key={item.href}
-                  {...item}
-                />
+                <SidebarItem key={item.href} {...item} />
               ))}
             </div>
 
@@ -196,21 +174,11 @@ export default function Sidebar({
         ))}
       </nav>
 
-      {/* FOOTER */}
+      {/* ═══ FOOTER ═══ */}
 
-      <div className="
-        pt-4 mt-auto
-        border-t border-white/[0.06]
-      ">
+      <div className="pt-4 mt-auto border-t border-white/[0.10]">
         {!collapsed && (
-          <div
-            className="
-              rounded-xl
-              bg-white/[0.04]
-              p-2
-              border border-white/[0.06]
-            "
-          >
+          <div className="rounded-xl bg-white/[0.08] p-2 border border-white/[0.06]">
             <SidebarActionItem
               label="Cerrar sesión"
               icon={LogOut}
@@ -218,7 +186,6 @@ export default function Sidebar({
             />
           </div>
         )}
-
         {collapsed && (
           <SidebarActionItem
             label="Cerrar sesión"

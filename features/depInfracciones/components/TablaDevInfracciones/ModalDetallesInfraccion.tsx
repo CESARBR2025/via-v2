@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import CardTable from '@/features/sidebar/components/CardTable';
+import MapboxLocationPreview from './components/MapaPreview';
 
-/* ─── NUEVA INTERFAZ (anidada, del endpoint) ─── */
+/* ─── INTERFACES ─── */
 
 export interface InfraccionHeader {
     folio_de_infraccion: string;
@@ -53,8 +54,6 @@ export interface InfraccionDetalle {
     ubicacion: InfraccionUbicacion;
 }
 
-/* ─── PROPS ─── */
-
 interface ModalDetalleInfraccionProps {
     isOpen: boolean;
     onClose: () => void;
@@ -62,33 +61,78 @@ interface ModalDetalleInfraccionProps {
     detalle: InfraccionDetalle | null;
 }
 
-/* ─── STATUS THEME ─── */
+/* ─── STATUS CONFIG ─── */
 
-const STATUS_THEME: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-    PAGADA: { bg: 'bg-[#EAF8F1]', text: 'text-[#1F7A4D]', dot: 'bg-[#22A06B]', label: 'Pagada' },
-    PENDIENTE: { bg: 'bg-[#FFF4E8]', text: 'text-[#B76A1E]', dot: 'bg-[#F08A24]', label: 'Pendiente' },
-    REGISTRADA: { bg: 'bg-[#F0F4FF]', text: 'text-[#1F69E7]', dot: 'bg-[#1F69E7]', label: 'Registrada' },
-    CANCELADA: { bg: 'bg-[#FFF0F0]', text: 'text-[#B54747]', dot: 'bg-[#E55353]', label: 'Cancelada' },
+const STATUS_CONFIG: Record<string, {
+    bg: string;
+    text: string;
+    border: string;
+    dot: string;
+    label: string;
+}> = {
+    PAGADA: {
+        bg: 'bg-[#DCFCE7]',
+        text: 'text-[#166534]',
+        border: 'border-[#86EFAC]',
+        dot: 'bg-[#16A34A]',
+        label: 'Pagada',
+    },
+    PENDIENTE: {
+        bg: 'bg-[#FEF3C7]',
+        text: 'text-[#92400E]',
+        border: 'border-[#FCD34D]',
+        dot: 'bg-[#F59E0B]',
+        label: 'Pendiente de Pago',
+    },
+    REGISTRADA: {
+        bg: 'bg-[#DBEAFE]',
+        text: 'text-[#1E40AF]',
+        border: 'border-[#93C5FD]',
+        dot: 'bg-[#3B82F6]',
+        label: 'Registrada',
+    },
+    CANCELADA: {
+        bg: 'bg-[#FEE2E2]',
+        text: 'text-[#991B1B]',
+        border: 'border-[#FCA5A5]',
+        dot: 'bg-[#EF4444]',
+        label: 'Cancelada',
+    },
 };
 
-const getStatusTheme = (status?: string) =>
-    STATUS_THEME[status ?? ''] ?? {
-        bg: 'bg-[#FAFBFF]', text: 'text-[#6B778C]', dot: 'bg-[#8A96B0]', label: status ?? 'Desconocido',
+const getStatusConfig = (status?: string) =>
+    STATUS_CONFIG[status ?? ''] ?? {
+        bg: 'bg-[#F1F5F9]',
+        text: 'text-[#475569]',
+        border: 'border-[#CBD5E1]',
+        dot: 'bg-[#94A3B8]',
+        label: status ?? 'Desconocido',
     };
 
-/* ─── UTILITARIOS ─── */
+/* ─── UTILS ─── */
 
-const formatDate = (d: string) =>
-    new Date(d).toLocaleDateString('es-MX', {
+const formatDate = (d: string): string => {
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return d;
+    return date.toLocaleDateString('es-MX', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
     });
+};
 
-const formatCurrency = (v: string) =>
-    new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(parseFloat(v || '0'));
+const formatCurrency = (v: string): string => {
+    const num = parseFloat(v || '0');
+    if (isNaN(num)) return v;
+    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(num);
+};
+
+const sanitize = (value: string | null | undefined, fallback = '—'): string => {
+    if (!value || value === 'NO_DATA') return fallback;
+    return value;
+};
 
 /* ─── COMPONENTE PRINCIPAL ─── */
 
@@ -98,213 +142,284 @@ export const ModalDetalleInfraccion: React.FC<ModalDetalleInfraccionProps> = ({
     loading,
     detalle,
 }) => {
+    const modalRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [isOpen, onClose]);
+
+    useEffect(() => {
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
-    console.log(detalle)
-
     const h = detalle?.Header;
-    const st = getStatusTheme(h?.estatus_de_infraccion);
+    const cfg = getStatusConfig(h?.estatus_de_infraccion);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-3 sm:p-5">
-            <div className="
-        w-full max-w-5xl max-h-[90vh] overflow-y-auto
-        flex flex-col
-        bg-[#FFFFFF] border border-[#EAF1FC] rounded-[20px]
-        shadow-[0px_8px_30px_rgba(31,105,231,0.06)]
-        font-['Poppins',_sans-serif]
-      ">
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5"
+            style={{ background: 'rgba(15, 23, 42, 0.72)', backdropFilter: 'blur(8px)' }}
+            onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Detalle de infracción"
+        >
+            <div
+                ref={modalRef}
+                className="w-full max-w-6xl flex flex-col rounded-2xl overflow-hidden"
+                style={{
+                    maxHeight: 'calc(100vh - 40px)',
+                    background: '#F5F7FB',
+                    boxShadow: '0 32px 80px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(255,255,255,0.10)',
+                }}
+            >
+                {/* ══════════ HERO HEADER ══════════ */}
+                <div className="relative bg-gradient-to-br from-[#2563EB] via-[#1D4ED8] to-[#1E40AF] overflow-hidden shrink-0">
+                    {/* Decorative shapes */}
+                    <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full opacity-15 bg-white/30" />
+                    <div className="absolute top-8 -right-4 w-28 h-28 rounded-full opacity-10 bg-white/40" />
+                    <div className="absolute -bottom-8 left-1/3 w-36 h-36 rounded-full opacity-10 bg-white/30" />
 
-                {/* ──────── HEADER ──────── */}
+                    <div className="relative px-6 sm:px-8 pt-6 pb-7">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-4 min-w-0">
+                                <div
+                                    className="shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mt-0.5"
+                                    style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)' }}
+                                >
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                        <polyline points="14 2 14 8 20 8" />
+                                        <line x1="16" y1="13" x2="8" y2="13" />
+                                        <line x1="16" y1="17" x2="8" y2="17" />
+                                        <polyline points="10 9 9 9 8 9" />
+                                    </svg>
+                                </div>
 
-                <div className="
-          px-5 sm:px-7 py-4 sm:py-5
-          border-b border-[#EAF1FC]
-          flex items-center justify-between gap-4
-          sticky top-0 bg-[#FFFFFF]/95 backdrop-blur-md z-10
-        ">
-                    <div className="flex items-center gap-4 min-w-0">
-                        <div className="hidden sm:flex items-center justify-center w-[42px] h-[42px] rounded-xl bg-[#F0F4FF] text-[#1F69E7] shrink-0">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" />
-                                <line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" />
-                            </svg>
-                        </div>
-                        <div className="min-w-0">
-                            <div className="flex items-center gap-2.5 flex-wrap">
-                                <span className="text-[11px] font-semibold tracking-[0.12em] text-[#8A96B0] uppercase">
-                                    Boleta de Infracción
-                                </span>
-                                <span className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold ${st.bg} ${st.text} border border-current/10`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
-                                    {loading ? 'Cargando…' : st.label}
-                                </span>
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                                        <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-white/60">
+                                            Boleta de Infracción
+                                        </span>
+                                        <span className={`
+                                            inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full
+                                            text-[11px] font-bold border shadow-sm
+                                            ${cfg.bg} ${cfg.text} ${cfg.border}
+                                        `}>
+                                            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                                            {loading ? 'Cargando…' : cfg.label}
+                                        </span>
+                                    </div>
+
+                                    <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight truncate"
+                                        style={{ fontFamily: "'DM Sans', sans-serif", letterSpacing: '-0.02em' }}>
+                                        {loading ? 'Consultando…' : `Folio #${h?.folio_de_infraccion ?? '—'}`}
+                                    </h2>
+
+                                    {!loading && h && (
+                                        <p className="text-[12px] text-white/60 mt-1 flex items-center gap-1.5">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <polyline points="12 6 12 12 16 14" />
+                                            </svg>
+                                            Registrada el {formatDate(h.fecha_de_registro_de_infraccion)}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
-                            <h2 className="text-[18px] sm:text-[22px] font-semibold text-[#1A2340] mt-0.5 truncate">
-                                {loading ? 'Obteniendo datos…' : `Folio: ${h?.folio_de_infraccion}`}
-                            </h2>
-                            {!loading && h && (
-                                <p className="text-[12px] text-[#8A96B0] mt-0.5">
-                                    Registrada el {formatDate(h.fecha_de_registro_de_infraccion)}
-                                </p>
-                            )}
+
+                            <button
+                                onClick={onClose}
+                                aria-label="Cerrar modal"
+                                className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white transition-all duration-150"
+                                style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)' }}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
-
-                    <button
-                        onClick={onClose}
-                        className="ml-4 p-2 rounded-xl text-[#8A96B0] hover:text-[#1A2340] hover:bg-[#EFF4FE] transition-colors shrink-0"
-                        aria-label="Cerrar"
-                    >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                    </button>
                 </div>
 
-                {/* ──────── BODY ──────── */}
+                {/* ══════════ BODY ══════════ */}
+                <div className="flex-1 overflow-y-auto bg-[#F5F7FB]">
+                    {loading ? (
+                        <LoadingState />
+                    ) : detalle ? (
+                        <div className="p-5 sm:p-7">
+                            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-24 gap-4">
-                        <div className="w-10 h-10 border-[3px] border-[#1F69E7] border-t-transparent rounded-full animate-spin" />
-                        <p className="text-[14px] text-[#6B778C]">Consultando base de datos…</p>
-                    </div>
-                ) : detalle ? (
-                    <div className="p-5 sm:p-7 overflow-y-auto">
+                                {/* ─── Columna Principal (3/5) ─── */}
+                                <div className="lg:col-span-3 flex flex-col gap-5">
 
-                        {/* Two‑column grid — 1 col en mobile, 2 en md+ */}
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
+                                    {/* Monto Destacado */}
+                                    <MontoCard
+                                        pesos={detalle.Infraccion.total_pesos}
+                                        umas={detalle.Infraccion.total_umas}
+                                    />
 
-                            {/* ═══════ COLUMNA I (3/5) ═══════ */}
-                            <div className="md:col-span-3 space-y-5">
-
-                                {/* ─── Fundamento Legal ─── */}
-                                <CardTable padding="p-5" className="border-[#EAF1FC]">
-                                    <SectionHeading icon={<LegalIcon />} title="Fundamento Legal" />
-                                    <div className="flex flex-col gap-4">
-                                        <DataRow label="Artículo" value={detalle.Infraccion.articulo_descripcion} />
-                                        <DataRow label="Fracción" value={detalle.Infraccion.fraccion_descripcion} />
-                                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                                            <DataRow label="Total UMAs" value={detalle.Infraccion.total_umas} />
-                                            <DataRow label="Total Pesos" value={formatCurrency(detalle.Infraccion.total_pesos)} bold />
+                                    {/* Fundamento Legal */}
+                                    <Section
+                                        icon={<LegalIcon />}
+                                        title="Fundamento Legal"
+                                        accent="#2563EB"
+                                        accentBg="#EFF6FF"
+                                    >
+                                        <div className="space-y-4">
+                                            <Field label="Artículo" value={detalle.Infraccion.articulo_descripcion} />
+                                            <Divider />
+                                            <Field label="Fracción" value={detalle.Infraccion.fraccion_descripcion} />
                                         </div>
+                                    </Section>
 
-                                    </div>
-                                </CardTable>
-
-                                {/* ─── Datos del Infractor ─── */}
-                                <CardTable padding="p-5" className="border-[#EAF1FC]">
-                                    <SectionHeading icon={<UserIcon />} title="Datos del Infractor" />
-                                    <div className="mt-4 flex flex-col gap-3">
-                                        <DataRow label="Nombre Completo" value={detalle.datos_infractor.nombre_infractor} bold />
-                                        <DataRow label="Correo Electrónico" value={detalle.datos_infractor.correo_infractor === 'NO_DATA' ? 'No registrado' : detalle.datos_infractor.correo_infractor} />
-                                    </div>
-                                </CardTable>
-
-                                {/* ─── Datos del Vehículo ─── */}
-                                <CardTable padding="p-5" className="border-[#EAF1FC]">
-                                    <SectionHeading icon={<VehicleIcon />} title="Datos del Vehículo" />
-                                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                                        <DataRow label="Placa" value={detalle.vehiculo.placa} bold />
-                                        <DataRow label="Tipo" value={detalle.vehiculo.tipo === 'NO_DATA' ? 'No especificado' : detalle.vehiculo.tipo} />
-                                        <DataRow label="Marca" value={detalle.vehiculo.marca} />
-                                        <DataRow label="Modelo" value={detalle.vehiculo.modelo} />
-                                        <DataRow label="Año" value={detalle.vehiculo.anio === 'NO_DATA' ? 'No especificado' : detalle.vehiculo.anio} />
-                                        <DataRow label="Color" value={detalle.vehiculo.color} />
-                                    </div>
-                                </CardTable>
-
-                                {/* ─── Garantía Retenida ─── */}
-                                <CardTable padding="p-5" className="border-[#EAF1FC]">
-                                    <SectionHeading icon={<ShieldIcon />} title="Garantía Retenida" />
-                                    <div className="mt-4">
-                                        <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#F0F4FF] border border-[#DDE3F0]">
-                                            <span className="w-2 h-2 rounded-full bg-[#1F69E7]" />
-                                            <span className="text-[14px] font-semibold text-[#1A2340]">
-                                                {detalle.garantia.garantia_retenida === 'TRJ_CIRCULACION'
-                                                    ? 'Tarjeta de Circulación'
-                                                    : detalle.garantia.garantia_retenida || 'Ninguna'}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </CardTable>
-
-                            </div>
-
-                            {/* ═══════ COLUMNA II (2/5) ═══════ */}
-                            <div className="md:col-span-2 space-y-5">
-
-                                {/* ─── Ubicación ─── */}
-                                <CardTable padding="p-5" className="border-[#EAF1FC] h-full">
-                                    <SectionHeading icon={<LocationIcon />} title="Ubicación de la Infracción" />
-                                    <div className="mt-4 space-y-4">
-                                        <DataRow
-                                            label="Dirección"
-                                            value={`${detalle.ubicacion.calle} #${detalle.ubicacion.numero}`}
-                                            bold
-                                        />
-                                        <DataRow label="Código Postal" value={detalle.ubicacion.cod_postal} />
-                                        <DataRow
-                                            label="Municipio / Estado"
-                                            value={`${detalle.ubicacion.municipio}, ${detalle.ubicacion.estado}`}
-                                        />
-
-                                        <div className="pt-3 border-t border-[#EAF1FC]">
-                                            <span className="text-[11px] font-semibold tracking-[0.06em] text-[#8A96B0] uppercase block mb-2">
-                                                Coordenadas
-                                            </span>
-                                            <a
-                                                href={`https://www.google.com/maps/search/?api=1&query=${detalle.ubicacion.latitud},${detalle.ubicacion.longitud}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="
-                          inline-flex items-center gap-2
-                          px-4 py-2.5 rounded-xl
-                          bg-[#F0F4FF] border border-[#DDE3F0]
-                          text-[13px] font-mono font-semibold text-[#1A2340]
-                          hover:bg-[#E8EDFA] hover:text-[#1F69E7]
-                          transition-all duration-200 group w-full
-                        "
+                                    {/* Datos del Infractor */}
+                                    <Section
+                                        icon={<UserIcon />}
+                                        title="Datos del Infractor"
+                                        accent="#7C3AED"
+                                        accentBg="#F5F3FF"
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            <div
+                                                className="shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-lg"
+                                                style={{ background: 'linear-gradient(135deg, #7C3AED, #A855F7)' }}
                                             >
-                                                <svg className="w-4 h-4 shrink-0 text-[#1F69E7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                                    <circle cx="12" cy="10" r="3" />
-                                                </svg>
-                                                <span className="truncate">{detalle.ubicacion.latitud}, {detalle.ubicacion.longitud}</span>
-                                                <svg className="w-3.5 h-3.5 ml-auto shrink-0 text-[#8A96B0] group-hover:text-[#1F69E7] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                                    <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
-                                                </svg>
-                                            </a>
+                                                {sanitize(detalle.datos_infractor.nombre_infractor, 'N')[0].toUpperCase()}
+                                            </div>
+                                            <div className="flex-1 min-w-0 space-y-2">
+                                                <Field label="Nombre Completo" value={sanitize(detalle.datos_infractor.nombre_infractor)} bold />
+                                                <Field
+                                                    label="Correo Electrónico"
+                                                    value={sanitize(detalle.datos_infractor.correo_infractor, 'No registrado')}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                </CardTable>
+                                    </Section>
 
+                                    {/* Datos del Vehículo */}
+                                    <Section
+                                        icon={<VehicleIcon />}
+                                        title="Datos del Vehículo"
+                                        accent="#0891B2"
+                                        accentBg="#F0F9FF"
+                                    >
+                                        <div className="mb-5 flex items-center gap-4">
+                                            <div className="px-5 py-2.5 rounded-xl border-2 border-[#0891B2] bg-[#F0F9FF]">
+                                                <p className="text-[10px] font-bold tracking-[0.15em] text-[#0891B2] uppercase mb-0.5">Placa</p>
+                                                <p
+                                                    className="text-2xl font-black tracking-[0.25em] text-[#0C4A6E]"
+                                                    style={{ fontFamily: "'DM Mono', 'Fira Code', monospace" }}
+                                                >
+                                                    {sanitize(detalle.vehiculo.placa)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
+                                            <Field label="Marca" value={sanitize(detalle.vehiculo.marca)} />
+                                            <Field label="Modelo" value={sanitize(detalle.vehiculo.modelo)} />
+                                            <Field label="Año" value={sanitize(detalle.vehiculo.anio, 'No especificado')} />
+                                            <Field label="Tipo" value={sanitize(detalle.vehiculo.tipo, 'No especificado')} />
+                                            <Field label="Color" value={sanitize(detalle.vehiculo.color)} />
+                                        </div>
+                                    </Section>
+
+                                </div>
+
+                                {/* ─── Columna Lateral (2/5) ─── */}
+                                <div className="lg:col-span-2 flex flex-col gap-5">
+
+                                    {/* Garantía Retenida */}
+                                    <Section
+                                        icon={<ShieldIcon />}
+                                        title="Garantía Retenida"
+                                        accent="#F59E0B"
+                                        accentBg="#FFFBEB"
+                                    >
+                                        <div className="flex items-center gap-3 p-3 rounded-xl border border-[#FCD34D] bg-[#FFFBEB]">
+                                            <div className="w-9 h-9 rounded-lg bg-[#F59E0B] flex items-center justify-center shrink-0">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold tracking-widest text-[#92400E] uppercase">Garantía</p>
+                                                <p className="text-[14px] font-bold text-[#78350F]">
+                                                    {detalle.garantia.garantia_retenida === 'TRJ_CIRCULACION'
+                                                        ? 'Tarjeta de Circulación'
+                                                        : sanitize(detalle.garantia.garantia_retenida, 'Ninguna')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Section>
+
+                                    {/* Ubicación */}
+                                    <Section
+                                        icon={<LocationIcon />}
+                                        title="Ubicación de la Infracción"
+                                        accent="#0F766E"
+                                        accentBg="#F0FDFA"
+                                        className="flex-1"
+                                    >
+                                        <div className="space-y-4">
+                                            <div className="p-3 rounded-xl border border-[#99F6E4] bg-[#F0FDFA]">
+                                                <p className="text-[10px] font-bold tracking-widest text-[#0F766E] uppercase mb-1">Dirección</p>
+                                                <p className="text-[15px] font-bold text-[#134E4A]">
+                                                    {detalle.ubicacion.calle} #{detalle.ubicacion.numero}
+                                                </p>
+                                                <p className="text-[12px] text-[#0F766E] mt-0.5">
+                                                    CP {detalle.ubicacion.cod_postal} · {detalle.ubicacion.municipio}, {detalle.ubicacion.estado}
+                                                </p>
+                                            </div>
+
+
+
+                                            <div className="rounded-xl overflow-hidden border border-[#A7F3D0]" style={{ minHeight: 180 }}>
+                                                <MapboxLocationPreview
+                                                    lat={Number(detalle.ubicacion.latitud)}
+                                                    lng={Number(detalle.ubicacion.longitud)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </Section>
+
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-20 gap-3 text-[#8A96B0]">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-                        </svg>
-                        <p className="text-[14px] text-[#6B778C]">No se pudo encontrar el detalle de esta infracción.</p>
-                    </div>
-                )}
+                    ) : (
+                        <EmptyState />
+                    )}
+                </div>
 
-                {/* ──────── FOOTER ──────── */}
-
-                <div className="px-5 sm:px-7 py-4 border-t border-[#EAF1FC] flex justify-end bg-[#FAFBFF]">
+                {/* ══════════ FOOTER ══════════ */}
+                <div
+                    className="shrink-0 px-6 sm:px-8 py-4 flex items-center justify-between gap-4 border-t border-[#E2E8F0] bg-[#FFFFFF]"
+                >
+                    <p className="text-[12px] text-[#94A3B8] hidden sm:block">
+                        Sistema de Gestión de Infracciones · Municipio de Querétaro
+                    </p>
                     <button
                         onClick={onClose}
-                        className="
-              px-5 py-2.5 bg-[#1F69E7] text-[#FFFFFF] text-sm font-medium rounded-xl
-              hover:bg-[#3E83F0] active:bg-[#1857C3]
-              transition-colors shadow-sm hover:shadow-md
-            "
+                        className="ml-auto px-6 py-2.5 rounded-xl text-[14px] font-bold text-white flex items-center gap-2 transition-all duration-200 active:scale-95"
+                        style={{
+                            background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+                            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)',
+                        }}
                     >
-                        Cerrar Detalles
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                        Cerrar
                     </button>
                 </div>
 
@@ -313,63 +428,167 @@ export const ModalDetalleInfraccion: React.FC<ModalDetalleInfraccionProps> = ({
     );
 };
 
-/* ──────── HELPERS ──────── */
+/* ══════════ SUBCOMPONENTES ══════════ */
 
-/* SectionHeading — icono + título primary */
-const SectionHeading: React.FC<{ icon: React.ReactNode; title: string }> = ({ icon, title }) => (
-    <div className="flex items-center gap-2.5">
-        <span className="text-[#1F69E7]">{icon}</span>
-        <h3 className="text-[13px] font-semibold text-[#1F69E7] uppercase tracking-wider">{title}</h3>
+/* Monto Destacado */
+const MontoCard: React.FC<{
+    pesos: string;
+    umas: string;
+}> = ({ pesos, umas }) => (
+    <div
+        className="rounded-2xl p-5 relative overflow-hidden"
+        style={{
+            background: 'linear-gradient(135deg, #1E40AF, #2563EB, #1D4ED8)',
+            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)',
+        }}
+    >
+        <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 bg-white translate-x-[30%] -translate-y-[30%]" />
+        <div className="relative flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <p className="text-[11px] font-bold tracking-[0.16em] uppercase text-white/60 mb-1">Monto Total de la Infracción</p>
+                <p
+                    className="text-4xl font-black text-white"
+                    style={{ fontFamily: "'DM Sans', sans-serif", letterSpacing: '-0.03em' }}
+                >
+                    {formatCurrency(pesos)}
+                </p>
+                <p className="text-[13px] text-white/60 mt-1 font-medium">{umas} UMAs equivalentes</p>
+            </div>
+            <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.18)' }}
+            >
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23" />
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+            </div>
+        </div>
     </div>
 );
 
-/* DataRow */
-interface DataRowProps {
+/* Section Card */
+interface SectionProps {
+    icon: React.ReactNode;
+    title: string;
+    accent: string;
+    accentBg: string;
+    children: React.ReactNode;
+    className?: string;
+}
+
+const Section: React.FC<SectionProps> = ({ icon, title, accent, accentBg, children, className = '' }) => (
+    <div
+        className={`rounded-2xl border overflow-hidden ${className}`}
+        style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)' }}
+    >
+        <div
+            className="px-5 py-3.5 flex items-center gap-3 border-b"
+            style={{ background: accentBg, borderColor: `${accent}22` }}
+        >
+            <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0"
+                style={{ background: accent }}
+            >
+                {icon}
+            </div>
+            <h3
+                className="text-[13px] font-bold uppercase tracking-[0.1em]"
+                style={{ color: accent }}
+            >
+                {title}
+            </h3>
+        </div>
+        <div className="p-5">{children}</div>
+    </div>
+);
+
+/* Field */
+interface FieldProps {
     label: string;
-    value: string | number | null;
+    value: string | number | null | undefined;
     bold?: boolean;
 }
 
-const DataRow: React.FC<DataRowProps> = ({ label, value, bold }) => (
+const Field: React.FC<FieldProps> = ({ label, value, bold = false }) => (
     <div className="flex flex-col gap-0.5">
-        <span className="text-[11px] font-semibold tracking-[0.06em] text-[#8A96B0] uppercase">{label}</span>
-        <span className={`text-[14px] text-[#1A2340] break-words ${bold ? 'font-semibold' : 'font-normal'}`}>
+        <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-[#94A3B8]">{label}</span>
+        <span className={`text-[14px] text-[#1E293B] break-words leading-snug ${bold ? 'font-bold' : 'font-medium'}`}>
             {value ?? '—'}
         </span>
     </div>
 );
 
-/* ──────── ICONOS SVG ──────── */
+/* Divider */
+const Divider = () => <div className="h-px bg-[#E2E8F0]" />;
+
+/* Loading State */
+const LoadingState = () => (
+    <div className="flex flex-col items-center justify-center py-32 gap-5">
+        <div className="relative w-14 h-14">
+            <div className="absolute inset-0 rounded-full border-4 border-[#DBEAFE]" />
+            <div className="absolute inset-0 rounded-full border-4 border-t-[#3B82F6] border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+        </div>
+        <div className="text-center">
+            <p className="text-[15px] font-bold text-[#0F172A]">Consultando base de datos</p>
+            <p className="text-[13px] text-[#94A3B8] mt-1">Obteniendo información de la infracción…</p>
+        </div>
+    </div>
+);
+
+/* Empty State */
+const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-28 gap-4 text-[#94A3B8]">
+        <div className="w-16 h-16 rounded-2xl bg-[#F1F5F9] flex items-center justify-center">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <div className="text-center">
+            <p className="text-[15px] font-bold text-[#475569]">No se encontró información</p>
+            <p className="text-[13px] text-[#94A3B8] mt-1">No se pudo obtener el detalle de esta infracción.</p>
+        </div>
+    </div>
+);
+
+/* ──────── ICONOS ──────── */
 
 const LegalIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
         <line x1="16" y1="17" x2="8" y2="17" />
     </svg>
 );
 
 const UserIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
     </svg>
 );
 
 const VehicleIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="6" width="22" height="12" rx="2" ry="2" /><circle cx="6" cy="16" r="2" />
-        <circle cx="18" cy="16" r="2" /><line x1="1" y1="10" x2="23" y2="10" />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="6" width="22" height="12" rx="2" ry="2" />
+        <circle cx="6" cy="16" r="2" />
+        <circle cx="18" cy="16" r="2" />
+        <line x1="1" y1="10" x2="23" y2="10" />
     </svg>
 );
 
 const ShieldIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
 );
 
 const LocationIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
     </svg>
 );
