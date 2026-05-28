@@ -61,7 +61,7 @@ export default function Header() {
         <div className="md:hidden h-6 w-px bg-[#EAF1FC]" />
 
         <h1 className="
-          text-[18px] md:text-[22px]
+          text-[14px] md:text-[16px]
           font-semibold text-[#1A2340]
           truncate
         ">
