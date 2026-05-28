@@ -7,6 +7,7 @@ export const mapCrearInfraccionToDB = (
   seqValor: number,
 ) => {
   return {
+    correoInfractor: data.correoInfractor,
     folio,
     seq_valor: seqValor,
 

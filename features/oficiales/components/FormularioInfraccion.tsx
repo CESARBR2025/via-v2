@@ -599,7 +599,7 @@ export default function FormularioInfraccion() {
             setProcesoMensaje('Generando orden de pago...');
 
             let orden;
-
+            console.log(nuevaInfraccion.data)
             try {
 
                 orden = await generarOrdenPago({
@@ -608,6 +608,7 @@ export default function FormularioInfraccion() {
                     apellidos_usuario: `${storeData.apPaternoInfractor} ${storeData.apMaternoInfractor}`.trim(),
                     concepto_id: nuevaInfraccion.data.concepto,
                     folio: nuevaInfraccion.data.folio,
+                    correoInfractor: storeData.correoInfractor
                 })
 
 

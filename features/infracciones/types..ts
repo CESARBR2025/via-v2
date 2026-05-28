@@ -1,4 +1,5 @@
 export interface CrearInfraccionDTO {
+  correoInfractor: string;
   oficialId: string;
 
   patrullaId?: string | null;
@@ -54,6 +55,7 @@ export interface CrearInfraccionDTO {
 }
 
 export interface InfraccionDB {
+  correoInfractor: string;
   clasificacion: string;
 
   id: string;

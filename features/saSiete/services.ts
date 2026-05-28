@@ -5,6 +5,7 @@ export async function generarOrdenPago(payload: {
   apellidos_usuario: string;
   concepto_id: number;
   folio: string;
+  correoInfractor: string;
 }) {
   const res = await fetch("/api/saSiete/generar-orden-pago", {
     method: "POST",

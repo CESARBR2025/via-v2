@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       apellidos_usuario,
       concepto_id,
       folio,
+      correoInfractor,
     } = body;
 
     // =========================================
@@ -31,7 +32,8 @@ export async function POST(req: NextRequest) {
       !nombre_usuario ||
       !folio ||
       !apellidos_usuario ||
-      !concepto_id
+      !concepto_id ||
+      !correoInfractor
     ) {
       return NextResponse.json(
         {
@@ -195,11 +197,12 @@ export async function POST(req: NextRequest) {
     // =========================================
     // ENVIO DE CORREO
     // =========================================
+    console.log(correoInfractor);
 
     if (infraccion_id) {
       await enviarCorreoInfraccion({
         idInfraccion: infraccion_id,
-        correoInfractor: "barcenasrosalescesarivan@gmail.com",
+        correoInfractor: correoInfractor,
         nombreInfractor: nombre_usuario,
         folio: folio,
       });

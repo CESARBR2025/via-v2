@@ -111,6 +111,7 @@ export const sanitizeCrearInfraccionPayload = (
   oficialId: string,
 ): CrearInfraccionDTO => {
   return {
+    correoInfractor: body.correoInfractor,
     oficialId,
 
     articuloId: body.articuloId,
