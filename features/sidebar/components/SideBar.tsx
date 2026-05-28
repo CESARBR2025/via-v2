@@ -15,7 +15,7 @@ import SidebarItem
   from "./SideBarItem";
 
 import { UserRole }
-  from "../types";
+  from "../config/types";
 
 import { useSidebarStore }
   from "@/stores/sideBarStore";

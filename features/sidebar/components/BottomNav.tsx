@@ -7,7 +7,7 @@ import { navigationByRole }
   from "../config/navigation";
 
 import { UserRole }
-  from "../types";
+  from "../config/types";
 
 type Props = {
   role: UserRole;

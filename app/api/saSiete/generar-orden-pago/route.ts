@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { POOL_PG as pool } from "@/lib/db";
+import { enviarCorreoInfraccion } from "@/features/emails/server";
 
 const SA7_URL =
   "https://sanjuandelrio.sytes.net:3044/api/sasiete/qas/generar-orden-completa";
@@ -191,6 +192,18 @@ export async function POST(req: NextRequest) {
       ],
     );
 
+    // =========================================
+    // ENVIO DE CORREO
+    // =========================================
+
+    if (infraccion_id) {
+      await enviarCorreoInfraccion({
+        idInfraccion: infraccion_id,
+        correoInfractor: "barcenasrosalescesarivan@gmail.com",
+        nombreInfractor: nombre_usuario,
+        folio: folio,
+      });
+    }
     // =========================================
     // RESPUESTA
     // =========================================

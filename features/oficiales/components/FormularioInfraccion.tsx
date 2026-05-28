@@ -25,6 +25,7 @@ import { useInfraccionStore } from '@/stores/useInfraccionStore';
 import { ArticulosInterfaceProps, ProcesoEstado, ViewArticulosLista } from '@/features/infracciones/types.';
 import { generarOrdenPago } from '@/features/saSiete/services';
 
+
 // ═══════════════════════════════════════════════════════════════════
 // TIPOS
 // ═══════════════════════════════════════════════════════════════════
@@ -618,6 +619,8 @@ export default function FormularioInfraccion() {
                 setProcesoMensaje('Error al generar orden de pago');
                 throw new Error('Fallo en orden de pago');
             }
+
+
 
             // ─────────────────────────────────────────────────────────────
             // ÉXITO - Finalizar proceso

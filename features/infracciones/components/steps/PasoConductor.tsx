@@ -135,7 +135,7 @@ export default function PasoConductor({
                     {boolError(datos.presentaIne) ? 'Indica si el conductor presenta INE' : ''}
                 </p>
 
-                {datos.presentaIne === true && (
+                {datos.presentaIne === true ? (
                     <div className="space-y-4 p-4 rounded-xl border-2 border-slate-200">
 
                         {/* INPUT CURP */}
@@ -190,6 +190,76 @@ export default function PasoConductor({
                                 ) : null}
                             </p>
                         </div>
+
+                        {/* CORREO */}
+                        <div>
+                            <FieldLabel required>Correo electrónico</FieldLabel>
+                            <input
+                                disabled={loading || curpLoading}
+                                name="correoInfractor"
+                                placeholder="juan@ejemplo.com"
+                                className={fieldError(datos.correoInfractor) ? inputError : inputBase}
+                                value={datos.correoInfractor ?? ''}
+                                onChange={(e) => actualizarDatos({ correoInfractor: e.target.value })}
+                            />
+                            <p className="text-xs mt-1 h-4 text-red-500">
+                                {fieldError(datos.correoInfractor) ? 'Este campo es requerido' : ''}
+                            </p>
+                        </div>
+
+                        {/* NOMBRES Y APELLIDOS */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <FieldLabel required>Nombre(s)</FieldLabel>
+                                <input
+                                    disabled={loading || curpLoading}
+                                    name="nombreInfractor"
+                                    placeholder="Juan Carlos"
+                                    className={fieldError(datos.nombreInfractor) ? inputError : inputBase}
+                                    value={datos.nombreInfractor ?? ''}
+                                    onChange={(e) => actualizarDatos({ nombreInfractor: e.target.value.toUpperCase() })}
+                                />
+                                <p className="text-xs mt-1 h-4 text-red-500">
+                                    {fieldError(datos.nombreInfractor) ? 'Este campo es requerido' : ''}
+                                </p>
+                            </div>
+
+                            <div>
+                                <FieldLabel required>Apellido paterno</FieldLabel>
+                                <input
+                                    disabled={loading || curpLoading}
+                                    name="apPaternoInfractor"
+                                    placeholder="García"
+                                    className={fieldError(datos.apPaternoInfractor) ? inputError : inputBase}
+                                    value={datos.apPaternoInfractor ?? ''}
+                                    onChange={(e) => actualizarDatos({ apPaternoInfractor: e.target.value.toUpperCase() })}
+                                />
+                                <p className="text-xs mt-1 h-4 text-red-500">
+                                    {fieldError(datos.apPaternoInfractor) ? 'Este campo es requerido' : ''}
+                                </p>
+                            </div>
+
+                            <div>
+                                <FieldLabel required>Apellido materno</FieldLabel>
+                                <input
+                                    disabled={loading || curpLoading}
+                                    name="apMaternoInfractor"
+                                    placeholder="Morales"
+                                    className={fieldError(datos.apMaternoInfractor) ? inputError : inputBase}
+                                    value={datos.apMaternoInfractor ?? ''}
+                                    onChange={(e) => actualizarDatos({ apMaternoInfractor: e.target.value.toUpperCase() })}
+                                />
+                                <p className="text-xs mt-1 h-4 text-red-500">
+                                    {fieldError(datos.apMaternoInfractor) ? 'Este campo es requerido' : ''}
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                ) : (
+                    <div className="space-y-4 p-4 rounded-xl border-2 border-slate-200">
+
+
 
                         {/* CORREO */}
                         <div>

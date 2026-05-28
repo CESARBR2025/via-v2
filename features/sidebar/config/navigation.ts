@@ -1,6 +1,6 @@
 import { Home, FileExclamationPoint, FileClockIcon } from "lucide-react";
 
-import { UserRole } from "../types";
+import { UserRole } from "./types";
 
 export const navigationByRole: Record<UserRole, any[]> = {
   oficial: [

@@ -14,7 +14,7 @@ import { navigationByRole }
 import { useSidebarStore }
     from "@/stores/sideBarStore";
 
-import { UserRole } from "../types";
+import { UserRole } from "../config/types";
 
 type Props = {
     role: UserRole;

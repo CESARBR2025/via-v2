@@ -9,7 +9,7 @@ import Header
 import Sidebar
     from "@/features/sidebar/components/SideBar";
 import MobileSidebar from "@/features/sidebar/components/MobileSideBar";
-import { UserRole } from "@/features/sidebar/types";
+import { UserRole } from "@/features/sidebar/config/types";
 
 export default async function DashboardLayout({
     children,
