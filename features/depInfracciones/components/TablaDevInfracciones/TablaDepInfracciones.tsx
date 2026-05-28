@@ -52,6 +52,7 @@ export default function TablaDepInfracciones({ data }: Props) {
             const json = await res.json();
 
             setDetalle(json.data);
+            console.log(detalle)
         } finally {
             setLoading(false);
         }

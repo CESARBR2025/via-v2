@@ -2,7 +2,7 @@
 
 import { DepInfraccionesRepository } from "./repository";
 
-import { mapInfraccionListItem } from "./mappers";
+import { mapInfraccionDetail, mapInfraccionListItem } from "./mappers";
 
 import { getHoyYAyerRange } from "@/lib/utils/dataRange";
 export class DepInfraccionesService {
@@ -71,9 +71,16 @@ export class DepInfraccionesService {
   static async obtenerDetalle(id: string) {
     try {
       console.log(id);
+
       const data = await DepInfraccionesRepository.findById(id);
+
       console.log(data);
-      return data;
+
+      if (!data) return null;
+
+      const mappedData = mapInfraccionDetail(data);
+
+      return mappedData;
     } catch (error) {
       console.error("[SERVICE][DETALLE]", error);
       throw error;
