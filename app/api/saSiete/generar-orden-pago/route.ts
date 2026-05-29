@@ -108,14 +108,14 @@ export async function POST(req: NextRequest) {
       nombreUsuario: nombre_usuario,
       apellidosUsuario: apellidos_usuario,
       rfc: "",
-      conceptosIds: [CONCEPTO_PRUEBA],
+      conceptosIds: [concepto_id],
 
       cantidades: {
-        [CONCEPTO_PRUEBA]: descuento,
+        [concepto_id]: descuento,
       },
 
       referencias: {
-        [CONCEPTO_PRUEBA]: [`${nombre_usuario} ${apellidos_usuario}`, ""],
+        [concepto_id]: [`${nombre_usuario} ${apellidos_usuario}`, ""],
       },
 
       id_usuario_general: "17336",

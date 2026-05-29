@@ -80,6 +80,8 @@ export const mapCrearInfraccionToDB = (
 
 export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
   return {
+    descuento_aplicado: row.descuento_aplicado,
+    fecha_limite_descuento: row.fecha_limite_descuento,
     clasificacion: row.clasificacion,
     id: row.id,
     folio: row.folio,

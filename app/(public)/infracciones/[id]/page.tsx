@@ -7,6 +7,7 @@ import {
     Car,
     FileText,
     AlertTriangle,
+    BanknoteArrowDown,
 } from 'lucide-react';
 
 export default async function Page({
@@ -199,6 +200,23 @@ export default async function Page({
                             </div>
                         </section>
 
+                        {/* DESCUENTOS */}
+                        <section style={cardStyle}>
+                            <SectionHeader
+                                icon={<BanknoteArrowDown size={18} color="#B54747" />}
+                                iconBg="#FFF0F0"
+                                title="Descuentos"
+                                subtitle="Descuentos en infracción"
+                            />
+                            <div className="space-y-3">
+                                <InfoItem
+                                    label="Fecha limite de  descuento"
+                                    value={infraccion.fecha_limite_descuento}
+                                />
+                                <InfoItem label="Porcentaje" value={`${Number(infraccion.descuento_aplicado)}%`} />
+                            </div>
+                        </section>
+
                         {/* MONTO */}
                         <section
                             style={{
@@ -239,10 +257,11 @@ export default async function Page({
                             </div>
 
                             <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                <MontoRow label="Fecha de vencimiento" value={`${infraccion.fecha_vencimiento}`} />
-                                <MontoRow label="Total UMAs" value={`${infraccion.total_umas}`} />
-                                <div style={{ height: '0.5px', background: '#EAF1FC' }} />
-                                <MontoRow label="Monto total a pagar" value={`$${infraccion.total_pesos}`} />
+                                <MontoRow label="Monto total de UMAs" value={`${infraccion.montoTotal} UMAs`} />
+                                <MontoRow label="Descuento aplicado" value={`${Number(infraccion.descuento_aplicado)}%`} />
+                                <MontoRow label="Total UMAs a pagar" value={`${infraccion.total_umas} UMAs`} />
+
+
                                 <div style={{ height: '0.5px', background: '#EAF1FC' }} />
                                 <MontoRow
                                     label="Estatus infracción"
