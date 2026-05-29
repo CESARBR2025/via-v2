@@ -218,17 +218,31 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
 
     const handleRegistrarInfractor = async () => {
         try {
-            console.log('entro')
-
-            /**
-             * Validaciones (Mantén tus validaciones aquí igual...)
-             */
-            if (!nombreInfractor.trim()) { /* ... alert y return ... */ }
-            if (!apPaternoInfractor.trim()) { /* ... alert y return ... */ }
-            if (!apMaternoInfractor.trim()) { /* ... alert y return ... */ }
-            if (!correoInfractor.trim()) { /* ... alert y return ... */ }
 
             setLoadingRegistro(true);
+
+            /**
+             * Validaciones
+             */
+            if (!nombreInfractor.trim()) {
+                alert('Nombre requerido');
+                return;
+            }
+
+            if (!apPaternoInfractor.trim()) {
+                alert('Apellido paterno requerido');
+                return;
+            }
+
+            if (!apMaternoInfractor.trim()) {
+                alert('Apellido materno requerido');
+                return;
+            }
+
+            if (!correoInfractor.trim()) {
+                alert('Correo requerido');
+                return;
+            }
 
             /**
              * Request
@@ -250,31 +264,32 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                 },
             );
 
-            // 1. VALIDACIÓN INMEDIATA: Si no fue exitosa, lanzamos el error para detener todo e ir al catch
             if (!response.ok) {
                 throw new Error('Error registrando infractor');
             }
 
-            // 2. Procesas la respuesta del servidor (Esto solo corre si response.ok fue true)
             const data = await response.json();
+
             console.log('[REGISTRO_INFRACCION]', data);
 
-            // 3. Actualizas el estado visual de éxito en tu modal
             setRegistroExitoso(true);
 
-            // 4. POR ÚLTIMO: Notificas al componente padre para refrescar la BD UNA SOLA VEZ
             if (onRefresh) {
                 await onRefresh();
             }
 
         } catch (error) {
+
             console.error('[HANDLE_REGISTRAR_INFRACCION]', error);
+
             alert('Error registrando información');
+
         } finally {
+
             setLoadingRegistro(false);
+
         }
     };
-
 
 
 
@@ -725,20 +740,26 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                                                     {/* Botón */}
                                                     <button
                                                         onClick={handleRegistrarInfractor}
-                                                        className="
-                        w-full
-                        rounded-2xl
-                        bg-red-600
-                        px-5
-                        py-3
-                        text-sm
-                        font-semibold
-                        text-white
-                        transition-all
-                        hover:bg-red-700
-                    "
+                                                        disabled={loadingRegistro}
+                                                        className={`
+        w-full
+        rounded-2xl
+        px-5
+        py-3
+        text-sm
+        font-semibold
+        text-white
+        transition-all
+
+        ${loadingRegistro
+                                                                ? 'cursor-not-allowed bg-gray-400'
+                                                                : 'bg-red-600 hover:bg-red-700'
+                                                            }
+    `}
                                                     >
-                                                        Registrar Datos del Titular
+                                                        {loadingRegistro
+                                                            ? 'Registrando información...'
+                                                            : 'Registrar Datos del Titular'}
                                                     </button>
                                                 </div>
                                             </Section>

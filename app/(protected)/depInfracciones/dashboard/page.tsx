@@ -9,7 +9,7 @@ export default async function DepInfraccionesPage() {
 
 
     const res = await fetch(
-        `${baseUrl}/api/depInfracciones/listarInfracciones?page=1&limit=50`,
+        `${baseUrl}/api/depInfracciones/listarInfracciones`,
         {
             cache: "no-store", // importante para datos en tiempo real
         }

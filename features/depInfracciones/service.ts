@@ -6,13 +6,8 @@ import { mapInfraccionDetail, mapInfraccionListItem } from "./mappers";
 
 import { getHoyYAyerRange } from "@/lib/utils/dataRange";
 export class DepInfraccionesService {
-  static async listar(params: { page: number; limit: number }) {
+  static async listarInfraccionesService() {
     try {
-      // 1. Calcular paginación
-      const offset = (params.page - 1) * params.limit;
-
-      console.log("[SERVICE][INFRACCIONES][LISTAR] Params:", params);
-
       // 2. Rango de fechas (hoy + ayer)
       const { from, to } = getHoyYAyerRange();
 
@@ -23,11 +18,9 @@ export class DepInfraccionesService {
 
       // 3. Queries en paralelo
       const [listResult, total] = await Promise.all([
-        DepInfraccionesRepository.findList({
+        DepInfraccionesRepository.getInfraccionesFiltradasRepository({
           from,
           to,
-          limit: params.limit,
-          offset,
         }),
 
         DepInfraccionesRepository.countList({
@@ -43,12 +36,11 @@ export class DepInfraccionesService {
 
       // 4. Mapear
       const data = listResult.rows.map(mapInfraccionListItem);
+      console.log(data);
 
       // 5. Response
       return {
         data,
-        page: params.page,
-        limit: params.limit,
         total,
       };
     } catch (error) {

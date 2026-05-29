@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { POOL_PG as pool } from "@/lib/db";
 
+import { enviarCorreoInfraccion } from "@/features/emails/server";
+
 /**
  * POST
  * Registrar datos del infractor
@@ -11,11 +13,11 @@ import { POOL_PG as pool } from "@/lib/db";
 export async function POST(req: NextRequest) {
   try {
     console.log("entro");
+
     /**
      * Body
      */
     const body = await req.json();
-    console.log(body);
 
     const {
       folio,
@@ -75,44 +77,37 @@ export async function POST(req: NextRequest) {
     if (!ap_Materno_Infractor) {
       return NextResponse.json(
         {
-          message: "correo_infractor es requerido",
+          message: "Ap materno es requerido",
         },
         {
           status: 400,
         },
       );
     }
-    console.log("paso");
-
-    console.log("[API][REGISTRAR_INFRACCION]", {
-      folio,
-      nombre_infractor,
-      correo_infractor,
-    });
 
     /**
      * Update DB
      */
     const query = `
-            UPDATE public.v2_infracciones
-            SET
-                nombre_infractor = $1,
-                apellido_paterno_infractor = $2,
-                apellido_materno_infractor = $3,
-                correo_infractor = $4,
-                ciudadano_presente = true,
-                updated_at = NOW()
-            WHERE folio = $5
-            RETURNING
-                id,
-                folio,
-                nombre_infractor,
-                apellido_paterno_infractor,
-                apellido_materno_infractor,
-                correo_infractor,
-                ciudadano_presente,
-                updated_at;
-        `;
+      UPDATE public.v2_infracciones
+      SET
+          nombre_infractor = $1,
+          apellido_paterno_infractor = $2,
+          apellido_materno_infractor = $3,
+          correo_infractor = $4,
+          ciudadano_presente = true,
+          updated_at = NOW()
+      WHERE folio = $5
+      RETURNING
+          id,
+          folio,
+          nombre_infractor,
+          apellido_paterno_infractor,
+          apellido_materno_infractor,
+          correo_infractor,
+          ciudadano_presente,
+          updated_at;
+    `;
 
     const values = [
       nombre_infractor,
@@ -122,7 +117,6 @@ export async function POST(req: NextRequest) {
       folio,
     ];
 
-    console.log(values);
     const result = await pool.query(query, values);
 
     /**
@@ -140,13 +134,35 @@ export async function POST(req: NextRequest) {
     }
 
     /**
+     * Data actualizada
+     */
+    const infraccion = result.rows[0];
+
+    /**
+     * Enviar correo
+     */
+    try {
+      await enviarCorreoInfraccion({
+        idInfraccion: infraccion.id,
+        correoInfractor: infraccion.correo_infractor,
+        nombreInfractor: `${infraccion.nombre_infractor} ${infraccion.apellido_paterno_infractor}`,
+        folio: infraccion.folio,
+      });
+
+      console.log("[MAIL][OK]");
+    } catch (mailError) {
+      console.error("[MAIL][ERROR]", mailError);
+
+      // NO romper el flujo por el correo
+    }
+
+    /**
      * Success
      */
-    console.log("paso");
     return NextResponse.json(
       {
         ok: true,
-        infraccion: result.rows[0],
+        infraccion,
       },
       {
         status: 200,

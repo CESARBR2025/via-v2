@@ -1,6 +1,8 @@
 // types/infraccion.types.ts
 
 export type InfraccionListItem = {
+  nombre_infractor: string;
+  correo_infractor: string;
   id: number;
   folio: string;
   estatus: string;

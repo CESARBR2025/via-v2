@@ -32,6 +32,7 @@ export default function TablaDepInfracciones({ data }: Props) {
     const rows = data.data;
 
     // Hook personalizado para el filtrado y búsqueda en la tabla global
+    console.log(rows)
     const {
         searchGlobal,
         setSearchGlobal,
