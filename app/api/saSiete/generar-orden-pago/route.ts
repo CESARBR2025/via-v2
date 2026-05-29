@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     // =========================================
 
     const body = await req.json();
-
+    console.log(body);
     const {
       infraccion_id,
       nombre_usuario,
@@ -21,8 +21,10 @@ export async function POST(req: NextRequest) {
       concepto_id,
       folio,
       correoInfractor,
+      descuentoAplicado,
     } = body;
 
+    console.log(body);
     // =========================================
     // VALIDACIONES
     // =========================================
@@ -33,7 +35,8 @@ export async function POST(req: NextRequest) {
       !folio ||
       !apellidos_usuario ||
       !concepto_id ||
-      !correoInfractor
+      !correoInfractor ||
+      !descuentoAplicado
     ) {
       return NextResponse.json(
         {
@@ -90,6 +93,17 @@ export async function POST(req: NextRequest) {
     // CONSTRUIR BODY PARA SA7
     // =========================================
     const CONCEPTO_PRUEBA = "31378";
+
+    let descuento = 0;
+    if (descuentoAplicado) {
+      if (descuentoAplicado === "70") {
+        descuento = 0.3;
+      } else if (descuentoAplicado === "50") {
+        descuento = 0.5;
+      }
+
+      console.log(descuento);
+    }
     const payloadSA7 = {
       nombreUsuario: nombre_usuario,
       apellidosUsuario: apellidos_usuario,
@@ -97,7 +111,7 @@ export async function POST(req: NextRequest) {
       conceptosIds: [CONCEPTO_PRUEBA],
 
       cantidades: {
-        [CONCEPTO_PRUEBA]: 1,
+        [CONCEPTO_PRUEBA]: descuento,
       },
 
       referencias: {
@@ -143,6 +157,9 @@ export async function POST(req: NextRequest) {
     const total_pesos = responseSA7.headers.get("x-total-pesos");
 
     const total_umas = responseSA7.headers.get("x-total-umas");
+
+    console.log(fecha_vencimiento);
+    console.log(concepto_id);
 
     // =========================================
     // GUARDAR EN POSTGRESQL

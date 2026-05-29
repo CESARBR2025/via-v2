@@ -24,6 +24,7 @@ import { ProcesoModal } from '@/features/infracciones/components/steps/ProcesoMo
 import { useInfraccionStore } from '@/stores/useInfraccionStore';
 import { ArticulosInterfaceProps, ProcesoEstado, ViewArticulosLista } from '@/features/infracciones/types.';
 import { generarOrdenPago } from '@/features/saSiete/services';
+import PasoDecuentos from '@/features/infracciones/components/steps/PasoDescuentos';
 
 
 // ═══════════════════════════════════════════════════════════════════
@@ -125,6 +126,7 @@ export default function FormularioInfraccion() {
     // Los selectores evitan re-renders innecesarios cuando otras partes
     // del store cambian. Solo re-renders cuando estas propiedades específicas cambien.
     const datos = useInfraccionStore((state) => state.datos);
+    console.log(datos)
     const actualizarDatos = useInfraccionStore(
         (state) => state.actualizarDatos
     );
@@ -352,6 +354,8 @@ export default function FormularioInfraccion() {
     // re-renders innecesarios. Solo se recalcula cuando sus dependencias cambian.
     const steps = useMemo(() => {
         return [
+
+
             {
                 id: 'ciudadano' as const,
                 title: 'Ciudadano',
@@ -403,6 +407,23 @@ export default function FormularioInfraccion() {
                             />
                         ),
                     },
+
+                    {
+                        id: 'descuentos' as const,
+                        title: 'Descuentos',
+                        description:
+                            'Captura los datos para generar descuentos.',
+                        component: (
+                            <PasoDecuentos
+                                key="conductor"
+                                loading={loading}
+                                boolError={boolError}
+
+
+                            />
+                        ),
+                    },
+
                 ]
                 : []),
 
@@ -563,6 +584,9 @@ export default function FormularioInfraccion() {
 
             let nuevaInfraccion;
 
+            console.log(storeData)
+            console.log('llego')
+
             try {
                 const res = await fetch(
                     '/api/infracciones/registrar',
@@ -581,6 +605,7 @@ export default function FormularioInfraccion() {
                     );
                 }
 
+                console.log('paso')
                 nuevaInfraccion = data;
 
                 console.log('✅ Infracción creada:', nuevaInfraccion);
@@ -590,6 +615,8 @@ export default function FormularioInfraccion() {
                 setModalState('error');
                 setProcesoMensaje('Error al crear infracción');
                 throw new Error('Fallo en creación de infracción');
+                return
+
             }
 
             // ─────────────────────────────────────────────────────────────
@@ -608,7 +635,9 @@ export default function FormularioInfraccion() {
                     apellidos_usuario: `${storeData.apPaternoInfractor} ${storeData.apMaternoInfractor}`.trim(),
                     concepto_id: nuevaInfraccion.data.concepto,
                     folio: nuevaInfraccion.data.folio,
-                    correoInfractor: storeData.correoInfractor
+                    correoInfractor: storeData.correoInfractor,
+                    descuentoAplicado: String(storeData.descuentoAplicado)
+
                 })
 
 

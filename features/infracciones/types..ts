@@ -199,6 +199,12 @@ export interface InfraccionDetalleDTO {
 
 // Interfaz a usar en el store
 export interface DatosInfraccion {
+  //Fase de descuentos
+  esCiudadanoAdultoMayor: boolean;
+  presentaInapam: boolean;
+  fechaLimiteDescuento: string;
+  descuentoAplicado: number;
+
   //======== FASE 1 ========
   estaCiudadanoPresente: boolean | null;
   esCiudadanoTitular: boolean | null;

@@ -7,7 +7,8 @@ import {
     Car,
     User,
     Camera,
-    type LucideIcon
+    type LucideIcon,
+    CircleDashedIcon
 } from 'lucide-react';
 import { useInfraccionStore } from '@/stores/useInfraccionStore';
 
@@ -116,6 +117,19 @@ export const PasoConfirmacion: React.FC<PasoConfirmacionProps> = ({
                             : 'Sin identificación oficial'
                         : 'N/A',
                 ],
+            ],
+        },
+
+        {
+            // Si el ciudadano no está presente, su paso de edición seguro de retorno es el inicial ('ciudadano')
+            step: datos.estaCiudadanoPresente ? 'conductor' : 'ciudadano',
+            title: 'Descuentos registrados',
+            Icon: CircleDashedIcon,
+            rows: [
+                ['Es adulto mayor', datos.esCiudadanoAdultoMayor === true ? 'Es adulto mayor' : 'No es adulto mayor'],
+                ['Descuento aplicado', `${datos.descuentoAplicado}%`],
+                ['Fecha limite de descuento', datos.fechaLimiteDescuento],
+
             ],
         },
     ];
