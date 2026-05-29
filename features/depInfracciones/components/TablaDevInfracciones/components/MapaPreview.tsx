@@ -18,7 +18,7 @@ export default function MapboxLocationPreview({
     lat,
     lng,
     zoom = 16,
-    height = "400px",
+    height = "300px",
 }: Props) {
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -69,49 +69,82 @@ export default function MapboxLocationPreview({
     }, [lat, lng, zoom, style]);
 
     return (
-        <div className="flex flex-col gap-3 w-full">
+        <div className="relative w-full">
+            {/* Toggle */}
+            <div
+                className="
+                absolute
+                top-3
+                right-3
+                z-10
+                flex
+                items-center
+                gap-2
+            "
+            >
+                <button
+                    onClick={() =>
+                        setStyle(
+                            "mapbox://styles/mapbox/streets-v12",
+                        )
+                    }
+                    className={`
+                    px-3
+                    py-1.5
+                    rounded-lg
+                    border
+                    text-xs
+                    font-medium
+                    backdrop-blur
+                    transition
+                    ${style ===
+                            "mapbox://styles/mapbox/streets-v12"
+                            ? "bg-black text-white border-black"
+                            : "bg-white/90 text-slate-700 border-slate-200"
+                        }
+                `}
+                >
+                    Mapa
+                </button>
 
+                <button
+                    onClick={() =>
+                        setStyle(
+                            "mapbox://styles/mapbox/satellite-streets-v12",
+                        )
+                    }
+                    className={`
+                    px-3
+                    py-1.5
+                    rounded-lg
+                    border
+                    text-xs
+                    font-medium
+                    backdrop-blur
+                    transition
+                    ${style ===
+                            "mapbox://styles/mapbox/satellite-streets-v12"
+                            ? "bg-black text-white border-black"
+                            : "bg-white/90 text-slate-700 border-slate-200"
+                        }
+                `}
+                >
+                    Satélite
+                </button>
+            </div>
 
             {/* Mapa */}
             <div
                 ref={mapContainerRef}
                 style={{ height }}
-                className="w-full rounded-xl overflow-hidden border"
+                className="
+                w-full
+                rounded-2xl
+                overflow-hidden
+                border
+                border-slate-200
+            "
             />
-
-            {/* Header */}
-            <div className="flex items-center justify-between">
-
-                {/* Toggle vista */}
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() =>
-                            setStyle("mapbox://styles/mapbox/streets-v12")
-                        }
-                        className={`px-3 py-1 rounded-md border text-sm transition ${style === "mapbox://styles/mapbox/streets-v12"
-                            ? "bg-black text-white"
-                            : "bg-white"
-                            }`}
-                    >
-                        Mapa
-                    </button>
-
-                    <button
-                        onClick={() =>
-                            setStyle(
-                                "mapbox://styles/mapbox/satellite-streets-v12"
-                            )
-                        }
-                        className={`px-3 py-1 rounded-md border text-sm transition ${style ===
-                            "mapbox://styles/mapbox/satellite-streets-v12"
-                            ? "bg-black text-white"
-                            : "bg-white"
-                            }`}
-                    >
-                        Satélite
-                    </button>
-                </div>
-            </div>
         </div>
     );
 }

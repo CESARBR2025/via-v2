@@ -14,6 +14,7 @@ export const mapInfraccionListItem = (row: any): InfraccionListItem => ({
 // MaperS
 export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
   Header: {
+    id_infraccion: safeRowMapper(row.id),
     folio_de_infraccion: safeRowMapper(row.folio),
     fecha_de_registro_de_infraccion: safeRowMapper(row.created_at),
     estatus_de_infraccion: safeRowMapper(row.estatus),

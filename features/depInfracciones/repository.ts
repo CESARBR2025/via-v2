@@ -60,6 +60,7 @@ export class DepInfraccionesRepository {
     i.estatus,
     i.created_at,
 
+
     i.articulo_id,
     a.descripcion as articulo_descripcion,
     i.fraccion_id,
@@ -73,6 +74,7 @@ export class DepInfraccionesRepository {
     i.modelo,
     i.color,
     i.placa,
+    i.correo_infractor,
 
     i.latitud,
     i.longitud,
@@ -93,7 +95,7 @@ export class DepInfraccionesRepository {
     ON o.infraccion_id = i.id
   JOIN v2_articulos_ley a on i.articulo_id = a.id
   JOIN v2_fracciones_ley f on i.fraccion_id = f.id
-  WHERE i.id = $1
+  WHERE i.id = $1 
   ORDER BY o.created_at DESC
   LIMIT 1;
 `;

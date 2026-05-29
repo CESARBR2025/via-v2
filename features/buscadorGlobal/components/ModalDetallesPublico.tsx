@@ -1,13 +1,10 @@
-'use client'
-
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import CardTable from '@/features/sidebar/components/CardTable';
 import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 
 /* ─── INTERFACES ─── */
 
 export interface InfraccionHeader {
-    id_infraccion: string
     folio_de_infraccion: string;
     fecha_de_registro_de_infraccion: string;
     estatus_de_infraccion: string;
@@ -62,7 +59,6 @@ interface ModalDetalleInfraccionProps {
     onClose: () => void;
     loading: boolean;
     detalle: InfraccionDetalle | null;
-    onRefresh?: () => Promise<void>; // 👈 1. Agregas la prop aquí
 }
 
 /* ─── STATUS CONFIG ─── */
@@ -140,33 +136,13 @@ const sanitize = (value: string | null | undefined, fallback = '—'): string =>
 
 /* ─── COMPONENTE PRINCIPAL ─── */
 
-export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfraccionProps> = ({
+export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
     isOpen,
     onClose,
     loading,
     detalle,
-    onRefresh
 }) => {
-    console.log(detalle)
     const modalRef = useRef<HTMLDivElement>(null);
-    const [nombreInfractor, setNombreInfractor] =
-        useState('');
-
-    const [apPaternoInfractor, setapPaternoInfractor] =
-        useState('');
-
-    const [apMaternoInfractor, setapMaternoInfractor] =
-        useState('');
-
-    const [correoInfractor, setCorreoInfractor] =
-        useState('');
-
-    const [loadingRegistro, setLoadingRegistro] =
-        useState(false);
-
-    const [registroExitoso, setRegistroExitoso] =
-        useState(false);
-
 
     useEffect(() => {
         if (!isOpen) return;
@@ -188,7 +164,6 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
     const cfg = getStatusConfig(h?.estatus_de_infraccion);
 
     // Logica de renderización de mapa
-    console.log(detalle?.datos_infractor)
     const tieneNombre =
         detalle?.datos_infractor
             ?.nombre_infractor !==
@@ -206,78 +181,14 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
 
     console.log(ciudadanoPresente)
 
-    const latMapa = Number(detalle?.ubicacion.latitud)
+    const latMapa = ciudadanoPresente
+        ? Number(detalle?.ubicacion.latitud)
+        : 20.382396874639216;
 
 
-
-    const lngMapa = Number(detalle?.ubicacion.longitud)
-
-    console.log(detalle)
-
-
-
-    const handleRegistrarInfractor = async () => {
-        try {
-            console.log('entro')
-
-            /**
-             * Validaciones (Mantén tus validaciones aquí igual...)
-             */
-            if (!nombreInfractor.trim()) { /* ... alert y return ... */ }
-            if (!apPaternoInfractor.trim()) { /* ... alert y return ... */ }
-            if (!apMaternoInfractor.trim()) { /* ... alert y return ... */ }
-            if (!correoInfractor.trim()) { /* ... alert y return ... */ }
-
-            setLoadingRegistro(true);
-
-            /**
-             * Request
-             */
-            const response = await fetch(
-                '/api/buscadorGlobal/registrarInfractor',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        folio: detalle?.Header.folio_de_infraccion,
-                        nombre_infractor: nombreInfractor,
-                        ap_Paterno_Infractor: apPaternoInfractor,
-                        ap_Materno_Infractor: apMaternoInfractor,
-                        correo_infractor: correoInfractor,
-                    }),
-                },
-            );
-
-            // 1. VALIDACIÓN INMEDIATA: Si no fue exitosa, lanzamos el error para detener todo e ir al catch
-            if (!response.ok) {
-                throw new Error('Error registrando infractor');
-            }
-
-            // 2. Procesas la respuesta del servidor (Esto solo corre si response.ok fue true)
-            const data = await response.json();
-            console.log('[REGISTRO_INFRACCION]', data);
-
-            // 3. Actualizas el estado visual de éxito en tu modal
-            setRegistroExitoso(true);
-
-            // 4. POR ÚLTIMO: Notificas al componente padre para refrescar la BD UNA SOLA VEZ
-            if (onRefresh) {
-                await onRefresh();
-            }
-
-        } catch (error) {
-            console.error('[HANDLE_REGISTRAR_INFRACCION]', error);
-            alert('Error registrando información');
-        } finally {
-            setLoadingRegistro(false);
-        }
-    };
-
-
-
-
+    const lngMapa = ciudadanoPresente
+        ? Number(detalle?.ubicacion.longitud)
+        : -99.96107593302017;
 
     return (
         <div
@@ -386,7 +297,12 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
 
                                     {/* Indicaciones o datos de infractor */}
                                     {
-                                        ciudadanoPresente ? (
+                                        (
+                                            !detalle?.datos_infractor
+                                                ?.nombre_infractor ||
+                                            !detalle?.datos_infractor
+                                                ?.correo_infractor
+                                        ) ? (
                                             <Section
                                                 icon={<UserIcon />}
                                                 title="Datos del Infractor"
@@ -446,7 +362,7 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                                         ) : (
                                             <Section
                                                 icon={<UserIcon />}
-                                                title="Validación de Identidad Requerida"
+                                                title="Validación Presencial Requerida"
                                                 accent="#DC2626"
                                                 accentBg="#FEF2F2"
                                             >
@@ -457,10 +373,9 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                     border-red-200
                     bg-red-50
                     p-5
-                    space-y-5
+                    space-y-4
                 "
                                                 >
-                                                    {/* Header */}
                                                     <div>
                                                         <h4
                                                             className="
@@ -469,8 +384,7 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                             text-red-800
                         "
                                                         >
-                                                            El ciudadano no estuvo
-                                                            presente
+                                                            El ciudadano no estuvo presente
                                                         </h4>
 
                                                         <p
@@ -481,175 +395,14 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                             leading-relaxed
                         "
                                                         >
-                                                            Para continuar con el
-                                                            proceso administrativo,
-                                                            capture los datos del
-                                                            titular del vehículo y
-                                                            posteriormente presente la
-                                                            documentación requerida.
+                                                            Para continuar con el proceso
+                                                            de validación de la infracción,
+                                                            el titular deberá presentarse
+                                                            en las oficinas de Vive Oriente
+                                                            con la siguiente documentación:
                                                         </p>
                                                     </div>
 
-                                                    {/* Inputs */}
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        {/* Nombre */}
-                                                        <div className="space-y-2">
-                                                            <label
-                                                                className="
-                                text-sm
-                                font-medium
-                                text-slate-700
-                            "
-                                                            >
-                                                                Nombre Completo
-                                                            </label>
-
-                                                            <input
-                                                                type="text"
-                                                                value={nombreInfractor}
-                                                                onChange={(e) =>
-                                                                    setNombreInfractor(
-                                                                        e.target.value,
-                                                                    )
-                                                                }
-                                                                placeholder="Ingrese nombre completo"
-                                                                className="
-                                w-full
-                                rounded-xl
-                                border
-                                border-slate-300
-                                bg-white
-                                px-4
-                                py-3
-                                text-sm
-                                outline-none
-                                transition
-                                focus:border-red-400
-                                focus:ring-4
-                                focus:ring-red-100
-                            "
-                                                            />
-                                                        </div>
-
-                                                        {/* Nombre */}
-                                                        <div className="space-y-2">
-                                                            <label
-                                                                className="
-                                text-sm
-                                font-medium
-                                text-slate-700
-                            "
-                                                            >
-                                                                Ap Paterno
-                                                            </label>
-
-                                                            <input
-                                                                type="text"
-                                                                value={apPaternoInfractor}
-                                                                onChange={(e) =>
-                                                                    setapPaternoInfractor(
-                                                                        e.target.value,
-                                                                    )
-                                                                }
-                                                                placeholder="Ingrese nombre completo"
-                                                                className="
-                                w-full
-                                rounded-xl
-                                border
-                                border-slate-300
-                                bg-white
-                                px-4
-                                py-3
-                                text-sm
-                                outline-none
-                                transition
-                                focus:border-red-400
-                                focus:ring-4
-                                focus:ring-red-100
-                            "
-                                                            />
-                                                        </div>
-
-                                                        {/* Nombre */}
-                                                        <div className="space-y-2">
-                                                            <label
-                                                                className="
-                                text-sm
-                                font-medium
-                                text-slate-700
-                            "
-                                                            >
-                                                                Ap Materno
-                                                            </label>
-
-                                                            <input
-                                                                type="text"
-                                                                value={apMaternoInfractor}
-                                                                onChange={(e) =>
-                                                                    setapMaternoInfractor(
-                                                                        e.target.value,
-                                                                    )
-                                                                }
-                                                                placeholder="Ingrese nombre completo"
-                                                                className="
-                                w-full
-                                rounded-xl
-                                border
-                                border-slate-300
-                                bg-white
-                                px-4
-                                py-3
-                                text-sm
-                                outline-none
-                                transition
-                                focus:border-red-400
-                                focus:ring-4
-                                focus:ring-red-100
-                            "
-                                                            />
-                                                        </div>
-
-                                                        {/* Correo */}
-                                                        <div className="space-y-2">
-                                                            <label
-                                                                className="
-                                text-sm
-                                font-medium
-                                text-slate-700
-                            "
-                                                            >
-                                                                Correo Electrónico
-                                                            </label>
-
-                                                            <input
-                                                                type="email"
-                                                                value={correoInfractor}
-                                                                onChange={(e) =>
-                                                                    setCorreoInfractor(
-                                                                        e.target.value,
-                                                                    )
-                                                                }
-                                                                placeholder="correo@ejemplo.com"
-                                                                className="
-                                w-full
-                                rounded-xl
-                                border
-                                border-slate-300
-                                bg-white
-                                px-4
-                                py-3
-                                text-sm
-                                outline-none
-                                transition
-                                focus:border-red-400
-                                focus:ring-4
-                                focus:ring-red-100
-                            "
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Requisitos */}
                                                     <div className="space-y-3">
                                                         <div
                                                             className="
@@ -722,24 +475,30 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                                                         </div>
                                                     </div>
 
-                                                    {/* Botón */}
-                                                    <button
-                                                        onClick={handleRegistrarInfractor}
+                                                    <div
                                                         className="
-                        w-full
-                        rounded-2xl
-                        bg-red-600
-                        px-5
+                        rounded-xl
+                        border
+                        border-amber-200
+                        bg-amber-50
+                        px-4
                         py-3
-                        text-sm
-                        font-semibold
-                        text-white
-                        transition-all
-                        hover:bg-red-700
                     "
                                                     >
-                                                        Registrar Datos del Titular
-                                                    </button>
+                                                        <p
+                                                            className="
+                            text-sm
+                            text-amber-800
+                            leading-relaxed
+                        "
+                                                        >
+                                                            La documentación deberá
+                                                            presentarse físicamente para
+                                                            validar la identidad del
+                                                            propietario y continuar con el
+                                                            proceso administrativo.
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </Section>
                                         )
@@ -794,14 +553,14 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
 
 
 
-
+                                    {/* Ubicación */}
                                     {/* Ubicación */}
                                     <Section
                                         icon={<LocationIcon />}
                                         title={
-
-                                            "Ubicación de la Infracción"
-
+                                            ciudadanoPresente
+                                                ? "Ubicación de la Infracción"
+                                                : "Atención Presencial Requerida"
                                         }
                                         accent="#0F766E"
                                         accentBg="#F0FDFA"
@@ -827,7 +586,9 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                     mb-1
                 "
                                                 >
-                                                    Dirección
+                                                    {ciudadanoPresente
+                                                        ? "Dirección"
+                                                        : "Oficina de Atención"}
                                                 </p>
 
                                                 <p
@@ -837,7 +598,9 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                     text-[#134E4A]
                 "
                                                 >
-                                                    {`${detalle.ubicacion.calle} #${detalle.ubicacion.numero}`}
+                                                    {ciudadanoPresente
+                                                        ? `${detalle.ubicacion.calle} #${detalle.ubicacion.numero}`
+                                                        : "Vive Oriente"}
                                                 </p>
 
                                                 <p
@@ -847,10 +610,65 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                     mt-0.5
                 "
                                                 >
-                                                    {`CP ${detalle.ubicacion.cod_postal} · ${detalle.ubicacion.municipio}, ${detalle.ubicacion.estado}`}
+                                                    {ciudadanoPresente
+                                                        ? `CP ${detalle.ubicacion.cod_postal} · ${detalle.ubicacion.municipio}, ${detalle.ubicacion.estado}`
+                                                        : "Acuda presencialmente para validar la información de la infracción"}
                                                 </p>
                                             </div>
 
+                                            {/* Aviso ciudadano */}
+                                            {!ciudadanoPresente && (
+                                                <div
+                                                    className="
+                    rounded-2xl
+                    border
+                    border-amber-200
+                    bg-amber-50
+                    p-4
+                "
+                                                >
+                                                    <div className="flex items-start gap-3">
+                                                        <div
+                                                            className="
+                            mt-1
+                            h-2.5
+                            w-2.5
+                            rounded-full
+                            bg-amber-500
+                            shrink-0
+                        "
+                                                        />
+
+                                                        <div className="space-y-1">
+                                                            <p
+                                                                className="
+                                text-sm
+                                font-semibold
+                                text-amber-900
+                            "
+                                                            >
+                                                                Validación presencial requerida
+                                                            </p>
+
+                                                            <p
+                                                                className="
+                                text-sm
+                                leading-relaxed
+                                text-amber-800
+                            "
+                                                            >
+                                                                No fue posible validar los
+                                                                datos del infractor durante
+                                                                el levantamiento de la
+                                                                infracción. Por favor acuda
+                                                                a Vive Oriente con su
+                                                                documentación oficial para
+                                                                continuar el proceso.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {/* Mapa */}
                                             <div

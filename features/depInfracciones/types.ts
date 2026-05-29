@@ -18,6 +18,7 @@ export type InfraccionListResponse = {
 // Modal de detalles
 export type InfraccionDetail = {
   Header: {
+    id_infraccion: string;
     folio_de_infraccion: string;
     fecha_de_registro_de_infraccion: string;
     estatus_de_infraccion: string;
