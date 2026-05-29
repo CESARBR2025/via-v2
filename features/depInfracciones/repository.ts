@@ -7,10 +7,12 @@ export class DepInfraccionesRepository {
     from: string;
     to: string;
   }) {
+    console.log("entro");
+
     const { from, to } = params;
 
     const query = `
-      SELECT
+        SELECT
         id,
         folio,
         estatus,
@@ -20,7 +22,6 @@ export class DepInfraccionesRepository {
         nombre_infractor
       FROM v2_infracciones
       WHERE tipo_garantia != 'VEHICULO'
-        AND pago_al_momento = false
         AND estatus != 'PAGADA'
       ORDER BY created_at DESC
 
@@ -29,20 +30,23 @@ export class DepInfraccionesRepository {
     const values = [from, to];
 
     const result = await pool.query(query);
+    console.log(result);
 
     return {
       rows: result.rows,
     };
   }
 
-  static async countList(params: { from: string; to: string }) {
+  static async contarRegistrosInfracciones(params: {
+    from: string;
+    to: string;
+  }) {
     const { from, to } = params;
 
     const query = `
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
-      WHERE tipo_garantia != 'VEHICULO'
-        AND pago_al_momento = false
+      WHERE tipo_garantia != 'VEHICULO'        
         AND created_at BETWEEN $1 AND $2
     `;
 

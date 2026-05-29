@@ -25,6 +25,7 @@ export default async function Page({
     const res = await fetch(`${baseUrl}/api/infracciones/registradas/${id}`);
     const responseDataInfraccion = await res.json();
     const infraccion = responseDataInfraccion.data;
+    console.log(infraccion)
 
 
 
@@ -221,6 +222,8 @@ export default async function Page({
                                 >
                                     Monto a pagar
                                 </p>
+
+
                                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                                     <span style={{ fontSize: 38, fontWeight: 700, color: '#FFFFFF', lineHeight: 1 }}>
                                         ${infraccion.total_pesos}
@@ -236,6 +239,7 @@ export default async function Page({
                             </div>
 
                             <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                <MontoRow label="Fecha de vencimiento" value={`${infraccion.fecha_vencimiento}`} />
                                 <MontoRow label="Total UMAs" value={`${infraccion.total_umas}`} />
                                 <div style={{ height: '0.5px', background: '#EAF1FC' }} />
                                 <MontoRow label="Monto total a pagar" value={`$${infraccion.total_pesos}`} />

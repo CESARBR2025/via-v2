@@ -23,7 +23,7 @@ export class DepInfraccionesService {
           to,
         }),
 
-        DepInfraccionesRepository.countList({
+        DepInfraccionesRepository.contarRegistrosInfracciones({
           from,
           to,
         }),

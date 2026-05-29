@@ -3,6 +3,7 @@ import { DepInfraccionesService } from "@/features/depInfracciones/service";
 
 export async function GET(req: Request) {
   try {
+    console.log("entro");
     const result = await DepInfraccionesService.listarInfraccionesService();
     console.log(result);
     return NextResponse.json(result);
