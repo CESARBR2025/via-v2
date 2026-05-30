@@ -52,7 +52,10 @@ export async function POST(req: NextRequest) {
     // OBTENER TOKEN GUEST
     // =========================================
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://via-v2.vercel.app"
+        : "http://localhost:3000";
 
     const responseTokenGuest = await fetch(`${baseUrl}/api/auth/token-guest`, {
       method: "POST",
