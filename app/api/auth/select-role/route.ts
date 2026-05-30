@@ -97,7 +97,7 @@ export async function POST(req: Request) {
     } else if (rol === "liberaciones") {
       redirectTo = "/liberaciones/tramites";
     } else if (rol === "infracciones") {
-      redirectTo = "/infracciones/dashboard";
+      redirectTo = "/depInfracciones/dashboard";
     }
 
     // 8. Crear respuesta

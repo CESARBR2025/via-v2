@@ -12,56 +12,79 @@ export class InfraccionesRepository {
     return Number(result.rows[0].nextval);
   }
 
-  static async crear(data: Partial<InfraccionDB>): Promise<InfraccionDB> {
-    const result = await db.query<InfraccionDB>(
+  static async registarNuevaInfraccionRP(
+    data: Partial<InfraccionDB>,
+  ): Promise<any> {
+    console.log(data);
+    const result = await db.query(
       `
-            insert into v2_infracciones (
-                folio,
-                seq_valor,
-                oficial_id,
-                patrulla_id,
-                placa_patrulla,
-                articulo_id,
-                fraccion_id,
-                ciudadano_presente,
-                es_titular,
-                presenta_ine,
-                curp_infractor,
-                nombre_infractor,
-                apellido_paterno_infractor,
-                apellido_materno_infractor,
-                marca,
-                modelo,
-                color,
-                placa,
-                latitud,
-                longitud,
-                codigo_postal,
-                colonia,
-                calle,
-                numero,
-                municipio,
-                estado,
-                tipo_garantia,
-                garantia_entregada,
-                motivo_retencion,
-                monto_total,
-                aplica_descuento_inapam,
-                descuento_aplicado,
-                pago_al_momento,
-                fecha_limite_descuento,
-                monto_final,
-                grua_id
-            )
-            values (
-                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
-                $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
-                $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,
-                $31,$32,$33,$34,$35,$36
-            )
-            returning *
-            `,
+    WITH inserted AS (
+        INSERT INTO v2_infracciones (
+        correo_infractor,
+            folio,
+            seq_valor,
+            oficial_id,
+            patrulla_id,
+            placa_patrulla,
+            articulo_id,
+            fraccion_id,
+            ciudadano_presente,
+            es_titular,
+            presenta_ine,
+            curp_infractor,
+            nombre_infractor,
+            apellido_paterno_infractor,
+            apellido_materno_infractor,
+            marca,
+            modelo,
+            color,
+            placa,
+            latitud,
+            longitud,
+            codigo_postal,
+            colonia,
+            calle,
+            numero,
+            municipio,
+            estado,
+            tipo_garantia,
+            garantia_entregada,
+            motivo_retencion,
+            monto_total,
+            aplica_descuento_inapam,
+            descuento_aplicado,
+            fecha_limite_descuento,
+            monto_final,
+            grua_id
+        )
+        VALUES (
+            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
+            $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
+            $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,
+            $31,$32,$33,$34,$35,$36
+        )
+        RETURNING *
+    )
+
+    SELECT
+        inserted.*,
+
+        -- Clasificación de la fracción
+        fl.clasificacion,
+
+        -- Concepto relacionado según clasificación
+        ccs.concept_id
+
+    FROM inserted
+
+    LEFT JOIN v2_fracciones_ley fl
+        ON fl.id = inserted.fraccion_id
+
+    LEFT JOIN v2_catalogo_conceptos_sa7 ccs
+        ON ccs.clasificacion_type = fl.clasificacion
+    `,
       [
+        data.correoInfractor,
         data.folio,
         data.seq_valor,
         data.oficial_id,
@@ -94,7 +117,6 @@ export class InfraccionesRepository {
         data.monto_total,
         data.aplica_descuento_inapam,
         data.descuento_aplicado,
-        data.pago_al_momento,
         data.fecha_limite_descuento,
         data.monto_final,
         data.grua_id,
@@ -103,48 +125,40 @@ export class InfraccionesRepository {
 
     return result.rows[0];
   }
-
   // Traer toda la data para vista de ciudadano publica
+
   static async obtenerPorId(id: string) {
     const result = await db.query(
       `
-      select
-        id,
-        folio,
-        estatus,
-        created_at,
+    SELECT
+        i.*,
 
-        monto_total,
-        monto_final,
+        -- Clasificación de la fracción
+        vfl.clasificacion,
 
-        ciudadano_presente,
-        es_titular,
-        presenta_ine,
+        -- Datos de orden de pago
+        ops.id AS orden_pago_local_id,
+        ops.orden_pago_id,
+        ops.estatus,
+        ops.url_pago,
+        ops.url_guardado,
+        ops.folio_orden,
+        ops.fecha_vencimiento,
+        ops.total_pesos,
+        ops.total_umas,
+        ops.created_at AS orden_pago_created_at,
+        ops.concepto_id
 
-        placa,
-        marca,
-        modelo,
-        color,
+    FROM v2_infracciones i
 
+    JOIN v2_fracciones_ley vfl
+        ON i.fraccion_id = vfl.id
 
-        tipo_garantia,
-        garantia_entregada,
-        motivo_retencion,
+    LEFT JOIN v2_ordenes_pago_sa7 ops
+        ON ops.infraccion_id = i.id
 
-        latitud,
-        longitud,
-        calle,
-        numero,
-        colonia,
-        municipio,
-        estado,
-
-        articulo_id,
-        fraccion_id
-
-      from v2_infracciones
-      where id = $1
-      `,
+    WHERE i.id = $1
+    `,
       [id],
     );
 

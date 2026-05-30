@@ -1,4 +1,9 @@
 export interface CrearInfraccionDTO {
+  //  descuentoAplicado: 70,
+  // fechaLimiteDescuento: '2026-06-08T20:01:40.187Z',
+  // esCiudadanoAdultoMayor: true,
+
+  correoInfractor: string;
   oficialId: string;
 
   patrullaId?: string | null;
@@ -54,6 +59,9 @@ export interface CrearInfraccionDTO {
 }
 
 export interface InfraccionDB {
+  correoInfractor: string;
+  clasificacion: string;
+
   id: string;
 
   folio: string;
@@ -138,6 +146,22 @@ export interface InfraccionDB {
 // Datos de infracción que se enviarán a la vista ciudadana
 
 export interface InfraccionDetalleDTO {
+  descuento_aplicado: string;
+  fecha_limite_descuento: string;
+  concepto_id: string;
+  orden_pago_local_id: string | null;
+  orden_pago_id: string | null;
+  estatus_orden_pago: string | null;
+  url_pago: string | null;
+  url_guardado: string | null;
+  folio_orden: string | null;
+  fecha_vencimiento: string | null;
+  total_pesos: number | null;
+  total_umas: number | null;
+  created_at: string | null;
+
+  clasificacion: string;
+
   id: string;
   folio: string;
 
@@ -174,4 +198,112 @@ export interface InfraccionDetalleDTO {
 
   articuloId: string;
   fraccionId: string;
+  nombreInfractor: string | null;
+  apellidoPaternoInfractor: string | null;
+  apellidoMaternoInfractor: string | null;
 }
+
+// Interfaz a usar en el store
+export interface DatosInfraccion {
+  //Fase de descuentos
+  esCiudadanoAdultoMayor: boolean;
+  presentaInapam: boolean;
+  fechaLimiteDescuento: string;
+  descuentoAplicado: number;
+
+  //======== FASE 1 ========
+  estaCiudadanoPresente: boolean | null;
+  esCiudadanoTitular: boolean | null;
+
+  //======== FASE 2 ========
+  latitud: number | null;
+  longitud: number | null;
+
+  calle: string;
+  numero: string;
+  colonia: string;
+  codigoPostal: string;
+  municipio: string;
+  estado: string;
+
+  //======== FASE 3 ========
+  presentaIne: boolean | null;
+
+  correoInfractor: string;
+  curpInfractor: string;
+
+  nombreInfractor: string;
+  apMaternoInfractor: string;
+  apPaternoInfractor: string;
+
+  //======== FASE 4 ========
+  marca: string;
+  modelo: string;
+  anio: string;
+  color: string;
+  placa: string;
+  noSerie: string;
+  estadoOrigen: string;
+
+  tipoVehiculo: string;
+
+  servicio: string;
+  otroServicio: string;
+
+  //======== FASE 5 ========
+  articuloId: string;
+  articuloDescripcion: string;
+  articuloNumero: string;
+
+  fraccionId: string;
+  fraccionDescripcion: string;
+  fraccionNumero: string;
+  fraccionMonto: string;
+  fraccionClasificacion: string;
+
+  garantiaSeleccionada: string;
+
+  motivoRetencionVehiculo: string;
+
+  gruaInvolucrada: string;
+
+  //======== FASE 6 ========
+  agregarEvidencia: boolean;
+}
+
+// Formulario de infraccion types
+
+export type ProcesoEstado =
+  | "inicio"
+  | "creando"
+  | "orden"
+  | "completado"
+  | "error";
+
+export interface ViewFraccionLista {
+  id: string;
+  articulo_id: string;
+  numero: string;
+  descripcion: string;
+  monto_umas: string;
+  clasificacion: string;
+  activo: boolean;
+}
+
+export interface ViewArticulosLista {
+  id: string;
+  numero: string;
+  descripcion: string;
+  activo: boolean;
+  fracciones?: ViewFraccionLista[];
+}
+
+export interface ViewBuscarIDArticulo {
+  id: number;
+  descripcion: string;
+}
+
+export type ArticulosInterfaceProps = {
+  success: boolean;
+  data: ViewArticulosLista[];
+};

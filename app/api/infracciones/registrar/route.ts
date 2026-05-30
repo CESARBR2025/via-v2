@@ -7,6 +7,7 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("entro");
     const body = await req.json();
     console.log(body);
 
@@ -16,8 +17,9 @@ export async function POST(req: NextRequest) {
     const payload = sanitizeCrearInfraccionPayload(body, oficialId);
     console.log(payload);
 
-    const infraccion = await InfraccionesService.crear(payload);
-
+    const infraccion =
+      await InfraccionesService.registrarNuevaInfraccionSV(payload);
+    console.log(infraccion);
     return NextResponse.json(
       {
         ok: true,

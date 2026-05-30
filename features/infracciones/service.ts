@@ -45,7 +45,7 @@ export const generarFolioInfraccion = (seq: number) => {
 };
 
 export class InfraccionesService {
-  static async crear(payload: CrearInfraccionDTO) {
+  static async registrarNuevaInfraccionSV(payload: CrearInfraccionDTO) {
     try {
       // 1. Obtener secuencia
       const seqValor = await InfraccionesRepository.obtenerSiguienteSecuencia();
@@ -61,13 +61,16 @@ export class InfraccionesService {
       console.log("Data mapeada para insert:", data);
 
       // 4. Insertar
-      const infraccion = await InfraccionesRepository.crear(data);
+      const infraccion =
+        await InfraccionesRepository.registarNuevaInfraccionRP(data);
 
       console.log("Infracción creada correctamente:", infraccion);
 
       return {
         id: infraccion.id,
         folio: infraccion.folio,
+        clasificacion: infraccion.clasificacion,
+        concepto: infraccion.concept_id,
       };
     } catch (error) {
       console.error("[SERVICE][INFRACCIONES][CREAR]", error);
@@ -109,6 +112,7 @@ export const sanitizeCrearInfraccionPayload = (
   oficialId: string,
 ): CrearInfraccionDTO => {
   return {
+    correoInfractor: body.correoInfractor,
     oficialId,
 
     articuloId: body.articuloId,
@@ -165,11 +169,9 @@ export const sanitizeCrearInfraccionPayload = (
 
     aplicaDescuentoInapam: false,
 
-    descuentoAplicado: 0,
+    descuentoAplicado: body.descuentoAplicado,
 
-    pagoAlMomento: false,
-
-    fechaLimiteDescuento: null,
+    fechaLimiteDescuento: body.fechaLimiteDescuento,
 
     montoFinal: Number(body.fraccionMonto || 0),
 

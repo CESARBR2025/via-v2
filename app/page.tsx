@@ -1,28 +1,22 @@
-// src/app/(protected)/layout.tsx
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getSession } from "@/features/auth/service";
-
 
 export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
-  console.log("Session en layout protegido:", session); // Debug: Ver qué sesión se obtiene
+  const cookieStore = await cookies();
+  const token = cookieStore.get("session_token")?.value;
 
-  // Bloqueo de seguridad: Si intentan entrar a subrutas sin sesión
-  if (!session) {
+  if (!token) {
     redirect("/login");
   }
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-
-
-
       <main className="flex-1 overflow-y-auto p-6 bg-slate-50">
-        {children} {/* Aquí se renderizan dinámicamente mesas/page.tsx u ordenes/page.tsx */}
+        {children}
       </main>
     </div>
   );
