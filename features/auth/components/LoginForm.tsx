@@ -114,9 +114,9 @@ export default function LoginForm() {
                         filter: 'saturate(1.1)',
                     }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1E3A8A]/80 via-[#1E40AF]/60 to-[#2563EB]/40" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A8A] via-[#1E3A8A]/40 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#1E3A8A]/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1E3A8A]/50 via-[#1E40AF]/30 to-[#2563EB]/20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A8A] via-[#1E3A8A]/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#1E3A8A]/30 to-transparent" />
 
                 {/* Animated accent line */}
                 <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#60A5FA] via-[#93C5FD] to-transparent" />
