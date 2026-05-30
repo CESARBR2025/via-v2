@@ -32,18 +32,18 @@ export default function SidebarItem({
             title={collapsed ? label : ""}
             className={`
                 group relative flex items-center
-                h-[42px] rounded-lg
+                h-10 rounded-lg
                 transition-all duration-200
-                font-medium text-sm
+                font-medium text-[14px]
 
                 ${collapsed
-                    ? "justify-center w-[42px] mx-auto"
-                    : "gap-3 px-3"
+                    ? "justify-center w-10 mx-auto"
+                    : "gap-2.5 px-3"
                 }
 
                 ${active
-                    ? "bg-white/20 text-white"
-                    : "text-white/60 hover:bg-white/[0.10] hover:text-white"
+                    ? "bg-[#EFF6FF] text-[#2563EB]"
+                    : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
                 }
             `}
         >
@@ -52,8 +52,8 @@ export default function SidebarItem({
                 className={`
                     shrink-0 transition-colors duration-200
                     ${active
-                        ? "text-white"
-                        : "text-white/45 group-hover:text-white/80"
+                        ? "text-[#2563EB]"
+                        : "text-[#94A3B8] group-hover:text-[#64748B]"
                     }
                 `}
             />

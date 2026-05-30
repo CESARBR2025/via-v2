@@ -59,7 +59,7 @@ export const navigationByRole: Record<UserRole, any[]> = {
 
       items: [
         {
-          label: "Consultar Infracciones",
+          label: "Infracciones",
           href: "/depInfracciones/dashboard",
           icon: FileClockIcon,
         },

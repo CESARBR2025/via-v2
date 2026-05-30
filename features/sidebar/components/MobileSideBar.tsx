@@ -57,7 +57,7 @@ export default function MobileSidebar({
                 onClick={closeMobile}
                 className={`
                     fixed inset-0 z-40
-                    bg-[rgba(10,14,30,0.72)] backdrop-blur-sm
+                    bg-black/50
                     transition-opacity duration-300
                     md:hidden
 
@@ -74,14 +74,14 @@ export default function MobileSidebar({
                 className={`
                     fixed top-0 left-0 bottom-0
                     z-50
-                    w-72
-                    bg-[#1D4ED8]
-                    border-r border-white/[0.08]
-                    p-5
+                    w-[280px]
+                    bg-[#FFFFFF]
+                    border-r border-[#E2E8F0]
+                    p-6
                     transition-transform duration-300 ease-in-out
                     md:hidden
                     flex flex-col
-                    shadow-[0_16px_48px_rgba(29,78,216,0.30)]
+                    shadow-[0_20px_60px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.08)]
 
                     ${mobileOpen
                         ? "translate-x-0"
@@ -92,23 +92,23 @@ export default function MobileSidebar({
 
                 {/* HEADER */}
 
-                <div className="flex items-center justify-between min-h-[52px]">
+                <div className="flex items-center justify-between mb-8">
                     <Image
                         src="/ui/via-logo.png"
                         alt="VIA"
                         width={130}
                         height={45}
                         priority
-                        className="h-auto object-contain brightness-0 invert"
+                        className="h-auto object-contain"
                     />
 
                     <button
                         onClick={closeMobile}
                         className="
                             w-9 h-9 rounded-lg
-                            hover:bg-white/[0.12]
+                            hover:bg-[#F8FAFC]
                             flex items-center justify-center
-                            text-white/50 hover:text-white
+                            text-[#64748B] hover:text-[#0F172A]
                             transition-colors
                         "
                     >
@@ -118,13 +118,13 @@ export default function MobileSidebar({
 
                 {/* NAV */}
 
-                <nav className="mt-8 flex flex-col gap-6 flex-1">
+                <nav className="flex flex-col gap-6 flex-1">
                     {navigation.map((section) => (
-                        <div key={section.title} className="space-y-2">
+                        <div key={section.title} className="space-y-1">
                             <p className="
-                                px-3
-                                text-[11px] font-semibold tracking-[0.1em] uppercase
-                                text-white/45
+                                px-3 mb-2
+                                text-[10px] font-semibold tracking-[0.12em] uppercase
+                                text-[#64748B]
                             ">
                                 {section.title}
                             </p>

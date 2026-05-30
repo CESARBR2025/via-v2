@@ -38,7 +38,7 @@ export default function PasoUbicacion({
                 Ubicación del incidente
             </CardTitle>
 
-            <div className="h-80 overflow-hidden rounded-xl border border-slate-200">
+            <div className="h-80 overflow-hidden rounded-xl border border-[#E2E8F0]">
 
                 {latInicial !== null && lngInicial !== null ? (
 
@@ -87,10 +87,10 @@ export default function PasoUbicacion({
 
                 ) : (
 
-                    <div className="flex h-full flex-col items-center justify-center gap-2 bg-linear-to-br from-[#dce9f5] to-[#c8ddf0] animate-pulse">
+                    <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] animate-pulse">
 
                         <svg
-                            className="h-8 w-8 animate-bounce text-[#0076aa]"
+                            className="h-8 w-8 animate-bounce text-[#2563EB]"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="1.5"
@@ -109,11 +109,11 @@ export default function PasoUbicacion({
                             />
                         </svg>
 
-                        <span className="text-sm font-medium text-[#0076aa]">
+                        <span className="text-sm font-medium text-[#2563EB]">
                             Obteniendo ubicación…
                         </span>
 
-                        <span className="text-xs text-[#0076aa]/60">
+                        <span className="text-xs text-[#2563EB]/60">
                             Asegúrate de permitir el acceso a tu ubicación
                         </span>
 
@@ -137,17 +137,16 @@ export default function PasoUbicacion({
                         {/* CARD DIRECCIÓN */}
                         {/* ===================================================== */}
 
-                        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+                        <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
 
-                            {/* HEADER */}
-                            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 px-4 py-3">
+                            <div className="flex items-center justify-between border-b border-[#F1F5F9] bg-[#F8FAFC] px-4 py-3">
 
                                 <div className="flex items-center gap-2">
 
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0076aa]/10">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#2563EB]/10">
 
                                         <svg
-                                            className="h-4 w-4 text-[#0076aa]"
+                                            className="h-4 w-4 text-[#2563EB]"
                                             fill="none"
                                             stroke="currentColor"
                                             strokeWidth="2"
@@ -170,11 +169,11 @@ export default function PasoUbicacion({
 
                                     <div>
 
-                                        <p className="text-sm font-semibold text-slate-800">
+                                        <p className="text-sm font-semibold text-[#0F172A]">
                                             Ubicación detectada
                                         </p>
 
-                                        <p className="text-[11px] text-slate-500">
+                                        <p className="text-[11px] text-[#64748B]">
                                             Dirección obtenida mediante geolocalización
                                         </p>
 
@@ -182,23 +181,21 @@ export default function PasoUbicacion({
 
                                 </div>
 
-                                <div className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+                                <div className="rounded-full border border-[#22C55E]/30 bg-[#DCFCE7] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#16A34A]">
                                     Activa
                                 </div>
 
                             </div>
 
-                            {/* BODY */}
                             <div className="space-y-4 px-4 py-4">
 
-                                {/* DIRECCIÓN COMPLETA */}
                                 <div>
 
-                                    <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                    <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#94A3B8]">
                                         Dirección completa
                                     </p>
 
-                                    <p className="text-sm leading-relaxed text-slate-700">
+                                    <p className="text-sm leading-relaxed text-[#0F172A]">
 
                                         {[
                                             datos.calle,
@@ -219,37 +216,37 @@ export default function PasoUbicacion({
                                 <div className="flex flex-wrap gap-2">
 
                                     {datos.calle && (
-                                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700">
+                                        <span className="inline-flex items-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium text-[#0F172A]">
                                             Calle: {datos.calle}
                                         </span>
                                     )}
 
                                     {datos.numero && (
-                                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700">
+                                        <span className="inline-flex items-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium text-[#0F172A]">
                                             Núm: {datos.numero}
                                         </span>
                                     )}
 
                                     {datos.colonia && (
-                                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700">
+                                        <span className="inline-flex items-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium text-[#0F172A]">
                                             Colonia: {datos.colonia}
                                         </span>
                                     )}
 
                                     {datos.codigoPostal && (
-                                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700">
+                                        <span className="inline-flex items-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium text-[#0F172A]">
                                             CP: {datos.codigoPostal}
                                         </span>
                                     )}
 
                                     {datos.municipio && (
-                                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700">
+                                        <span className="inline-flex items-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium text-[#0F172A]">
                                             Municipio: {datos.municipio}
                                         </span>
                                     )}
 
                                     {datos.estado && (
-                                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700">
+                                        <span className="inline-flex items-center rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium text-[#0F172A]">
                                             Estado: {datos.estado}
                                         </span>
                                     )}
@@ -265,25 +262,25 @@ export default function PasoUbicacion({
 
                                         <div className="grid grid-cols-1 gap-3 pt-2 md:grid-cols-2">
 
-                                            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                            <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
 
-                                                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#94A3B8]">
                                                     Latitud
                                                 </p>
 
-                                                <p className="font-mono text-sm font-semibold text-slate-700">
+                                                <p className="font-mono text-sm font-semibold text-[#0F172A]">
                                                     {Number(datos.latitud).toFixed(6)}
                                                 </p>
 
                                             </div>
 
-                                            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                            <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
 
-                                                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#94A3B8]">
                                                     Longitud
                                                 </p>
 
-                                                <p className="font-mono text-sm font-semibold text-slate-700">
+                                                <p className="font-mono text-sm font-semibold text-[#0F172A]">
                                                     {Number(datos.longitud).toFixed(6)}
                                                 </p>
 

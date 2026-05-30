@@ -29,11 +29,10 @@ export default function BottomNav({
     <nav className="
       md:hidden
       fixed bottom-0 left-0 right-0
-      h-[64px] bg-[#FFFFFF]
-      border-t border-[#E8EEF9]
+      h-16 bg-[#FFFFFF]
+      border-t border-[#E2E8F0]
       z-40
       flex
-      shadow-[0_-2px_8px_rgba(15,30,80,0.06)]
     ">
 
       {navigation.map((item) => {
@@ -50,18 +49,18 @@ export default function BottomNav({
             className={`
               flex-1 flex flex-col
               items-center justify-center
-              text-[11px] font-medium gap-1
+              text-[12px] font-medium gap-1
               transition-all duration-200
               relative
 
               ${active
-                ? "text-[#1D4ED8]"
+                ? "text-[#2563EB]"
                 : "text-[#94A3B8] hover:text-[#64748B]"
               }
             `}
           >
             {active && (
-              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#1D4ED8] rounded-b-full" />
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#2563EB] rounded-b-full" />
             )}
 
             <Icon
@@ -69,7 +68,7 @@ export default function BottomNav({
               className={`
                 transition-colors duration-200
                 ${active
-                  ? "text-[#1D4ED8]"
+                  ? "text-[#2563EB]"
                   : "text-[#94A3B8]"
                 }
               `}

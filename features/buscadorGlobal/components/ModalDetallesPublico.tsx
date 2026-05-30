@@ -1,5 +1,18 @@
 import React, { useEffect, useRef } from 'react';
-import CardTable from '@/features/sidebar/components/CardTable';
+import {
+    FileText,
+    X,
+    Clock,
+    CircleDollarSign,
+    User,
+    Car,
+    Shield,
+    MapPin,
+    AlertCircle,
+    Info,
+    Loader2,
+    SearchX,
+} from 'lucide-react';
 import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 
 /* ─── INTERFACES ─── */
@@ -63,13 +76,7 @@ interface ModalDetalleInfraccionProps {
 
 /* ─── STATUS CONFIG ─── */
 
-const STATUS_CONFIG: Record<string, {
-    bg: string;
-    text: string;
-    border: string;
-    dot: string;
-    label: string;
-}> = {
+const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string; dot: string; label: string }> = {
     PAGADA: {
         bg: 'bg-[#DCFCE7]',
         text: 'text-[#166534]',
@@ -163,28 +170,13 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
     const h = detalle?.Header;
     const cfg = getStatusConfig(h?.estatus_de_infraccion);
 
-    // Logica de renderización de mapa
-    const tieneNombre =
-        detalle?.datos_infractor
-            ?.nombre_infractor !==
-        'NO_DATA';
-
-    const tieneCorreo =
-        detalle?.datos_infractor
-            ?.correo_infractor !==
-        'NO_DATA';
-
-    const ciudadanoPresente =
-        tieneNombre && tieneCorreo;
-
-
-
-    console.log(ciudadanoPresente)
+    const tieneNombre = detalle?.datos_infractor?.nombre_infractor !== 'NO_DATA';
+    const tieneCorreo = detalle?.datos_infractor?.correo_infractor !== 'NO_DATA';
+    const ciudadanoPresente = tieneNombre && tieneCorreo;
 
     const latMapa = ciudadanoPresente
         ? Number(detalle?.ubicacion.latitud)
         : 20.382396874639216;
-
 
     const lngMapa = ciudadanoPresente
         ? Number(detalle?.ubicacion.longitud)
@@ -192,8 +184,7 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5"
-            style={{ background: 'rgba(15, 23, 42, 0.72)', backdropFilter: 'blur(8px)' }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-[#0F172A]/[0.72] backdrop-blur-sm"
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
             role="dialog"
             aria-modal="true"
@@ -201,62 +192,43 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
         >
             <div
                 ref={modalRef}
-                className="w-full max-w-6xl flex flex-col rounded-2xl overflow-hidden"
+                className="flex w-full max-w-6xl flex-col rounded-2xl overflow-hidden bg-[#F1F5F9]"
                 style={{
                     maxHeight: 'calc(100vh - 40px)',
-                    background: '#F5F7FB',
                     boxShadow: '0 32px 80px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(255,255,255,0.10)',
                 }}
             >
                 {/* ══════════ HERO HEADER ══════════ */}
                 <div className="relative bg-gradient-to-br from-[#2563EB] via-[#1D4ED8] to-[#1E40AF] overflow-hidden shrink-0">
-                    {/* Decorative shapes */}
-                    <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full opacity-15 bg-white/30" />
-                    <div className="absolute top-8 -right-4 w-28 h-28 rounded-full opacity-10 bg-white/40" />
-                    <div className="absolute -bottom-8 left-1/3 w-36 h-36 rounded-full opacity-10 bg-white/30" />
+                    <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-white/20 opacity-15" />
+                    <div className="absolute -right-4 top-8 h-28 w-28 rounded-full bg-white/30 opacity-10" />
+                    <div className="absolute -bottom-8 left-1/3 h-36 w-36 rounded-full bg-white/20 opacity-10" />
 
                     <div className="relative px-6 sm:px-8 pt-6 pb-7">
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex items-start gap-4 min-w-0">
-                                <div
-                                    className="shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mt-0.5"
-                                    style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)' }}
-                                >
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                        <polyline points="14 2 14 8 20 8" />
-                                        <line x1="16" y1="13" x2="8" y2="13" />
-                                        <line x1="16" y1="17" x2="8" y2="17" />
-                                        <polyline points="10 9 9 9 8 9" />
-                                    </svg>
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm sm:h-14 sm:w-14">
+                                    <FileText size={22} className="text-white" strokeWidth={1.5} />
                                 </div>
 
                                 <div className="min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                                    <div className="mb-1 flex flex-wrap items-center gap-2">
                                         <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-white/60">
                                             Boleta de Infracción
                                         </span>
-                                        <span className={`
-                                            inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full
-                                            text-[11px] font-bold border shadow-sm
-                                            ${cfg.bg} ${cfg.text} ${cfg.border}
-                                        `}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-0.5 text-[11px] font-bold shadow-sm ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                                            <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
                                             {loading ? 'Cargando…' : cfg.label}
                                         </span>
                                     </div>
 
-                                    <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight truncate"
-                                        style={{ fontFamily: "'DM Sans', sans-serif", letterSpacing: '-0.02em' }}>
+                                    <h2 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
                                         {loading ? 'Consultando…' : `Folio #${h?.folio_de_infraccion ?? '—'}`}
                                     </h2>
 
                                     {!loading && h && (
-                                        <p className="text-[12px] text-white/60 mt-1 flex items-center gap-1.5">
-                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <polyline points="12 6 12 12 16 14" />
-                                            </svg>
+                                        <p className="mt-1 flex items-center gap-1.5 text-[12px] text-white/60">
+                                            <Clock size={11} strokeWidth={2.5} />
                                             Registrada el {formatDate(h.fecha_de_registro_de_infraccion)}
                                         </p>
                                     )}
@@ -266,264 +238,103 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
                             <button
                                 onClick={onClose}
                                 aria-label="Cerrar modal"
-                                className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-white/70 hover:text-white transition-all duration-150"
-                                style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)' }}
+                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white/70 backdrop-blur-sm transition-all duration-150 hover:text-white"
                             >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18" />
-                                    <line x1="6" y1="6" x2="18" y2="18" />
-                                </svg>
+                                <X size={16} strokeWidth={2.5} />
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {/* ══════════ BODY ══════════ */}
-                <div className="flex-1 overflow-y-auto bg-[#F5F7FB]">
+                <div className="flex-1 overflow-y-auto bg-[#F1F5F9]">
                     {loading ? (
-                        <LoadingState />
+                        <ModalLoadingState />
                     ) : detalle ? (
                         <div className="p-5 sm:p-7">
-                            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+                            <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
 
                                 {/* ─── Columna Principal (3/5) ─── */}
-                                <div className="lg:col-span-3 flex flex-col gap-5">
+                                <div className="flex flex-col gap-5 lg:col-span-3">
 
-                                    {/* Monto Destacado */}
                                     <MontoCard
                                         pesos={detalle.Infraccion.total_pesos}
                                         umas={detalle.Infraccion.total_umas}
                                     />
 
-                                    {/* Indicaciones o datos de infractor */}
-                                    {
-                                        (
-                                            !detalle?.datos_infractor
-                                                ?.nombre_infractor ||
-                                            !detalle?.datos_infractor
-                                                ?.correo_infractor
-                                        ) ? (
-                                            <Section
-                                                icon={<UserIcon />}
-                                                title="Datos del Infractor"
-                                                accent="#7C3AED"
-                                                accentBg="#F5F3FF"
-                                            >
-                                                <div className="flex items-start gap-4">
-                                                    <div
-                                                        className="
-                        shrink-0
-                        w-11
-                        h-11
-                        rounded-xl
-                        flex
-                        items-center
-                        justify-center
-                        text-white
-                        font-black
-                        text-lg
-                    "
-                                                        style={{
-                                                            background:
-                                                                'linear-gradient(135deg, #7C3AED, #A855F7)',
-                                                        }}
-                                                    >
-                                                        {sanitize(
-                                                            detalle
-                                                                .datos_infractor
-                                                                .nombre_infractor,
-                                                            'N',
-                                                        )[0].toUpperCase()}
-                                                    </div>
-
-                                                    <div className="flex-1 min-w-0 space-y-2">
-                                                        <Field
-                                                            label="Nombre Completo"
-                                                            value={sanitize(
-                                                                detalle
-                                                                    .datos_infractor
-                                                                    .nombre_infractor,
-                                                            )}
-                                                            bold
-                                                        />
-
-                                                        <Field
-                                                            label="Correo Electrónico"
-                                                            value={sanitize(
-                                                                detalle
-                                                                    .datos_infractor
-                                                                    .correo_infractor,
-                                                                'No registrado',
-                                                            )}
-                                                        />
-                                                    </div>
+                                    {ciudadanoPresente ? (
+                                        <Section
+                                            icon={<User size={14} />}
+                                            title="Datos del Infractor"
+                                            accent="#7C3AED"
+                                            accentBg="#F5F3FF"
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#A855F7] text-lg font-black text-white">
+                                                    {sanitize(detalle.datos_infractor.nombre_infractor, 'N')[0].toUpperCase()}
                                                 </div>
-                                            </Section>
-                                        ) : (
-                                            <Section
-                                                icon={<UserIcon />}
-                                                title="Validación Presencial Requerida"
-                                                accent="#DC2626"
-                                                accentBg="#FEF2F2"
-                                            >
-                                                <div
-                                                    className="
-                    rounded-2xl
-                    border
-                    border-red-200
-                    bg-red-50
-                    p-5
-                    space-y-4
-                "
-                                                >
-                                                    <div>
-                                                        <h4
-                                                            className="
-                            text-base
-                            font-semibold
-                            text-red-800
-                        "
-                                                        >
-                                                            El ciudadano no estuvo presente
-                                                        </h4>
+                                                <div className="min-w-0 flex-1 space-y-2">
+                                                    <Field label="Nombre Completo" value={sanitize(detalle.datos_infractor.nombre_infractor)} bold />
+                                                    <Field label="Correo Electrónico" value={sanitize(detalle.datos_infractor.correo_infractor, 'No registrado')} />
+                                                </div>
+                                            </div>
+                                        </Section>
+                                    ) : (
+                                        <Section
+                                            icon={<AlertCircle size={14} />}
+                                            title="Validación Presencial Requerida"
+                                            accent="#DC2626"
+                                            accentBg="#FEF2F2"
+                                        >
+                                            <div className="space-y-4 rounded-xl border border-[#FCA5A5] bg-[#FEF2F2] p-5">
+                                                <div>
+                                                    <h4 className="text-base font-semibold text-[#991B1B]">
+                                                        El ciudadano no estuvo presente
+                                                    </h4>
+                                                    <p className="mt-1 text-sm leading-relaxed text-[#B91C1C]">
+                                                        Para continuar con el proceso de validación de la infracción, el titular deberá presentarse en las oficinas de Vive Oriente con la siguiente documentación:
+                                                    </p>
+                                                </div>
 
-                                                        <p
-                                                            className="
-                            mt-1
-                            text-sm
-                            text-red-700
-                            leading-relaxed
-                        "
-                                                        >
-                                                            Para continuar con el proceso
-                                                            de validación de la infracción,
-                                                            el titular deberá presentarse
-                                                            en las oficinas de Vive Oriente
-                                                            con la siguiente documentación:
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="space-y-3">
-                                                        <div
-                                                            className="
-                            flex
-                            items-start
-                            gap-3
-                            rounded-xl
-                            bg-white
-                            border
-                            border-red-100
-                            p-4
-                        "
-                                                        >
-                                                            <div
-                                                                className="
-                                mt-0.5
-                                h-2.5
-                                w-2.5
-                                rounded-full
-                                bg-red-500
-                            "
-                                                            />
-
+                                                <div className="space-y-3">
+                                                    {[
+                                                        { title: 'Credencial INE vigente', desc: 'Identificación oficial del titular.' },
+                                                        { title: 'Tarjeta de circulación o factura del vehículo', desc: 'Documento para validar la propiedad y la placa del vehículo.' },
+                                                    ].map((doc) => (
+                                                        <div key={doc.title} className="flex items-start gap-3 rounded-xl border border-[#FECACA] bg-white p-4">
+                                                            <div className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-[#EF4444]" />
                                                             <div>
-                                                                <p className="font-medium text-slate-900">
-                                                                    Credencial INE vigente
-                                                                </p>
-
-                                                                <p className="text-sm text-slate-600">
-                                                                    Identificación oficial
-                                                                    del titular.
-                                                                </p>
+                                                                <p className="font-medium text-[#0F172A]">{doc.title}</p>
+                                                                <p className="text-sm text-[#64748B]">{doc.desc}</p>
                                                             </div>
                                                         </div>
-
-                                                        <div
-                                                            className="
-                            flex
-                            items-start
-                            gap-3
-                            rounded-xl
-                            bg-white
-                            border
-                            border-red-100
-                            p-4
-                        "
-                                                        >
-                                                            <div
-                                                                className="
-                                mt-0.5
-                                h-2.5
-                                w-2.5
-                                rounded-full
-                                bg-red-500
-                            "
-                                                            />
-
-                                                            <div>
-                                                                <p className="font-medium text-slate-900">
-                                                                    Tarjeta de circulación
-                                                                    o factura del vehículo
-                                                                </p>
-
-                                                                <p className="text-sm text-slate-600">
-                                                                    Documento para validar
-                                                                    la propiedad y la placa
-                                                                    del vehículo.
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div
-                                                        className="
-                        rounded-xl
-                        border
-                        border-amber-200
-                        bg-amber-50
-                        px-4
-                        py-3
-                    "
-                                                    >
-                                                        <p
-                                                            className="
-                            text-sm
-                            text-amber-800
-                            leading-relaxed
-                        "
-                                                        >
-                                                            La documentación deberá
-                                                            presentarse físicamente para
-                                                            validar la identidad del
-                                                            propietario y continuar con el
-                                                            proceso administrativo.
-                                                        </p>
-                                                    </div>
+                                                    ))}
                                                 </div>
-                                            </Section>
-                                        )
-                                    }
 
+                                                <div className="rounded-xl border border-[#FCD34D] bg-[#FEF3C7] px-4 py-3">
+                                                    <p className="text-sm leading-relaxed text-[#92400E]">
+                                                        La documentación deberá presentarse físicamente para validar la identidad del propietario y continuar con el proceso administrativo.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </Section>
+                                    )}
 
-                                    {/* Datos del Vehículo */}
                                     <Section
-                                        icon={<VehicleIcon />}
+                                        icon={<Car size={14} />}
                                         title="Datos del Vehículo"
                                         accent="#0891B2"
                                         accentBg="#F0F9FF"
                                     >
                                         <div className="mb-5 flex items-center gap-4">
-                                            <div className="px-5 py-2.5 rounded-xl border-2 border-[#0891B2] bg-[#F0F9FF]">
-                                                <p className="text-[10px] font-bold tracking-[0.15em] text-[#0891B2] uppercase mb-0.5">Placa</p>
-                                                <p
-                                                    className="text-2xl font-black tracking-[0.25em] text-[#0C4A6E]"
-                                                    style={{ fontFamily: "'DM Mono', 'Fira Code', monospace" }}
-                                                >
+                                            <div className="rounded-xl border-2 border-[#0891B2] bg-[#F0F9FF] px-5 py-2.5">
+                                                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0891B2]">Placa</p>
+                                                <p className="text-2xl font-black tracking-[0.25em] text-[#0C4A6E]">
                                                     {sanitize(detalle.vehiculo.placa)}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
+                                        <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
                                             <Field label="Marca" value={sanitize(detalle.vehiculo.marca)} />
                                             <Field label="Modelo" value={sanitize(detalle.vehiculo.modelo)} />
                                             <Field label="Año" value={sanitize(detalle.vehiculo.anio, 'No especificado')} />
@@ -532,9 +343,8 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
                                         </div>
                                     </Section>
 
-                                    {/* Fundamento Legal */}
                                     <Section
-                                        icon={<LegalIcon />}
+                                        icon={<FileText size={14} />}
                                         title="Fundamento Legal"
                                         accent="#2563EB"
                                         accentBg="#EFF6FF"
@@ -545,140 +355,49 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
                                             <Field label="Fracción" value={detalle.Infraccion.fraccion_descripcion} />
                                         </div>
                                     </Section>
-
                                 </div>
 
                                 {/* ─── Columna Lateral (2/5) ─── */}
-                                <div className="lg:col-span-2 flex flex-col gap-5">
+                                <div className="flex flex-col gap-5 lg:col-span-2">
 
-
-
-                                    {/* Ubicación */}
-                                    {/* Ubicación */}
                                     <Section
-                                        icon={<LocationIcon />}
-                                        title={
-                                            ciudadanoPresente
-                                                ? "Ubicación de la Infracción"
-                                                : "Atención Presencial Requerida"
-                                        }
+                                        icon={<MapPin size={14} />}
+                                        title={ciudadanoPresente ? 'Ubicación de la Infracción' : 'Atención Presencial Requerida'}
                                         accent="#0F766E"
                                         accentBg="#F0FDFA"
                                     >
                                         <div className="space-y-4">
-                                            {/* Dirección */}
-                                            <div
-                                                className="
-                p-3
-                rounded-xl
-                border
-                border-[#99F6E4]
-                bg-[#F0FDFA]
-            "
-                                            >
-                                                <p
-                                                    className="
-                    text-[10px]
-                    font-bold
-                    tracking-widest
-                    text-[#0F766E]
-                    uppercase
-                    mb-1
-                "
-                                                >
-                                                    {ciudadanoPresente
-                                                        ? "Dirección"
-                                                        : "Oficina de Atención"}
+                                            <div className="rounded-xl border border-[#99F6E4] bg-[#F0FDFA] p-3">
+                                                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-[#0F766E]">
+                                                    {ciudadanoPresente ? 'Dirección' : 'Oficina de Atención'}
                                                 </p>
-
-                                                <p
-                                                    className="
-                    text-[15px]
-                    font-bold
-                    text-[#134E4A]
-                "
-                                                >
+                                                <p className="text-[15px] font-bold text-[#134E4A]">
                                                     {ciudadanoPresente
                                                         ? `${detalle.ubicacion.calle} #${detalle.ubicacion.numero}`
-                                                        : "Vive Oriente"}
+                                                        : 'Vive Oriente'}
                                                 </p>
-
-                                                <p
-                                                    className="
-                    text-[12px]
-                    text-[#0F766E]
-                    mt-0.5
-                "
-                                                >
+                                                <p className="mt-0.5 text-[12px] text-[#0F766E]">
                                                     {ciudadanoPresente
                                                         ? `CP ${detalle.ubicacion.cod_postal} · ${detalle.ubicacion.municipio}, ${detalle.ubicacion.estado}`
-                                                        : "Acuda presencialmente para validar la información de la infracción"}
+                                                        : 'Acuda presencialmente para validar la información de la infracción'}
                                                 </p>
                                             </div>
 
-                                            {/* Aviso ciudadano */}
                                             {!ciudadanoPresente && (
-                                                <div
-                                                    className="
-                    rounded-2xl
-                    border
-                    border-amber-200
-                    bg-amber-50
-                    p-4
-                "
-                                                >
+                                                <div className="rounded-xl border border-[#FCD34D] bg-[#FEF3C7] p-4">
                                                     <div className="flex items-start gap-3">
-                                                        <div
-                                                            className="
-                            mt-1
-                            h-2.5
-                            w-2.5
-                            rounded-full
-                            bg-amber-500
-                            shrink-0
-                        "
-                                                        />
-
+                                                        <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#F59E0B]" />
                                                         <div className="space-y-1">
-                                                            <p
-                                                                className="
-                                text-sm
-                                font-semibold
-                                text-amber-900
-                            "
-                                                            >
-                                                                Validación presencial requerida
-                                                            </p>
-
-                                                            <p
-                                                                className="
-                                text-sm
-                                leading-relaxed
-                                text-amber-800
-                            "
-                                                            >
-                                                                No fue posible validar los
-                                                                datos del infractor durante
-                                                                el levantamiento de la
-                                                                infracción. Por favor acuda
-                                                                a Vive Oriente con su
-                                                                documentación oficial para
-                                                                continuar el proceso.
+                                                            <p className="text-sm font-semibold text-[#78350F]">Validación presencial requerida</p>
+                                                            <p className="text-sm leading-relaxed text-[#92400E]">
+                                                                No fue posible validar los datos del infractor durante el levantamiento de la infracción. Por favor acuda a Vive Oriente con su documentación oficial para continuar el proceso.
                                                             </p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             )}
 
-                                            {/* Mapa */}
-                                            <div
-                                                className="
-                rounded-xl
-                overflow-hidden
-                border
-                border-[#A7F3D0]
-            "
-                                            >
+                                            <div className="overflow-hidden rounded-xl border border-[#A7F3D0]">
                                                 <MapboxLocationPreview
                                                     lat={latMapa}
                                                     lng={lngMapa}
@@ -688,21 +407,18 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
                                         </div>
                                     </Section>
 
-                                    {/* Garantía Retenida */}
                                     <Section
-                                        icon={<ShieldIcon />}
+                                        icon={<Shield size={14} />}
                                         title="Garantía Retenida"
                                         accent="#F59E0B"
                                         accentBg="#FFFBEB"
                                     >
-                                        <div className="flex items-center gap-3 p-3 rounded-xl border border-[#FCD34D] bg-[#FFFBEB]">
-                                            <div className="w-9 h-9 rounded-lg bg-[#F59E0B] flex items-center justify-center shrink-0">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                                </svg>
+                                        <div className="flex items-center gap-3 rounded-xl border border-[#FCD34D] bg-[#FFFBEB] p-3">
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#F59E0B]">
+                                                <Shield size={16} className="text-white" strokeWidth={2.5} />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-bold tracking-widest text-[#92400E] uppercase">Garantía</p>
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#92400E]">Garantía</p>
                                                 <p className="text-[14px] font-bold text-[#78350F]">
                                                     {detalle.garantia.garantia_retenida === 'TRJ_CIRCULACION'
                                                         ? 'Tarjeta de Circulación'
@@ -712,38 +428,27 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
                                         </div>
                                     </Section>
 
-
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <EmptyState />
+                        <ModalEmptyState />
                     )}
                 </div>
 
                 {/* ══════════ FOOTER ══════════ */}
-                <div
-                    className="shrink-0 px-6 sm:px-8 py-4 flex items-center justify-between gap-4 border-t border-[#E2E8F0] bg-[#FFFFFF]"
-                >
-                    <p className="text-[12px] text-[#94A3B8] hidden sm:block">
+                <div className="flex shrink-0 items-center justify-between gap-4 border-t border-[#E2E8F0] bg-white px-6 py-4 sm:px-8">
+                    <p className="hidden text-[12px] text-[#94A3B8] sm:block">
                         Sistema de Gestión de Infracciones · Municipio de Querétaro
                     </p>
                     <button
                         onClick={onClose}
-                        className="ml-auto px-6 py-2.5 rounded-xl text-[14px] font-bold text-white flex items-center gap-2 transition-all duration-200 active:scale-95"
-                        style={{
-                            background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
-                            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)',
-                        }}
+                        className="ml-auto flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] px-6 py-2.5 text-[14px] font-bold text-white shadow-[0_8px_24px_rgba(37,99,235,0.35)] transition-all duration-200 active:scale-95"
                     >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
+                        <X size={14} strokeWidth={2.5} />
                         Cerrar
                     </button>
                 </div>
-
             </div>
         </div>
     );
@@ -751,38 +456,19 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
 
 /* ══════════ SUBCOMPONENTES ══════════ */
 
-/* Monto Destacado */
-const MontoCard: React.FC<{
-    pesos: string;
-    umas: string;
-}> = ({ pesos, umas }) => (
-    <div
-        className="rounded-2xl p-5 relative overflow-hidden"
-        style={{
-            background: 'linear-gradient(135deg, #1E40AF, #2563EB, #1D4ED8)',
-            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)',
-        }}
-    >
-        <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 bg-white translate-x-[30%] -translate-y-[30%]" />
-        <div className="relative flex items-center justify-between flex-wrap gap-4">
+const MontoCard: React.FC<{ pesos: string; umas: string }> = ({ pesos, umas }) => (
+    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#1E40AF] via-[#2563EB] to-[#1D4ED8] p-5 shadow-[0_8px_24px_rgba(37,99,235,0.35)]">
+        <div className="absolute right-0 top-0 h-32 w-32 translate-x-[30%] -translate-y-[30%] rounded-full bg-white/10" />
+        <div className="relative flex flex-wrap items-center justify-between gap-4">
             <div>
-                <p className="text-[11px] font-bold tracking-[0.16em] uppercase text-white/60 mb-1">Monto Total de la Infracción</p>
-                <p
-                    className="text-4xl font-black text-white"
-                    style={{ fontFamily: "'DM Sans', sans-serif", letterSpacing: '-0.03em' }}
-                >
+                <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-white/60">Monto Total de la Infracción</p>
+                <p className="text-4xl font-black tracking-tight text-white">
                     {formatCurrency(pesos)}
                 </p>
-                <p className="text-[13px] text-white/60 mt-1 font-medium">{umas} UMAs equivalentes</p>
+                <p className="mt-1 text-[13px] font-medium text-white/60">{umas} UMAs equivalentes</p>
             </div>
-            <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.18)' }}
-            >
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="1" x2="12" y2="23" />
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20">
+                <CircleDollarSign size={26} className="text-white" strokeWidth={1.5} />
             </div>
         </div>
     </div>
@@ -799,24 +485,12 @@ interface SectionProps {
 }
 
 const Section: React.FC<SectionProps> = ({ icon, title, accent, accentBg, children, className = '' }) => (
-    <div
-        className={`rounded-2xl border overflow-hidden ${className}`}
-        style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)' }}
-    >
-        <div
-            className="px-5 py-3.5 flex items-center gap-3 border-b"
-            style={{ background: accentBg, borderColor: `${accent}22` }}
-        >
-            <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0"
-                style={{ background: accent }}
-            >
+    <div className={`overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] ${className}`}>
+        <div className="flex items-center gap-3 border-b px-5 py-3.5" style={{ background: accentBg, borderColor: `${accent}22` }}>
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: accent }}>
                 {icon}
             </div>
-            <h3
-                className="text-[13px] font-bold uppercase tracking-[0.1em]"
-                style={{ color: accent }}
-            >
+            <h3 className="text-[13px] font-bold uppercase tracking-[0.1em]" style={{ color: accent }}>
                 {title}
             </h3>
         </div>
@@ -833,8 +507,8 @@ interface FieldProps {
 
 const Field: React.FC<FieldProps> = ({ label, value, bold = false }) => (
     <div className="flex flex-col gap-0.5">
-        <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-[#94A3B8]">{label}</span>
-        <span className={`text-[14px] text-[#1E293B] break-words leading-snug ${bold ? 'font-bold' : 'font-medium'}`}>
+        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#94A3B8]">{label}</span>
+        <span className={`break-words text-[14px] leading-snug text-[#1E293B] ${bold ? 'font-bold' : 'font-medium'}`}>
             {value ?? '—'}
         </span>
     </div>
@@ -844,72 +518,25 @@ const Field: React.FC<FieldProps> = ({ label, value, bold = false }) => (
 const Divider = () => <div className="h-px bg-[#E2E8F0]" />;
 
 /* Loading State */
-const LoadingState = () => (
-    <div className="flex flex-col items-center justify-center py-32 gap-5">
-        <div className="relative w-14 h-14">
-            <div className="absolute inset-0 rounded-full border-4 border-[#DBEAFE]" />
-            <div className="absolute inset-0 rounded-full border-4 border-t-[#3B82F6] border-r-transparent border-b-transparent border-l-transparent animate-spin" />
-        </div>
+const ModalLoadingState = () => (
+    <div className="flex flex-col items-center justify-center gap-5 py-32">
+        <Loader2 size={36} className="animate-spin text-[#2563EB]" strokeWidth={2} />
         <div className="text-center">
             <p className="text-[15px] font-bold text-[#0F172A]">Consultando base de datos</p>
-            <p className="text-[13px] text-[#94A3B8] mt-1">Obteniendo información de la infracción…</p>
+            <p className="mt-1 text-[13px] text-[#94A3B8]">Obteniendo información de la infracción…</p>
         </div>
     </div>
 );
 
 /* Empty State */
-const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-28 gap-4 text-[#94A3B8]">
-        <div className="w-16 h-16 rounded-2xl bg-[#F1F5F9] flex items-center justify-center">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
+const ModalEmptyState = () => (
+    <div className="flex flex-col items-center justify-center gap-4 py-28 text-[#94A3B8]">
+        <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[#F1F5F9]">
+            <SearchX size={28} className="text-[#94A3B8]" strokeWidth={1.5} />
         </div>
         <div className="text-center">
             <p className="text-[15px] font-bold text-[#475569]">No se encontró información</p>
-            <p className="text-[13px] text-[#94A3B8] mt-1">No se pudo obtener el detalle de esta infracción.</p>
+            <p className="mt-1 text-[13px] text-[#94A3B8]">No se pudo obtener el detalle de esta infracción.</p>
         </div>
     </div>
-);
-
-/* ──────── ICONOS ──────── */
-
-const LegalIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="16" y1="13" x2="8" y2="13" />
-        <line x1="16" y1="17" x2="8" y2="17" />
-    </svg>
-);
-
-const UserIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-    </svg>
-);
-
-const VehicleIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="6" width="22" height="12" rx="2" ry="2" />
-        <circle cx="6" cy="16" r="2" />
-        <circle cx="18" cy="16" r="2" />
-        <line x1="1" y1="10" x2="23" y2="10" />
-    </svg>
-);
-
-const ShieldIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-);
-
-const LocationIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-        <circle cx="12" cy="10" r="3" />
-    </svg>
 );

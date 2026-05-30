@@ -1,6 +1,11 @@
 import { DatosInfraccion } from "./types.";
 
 export const datosIniciales: DatosInfraccion = {
+  esCiudadanoAdultoMayor: false,
+  presentaInapam: false,
+  fechaLimiteDescuento: "",
+  descuentoAplicado: 0,
+
   //======== FASE 1 ========
   estaCiudadanoPresente: true,
   esCiudadanoTitular: null,

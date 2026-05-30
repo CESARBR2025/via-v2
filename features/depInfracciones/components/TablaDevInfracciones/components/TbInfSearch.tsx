@@ -1,31 +1,27 @@
-import { Search, X } from "lucide-react";
+import { Search, X } from 'lucide-react';
 
 export function TablaInfraccionesSearch({ value, onChange, onClear }: any) {
     return (
-        <div className="mt-4 border-b border-[#EAF1FC] bg-[#FAFBFF] mb-6 mt-6">
+        <div className="px-6 py-3 border-b border-[#E2E8F0] shrink-0">
             <div className="relative max-w-sm">
-                <Search
-                    size={15}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A96B0]"
-                />
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" strokeWidth={1.5} />
 
                 <input
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder="Buscar folio, placa o ID..."
-                    className="w-full pl-10 pr-8 py-2 text-[14px] bg-white border border-[#DDE3F0] rounded-xl text-[#1A2340] placeholder-[#8A96B0] transition-all focus:outline-none focus:border-[#1F69E7] focus:ring-4 focus:ring-[#1F69E7]/[0.08]"
+                    className="w-full rounded-lg border border-[#E2E8F0] bg-white py-2 pl-10 pr-8 text-[14px] text-[#0F172A] placeholder-[#94A3B8] transition-all focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none"
                 />
 
                 {value && (
                     <button
-                        onClick={() => onChange('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A96B0] hover:text-[#E55353] transition"
+                        onClick={() => onClear()}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] transition-colors hover:text-[#EF4444]"
                     >
-                        <X size={15} />
+                        <X size={15} strokeWidth={1.5} />
                     </button>
                 )}
             </div>
         </div>
-
     );
 }

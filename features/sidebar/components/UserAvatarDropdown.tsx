@@ -5,20 +5,30 @@ import { LogOut, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 
-export default function UserAvatarDropdown() {
+type Props = {
+    simulatedName?: string;
+    simulatedRole?: string;
+};
+
+export default function UserAvatarDropdown({
+    simulatedName,
+    simulatedRole,
+}: Props = {}) {
     const router = useRouter();
 
-    const user = useAuthStore((state) => state.user);
+    const storeUser = useAuthStore((state) => state.user);
     const logout = useAuthStore((state) => state.logout);
+
+    const user = storeUser ?? {
+        name: simulatedName ?? "Usuario",
+        role: simulatedRole ?? "Sin rol",
+    };
 
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    /**
-     * cerrar al click fuera
-     */
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (
@@ -33,9 +43,6 @@ export default function UserAvatarDropdown() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    /**
-     * logout centralizado
-     */
     async function handleLogout() {
         try {
             setLoading(true);
@@ -44,7 +51,7 @@ export default function UserAvatarDropdown() {
                 method: "POST",
             });
 
-            logout(); // 👈 Zustand reset
+            logout();
 
             router.replace("/login");
             router.refresh();
@@ -55,7 +62,7 @@ export default function UserAvatarDropdown() {
         }
     }
 
-    if (!user) return null;
+    const isSimulated = !storeUser;
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -65,20 +72,20 @@ export default function UserAvatarDropdown() {
                 onClick={() => setOpen((prev) => !prev)}
                 className="
           flex items-center gap-3
-          rounded-2xl
+          rounded-lg
           px-2 py-1.5
-          hover:bg-[#EFF4FE]
+          hover:bg-[#F8FAFC]
           transition-all duration-200
         "
             >
                 {/* Avatar */}
                 <div
                     className="
-            w-10 h-10 rounded-2xl
-            bg-gradient-to-br from-[#1F69E7] to-[#3E83F0]
+            w-10 h-10 rounded-lg
+            bg-gradient-to-br from-[#2563EB] to-[#1D4ED8]
             flex items-center justify-center
             text-white font-semibold text-sm
-            shadow-[0_6px_18px_rgba(31,105,231,0.18)]
+            shadow-[0_6px_20px_rgba(37,99,235,0.15)]
             border border-white/30
             transition-transform duration-200
             hover:scale-[1.03]
@@ -89,11 +96,11 @@ export default function UserAvatarDropdown() {
 
                 {/* Info */}
                 <div className="hidden md:flex flex-col items-start leading-tight">
-                    <span className="text-sm font-semibold text-[#1A2340] max-w-[140px] truncate">
+                    <span className="text-sm font-semibold text-[#0F172A] max-w-[140px] truncate">
                         {user.name}
                     </span>
 
-                    <span className="text-xs font-medium text-[#8A96B0]">
+                    <span className="text-xs font-medium text-[#64748B]">
                         {user.role}
                     </span>
                 </div>
@@ -101,7 +108,7 @@ export default function UserAvatarDropdown() {
                 {/* Arrow */}
                 <ChevronDown
                     className={`
-            w-4 h-4 text-[#6B778C]
+            w-4 h-4 text-[#64748B]
             transition-transform duration-200
             ${open ? "rotate-180" : ""}
           `}
@@ -114,10 +121,10 @@ export default function UserAvatarDropdown() {
                     className="
             absolute right-0 top-16 z-50
             w-[280px]
-            rounded-3xl
+            rounded-xl
             bg-white
-            border border-[#EAF1FC]
-            shadow-[0_20px_50px_rgba(31,105,231,0.10)]
+            border border-[#E2E8F0]
+            shadow-[0_20px_60px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.08)]
             overflow-hidden
             animate-in fade-in zoom-in-95 duration-200
           "
@@ -126,29 +133,29 @@ export default function UserAvatarDropdown() {
                     <div
                         className="
               px-5 py-5
-              bg-gradient-to-b from-[#FAFBFF] to-white
-              border-b border-[#EEF2F8]
+              bg-white
+              border-b border-[#F1F5F9]
             "
                     >
                         <div className="flex items-center gap-3">
                             <div
                                 className="
-                  w-11 h-11 rounded-2xl
-                  bg-gradient-to-br from-[#1F69E7] to-[#3E83F0]
+                  w-11 h-11 rounded-lg
+                  bg-gradient-to-br from-[#2563EB] to-[#1D4ED8]
                   flex items-center justify-center
                   text-white font-semibold text-sm
-                  shadow-[0_6px_18px_rgba(31,105,231,0.18)]
+                  shadow-[0_6px_20px_rgba(37,99,235,0.15)]
                 "
                             >
                                 {user.name.charAt(0)}
                             </div>
 
                             <div className="min-w-0">
-                                <p className="text-sm font-semibold text-[#1A2340] truncate">
+                                <p className="text-sm font-semibold text-[#0F172A] truncate">
                                     {user.name}
                                 </p>
 
-                                <p className="text-xs text-[#8A96B0] font-medium mt-1">
+                                <p className="text-xs text-[#64748B] font-medium mt-1">
                                     {user.role}
                                 </p>
                             </div>
@@ -159,22 +166,22 @@ export default function UserAvatarDropdown() {
                     <div className="p-3">
                         <button
                             type="button"
-                            onClick={handleLogout}
+                            onClick={isSimulated ? () => router.push("/login") : handleLogout}
                             disabled={loading}
                             className="
                 w-full flex items-center gap-3
                 px-4 py-3.5
-                rounded-2xl
+                rounded-lg
                 text-sm font-semibold
-                text-[#B54747]
-                hover:bg-[#FFF0F0]
+                text-[#EF4444]
+                hover:bg-[#FEE2E2]
                 transition-all duration-200
                 disabled:opacity-70
               "
                         >
                             <LogOut className="w-4 h-4" />
 
-                            {loading ? "Cerrando sesión..." : "Cerrar sesión"}
+                            {loading ? "Cerrando sesión..." : isSimulated ? "Cerrar sesión" : "Cerrar sesión"}
                         </button>
                     </div>
                 </div>

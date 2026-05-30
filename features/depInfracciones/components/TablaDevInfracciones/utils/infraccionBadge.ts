@@ -1,11 +1,11 @@
 export function getBadgeStyles(estatus: string) {
   switch (estatus.toUpperCase()) {
     case "PAGADA":
-      return { bg: "bg-[#EAF8F1]", text: "text-[#1F7A4D]" };
+      return { bg: "bg-[#DCFCE7]", text: "text-[#16A34A]" };
     case "PENDIENTE":
     case "PROCESO":
-      return { bg: "bg-[#FFF4E8]", text: "text-[#B76A1E]" };
+      return { bg: "bg-[#FEF3C7]", text: "text-[#D97706]" };
     default:
-      return { bg: "bg-[#FFF0F0]", text: "text-[#B54747]" };
+      return { bg: "bg-[#FEE2E2]", text: "text-[#DC2626]" };
   }
 }

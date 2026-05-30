@@ -145,7 +145,7 @@ export default function PasoCiudadano({
                     {boolError(
                         datos.esCiudadanoTitular
                     ) && (
-                            <p className="text-xs text-red-500 mt-3">
+                            <p className="text-xs text-[#EF4444] mt-3">
 
                                 Indica si el ciudadano es titular del vehículo
 

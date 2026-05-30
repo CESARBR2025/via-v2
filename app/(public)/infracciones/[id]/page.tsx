@@ -16,7 +16,6 @@ export default async function Page({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
-    console.log(id)
 
     const baseUrl =
         process.env.NODE_ENV === 'production'
@@ -26,54 +25,21 @@ export default async function Page({
     const res = await fetch(`${baseUrl}/api/infracciones/registradas/${id}`);
     const responseDataInfraccion = await res.json();
     const infraccion = responseDataInfraccion.data;
-    console.log(infraccion)
-
-
 
     return (
-        <main
-            className="min-h-screen"
-            style={{ background: '#FAFBFF', fontFamily: "'Inter', sans-serif" }}
-        >
+        <main className="min-h-screen bg-[#F1F5F9]">
             {/* HEADER */}
-            <div style={{ background: '#1A2340', borderBottom: '1px solid #111827' }}>
+            <div className="bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] border-b border-[#1E40AF]">
                 <div className="max-w-5xl mx-auto px-6 py-7">
                     <div className="flex items-center gap-4">
-                        <div
-                            style={{
-                                width: 48,
-                                height: 48,
-                                borderRadius: 14,
-                                background: 'rgba(31,105,231,0.25)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <FileText size={22} color="#93C5FD" />
+                        <div className="w-12 h-12 rounded-xl bg-[#2563EB]/30 flex items-center justify-center">
+                            <FileText size={22} className="text-[#93C5FD]" />
                         </div>
                         <div>
-                            <p
-                                style={{
-                                    fontSize: 11,
-                                    fontWeight: 600,
-                                    letterSpacing: '0.2em',
-                                    textTransform: 'uppercase',
-                                    color: '#93C5FD',
-                                    margin: 0,
-                                }}
-                            >
+                            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[#93C5FD]">
                                 Sistema Digital de Infracciones
                             </p>
-                            <h1
-                                style={{
-                                    fontSize: 24,
-                                    fontWeight: 700,
-                                    color: '#FFFFFF',
-                                    margin: 0,
-                                    lineHeight: 1.3,
-                                }}
-                            >
+                            <h1 className="text-2xl font-bold text-[#FFFFFF] leading-tight">
                                 Consulta Ciudadana
                             </h1>
                         </div>
@@ -83,77 +49,26 @@ export default async function Page({
 
             <div className="max-w-5xl mx-auto px-6 py-7 space-y-5">
 
-                {/* ESTATUS */}
-                <section
-                    style={{
-                        background: '#FFFFFF',
-                        border: '1px solid #EAF1FC',
-                        borderRadius: 20,
-                        boxShadow: '0px 4px 18px rgba(31,105,231,0.05)',
-                        padding: '24px',
-                    }}
-                >
+                {/* FOLIO + STATUS */}
+                <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div>
-                            <p
-                                style={{
-                                    fontSize: 11,
-                                    fontWeight: 600,
-                                    letterSpacing: '0.18em',
-                                    textTransform: 'uppercase',
-                                    color: '#B0BBCC',
-                                    margin: '0 0 6px',
-                                }}
-                            >
+                            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#94A3B8] mb-1">
                                 Folio de infracción
                             </p>
-                            <h2
-                                style={{
-                                    fontSize: 26,
-                                    fontWeight: 700,
-                                    color: '#1A2340',
-                                    margin: 0,
-                                    wordBreak: 'break-all',
-                                }}
-                            >
+                            <h2 className="text-[26px] font-bold text-[#0F172A] break-all">
                                 {infraccion.folio}
                             </h2>
                         </div>
 
                         {infraccion.estatus === 'P' ? (
-                            <div
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: 8,
-                                    padding: '8px 16px',
-                                    borderRadius: 10,
-                                    background: '#EAF8F1',
-                                    border: '1px solid #BFE8D1',
-                                    color: '#1F7A4D',
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                }}
-                            >
-                                <CheckCircle2 size={15} />
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#DCFCE7] border border-[#22C55E]/30 text-[#16A34A] text-sm font-semibold shrink-0">
+                                <CheckCircle2 size={16} />
                                 Infracción pagada y liberada
                             </div>
                         ) : (
-                            <div
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: 8,
-                                    padding: '8px 16px',
-                                    borderRadius: 10,
-                                    background: '#FFF0F0',
-                                    border: '1px solid #FFC2C2',
-                                    color: '#B54747',
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                }}
-                            >
-                                <AlertTriangle size={15} />
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#FEE2E2] border border-[#FECACA] text-[#DC2626] text-sm font-semibold shrink-0">
+                                <AlertTriangle size={16} />
                                 Pago pendiente de infracción
                             </div>
                         )}
@@ -167,10 +82,10 @@ export default async function Page({
                     <div className="lg:col-span-2 space-y-5">
 
                         {/* VEHÍCULO */}
-                        <section style={cardStyle}>
+                        <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
                             <SectionHeader
-                                icon={<Car size={18} color="#1F69E7" />}
-                                iconBg="#EFF4FE"
+                                icon={<Car size={18} className="text-[#2563EB]" />}
+                                iconBg="#EFF6FF"
                                 title="Vehículo"
                                 subtitle="Información registrada"
                             />
@@ -183,10 +98,10 @@ export default async function Page({
                         </section>
 
                         {/* UBICACIÓN */}
-                        <section style={cardStyle}>
+                        <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
                             <SectionHeader
-                                icon={<MapPin size={18} color="#B54747" />}
-                                iconBg="#FFF0F0"
+                                icon={<MapPin size={18} className="text-[#EF4444]" />}
+                                iconBg="#FEE2E2"
                                 title="Ubicación"
                                 subtitle="Lugar de la infracción"
                             />
@@ -201,16 +116,16 @@ export default async function Page({
                         </section>
 
                         {/* DESCUENTOS */}
-                        <section style={cardStyle}>
+                        <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
                             <SectionHeader
-                                icon={<BanknoteArrowDown size={18} color="#B54747" />}
-                                iconBg="#FFF0F0"
+                                icon={<BanknoteArrowDown size={18} className="text-[#F59E0B]" />}
+                                iconBg="#FEF3C7"
                                 title="Descuentos"
                                 subtitle="Descuentos en infracción"
                             />
                             <div className="space-y-3">
                                 <InfoItem
-                                    label="Fecha limite de  descuento"
+                                    label="Fecha limite de descuento"
                                     value={infraccion.fecha_limite_descuento}
                                 />
                                 <InfoItem label="Porcentaje" value={`${Number(infraccion.descuento_aplicado)}%`} />
@@ -218,88 +133,51 @@ export default async function Page({
                         </section>
 
                         {/* MONTO */}
-                        <section
-                            style={{
-                                background: '#FFFFFF',
-                                border: '1px solid #EAF1FC',
-                                borderRadius: 20,
-                                boxShadow: '0px 4px 18px rgba(31,105,231,0.05)',
-                                overflow: 'hidden',
-                            }}
-                        >
-                            <div style={{ background: '#1A2340', padding: '24px 24px 20px' }}>
-                                <p
-                                    style={{
-                                        fontSize: 11,
-                                        fontWeight: 600,
-                                        letterSpacing: '0.18em',
-                                        textTransform: 'uppercase',
-                                        color: '#93C5FD',
-                                        margin: '0 0 10px',
-                                    }}
-                                >
+                        <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+                            <div className="bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] px-6 pt-6 pb-5">
+                                <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#93C5FD] mb-2">
                                     Monto a pagar
                                 </p>
 
-
-                                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                                    <span style={{ fontSize: 38, fontWeight: 700, color: '#FFFFFF', lineHeight: 1 }}>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-[38px] font-bold text-[#FFFFFF] leading-none">
                                         ${infraccion.total_pesos}
                                     </span>
-                                    <span style={{ fontSize: 13, color: '#93C5FD', fontWeight: 500 }}>MXN</span>
+                                    <span className="text-sm text-[#93C5FD] font-medium">MXN</span>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
-                                    <span style={{ fontSize: 26, fontWeight: 600, color: '#DBEAFE', lineHeight: 1 }}>
+                                <div className="flex items-baseline gap-2 mt-2">
+                                    <span className="text-[26px] font-semibold text-[#DBEAFE] leading-none">
                                         {infraccion.total_umas}
                                     </span>
-                                    <span style={{ fontSize: 13, color: '#93C5FD', fontWeight: 500 }}>UMAs</span>
+                                    <span className="text-sm text-[#93C5FD] font-medium">UMAs</span>
                                 </div>
                             </div>
 
-                            <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            <div className="px-6 py-4 flex flex-col gap-2.5">
                                 <MontoRow label="Monto total de UMAs" value={`${infraccion.montoTotal} UMAs`} />
                                 <MontoRow label="Descuento aplicado" value={`${Number(infraccion.descuento_aplicado)}%`} />
                                 <MontoRow label="Total UMAs a pagar" value={`${infraccion.total_umas} UMAs`} />
 
-
-                                <div style={{ height: '0.5px', background: '#EAF1FC' }} />
+                                <div className="h-px bg-[#E2E8F0]" />
                                 <MontoRow
                                     label="Estatus infracción"
                                     value={infraccion.estatus === 'I' ? 'Por pagar' : 'Pagada'}
-                                    valueColor={infraccion.estatus === 'I' ? '#B54747' : '#1F7A4D'}
+                                    valueColor={infraccion.estatus === 'I' ? '#EF4444' : '#22C55E'}
                                 />
                             </div>
                         </section>
 
                         {/* PAGO */}
-                        <section style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
-                            <div
-                                style={{
-                                    padding: '18px 24px',
-                                    borderBottom: '1px solid #EAF1FC',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 12,
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        width: 40,
-                                        height: 40,
-                                        borderRadius: 10,
-                                        background: '#EAF8F1',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}
-                                >
-                                    <CreditCard size={18} color="#22A06B" />
+                        <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+                            <div className="px-6 py-[18px] border-b border-[#E2E8F0] flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-[#DCFCE7] flex items-center justify-center">
+                                    <CreditCard size={18} className="text-[#22C55E]" />
                                 </div>
                                 <div>
-                                    <h3 style={{ fontSize: 15, fontWeight: 600, color: '#1A2340', margin: 0 }}>
+                                    <h3 className="text-[15px] font-semibold text-[#0F172A]">
                                         Pago Digital
                                     </h3>
-                                    <p style={{ fontSize: 12, color: '#8A96B0', margin: 0 }}>
+                                    <p className="text-xs text-[#64748B]">
                                         Plataforma segura
                                     </p>
                                 </div>
@@ -315,10 +193,10 @@ export default async function Page({
 
                     {/* SIDEBAR */}
                     <div className="space-y-5">
-                        <section style={cardStyle}>
+                        <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
                             <SectionHeader
-                                icon={<Shield size={18} color="#22A06B" />}
-                                iconBg="#EAF8F1"
+                                icon={<Shield size={18} className="text-[#22C55E]" />}
+                                iconBg="#DCFCE7"
                                 title="Garantía"
                                 subtitle="Documento retenido"
                             />
@@ -337,14 +215,6 @@ export default async function Page({
     );
 }
 
-const cardStyle: React.CSSProperties = {
-    background: '#FFFFFF',
-    border: '1px solid #EAF1FC',
-    borderRadius: 20,
-    boxShadow: '0px 4px 18px rgba(31,105,231,0.05)',
-    padding: '24px',
-};
-
 function SectionHeader({
     icon,
     iconBg,
@@ -357,28 +227,16 @@ function SectionHeader({
     subtitle: string;
 }) {
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+        <div className="flex items-center gap-3 mb-[18px]">
             <div
-                style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    background: iconBg,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                }}
+                className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: iconBg }}
             >
                 {icon}
             </div>
             <div>
-                <h3 style={{ fontSize: 15, fontWeight: 600, color: '#1A2340', margin: 0 }}>
-                    {title}
-                </h3>
-                <p style={{ fontSize: 12, color: '#8A96B0', margin: 0 }}>
-                    {subtitle}
-                </p>
+                <h3 className="text-[15px] font-semibold text-[#0F172A]">{title}</h3>
+                <p className="text-xs text-[#64748B]">{subtitle}</p>
             </div>
         </div>
     );
@@ -392,35 +250,11 @@ function InfoItem({
     value: string | number | null;
 }) {
     return (
-        <div
-            style={{
-                borderRadius: 10,
-                border: '1px solid #EAF1FC',
-                background: '#FAFBFF',
-                padding: '10px 14px',
-            }}
-        >
-            <p
-                style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: '0.15em',
-                    textTransform: 'uppercase',
-                    color: '#B0BBCC',
-                    margin: '0 0 4px',
-                }}
-            >
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
+            <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-[#94A3B8] mb-1">
                 {label}
             </p>
-            <p
-                style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: '#1A2340',
-                    margin: 0,
-                    wordBreak: 'break-all',
-                }}
-            >
+            <p className="text-sm font-semibold text-[#0F172A] break-all">
                 {value || 'No disponible'}
             </p>
         </div>
@@ -430,16 +264,16 @@ function InfoItem({
 function MontoRow({
     label,
     value,
-    valueColor = '#1A2340',
+    valueColor = '#0F172A',
 }: {
     label: string;
     value: string;
     valueColor?: string;
 }) {
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 13, color: '#6B778C' }}>{label}</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: valueColor }}>{value}</span>
+        <div className="flex justify-between items-center">
+            <span className="text-sm text-[#64748B]">{label}</span>
+            <span className="text-sm font-semibold" style={{ color: valueColor }}>{value}</span>
         </div>
     );
 }

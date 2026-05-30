@@ -23,12 +23,12 @@ export default function LogoutButton() {
         <button
             onClick={handleLogout}
             className="
-                flex items-center gap-2
-                px-3 py-2.5
-                rounded-xl
-                text-sm font-medium
+                flex items-center gap-2.5
+                px-3 py-2
+                rounded-lg
+                text-[14px] font-medium
                 text-[#EF4444]
-                hover:bg-[rgba(239,68,68,0.10)]
+                hover:bg-[#FEE2E2]
                 transition-all duration-200
                 w-full
             "

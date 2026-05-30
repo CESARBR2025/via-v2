@@ -14,10 +14,10 @@ export default function CardTable({
     return (
         <div
             className={`
-                bg-white
-                border border-gray-100
-                rounded-2xl
-                shadow-[0px_6px_18px_rgba(17,24,39,0.08),0px_2px_6px_rgba(31,105,231,0.06)]
+                bg-[#FFFFFF]
+                border border-[#E2E8F0]
+                rounded-xl
+                shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]
                 ${padding}
                 ${className}
             `}

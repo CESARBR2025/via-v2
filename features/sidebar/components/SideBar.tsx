@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
-
+import { useState } from "react";
 import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Shield,
 } from "lucide-react";
 
 import { navigationByRole }
@@ -22,6 +22,7 @@ import { useSidebarStore }
 import SidebarActionItem from "./SideBarActionItem";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
+import LoaderOverlay from "@/features/auth/components/LoaderOverlay";
 
 type Props = {
   role: UserRole;
@@ -41,12 +42,12 @@ export default function Sidebar({
 
   const router = useRouter();
   const logout = useAuthStore((s) => s.logout);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    setLoggingOut(true);
     try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-      });
+      await fetch("/api/auth/logout", { method: "POST" });
     } finally {
       logout();
       router.replace("/login");
@@ -56,28 +57,21 @@ export default function Sidebar({
   return (
     <aside
       className={`
-  hidden md:flex
-  flex-col
-  overflow-y-auto
-  relative
+        hidden md:flex
+        flex-col
+        overflow-y-auto
 
-  bg-gradient-to-b
-  from-[#1E3A8A]
-  via-[#1D4ED8]
-  to-[#1E40AF]
+        bg-[#FFFFFF]
+        border-r border-[#E2E8F0]
+        shadow-[2px_0_8px_rgba(0,0,0,0.04)]
 
-  border-r border-white/10
-  shadow-[0_8px_32px_rgba(15,23,42,0.18)]
+        transition-all duration-300 ease-in-out
 
-  backdrop-blur-xl
-
-  transition-all duration-300 ease-in-out
-
-  ${collapsed
-          ? "w-[72px] py-4 px-3"
-          : "w-64 py-5 px-4"
+        ${collapsed
+          ? "w-[72px] py-6 px-3"
+          : "w-[220px] py-6 px-3"
         }
-`}
+      `}
     >
 
       {/* ═══ HEADER ═══ */}
@@ -90,45 +84,44 @@ export default function Sidebar({
             : "justify-between"
           }
           min-h-[52px]
+          px-2
         `}
       >
 
         {!collapsed && (
-          <Image
-            src="/ui/via-logo.png"
-            alt="VIA"
-            width={100}
-            height={60}
-            priority
-            className="h-auto object-contain brightness-0 invert"
-          />
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shadow-[0_2px_8px_rgba(37,99,235,0.2)]">
+              <Shield size={16} className="text-white" strokeWidth={1.5} />
+            </div>
+            <div>
+              <span className="text-sm font-bold text-[#0F172A] tracking-tight leading-none block">
+                VIA
+              </span>
+              <span className="text-[9px] font-medium text-[#94A3B8] tracking-[0.15em] uppercase leading-none mt-0.5 block">
+                Dashboard
+              </span>
+            </div>
+          </div>
         )}
 
         {collapsed && (
-          <div
-            className="
-              w-10 h-10 rounded-lg
-              bg-white/20
-              flex items-center justify-center
-              text-[#FFFFFF] font-black text-base
-            "
-          >
-            V
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shadow-[0_2px_8px_rgba(37,99,235,0.2)]">
+            <Shield size={16} className="text-white" strokeWidth={1.5} />
           </div>
         )}
 
         <button
           onClick={toggleCollapsed}
           className={`
-            w-8 h-8 rounded-lg
-            hover:bg-white/[0.12]
+            w-7 h-7 rounded-lg
+            hover:bg-[#F8FAFC]
             flex items-center justify-center
-            text-white/50 hover:text-white
+            text-[#94A3B8] hover:text-[#0F172A]
             transition-colors duration-200
             ${collapsed ? "hidden" : ""}
           `}
         >
-          <ChevronLeft size={16} strokeWidth={2.5} />
+          <ChevronLeft size={14} strokeWidth={2} />
         </button>
 
       </div>
@@ -137,14 +130,14 @@ export default function Sidebar({
         <button
           onClick={toggleCollapsed}
           className="
-            mt-3 w-full h-8 rounded-lg
-            hover:bg-white/[0.12]
+            mt-3 w-full h-7 rounded-lg
+            hover:bg-[#F8FAFC]
             flex items-center justify-center
-            text-white/50 hover:text-white
+            text-[#94A3B8] hover:text-[#0F172A]
             transition-colors duration-200
           "
         >
-          <ChevronRight size={16} strokeWidth={2.5} />
+          <ChevronRight size={14} strokeWidth={2} />
         </button>
       )}
 
@@ -152,16 +145,15 @@ export default function Sidebar({
 
       <nav className="flex flex-col gap-6 mt-6 flex-1">
         {sections.map((section) => (
-          <div key={section.title} className="space-y-2">
+          <div key={section.title} className="space-y-1">
 
             {!collapsed && (
-              <p className="
-                px-3
-                text-[11px] font-semibold tracking-[0.1em] uppercase
-                text-white/45
-              ">
-                {section.title}
-              </p>
+              <div className="flex items-center gap-2 px-3 mb-2">
+                <div className="w-1 h-3 rounded-full bg-[#2563EB]" />
+                <p className="text-[10px] font-semibold tracking-[0.12em] uppercase text-[#64748B]">
+                  {section.title}
+                </p>
+              </div>
             )}
 
             <div className="flex flex-col gap-0.5">
@@ -176,9 +168,9 @@ export default function Sidebar({
 
       {/* ═══ FOOTER ═══ */}
 
-      <div className="pt-4 mt-auto border-t border-white/[0.10]">
+      <div className="pt-4 mt-auto border-t border-[#E2E8F0]">
         {!collapsed && (
-          <div className="rounded-xl bg-white/[0.08] p-2 border border-white/[0.06]">
+          <div className="px-2">
             <SidebarActionItem
               label="Cerrar sesión"
               icon={LogOut}
@@ -195,6 +187,7 @@ export default function Sidebar({
         )}
       </div>
 
+      <LoaderOverlay show={loggingOut} text="Saliendo del sistema..." />
     </aside>
   );
 }

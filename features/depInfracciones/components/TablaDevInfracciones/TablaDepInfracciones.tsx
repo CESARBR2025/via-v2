@@ -1,13 +1,13 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { FileText, SearchX } from 'lucide-react';
 import CardTable from '@/features/sidebar/components/CardTable';
 import { useTableInfracciones } from './hooks/useInfracciones';
 import { TablaInfraccionesHeader } from './components/TBInfHeader';
 import { TablaInfraccionesSearch } from './components/TbInfSearch';
 import { TablaInfracciones } from './components/TbInfracciones';
 import { TablaInfraccionesFooter } from './components/TBInfFooter';
-// Asegúrate de que el modal acepte la prop 'onRefresh' en su interfaz de TypeScript
 import { InfraccionDetalle, ModalDetalleInfraccionDtoInfracciones } from './ModalDetallesInfraccion';
 
 type Infraccion = {
@@ -28,92 +28,66 @@ type Props = {
 };
 
 export default function TablaDepInfracciones({ data }: Props) {
-    console.log(data)
     const rows = data.data;
 
-    // Hook personalizado para el filtrado y búsqueda en la tabla global
-    console.log(rows)
-    const {
-        searchGlobal,
-        setSearchGlobal,
-        filteredRows
-    } = useTableInfracciones(rows);
+    const { searchGlobal, setSearchGlobal, filteredRows } = useTableInfracciones(rows);
 
-    // Estados para controlar el comportamiento del Modal
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [detalle, setDetalle] = useState<InfraccionDetalle | null>(null);
 
-    /**
-     * FLUJO DE DATOS PRINCIPAL (Función Unificada):
-     * Sirve tanto para abrir el modal por primera vez, como para reactualizar
-     * los datos desde el hijo (refetch) cuando este registre cambios en la BD.
-     */
     async function refetchDetalle(id: string) {
-        console.log(id)
         setLoading(true);
         try {
             const res = await fetch(`/api/depInfracciones/detalleInfraccion/${id}`);
             if (!res.ok) throw new Error('Error al obtener el detalle de la infracción');
-
             const json = await res.json();
             setDetalle(json.data);
-            console.log(detalle)
-
         } catch (error) {
-            console.error("Error en el refetch:", error);
+            console.error('Error en el refetch:', error);
         } finally {
             setLoading(false);
         }
     }
 
-    /**
-     * Manejador exclusivo de la acción de la tabla al dar click en "Ver Detalle"
-     */
     async function handleOpenDetalle(id: string) {
-        console.log(id)
-        setOpen(true);       // 1. Abrimos el modal inmediatamente para mejorar UX (muestra esqueleto/spinner)
-        setDetalle(null);    // 2. Limpiamos residuo anterior si existiera
-        await refetchDetalle(id); // 3. Traemos los datos frescos
+        setOpen(true);
+        setDetalle(null);
+        await refetchDetalle(id);
     }
 
-    // Efecto de desarrollo para monitorear los cambios de estado
     useEffect(() => {
         if (detalle) {
-            console.log("🔄 El estado 'detalle' se actualizó con éxito:", detalle);
+            console.log('🔄 El estado detalle se actualizó con éxito:', detalle);
         }
     }, [detalle]);
 
     return (
-        <CardTable>
-            {/* Cabecera de la tabla */}
-            <TablaInfraccionesHeader
-                count={filteredRows.length}
-                total={data.total}
-            />
+        <CardTable className="flex flex-col flex-1 min-h-0 p-0 w-full">
+            <TablaInfraccionesHeader count={filteredRows.length} total={data.total} />
+            <TablaInfraccionesSearch value={searchGlobal} onChange={setSearchGlobal} onClear={() => setSearchGlobal('')} />
 
-            {/* Input de Búsqueda */}
-            <TablaInfraccionesSearch
-                value={searchGlobal}
-                onChange={setSearchGlobal}
-                onClear={() => setSearchGlobal("")}
-            />
+            <div className="flex-1 min-h-0 overflow-y-auto w-full">
+                {filteredRows.length > 0 ? (
+                    <TablaInfracciones rows={filteredRows} onOpen={handleOpenDetalle} />
+                ) : (
+                    <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F1F5F9]">
+                            <SearchX size={22} className="text-[#94A3B8]" strokeWidth={1.5} />
+                        </div>
+                        <div>
+                            <p className="text-[15px] font-semibold text-[#0F172A]">Sin infracciones encontradas</p>
+                            <p className="text-[13px] text-[#64748B] mt-0.5">
+                                {searchGlobal ? 'Intenta con otro término de búsqueda.' : 'No hay infracciones pendientes.'}
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </div>
 
-            {/* Cuerpo de la Tabla - Al disparar onOpen se ejecuta la apertura y fetch inicial */}
-            <TablaInfracciones
-                rows={filteredRows}
-                onOpen={handleOpenDetalle}
-            />
+            <TablaInfraccionesFooter count={filteredRows.length} page={data.page} total={data.total} />
 
-            {/* Paginador / Footer */}
-            <TablaInfraccionesFooter
-                count={filteredRows.length}
-                page={data.page}
-            />
-
-            {/* MODAL DE DETALLES (El Hijo) */}
-            {/* MODAL DE DETALLES (Solo se renderiza si 'open' es true) */}
             {open && (
                 <ModalDetalleInfraccionDtoInfracciones
                     isOpen={open}

@@ -37,18 +37,18 @@ import PasoDecuentos from '@/features/infracciones/components/steps/PasoDescuent
 // CLASES TAILWIND - Reutilización de estilos
 // ═══════════════════════════════════════════════════════════════════
 const inputBase = `
-  w-full rounded-xl border border-slate-300 bg-white px-4 py-3
-  text-sm text-slate-800 placeholder:text-slate-400
-  focus:border-[#0076aa] focus:ring-2 focus:ring-[#0076aa]/20 focus:outline-none
-  transition-all duration-200 shadow-sm
-  disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed
+  w-full rounded-lg border border-[#E2E8F0] bg-white px-4 py-3
+  text-sm text-[#0F172A] placeholder:text-[#94A3B8]
+  focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 focus:outline-none
+  transition-all duration-200
+  disabled:bg-[#F8FAFC] disabled:text-[#94A3B8] disabled:cursor-not-allowed
 `;
 
 const inputError = `
-  w-full rounded-xl border border-red-300 bg-red-50/30 px-4 py-3
-  text-sm text-slate-800 placeholder:text-slate-400
-  focus:border-red-400 focus:ring-2 focus:ring-red-400/20 focus:outline-none
-  transition-all duration-200 shadow-sm
+  w-full rounded-lg border border-[#FECACA] bg-[#FEE2E2]/30 px-4 py-3
+  text-sm text-[#0F172A] placeholder:text-[#94A3B8]
+  focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/15 focus:outline-none
+  transition-all duration-200
 `;
 
 
@@ -720,7 +720,7 @@ export default function FormularioInfraccion() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col flex-1 min-h-0 bg-slate-50  mx-auto w-full mt-4 sm:mt-4 rounded"
+            className="h-full flex flex-col bg-[#FFFFFF] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden"
         >
             {/* ───────────────────────────────────────────────────────────────
           MODAL DE PROCESO - Feedback visual durante registro
@@ -733,7 +733,7 @@ export default function FormularioInfraccion() {
           BANNER SIN CONEXIÓN - Alerta si no hay internet
           ─────────────────────────────────────────────────────────────── */}
             {!isOnline && (
-                <div className="flex items-center gap-2.5 px-4 py-2.5 bg-red-500 text-white text-xs font-semibold">
+                <div className="flex items-center gap-2.5 px-4 py-2.5 bg-[#EF4444] text-white text-xs font-semibold">
                     <svg
                         className="w-3.5 h-3.5 shrink-0"
                         fill="none"
@@ -755,11 +755,11 @@ export default function FormularioInfraccion() {
             {/* ═══════════════════════════════════════════════════════════════
           HEADER - Información de navegación y progreso
           ════════════════════════════════════════════════════════════════ */}
-            <header className="bg-white border-b border-slate-200 rounded">
+            <header className="bg-[#FFFFFF] border-b border-[#E2E8F0] shrink-0">
                 {/* Top bar: ícono + título + % completado */}
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#0076aa] to-[#0b3b60] flex items-center justify-center shadow-lg shadow-[#0076aa]/20 shrink-0">
+                        <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shadow-lg shadow-[#2563EB]/20 shrink-0">
                             <FileText
                                 className="w-3 h-3 sm:w-5 sm:h-5 text-white"
                                 strokeWidth={2}
@@ -767,13 +767,13 @@ export default function FormularioInfraccion() {
                         </div>
 
                         <div>
-                            <p className="text-[10px] sm:text-xs tracking-wide font-semibold uppercase text-[#0076aa]/50">
+                            <p className="text-[10px] sm:text-xs tracking-wide font-semibold uppercase text-[#2563EB]/50">
                                 Módulo de Oficial
                             </p>
-                            <h2 className="text-[16px] sm:text-xl font-bold text-[#0b3b60] leading-none mt-1">
+                            <h2 className="text-[16px] sm:text-xl font-bold text-[#0F172A] leading-none mt-1">
                                 Registrar Nueva Infracción
                             </h2>
-                            <p className="text-[10px] sm:text-xs text-slate-400 mt-2">
+                            <p className="text-[10px] sm:text-xs text-[#94A3B8] mt-2">
                                 Paso {currentStep + 1} de {steps.length} ·{' '}
                                 {activeStepConfig.title}
                             </p>
@@ -781,15 +781,15 @@ export default function FormularioInfraccion() {
                     </div>
 
                     {/* % completado — pill */}
-                    <span className="shrink-0 text-[10px] sm:text-sm font-semibold text-sky-700 bg-sky-50 border border-sky-200 px-3 py-1 rounded-full">
+                    <span className="shrink-0 text-[10px] sm:text-sm font-semibold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-3 py-1 rounded-full">
                         {progressPct}% completado
                     </span>
                 </div>
 
                 {/* Barra de progreso continua */}
-                <div className="h-[3px] bg-slate-100">
+                <div className="h-[3px] bg-[#F1F5F9]">
                     <div
-                        className="h-full bg-gradient-to-r from-sky-400 to-cyan-500 transition-all duration-500 ease-out"
+                        className="h-full bg-gradient-to-r from-[#2563EB] to-[#60A5FA] transition-all duration-500 ease-out"
                         style={{ width: `${progressPct}%` }}
                     />
                 </div>
@@ -808,7 +808,6 @@ export default function FormularioInfraccion() {
 
                             return (
                                 <React.Fragment key={step.id}>
-                                    {/* Botón del paso */}
                                     <button
                                         type="button"
                                         onClick={() =>
@@ -817,26 +816,22 @@ export default function FormularioInfraccion() {
                                         disabled={isPending}
                                         className={`
                       shrink-0 flex flex-col items-center gap-1.5 px-1
-                      rounded-xl transition-all duration-200
-                      ${isDone ? 'cursor-pointer hover:bg-slate-100' : ''}
-                      ${isActive || isPending
-                                                ? 'cursor-default'
-                                                : ''
-                                            }
+                      rounded-lg transition-all duration-200
+                      ${isDone ? 'cursor-pointer hover:bg-[#F8FAFC]' : ''}
+                      ${isActive || isPending ? 'cursor-default' : ''}
                     `}
                                     >
-                                        {/* Círculo del indicador */}
                                         <div
                                             className={`
                         w-7 h-7 rounded-full flex items-center justify-center
                         text-xs font-bold transition-all duration-300
-                        ${isDone ? 'bg-emerald-500 text-white' : ''}
+                        ${isDone ? 'bg-[#22C55E] text-white' : ''}
                         ${isActive
-                                                    ? 'bg-[#0076aa] text-white ring-4 ring-sky-200'
+                                                    ? 'bg-[#2563EB] text-white ring-4 ring-[#2563EB]/20'
                                                     : ''
                                                 }
                         ${isPending
-                                                    ? 'bg-slate-100 text-slate-400 border border-slate-200'
+                                                    ? 'bg-[#F1F5F9] text-[#94A3B8] border border-[#E2E8F0]'
                                                     : ''
                                                 }
                       `}
@@ -860,31 +855,26 @@ export default function FormularioInfraccion() {
                                             )}
                                         </div>
 
-                                        {/* Etiqueta del paso */}
                                         <span
                                             className={`
                         text-[10px] leading-tight text-center w-[52px] truncate block
                         transition-colors duration-200
-                        ${isDone ? 'text-emerald-600 font-medium' : ''}
-                        ${isActive
-                                                    ? 'text-[#0076aa] font-semibold'
-                                                    : ''
-                                                }
-                        ${isPending ? 'text-slate-400' : ''}
+                        ${isDone ? 'text-[#22C55E] font-medium' : ''}
+                        ${isActive ? 'text-[#2563EB] font-semibold' : ''}
+                        ${isPending ? 'text-[#94A3B8]' : ''}
                       `}
                                         >
                                             {step.title}
                                         </span>
                                     </button>
 
-                                    {/* Línea conectora entre pasos */}
                                     {!isLast && (
                                         <div
                                             className="flex-1 min-w-[12px] h-[2px] mt-[14px] mx-1 transition-all duration-300 shrink"
                                             style={{
                                                 background: isDone
-                                                    ? '#38bdf8'
-                                                    : '#e2e8f0',
+                                                    ? '#60A5FA'
+                                                    : '#E2E8F0',
                                             }}
                                         />
                                     )}
@@ -900,17 +890,15 @@ export default function FormularioInfraccion() {
           ════════════════════════════════════════════════════════════════ */}
             <main className="flex-1 min-h-0 overflow-y-auto">
                 <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-5">
-                    {/* Título y descripción del paso activo */}
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900 leading-tight">
+                        <h2 className="text-[22px] font-bold text-[#0F172A] leading-tight">
                             {activeStepConfig.title}
                         </h2>
-                        <p className="text-sm text-slate-500 mt-1">
+                        <p className="text-sm text-[#64748B] mt-1">
                             {activeStepConfig.description}
                         </p>
                     </div>
 
-                    {/* Componente del paso actual */}
                     {activeStepConfig.component}
                 </div>
             </main>
@@ -919,24 +907,22 @@ export default function FormularioInfraccion() {
           FOOTER - Botones de navegación
           ════════════════════════════════════════════════════════════════ */}
             {activeStepConfig.id !== 'pago' && (
-                <footer className="bg-white border-t border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between rounded-b">
-                    {/* Botón Atrás */}
+                <footer className="bg-[#FFFFFF] border-t border-[#E2E8F0] px-4 sm:px-6 py-4 flex items-center justify-between shrink-0">
                     <button
                         type="button"
                         disabled={currentStep === 0 || loading}
                         onClick={() => prevStep()}
-                        className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-5 py-2.5 rounded-lg border border-[#E2E8F0] text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Atrás
                     </button>
 
-                    {/* Botón Siguiente / Crear Infracción */}
                     {currentStep < steps.length - 2 ? (
                         <button
                             type="button"
                             disabled={loading}
                             onClick={handleNextStep}
-                            className="px-6 py-2.5 bg-[#0076aa] hover:bg-[#0b3b60] text-white text-sm font-semibold rounded-xl shadow-md shadow-sky-900/10 transition-colors disabled:opacity-50"
+                            className="px-6 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-sm font-semibold rounded-lg shadow-[0_4px_12px_rgba(37,99,235,0.25)] transition-colors disabled:opacity-50"
                         >
                             Siguiente
                         </button>
@@ -945,7 +931,7 @@ export default function FormularioInfraccion() {
                             type="submit"
                             disabled={loading}
                             onClick={handleRegistrarNuevaInfraccion}
-                            className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-md shadow-emerald-900/10 transition-colors flex items-center gap-2 disabled:opacity-50"
+                            className="px-6 py-2.5 bg-[#22C55E] hover:bg-[#16A34A] text-white text-sm font-bold rounded-lg shadow-[0_4px_12px_rgba(34,197,94,0.25)] transition-colors flex items-center gap-2 disabled:opacity-50"
                         >
                             {loading ? (
                                 <>
