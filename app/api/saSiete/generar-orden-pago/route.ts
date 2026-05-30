@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       folio,
       correoInfractor,
       descuentoAplicado,
+      cantidad,
     } = body;
 
     console.log(body);
@@ -100,6 +101,10 @@ export async function POST(req: NextRequest) {
         descuento = 0.3;
       } else if (descuentoAplicado === "50") {
         descuento = 0.5;
+      }
+
+      if (cantidad) {
+        descuento = cantidad;
       }
 
       console.log(descuento);

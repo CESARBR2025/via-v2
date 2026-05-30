@@ -28,6 +28,7 @@ export async function actualizarOrdenPago(payload: {
   apellidos_usuario: string;
   concepto_id: string;
   folio: string;
+  cantidad?: number;
 }) {
   console.log(payload.infraccion_id);
   const baseUrl =
