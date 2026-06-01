@@ -9,7 +9,7 @@ export async function GET(
   try {
     console.log(id);
     console.log("entro");
-    const data = await DepInfraccionesService.obtenerDetalle(id);
+    const data = await DepInfraccionesService.obtenerDetalleInfraccionSV(id);
     console.log(data);
 
     return NextResponse.json({

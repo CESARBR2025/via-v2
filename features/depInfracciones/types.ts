@@ -27,6 +27,7 @@ export type InfraccionDetail = {
     url_inapam: string;
     url_tarjeta_circulacion: string;
     url_ine: string;
+    url_evidencias: string[];
   };
 
   Infraccion: {

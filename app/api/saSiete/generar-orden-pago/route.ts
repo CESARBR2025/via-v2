@@ -146,6 +146,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(payloadSA7),
     });
 
+    console.log(responseSA7);
     // =========================================
     // LEER HEADERS IMPORTANTES
     // =========================================

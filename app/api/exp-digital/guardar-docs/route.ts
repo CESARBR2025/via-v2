@@ -17,10 +17,7 @@ async function subirArchivo(
 
   form.append("file", archivo);
 
-  form.append(
-    "ruta_personalizada",
-    `${carpeta}/${anio}/${mes}/${idInfraccion}`,
-  );
+  form.append("ruta_personalizada", `${anio}/${mes}/${idInfraccion}`);
 
   form.append("sistema", process.env.EXPEDIENTE_SISTEMA ?? "sspm");
 

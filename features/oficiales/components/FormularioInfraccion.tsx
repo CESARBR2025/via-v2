@@ -470,8 +470,6 @@ export default function FormularioInfraccion() {
                 component: (
                     <PasoEvidencias
                         key="evidencias"
-                        files={files}
-                        setFiles={setFiles}
                         loading={loading}
                     />
                 ),
@@ -698,6 +696,74 @@ export default function FormularioInfraccion() {
 
                 throw new Error(
                     'Fallo en expediente digital'
+                );
+            }
+
+            // Paso intermedio - Subir documentacion
+            // ─────────────────────────────────────────────────────────────
+            // FASE 1.6: SUBIR EVIDENCIAS
+            // ─────────────────────────────────────────────────────────────
+            setModalState('evidencias');
+            setProcesoMensaje('Guardando evidencias digitales...');
+
+            try {
+                const evidencias =
+                    storeData.evidencias ?? [];
+
+                const hayEvidencias =
+                    evidencias.length > 0;
+
+                if (hayEvidencias) {
+                    const formData = new FormData();
+
+                    formData.append(
+                        'idInfraccion',
+                        nuevaInfraccion.data.id
+                    );
+
+                    evidencias.forEach((archivo) => {
+                        formData.append(
+                            'evidencias',
+                            archivo
+                        );
+                    });
+
+                    const res = await fetch(
+                        '/api/exp-digital/guardar-evidencias',
+                        {
+                            method: 'POST',
+                            body: formData,
+                        }
+                    );
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        throw new Error(
+                            data.message ||
+                            'Error al guardar evidencias'
+                        );
+                    }
+
+                    console.log(
+                        '📸 Evidencias guardadas:',
+                        data
+                    );
+                }
+            } catch (error) {
+                logError(
+                    'GUARDADO DE EVIDENCIAS',
+                    error
+                );
+
+                setModalState('error');
+
+                setProcesoMensaje(
+                    'Error al guardar evidencias'
+                );
+
+                throw new Error(
+                    'Fallo en expediente digital - Evidencias'
                 );
             }
 

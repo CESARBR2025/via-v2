@@ -205,6 +205,9 @@ export interface InfraccionDetalleDTO {
 
 // Interfaz a usar en el store
 export interface DatosInfraccion {
+  //Evidencias
+  evidencias: File[];
+
   //Archivos a subir
   archivoINE: File | null;
   archivoInapam: File | null;
@@ -282,6 +285,7 @@ export type ProcesoEstado =
   | "inicio"
   | "creando"
   | "documentos"
+  | "evidencias"
   | "orden"
   | "completado"
   | "error";

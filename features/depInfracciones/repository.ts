@@ -58,7 +58,7 @@ export class DepInfraccionesRepository {
   static async detalleInfraccionRP(id: string) {
     const query = `
   SELECT 
-
+    i.evidencias,
     i.url_inapam,
     i.url_ine,
     i.url_tarjeta_circulacion,

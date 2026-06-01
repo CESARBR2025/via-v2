@@ -1,6 +1,9 @@
 import { DatosInfraccion } from "./types.";
 
 export const datosIniciales: DatosInfraccion = {
+  //Evidencias
+  evidencias: [],
+
   //Archivo de datos
   archivoINE: null,
   archivoInapam: null,

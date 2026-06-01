@@ -4,6 +4,7 @@ const SOAP_URL =
   "http://dcsazurehost.eastus.cloudapp.azure.com:8085/IngresoWebService.asmx";
 
 export async function POST(req: NextRequest) {
+  console.log("entro");
   try {
     console.log("entro a consultar estatus sa7");
     const body = await req.json();
@@ -64,6 +65,7 @@ export async function POST(req: NextRequest) {
     });
 
     const rawXml = await response.text();
+    console.log(rawXml);
 
     // =====================================================
     // EXTRAER JSON DEL XML

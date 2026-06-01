@@ -23,6 +23,7 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
     url_inapam: safeRowMapper(row.url_inapam),
     url_tarjeta_circulacion: safeRowMapper(row.url_tarjeta_circulacion),
     url_ine: safeRowMapper(row.url_ine),
+    url_evidencias: row.evidencias,
   },
 
   Infraccion: {

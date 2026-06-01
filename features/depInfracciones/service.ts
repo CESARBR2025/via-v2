@@ -60,7 +60,7 @@ export class DepInfraccionesService {
   }
 
   // Detalles de infra
-  static async obtenerDetalle(id: string) {
+  static async obtenerDetalleInfraccionSV(id: string) {
     try {
       console.log(id);
 
@@ -71,7 +71,7 @@ export class DepInfraccionesService {
       if (!data) return null;
 
       const mappedData = mapInfraccionDetail(data);
-      console.log(mappedData);  
+      console.log(mappedData);
 
       return mappedData;
     } catch (error) {
