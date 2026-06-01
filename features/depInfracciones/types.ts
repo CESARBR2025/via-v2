@@ -24,6 +24,9 @@ export type InfraccionDetail = {
     folio_de_infraccion: string;
     fecha_de_registro_de_infraccion: string;
     estatus_de_infraccion: string;
+    url_inapam: string;
+    url_tarjeta_circulacion: string;
+    url_ine: string;
   };
 
   Infraccion: {

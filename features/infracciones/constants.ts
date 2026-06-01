@@ -1,6 +1,12 @@
 import { DatosInfraccion } from "./types.";
 
 export const datosIniciales: DatosInfraccion = {
+  //Archivo de datos
+  archivoINE: null,
+  archivoInapam: null,
+  archivoTarjetaCirculacion: null,
+
+  // Datos de formulario
   esCiudadanoAdultoMayor: false,
   presentaInapam: false,
   fechaLimiteDescuento: "",

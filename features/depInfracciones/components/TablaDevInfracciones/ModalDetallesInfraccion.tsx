@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CardTable from '@/features/sidebar/components/CardTable';
 import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
-
+import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento';
 /* ─── INTERFACES ─── */
 
 export interface InfraccionHeader {
@@ -11,6 +11,9 @@ export interface InfraccionHeader {
     folio_de_infraccion: string;
     fecha_de_registro_de_infraccion: string;
     estatus_de_infraccion: string;
+    url_ine: string
+    url_tarjeta_circulacion: string
+    url_inapam: string
 }
 
 export interface InfraccionLegal {
@@ -242,6 +245,32 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
         }
     };
 
+    // LOOP para renderizar docukentos
+    const HOST =
+        process.env.NEXT_PUBLIC_EXPEDIENTE_HOST;
+
+    const documentos = [
+        {
+            nombre: 'INE',
+            ruta:
+                detalle?.Header?.url_ine,
+        },
+        {
+            nombre: 'INAPAM',
+            ruta:
+                detalle?.Header?.url_inapam,
+        },
+        {
+            nombre: 'Tarjeta de Circulación',
+            ruta:
+                detalle?.Header
+                    ?.url_tarjeta_circulacion,
+        },
+    ].filter(
+        (doc) =>
+            doc.ruta &&
+            doc.ruta !== 'NO_DATA'
+    );
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5"
@@ -574,6 +603,68 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                                                         : sanitize(detalle.garantia.garantia_retenida, 'Ninguna')}
                                                 </p>
                                             </div>
+                                        </div>
+                                    </Section>
+
+                                    <Section
+                                        icon={<ShieldIcon />}
+                                        title="Documentación"
+                                        accent="#F59E0B"
+                                        accentBg="#FFFBEB"
+                                    >
+                                        <div className="space-y-3">
+
+                                            {documentos.length === 0 ? (
+                                                <div className="rounded-lg border border-dashed p-4 text-center text-sm text-gray-500">
+                                                    No existen documentos adjuntos
+                                                </div>
+                                            ) : (
+                                                documentos.map((doc) => (
+                                                    <div
+                                                        key={doc.nombre}
+                                                        className="
+                        flex
+                        items-center
+                        justify-between
+                        rounded-lg
+                        border
+                        border-[#FCD34D]
+                        bg-[#FFFBEB]
+                        p-3
+                    "
+                                                    >
+                                                        <div>
+                                                            <p className="text-[10px] font-semibold tracking-widest text-[#92400E] uppercase">
+                                                                Documento
+                                                            </p>
+
+                                                            <p className="text-[14px] font-bold text-[#78350F]">
+                                                                {doc.nombre}
+                                                            </p>
+                                                        </div>
+
+                                                        <button
+                                                            onClick={() =>
+                                                                abrirDocumento(
+                                                                    doc.ruta!
+                                                                )
+                                                            }
+                                                            className="
+        rounded-lg
+        bg-amber-500
+        px-3
+        py-2
+        text-xs
+        font-semibold
+        text-white
+    "
+                                                        >
+                                                            Ver
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            )}
+
                                         </div>
                                     </Section>
 

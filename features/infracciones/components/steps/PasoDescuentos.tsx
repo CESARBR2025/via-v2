@@ -26,6 +26,8 @@ export default function PasoDecuentos({
     const datos =
         useInfraccionStore((s) => s.datos);
 
+    console.log(datos)
+
     const actualizarDatos =
         useInfraccionStore((s) => s.actualizarDatos);
 
@@ -229,20 +231,45 @@ export default function PasoDecuentos({
 
                             <input
                                 type="file"
-                                accept="image/*"
+                                accept="image/*,application/pdf"
                                 capture="environment"
                                 disabled={loading}
                                 onChange={(e) => {
+                                    const file = e.target.files?.[0] || null;
 
-                                    const file =
-                                        e.target.files?.[0] || null;
-
-
-
+                                    actualizarDatos({
+                                        archivoINE: file,
+                                    });
                                 }}
                             />
 
                         </div>
+
+                        {/* TARJ CIRCULACION */}
+                        <div>
+
+                            <label className="block text-sm font-medium mb-2">
+
+                                Fotografía de la tarjeta de circulacion
+
+                            </label>
+
+                            <input
+                                type="file"
+                                accept="image/*,application/pdf"
+                                capture="environment"
+                                disabled={loading}
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0] || null;
+
+                                    actualizarDatos({
+                                        archivoTarjetaCirculacion: file,
+                                    });
+                                }}
+                            />
+
+                        </div>
+
 
                         {/* INAPAM */}
                         {datos.esCiudadanoAdultoMayor === true &&
@@ -258,19 +285,17 @@ export default function PasoDecuentos({
 
                                     <input
                                         type="file"
-                                        accept="image/*"
+                                        accept="image/*,application/pdf"
                                         capture="environment"
                                         disabled={loading}
                                         onChange={(e) => {
+                                            const file = e.target.files?.[0] || null;
 
-                                            const file =
-                                                e.target.files?.[0] || null;
-
-
+                                            actualizarDatos({
+                                                archivoInapam: file,
+                                            });
                                         }}
-                                    />
-
-                                </div>
+                                    />                                </div>
 
                             )}
 

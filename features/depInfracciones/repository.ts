@@ -55,9 +55,14 @@ export class DepInfraccionesRepository {
     return result.rows[0].total;
   }
 
-  static async findById(id: string) {
+  static async detalleInfraccionRP(id: string) {
     const query = `
   SELECT 
+
+    i.url_inapam,
+    i.url_ine,
+    i.url_tarjeta_circulacion,
+    
     i.id,
     i.folio,
     i.estatus,

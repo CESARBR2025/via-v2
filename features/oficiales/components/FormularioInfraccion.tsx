@@ -62,6 +62,8 @@ export default function FormularioInfraccion() {
     // ───────────────────────────────────────────────────────────────────
     const [mounted, setMounted] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
+    console.log(files)
+
     const [success, setSuccess] = useState<string | null | boolean>(null);
     const [error, setError] = useState<string | null>(null);
     const [latInicial, setLatInicial] = useState<number | null>(null);
@@ -617,6 +619,86 @@ export default function FormularioInfraccion() {
                 throw new Error('Fallo en creación de infracción');
                 return
 
+            }
+
+            // Paso intermedio - Subir documentacion
+            // ─────────────────────────────────────────────────────────────
+            // FASE 1.5: SUBIR DOCUMENTOS
+            // ─────────────────────────────────────────────────────────────
+            setModalState('documentos');
+            setProcesoMensaje('Guardando expediente digital...');
+
+            try {
+                const formData = new FormData();
+
+                formData.append(
+                    'idInfraccion',
+                    nuevaInfraccion.data.id
+                );
+
+                if (storeData.archivoINE) {
+                    formData.append(
+                        'archivoIne',
+                        storeData.archivoINE
+                    );
+                }
+
+                if (storeData.archivoInapam) {
+                    formData.append(
+                        'archivoInapam',
+                        storeData.archivoInapam
+                    );
+                }
+
+                if (storeData.archivoTarjetaCirculacion) {
+                    formData.append(
+                        'archivoTarjetaCirculacion',
+                        storeData.archivoTarjetaCirculacion
+                    );
+                }
+
+                const hayDocumentos =
+                    storeData.archivoINE ||
+                    storeData.archivoInapam ||
+                    storeData.archivoTarjetaCirculacion;
+
+                if (hayDocumentos) {
+                    const res = await fetch(
+                        '/api/exp-digital/guardar-docs',
+                        {
+                            method: 'POST',
+                            body: formData,
+                        }
+                    );
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        throw new Error(
+                            data.message ||
+                            'Error al guardar documentos'
+                        );
+                    }
+
+                    console.log(
+                        '📁 Documentos guardados:',
+                        data
+                    );
+                }
+            } catch (error) {
+                logError(
+                    'GUARDADO DE DOCUMENTOS',
+                    error
+                );
+
+                setModalState('error');
+                setProcesoMensaje(
+                    'Error al guardar expediente digital'
+                );
+
+                throw new Error(
+                    'Fallo en expediente digital'
+                );
             }
 
             // ─────────────────────────────────────────────────────────────

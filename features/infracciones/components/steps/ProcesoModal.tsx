@@ -27,6 +27,13 @@ const config: Record<ProcesoEstado, {
         ringColor: "rgba(37,99,235,0.2)",
         label: "Creando infracción",
     },
+    documentos: {
+        icon: FileText,
+        color: "#2563EB",
+        bgColor: "#EFF6FF",
+        ringColor: "rgba(37,99,235,0.2)",
+        label: "Creando infracción",
+    },
     orden: {
         icon: Receipt,
         color: "#F59E0B",
@@ -52,14 +59,17 @@ const config: Record<ProcesoEstado, {
 
 const STEPS = [
     { key: "creando", label: "Registrando" },
+    { key: "documentos", label: "Guardado documentos" },
     { key: "orden", label: "Orden de pago" },
+
     { key: "completado", label: "Finalizado" },
 ] as const;
 
 function getStepIndex(estado: ProcesoEstado): number {
     if (estado === "creando") return 0;
-    if (estado === "orden") return 1;
-    if (estado === "completado") return 2;
+    if (estado === "documentos") return 1;
+    if (estado === "orden") return 2;
+    if (estado === "completado") return 3;
     return -1;
 }
 

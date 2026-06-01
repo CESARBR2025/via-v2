@@ -64,13 +64,14 @@ export class DepInfraccionesService {
     try {
       console.log(id);
 
-      const data = await DepInfraccionesRepository.findById(id);
+      const data = await DepInfraccionesRepository.detalleInfraccionRP(id);
 
       console.log(data);
 
       if (!data) return null;
 
       const mappedData = mapInfraccionDetail(data);
+      console.log(mappedData);  
 
       return mappedData;
     } catch (error) {

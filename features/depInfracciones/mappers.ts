@@ -20,6 +20,9 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
     folio_de_infraccion: safeRowMapper(row.folio),
     fecha_de_registro_de_infraccion: safeRowMapper(row.created_at),
     estatus_de_infraccion: safeRowMapper(row.estatus),
+    url_inapam: safeRowMapper(row.url_inapam),
+    url_tarjeta_circulacion: safeRowMapper(row.url_tarjeta_circulacion),
+    url_ine: safeRowMapper(row.url_ine),
   },
 
   Infraccion: {

@@ -16,7 +16,7 @@ export default async function DepInfraccionesPage() {
     }
 
     const data = await res.json();
-
+    console.log(data)
     return (
         <div className="flex flex-col h-full">
             <div className="shrink-0">

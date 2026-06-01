@@ -205,6 +205,11 @@ export interface InfraccionDetalleDTO {
 
 // Interfaz a usar en el store
 export interface DatosInfraccion {
+  //Archivos a subir
+  archivoINE: File | null;
+  archivoInapam: File | null;
+  archivoTarjetaCirculacion: File | null;
+
   //Fase de descuentos
   esCiudadanoAdultoMayor: boolean;
   presentaInapam: boolean;
@@ -276,6 +281,7 @@ export interface DatosInfraccion {
 export type ProcesoEstado =
   | "inicio"
   | "creando"
+  | "documentos"
   | "orden"
   | "completado"
   | "error";
