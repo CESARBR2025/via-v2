@@ -3,6 +3,8 @@ export interface CrearInfraccionDTO {
   // fechaLimiteDescuento: '2026-06-08T20:01:40.187Z',
   // esCiudadanoAdultoMayor: true,
 
+  dependenciaRemisora: string;
+
   correoInfractor: string;
   oficialId: string;
 
@@ -59,6 +61,7 @@ export interface CrearInfraccionDTO {
 }
 
 export interface InfraccionDB {
+  dependenciaRemisora: string;
   correoInfractor: string;
   clasificacion: string;
 
@@ -205,6 +208,9 @@ export interface InfraccionDetalleDTO {
 
 // Interfaz a usar en el store
 export interface DatosInfraccion {
+  //Dependencia externa
+  dependenciaRemisora: string;
+
   //Evidencias
   evidencias: File[];
 

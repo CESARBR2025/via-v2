@@ -7,19 +7,43 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("entro");
-    const body = await req.json();
-    console.log(body);
+    console.log("========== NUEVA INFRACCION ==========");
 
-    // obtener desde auth/session/jwt
+    let body;
+
+    try {
+      body = await req.json();
+      console.log("[BODY RECIBIDO]");
+      console.dir(body, { depth: null });
+    } catch (error) {
+      console.error("[ERROR PARSEANDO JSON]", error);
+
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "Body inválido",
+        },
+        { status: 400 },
+      );
+    }
+
     const oficialId = "901eecf4-8e8d-489c-8595-deec458b16bf";
 
+    console.log("[SANITIZANDO PAYLOAD]");
+
     const payload = sanitizeCrearInfraccionPayload(body, oficialId);
-    console.log(payload);
+
+    console.log("[PAYLOAD GENERADO]");
+    console.dir(payload, { depth: null });
+
+    console.log("[LLAMANDO SERVICE]");
 
     const infraccion =
       await InfraccionesService.registrarNuevaInfraccionSV(payload);
-    console.log(infraccion);
+
+    console.log("[RESPUESTA SERVICE]");
+    console.dir(infraccion, { depth: null });
+
     return NextResponse.json(
       {
         ok: true,
@@ -29,13 +53,20 @@ export async function POST(req: NextRequest) {
         status: 201,
       },
     );
-  } catch (error) {
-    console.error("[API][INFRACCIONES][POST]", error);
+  } catch (error: any) {
+    console.error("[API][INFRACCIONES][POST][ERROR COMPLETO]", error);
+
+    console.error("[MESSAGE]", error?.message);
+    console.error("[STACK]", error?.stack);
+    console.error("[CAUSE]", error?.cause);
 
     return NextResponse.json(
       {
         ok: false,
-        message: "Ocurrió un error al registrar la infracción",
+        message:
+          error?.message ?? "Ocurrió un error al registrar la infracción",
+        stack:
+          process.env.NODE_ENV === "development" ? error?.stack : undefined,
       },
       {
         status: 500,

@@ -1,6 +1,8 @@
 import { DatosInfraccion } from "./types.";
 
 export const datosIniciales: DatosInfraccion = {
+  //Depentencia a remitir
+  dependenciaRemisora: "",
   //Evidencias
   evidencias: [],
 
