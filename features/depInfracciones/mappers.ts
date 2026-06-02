@@ -38,10 +38,12 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
   },
 
   datos_infractor: {
+    es_titular: safeRowMapper(row.es_titular),
     nombre_infractor: safeRowMapper(
       `${row.nombre_infractor ?? ""} ${row.apellido_paterno_infractor ?? ""} ${row.apellido_materno_infractor ?? ""}`.trim(),
     ),
     correo_infractor: safeRowMapper(row.correo_infractor),
+    curp_infractor: safeRowMapper(row.curp_infractor),
   },
 
   vehiculo: {
