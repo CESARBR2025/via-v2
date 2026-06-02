@@ -1,4 +1,5 @@
-import React from 'react';
+'use client'
+import React, { useEffect, useState } from 'react';
 import { CardTitle } from '../ui/CardTitle';
 import { Card } from '../ui/Card';
 import { SelectWrapper } from '../ui/SelectWrapper';
@@ -29,6 +30,36 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
     const datos = useInfraccionStore((s) => s.datos);
     const actualizarDatos = useInfraccionStore((s) => s.actualizarDatos);
     console.log(datos)
+
+    const [gruas, setGruas] = useState<
+        {
+            id: string;
+            nombre: string;
+            activo: boolean;
+        }[]
+    >([]);
+
+    useEffect(() => {
+        const cargarGruas = async () => {
+            try {
+                const response = await fetch('/api/complementos/gruas');
+
+                if (!response.ok) {
+                    throw new Error('Error al obtener grúas');
+                }
+
+                const result = await response.json();
+
+                setGruas(result.data ?? []);
+            } catch (error) {
+                console.error('Error cargando grúas:', error);
+            }
+        };
+
+        cargarGruas();
+    }, []);
+
+    console.log(gruas)
     return (
         <Card>
             <CardTitle>Garantía retenida</CardTitle>
@@ -94,10 +125,10 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
                             </p>
                         </div>
 
-                        {/* Grúa Asignada */}
                         {datos.motivoRetencionVehiculo && (
                             <div className="relative pb-5">
                                 <FieldLabel required>Grúa asignada</FieldLabel>
+
                                 <SelectWrapper>
                                     <select
                                         name="grua"
@@ -108,16 +139,59 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
                                                 gruaInvolucrada: e.target.value,
                                             })
                                         }
-                                        className={fieldError(datos.gruaInvolucrada) ? selectError : selectBase}
+                                        className={
+                                            fieldError(datos.gruaInvolucrada)
+                                                ? selectError
+                                                : selectBase
+                                        }
                                     >
-                                        <option value="">Selecciona grúa</option>
-                                        <option value="MW">MW</option>
-                                        <option value="MEJIA">MEJIA</option>
+                                        <option value="">
+                                            Selecciona grúa
+                                        </option>
+
+                                        {gruas.map((grua) => (
+                                            <option
+                                                key={grua.id}
+                                                value={grua.id}
+                                            >
+                                                {grua.nombre}
+                                            </option>
+                                        ))}
                                     </select>
                                 </SelectWrapper>
+
                                 <p className="absolute bottom-0 left-0 text-xs text-red-500">
                                     {fieldError(datos.gruaInvolucrada)
                                         ? 'Selecciona la grúa asignada'
+                                        : ''}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Dependencia a remitir */}
+                        {datos.gruaInvolucrada && (
+                            <div className="relative pb-5">
+                                <FieldLabel required>Infractor sera remitido a</FieldLabel>
+                                <SelectWrapper>
+                                    <select
+                                        name="dependenciaRemisora"
+                                        disabled={loading}
+                                        value={datos.dependenciaRemisora}
+                                        onChange={(e) =>
+                                            actualizarDatos({
+                                                dependenciaRemisora: e.target.value,
+                                            })
+                                        }
+                                        className={fieldError(datos.dependenciaRemisora) ? selectError : selectBase}
+                                    >
+                                        <option value="">Selecciona dependencia</option>
+                                        <option value="FISCALIA">FISCALIA</option>
+                                        <option value="JUZGADO">JUZGADO CIVICO</option>
+                                    </select>
+                                </SelectWrapper>
+                                <p className="absolute bottom-0 left-0 text-xs text-red-500">
+                                    {fieldError(datos.dependenciaRemisora)
+                                        ? 'Selecciona la dependencia a donde sera remitido el infractor'
                                         : ''}
                                 </p>
                             </div>

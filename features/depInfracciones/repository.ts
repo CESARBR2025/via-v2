@@ -37,6 +37,42 @@ export class DepInfraccionesRepository {
     };
   }
 
+  //Listar infracciones de fiscalia
+  static async getInfraccionesFiscaliaFiltradasRepository(params: {
+    from: string;
+    to: string;
+  }) {
+    console.log("entro");
+
+    const { from, to } = params;
+
+    const query = `
+         SELECT
+        id,
+        folio,
+        estatus,
+        placa,
+        created_at,
+        correo_infractor,
+        nombre_infractor
+      FROM v2_infracciones
+      WHERE tipo_garantia  = 'VEHICULO'
+        AND estatus != 'LIBERADA'
+        AND dependencia_receptora = 'FISCALIA'
+      ORDER BY created_at DESC
+
+    `;
+
+    const values = [from, to];
+
+    const result = await pool.query(query);
+    console.log(result);
+
+    return {
+      rows: result.rows,
+    };
+  }
+
   static async contarRegistrosInfracciones(params: {
     from: string;
     to: string;
@@ -55,9 +91,34 @@ export class DepInfraccionesRepository {
     return result.rows[0].total;
   }
 
-  static async findById(id: string) {
+  // Contar registros de fiscalia
+  static async contarRegistrosFiscaliaInfracciones(params: {
+    from: string;
+    to: string;
+  }) {
+    const { from, to } = params;
+
+    const query = `
+      SELECT COUNT(*)::int AS total
+      FROM v2_infracciones
+      WHERE tipo_garantia = 'VEHICULO'   
+      AND dependencia_receptora = 'FISCALIA'     
+        AND created_at BETWEEN $1 AND $2
+    `;
+
+    const result = await pool.query(query, [from, to]);
+
+    return result.rows[0].total;
+  }
+
+  static async detalleInfraccionRP(id: string) {
     const query = `
   SELECT 
+    i.evidencias,
+    i.url_inapam,
+    i.url_ine,
+    i.url_tarjeta_circulacion,
+    
     i.id,
     i.folio,
     i.estatus,
@@ -86,12 +147,15 @@ export class DepInfraccionesRepository {
     i.numero,
     i.municipio,
     i.estado,
+    
 
     i.tipo_garantia,
     i.garantia_entregada,
 
     o.total_umas,
-    o.total_pesos
+    o.total_pesos,
+
+    i.es_titular
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o

@@ -24,6 +24,10 @@ export type InfraccionDetail = {
     folio_de_infraccion: string;
     fecha_de_registro_de_infraccion: string;
     estatus_de_infraccion: string;
+    url_inapam: string;
+    url_tarjeta_circulacion: string;
+    url_ine: string;
+    url_evidencias: string[];
   };
 
   Infraccion: {
@@ -34,8 +38,10 @@ export type InfraccionDetail = {
   };
 
   datos_infractor: {
+    es_titular: boolean;
     nombre_infractor: string;
     correo_infractor: string | null;
+    curp_infractor: string | null;
   };
 
   vehiculo: {

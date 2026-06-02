@@ -20,6 +20,10 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
     folio_de_infraccion: safeRowMapper(row.folio),
     fecha_de_registro_de_infraccion: safeRowMapper(row.created_at),
     estatus_de_infraccion: safeRowMapper(row.estatus),
+    url_inapam: safeRowMapper(row.url_inapam),
+    url_tarjeta_circulacion: safeRowMapper(row.url_tarjeta_circulacion),
+    url_ine: safeRowMapper(row.url_ine),
+    url_evidencias: row.evidencias,
   },
 
   Infraccion: {
@@ -34,10 +38,12 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
   },
 
   datos_infractor: {
+    es_titular: safeRowMapper(row.es_titular),
     nombre_infractor: safeRowMapper(
       `${row.nombre_infractor ?? ""} ${row.apellido_paterno_infractor ?? ""} ${row.apellido_materno_infractor ?? ""}`.trim(),
     ),
     correo_infractor: safeRowMapper(row.correo_infractor),
+    curp_infractor: safeRowMapper(row.curp_infractor),
   },
 
   vehiculo: {

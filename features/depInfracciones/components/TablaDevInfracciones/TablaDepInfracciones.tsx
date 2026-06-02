@@ -50,6 +50,7 @@ export default function TablaDepInfracciones({ data }: Props) {
             setLoading(false);
         }
     }
+    console.log(detalle)
 
     async function handleOpenDetalle(id: string) {
         setOpen(true);

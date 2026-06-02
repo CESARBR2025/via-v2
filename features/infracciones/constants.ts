@@ -1,6 +1,17 @@
 import { DatosInfraccion } from "./types.";
 
 export const datosIniciales: DatosInfraccion = {
+  //Depentencia a remitir
+  dependenciaRemisora: "",
+  //Evidencias
+  evidencias: [],
+
+  //Archivo de datos
+  archivoINE: null,
+  archivoInapam: null,
+  archivoTarjetaCirculacion: null,
+
+  // Datos de formulario
   esCiudadanoAdultoMayor: false,
   presentaInapam: false,
   fechaLimiteDescuento: "",

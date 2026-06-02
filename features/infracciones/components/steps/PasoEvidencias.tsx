@@ -1,28 +1,37 @@
+'use client';
+
 import React from 'react';
+
 import { Card } from '../ui/Card';
 import { CardTitle } from '../ui/CardTitle';
+
 import { useInfraccionStore } from '@/stores/useInfraccionStore';
 
 interface PasoEvidenciasProps {
-    files: File[];
-    setFiles: React.Dispatch<React.SetStateAction<File[]>>;
     loading?: boolean;
 }
 
 export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
-    files,
-    setFiles,
     loading = false,
 }) => {
-    // normalización segura (evita null)
-    const datos = useInfraccionStore((s) => s.datos);
-    const actualizarDatos = useInfraccionStore((s) => s.actualizarDatos);
+    const datos =
+        useInfraccionStore((s) => s.datos);
+    console.log(datos)
 
-    const agregarEvidencia = datos.agregarEvidencia === true;
+    const actualizarDatos =
+        useInfraccionStore((s) => s.actualizarDatos);
+
+    const agregarEvidencia =
+        datos.agregarEvidencia === true;
+
+    const evidencias =
+        datos.evidencias ?? [];
 
     return (
         <Card>
-            <CardTitle>Evidencias fotográficas</CardTitle>
+            <CardTitle>
+                Evidencias fotográficas
+            </CardTitle>
 
             <p className="text-sm text-slate-500 mb-5">
                 Las fotografías son opcionales pero fortalecen el expediente de infracción.
@@ -32,19 +41,28 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
             <label
                 className={`
                     flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 w-fit
-                    ${agregarEvidencia ? 'border-[#3071E7] bg-blue-50' : 'border-slate-200 hover:border-slate-300'}
+                    ${agregarEvidencia
+                        ? 'border-[#3071E7] bg-blue-50'
+                        : 'border-slate-200 hover:border-slate-300'
+                    }
                 `}
             >
                 <div
                     className={`
                         w-10 h-6 rounded-full relative transition-all duration-300
-                        ${agregarEvidencia ? 'bg-[#3071E7]' : 'bg-slate-300'}
+                        ${agregarEvidencia
+                            ? 'bg-[#3071E7]'
+                            : 'bg-slate-300'
+                        }
                     `}
                 >
                     <div
                         className={`
                             absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all duration-300
-                            ${agregarEvidencia ? 'left-5' : 'left-1'}
+                            ${agregarEvidencia
+                                ? 'left-5'
+                                : 'left-1'
+                            }
                         `}
                     />
                 </div>
@@ -52,12 +70,21 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                 <input
                     type="checkbox"
                     checked={agregarEvidencia}
-                    onChange={(e) =>
-                        actualizarDatos({
-                            agregarEvidencia: e.target.checked,
-                        })
-                    }
+                    onChange={(e) => {
+                        const checked =
+                            e.target.checked;
 
+                        actualizarDatos({
+                            agregarEvidencia:
+                                checked,
+
+                            // Si desactiva el switch
+                            // limpiamos evidencias
+                            evidencias: checked
+                                ? evidencias
+                                : [],
+                        });
+                    }}
                     className="sr-only"
                 />
 
@@ -97,6 +124,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                             <p className="text-sm font-semibold text-[#0076aa]">
                                 Seleccionar fotografías
                             </p>
+
                             <p className="text-xs text-slate-400 mt-0.5">
                                 PNG, JPG o HEIC · Múltiples archivos permitidos
                             </p>
@@ -108,30 +136,82 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                             multiple
                             accept="image/*"
                             onChange={(e) => {
-                                if (e.target.files) {
-                                    setFiles(Array.from(e.target.files));
-                                }
+                                if (!e.target.files)
+                                    return;
+
+                                actualizarDatos({
+                                    evidencias:
+                                        Array.from(
+                                            e.target.files
+                                        ),
+                                });
                             }}
                             className="sr-only"
                         />
                     </label>
 
-                    {/* Files */}
-                    {files.length > 0 && (
+                    {/* Evidencias seleccionadas */}
+                    {evidencias.length > 0 && (
                         <div className="mt-4 space-y-2">
                             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                                {files.length} archivo(s) seleccionado(s)
+                                {
+                                    evidencias.length
+                                }{' '}
+                                archivo(s) seleccionado(s)
                             </p>
 
                             <div className="flex flex-wrap gap-2">
-                                {files.map((f, i) => (
-                                    <span
-                                        key={`${f.name}-${i}`}
-                                        className="inline-flex items-center gap-1.5 text-xs bg-blue-50 text-[#0076aa] border border-blue-200 px-3 py-1.5 rounded-full"
-                                    >
-                                        {f.name}
-                                    </span>
-                                ))}
+                                {evidencias.map(
+                                    (
+                                        archivo,
+                                        index
+                                    ) => (
+                                        <div
+                                            key={`${archivo.name}-${index}`}
+                                            className="
+                                                inline-flex
+                                                items-center
+                                                gap-2
+                                                text-xs
+                                                bg-blue-50
+                                                text-[#0076aa]
+                                                border
+                                                border-blue-200
+                                                px-3
+                                                py-1.5
+                                                rounded-full
+                                            "
+                                        >
+                                            <span>
+                                                {
+                                                    archivo.name
+                                                }
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    actualizarDatos(
+                                                        {
+                                                            evidencias:
+                                                                evidencias.filter(
+                                                                    (
+                                                                        _,
+                                                                        i
+                                                                    ) =>
+                                                                        i !==
+                                                                        index
+                                                                ),
+                                                        }
+                                                    );
+                                                }}
+                                                className="font-bold hover:text-red-600"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    )
+                                )}
                             </div>
                         </div>
                     )}
