@@ -6,6 +6,10 @@ import { DatosInfraccion } from "@/features/infracciones/types.";
 
 //? ============== FUNCIONALIDAD ===================================
 interface InfraccionStore {
+  
+
+
+
   //========================
   // CURP BUSQUEDA
   //========================
