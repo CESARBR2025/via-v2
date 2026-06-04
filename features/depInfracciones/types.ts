@@ -28,6 +28,8 @@ export type InfraccionDetail = {
     url_tarjeta_circulacion: string;
     url_ine: string;
     url_evidencias: string[];
+    url_oficio_fiscalia: string;
+    no_oficio_fiscalia: string;
   };
 
   Infraccion: {

@@ -59,7 +59,8 @@ export class DepInfraccionesService {
     }
   }
 
-  static async listarInfraccionesRealizadasService() {
+  static async listarInfraccionesRealizadasService(userId: string) {
+    console.log(userId);
     console.log("entro");
     try {
       // 2. Rango de fechas (hoy + ayer)
@@ -70,11 +71,13 @@ export class DepInfraccionesService {
         to,
       });
 
+      console.log(userId);
       // 3. Queries en paralelo
       const [listResult, total] = await Promise.all([
         DepInfraccionesRepository.getInfraccionesRealizadasOficialRP({
           from,
           to,
+          userId,
         }),
 
         DepInfraccionesRepository.contarRegistrosInfracciones({

@@ -130,6 +130,7 @@ export async function POST(req: NextRequest) {
         message: "Documentos guardados correctamente",
         data: {
           url_oficio_fiscalia,
+          numero_oficio,
         },
       },
       {

@@ -16,6 +16,8 @@ export interface InfraccionHeader {
     url_tarjeta_circulacion: string
     url_inapam: string
     url_evidencias: string[]
+    no_oficio_fiscalia?: string;
+    url_oficio_fiscalia?: string;
 }
 
 export interface InfraccionLegal {
@@ -160,6 +162,7 @@ export const ModalDetalleInfraccionesFiscalia: React.FC<ModalDetalleInfraccionPr
     detalle,
     onRefresh
 }) => {
+    console.log(detalle)
     const modalRef = useRef<HTMLDivElement>(null);
 
     const [nombreInfractor, setNombreInfractor] = useState('');
@@ -197,11 +200,17 @@ export const ModalDetalleInfraccionesFiscalia: React.FC<ModalDetalleInfraccionPr
         setapMaternoInfractor('');
         setCorreoInfractor('');
         setCurpInfractor('');
-        setNumeroOficio('');
         setArchivoOficio(null);
-        setRegistroExitoso(false);
-        setOficioGuardado(false);
-    }, [isOpen]);
+
+        const noOficio = detalle?.Header?.no_oficio_fiscalia;
+        if (noOficio && noOficio !== 'NO_DATA') {
+            setNumeroOficio(noOficio);
+            setOficioGuardado(true);
+        } else {
+            setNumeroOficio('');
+            setOficioGuardado(false);
+        }
+    }, [isOpen, detalle?.Header?.no_oficio_fiscalia]);
 
     if (!isOpen) return null;
 
@@ -211,6 +220,12 @@ export const ModalDetalleInfraccionesFiscalia: React.FC<ModalDetalleInfraccionPr
     const esTitular = detalle?.datos_infractor?.es_titular === true;
     const latMapa = Number(detalle?.ubicacion.latitud)
     const lngMapa = Number(detalle?.ubicacion.longitud)
+    const urlOficioExistente = detalle?.Header?.url_oficio_fiscalia;
+    const noOficioFiscalia = detalle?.Header.no_oficio_fiscalia
+    console.log(urlOficioExistente)
+    console.log(noOficioFiscalia)
+    const tieneOficioExistente = urlOficioExistente && noOficioFiscalia !== 'NO_DATA';
+    console.log(tieneOficioExistente)
 
     const handleRegistrarInfractor = async () => {
         try {
@@ -295,6 +310,18 @@ export const ModalDetalleInfraccionesFiscalia: React.FC<ModalDetalleInfraccionPr
             });
 
             if (!response.ok) throw new Error('Error guardando oficio');
+
+            console.log(response)
+
+            // 💡 AQUÍ OBTIENES LA DATA:
+            const resultado = await response.json();
+
+            // Ahora puedes acceder a lo que te interesa:
+            console.log("Mensaje:", resultado.message);
+            console.log("Número de Oficio:", resultado.data.numero_oficio);
+            console.log("URL del Oficio:", resultado.data.url_oficio_fiscalia);
+
+
 
             setOficioGuardado(true);
 
@@ -800,63 +827,103 @@ export const ModalDetalleInfraccionesFiscalia: React.FC<ModalDetalleInfraccionPr
                                         accentBg="#EFF6FF"
                                     >
                                         <div className="space-y-4">
-                                            <p className="text-[12px] text-[#64748B] leading-relaxed">
-                                                Capture el número de oficio y adjunte el documento digital para realizar el match en el sistema.
-                                            </p>
 
-                                            <div className="space-y-1.5">
-                                                <label className="text-[12px] font-semibold text-[#0F172A]">
-                                                    Número de Oficio
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={numeroOficio}
-                                                    onChange={(e) => setNumeroOficio(e.target.value)}
-                                                    placeholder="Ej: OFI-LIB-2025-00123"
-                                                    disabled={oficioGuardado}
-                                                    className="w-full rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-3 py-2 text-[14px] text-[#0F172A] placeholder-[#94A3B8] transition-all focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#DBEAFE] disabled:bg-[#F8FAFC] disabled:text-[#94A3B8] disabled:cursor-not-allowed"
-                                                />
-                                            </div>
 
+                                            {
+                                                tieneOficioExistente ? (
+                                                    <div>No oficio: {detalle.Header.no_oficio_fiscalia}</div>
+                                                ) : (
+
+                                                    <div className="space-y-1.5">
+                                                        <p className="text-[12px] text-[#64748B] leading-relaxed">
+                                                            Capture el número de oficio y adjunte el documento digital para realizar el match en el sistema.
+                                                        </p>
+                                                        <label className="text-[12px] font-semibold text-[#0F172A]">
+                                                            Número de Oficio
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={numeroOficio}
+                                                            onChange={(e) => setNumeroOficio(e.target.value)}
+                                                            placeholder="Ej: OFI-LIB-2025-00123"
+                                                            disabled={oficioGuardado}
+                                                            className="w-full rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-3 py-2 text-[14px] text-[#0F172A] placeholder-[#94A3B8] transition-all focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#DBEAFE] disabled:bg-[#F8FAFC] disabled:text-[#94A3B8] disabled:cursor-not-allowed"
+                                                        />
+                                                    </div>
+
+                                                )
+                                            }
                                             <div className="space-y-1.5">
                                                 <label className="text-[12px] font-semibold text-[#0F172A]">
                                                     Archivo del Oficio (PDF)
                                                 </label>
-                                                <UploadZone
-                                                    disabled={oficioGuardado}
-                                                    file={archivoOficio}
-                                                    inputRef={oficioInputRef}
-                                                    onChange={() => {
-                                                        const file = oficioInputRef.current?.files?.[0] || null;
-                                                        setArchivoOficio(file);
-                                                    }}
-                                                    onRemove={() => {
-                                                        setArchivoOficio(null);
-                                                        if (oficioInputRef.current) oficioInputRef.current.value = '';
-                                                    }}
-                                                />
+
+                                                {tieneOficioExistente ? (
+                                                    <div className="rounded-xl border border-[#22C55E] bg-[#F0FDF4] p-4">
+                                                        <div className="flex items-center justify-between gap-3">
+
+
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <div className="shrink-0 w-9 h-9 rounded-lg bg-[#DCFCE7] flex items-center justify-center text-[#22C55E]">
+                                                                    <CheckCircle2 size={18} />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="text-[13px] font-medium text-[#0F172A] truncate">
+                                                                        Oficio adjuntado
+                                                                    </p>
+                                                                    <p className="text-[11px] text-[#64748B]">
+                                                                        Documento digital registrado
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => abrirDocumento(urlOficioExistente)}
+                                                                className="shrink-0 rounded-lg bg-[#2563EB] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[#1D4ED8] transition-colors"
+                                                            >
+                                                                Ver
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <UploadZone
+                                                        disabled={oficioGuardado}
+                                                        file={archivoOficio}
+                                                        inputRef={oficioInputRef}
+                                                        onChange={() => {
+                                                            const file = oficioInputRef.current?.files?.[0] || null;
+                                                            setArchivoOficio(file);
+                                                        }}
+                                                        onRemove={() => {
+                                                            setArchivoOficio(null);
+                                                            if (oficioInputRef.current) oficioInputRef.current.value = '';
+                                                        }}
+                                                    />
+                                                )}
                                             </div>
 
-                                            <button
-                                                onClick={handleGuardarOficio}
-                                                disabled={loadingOficio || oficioGuardado}
-                                                className={`
-                                                    w-full rounded-lg px-5 py-2.5 text-[14px] font-semibold text-white transition-all duration-200
-                                                    ${loadingOficio
-                                                        ? 'cursor-not-allowed bg-[#94A3B8]'
+                                            {!tieneOficioExistente && (
+                                                <button
+                                                    onClick={handleGuardarOficio}
+                                                    disabled={loadingOficio || oficioGuardado}
+                                                    className={`
+                                                        w-full rounded-lg px-5 py-2.5 text-[14px] font-semibold text-white transition-all duration-200
+                                                        ${loadingOficio
+                                                            ? 'cursor-not-allowed bg-[#94A3B8]'
+                                                            : oficioGuardado
+                                                                ? 'cursor-not-allowed bg-[#22C55E]'
+                                                                : 'bg-[#2563EB] hover:bg-[#1D4ED8]'
+                                                        }
+                                                    `}
+                                                >
+                                                    {loadingOficio
+                                                        ? 'Guardando...'
                                                         : oficioGuardado
-                                                            ? 'cursor-not-allowed bg-[#22C55E]'
-                                                            : 'bg-[#2563EB] hover:bg-[#1D4ED8]'
+                                                            ? '✓ Oficio registrado'
+                                                            : 'Guardar Oficio de Liberación'
                                                     }
-                                                `}
-                                            >
-                                                {loadingOficio
-                                                    ? 'Guardando...'
-                                                    : oficioGuardado
-                                                        ? '✓ Oficio registrado'
-                                                        : 'Guardar Oficio de Liberación'
-                                                }
-                                            </button>
+                                                </button>
+                                            )}
                                         </div>
                                     </Section>
 

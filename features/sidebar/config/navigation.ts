@@ -22,6 +22,11 @@ export const navigationByRole: Record<UserRole, any[]> = {
           href: "/oficiales/realizadas",
           icon: Home,
         },
+        {
+          label: "Fiscalia",
+          href: "/externos/fiscalia/dashboard",
+          icon: Home,
+        },
       ],
     },
   ],

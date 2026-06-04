@@ -24,6 +24,8 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
     url_tarjeta_circulacion: safeRowMapper(row.url_tarjeta_circulacion),
     url_ine: safeRowMapper(row.url_ine),
     url_evidencias: row.evidencias,
+    no_oficio_fiscalia: safeRowMapper(row.no_oficio_fiscalia),
+    url_oficio_fiscalia: safeRowMapper(row.url_oficio_fiscalia),
   },
 
   Infraccion: {

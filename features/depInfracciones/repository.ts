@@ -41,10 +41,11 @@ export class DepInfraccionesRepository {
   static async getInfraccionesRealizadasOficialRP(params: {
     from: string;
     to: string;
+    userId: string;
   }) {
     console.log("entro");
 
-    const { from, to } = params;
+    const { from, to, userId } = params;
 
     const query = `
         SELECT
@@ -56,13 +57,15 @@ export class DepInfraccionesRepository {
         correo_infractor,
         nombre_infractor
       FROM v2_infracciones
+      WHERE oficial_id = $1
       ORDER BY created_at DESC
 
     `;
 
-    const values = [from, to];
+    const values = [userId];
+    console.log(values);
 
-    const result = await pool.query(query);
+    const result = await pool.query(query, values);
     console.log(result);
 
     return {
@@ -188,7 +191,9 @@ export class DepInfraccionesRepository {
     o.total_umas,
     o.total_pesos,
 
-    i.es_titular
+    i.es_titular,
+    i.no_oficio_fiscalia,
+    i.url_oficio_fiscalia
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o
