@@ -11,10 +11,10 @@ const SA7_URL =
 const CONCEPTOS_OBJETIVO = ["30844", "30845", "30846"];
 
 // Relación concepto -> clasificación
-const CLASIFICACION_MAP: Record<string, "L" | "M" | "G"> = {
-  "30844": "L",
-  "30845": "M",
-  "30846": "G",
+const CLASIFICACION_MAP: Record<string, "Leve" | "Media" | "Grave"> = {
+  "30844": "Leve",
+  "30845": "Media",
+  "30846": "Grave",
 };
 
 export async function GET() {

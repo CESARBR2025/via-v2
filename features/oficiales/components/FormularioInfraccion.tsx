@@ -709,6 +709,7 @@ export default function FormularioInfraccion() {
             setProcesoMensaje('Guardando evidencias digitales...');
 
             try {
+                console.log(nuevaInfraccion)
                 const evidencias =
                     storeData.evidencias ?? [];
 

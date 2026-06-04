@@ -34,6 +34,7 @@ export const SeccionMotivo: React.FC<SeccionMotivoProps> = ({
     loading,
     fieldError,
 }) => {
+    console.log(articulos)
     // Obtener datos y función de actualización del store
     const datos = useInfraccionStore((s) => s.datos);
     const actualizarDatos = useInfraccionStore((s) => s.actualizarDatos);

@@ -37,6 +37,39 @@ export class DepInfraccionesRepository {
     };
   }
 
+  //Listar infracciones de oficiales realizdas
+  static async getInfraccionesRealizadasOficialRP(params: {
+    from: string;
+    to: string;
+  }) {
+    console.log("entro");
+
+    const { from, to } = params;
+
+    const query = `
+        SELECT
+        id,
+        folio,
+        estatus,
+        placa,
+        created_at,
+        correo_infractor,
+        nombre_infractor
+      FROM v2_infracciones
+      ORDER BY created_at DESC
+
+    `;
+
+    const values = [from, to];
+
+    const result = await pool.query(query);
+    console.log(result);
+
+    return {
+      rows: result.rows,
+    };
+  }
+
   //Listar infracciones de fiscalia
   static async getInfraccionesFiscaliaFiltradasRepository(params: {
     from: string;

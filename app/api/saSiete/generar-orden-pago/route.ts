@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { POOL_PG as pool } from "@/lib/db";
 import { enviarCorreoInfraccion } from "@/features/emails/server";
+import { Beaker } from "lucide-react";
 
 const SA7_URL =
   "https://sanjuandelrio.sytes.net:3044/api/sasiete/qas/generar-orden-completa";
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
         ? "https://via-v2.vercel.app"
         : "http://localhost:3000";
 
+    console.log(baseUrl);
     const responseTokenGuest = await fetch(`${baseUrl}/api/auth/token-guest`, {
       method: "POST",
       headers: {
@@ -67,6 +69,9 @@ export async function POST(req: NextRequest) {
         nombre_invitado: "SA7_SYSTEM",
       }),
     });
+    console.log(responseTokenGuest);
+
+    console.log("paso");
 
     if (!responseTokenGuest.ok) {
       return NextResponse.json(
@@ -116,14 +121,14 @@ export async function POST(req: NextRequest) {
       nombreUsuario: nombre_usuario,
       apellidosUsuario: apellidos_usuario,
       rfc: "",
-      conceptosIds: [concepto_id],
+      conceptosIds: [CONCEPTO_PRUEBA],
 
       cantidades: {
-        [concepto_id]: descuento,
+        [CONCEPTO_PRUEBA]: descuento,
       },
 
       referencias: {
-        [concepto_id]: [`${nombre_usuario} ${apellidos_usuario}`, ""],
+        [CONCEPTO_PRUEBA]: [`${nombre_usuario} ${apellidos_usuario}`, ""],
       },
 
       id_usuario_general: "17336",

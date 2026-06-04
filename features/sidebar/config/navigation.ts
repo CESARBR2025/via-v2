@@ -20,7 +20,7 @@ export const navigationByRole: Record<UserRole, any[]> = {
         {
           label: "Realizadas",
           href: "/oficiales/realizadas",
-          icon: FileExclamationPoint,
+          icon: Home,
         },
       ],
     },
@@ -41,7 +41,7 @@ export const navigationByRole: Record<UserRole, any[]> = {
           icon: Home,
         },
         {
-          label: "Realizadas",
+          label: "Realizadas321",
           href: "/oficiales/realizadas",
           icon: Home,
         },

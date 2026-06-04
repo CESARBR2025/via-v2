@@ -16,7 +16,7 @@ interface QueryRow {
   fraccion_numero: string | null;
   fraccion_descripcion: string | null;
   monto_umas: number | null;
-  clasificacion: "L" | "M" | "G" | null;
+  clasificacion: "Leve" | "Media" | "Grave" | null;
   fraccion_activo: boolean | null;
 }
 
