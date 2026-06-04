@@ -1,0 +1,786 @@
+{
+  "semáforo": [
+    "luz roja",
+    "alto",
+    "señal de tránsito",
+    "semaforo",
+    "semáforo en rojo",
+    "luz de alto",
+    "dispositivo de control"
+  ],
+  "señalamientos gráficos": [
+    "señales de tránsito",
+    "señales viales",
+    "rótulos",
+    "indicadores",
+    "letreros",
+    "señalamientos"
+  ],
+  "ademanes del agente": [
+    "gestos del policía",
+    "señales del agente",
+    "movimientos del tránsito",
+    "instrucciones del oficial"
+  ],
+  "asirse": ["agarrarse", "sujetarse", "colgarse", "tomarse", "engancharse"],
+  "vehículo": [
+    "auto",
+    "automóvil",
+    "carro",
+    "camioneta",
+    "unidad",
+    "motocicleta",
+    "transporte",
+    "automotor"
+  ],
+  "transitar": [
+    "circular",
+    "conducir",
+    "manejar",
+    "desplazarse",
+    "ir",
+    "moverse"
+  ],
+  "extrema derecha": [
+    "carril derecho",
+    "lado derecho",
+    "orilla derecha",
+    "derecha total"
+  ],
+  "vialidades": [
+    "calles",
+    "avenidas",
+    "vías",
+    "rutas",
+    "carreteras",
+    "arterias viales"
+  ],
+  "carriles": ["canales", "fajas", "sendas", "pistas", "vías de circulación"],
+  "prohíba": [
+    "esté prohibido",
+    "no se permita",
+    "restrinja",
+    "impida",
+    "vedado"
+  ],
+  "anteojos protectores": [
+    "gafas de seguridad",
+    "lentes de protección",
+    "antiparras",
+    "careta",
+    "visor"
+  ],
+  "parabrisas": [
+    "luna delantera",
+    "cristal frontal",
+    "ventanal delantero",
+    "brisa"
+  ],
+  "casco protector": [
+    "casco",
+    "cascos",
+    "protección craneal",
+    "casco de seguridad",
+    "cubrecabeza"
+  ],
+  "circular entre los carriles": [
+    "hacer slalom",
+    "ir entre carriles",
+    "carril compartido",
+    "filtrado",
+    "conducción entre líneas"
+  ],
+  "motociclistas": [
+    "motos",
+    "conductores de moto",
+    "moteros",
+    "bikers",
+    "choferes de motocicleta"
+  ],
+  "paralela": ["en paralelo", "lado a lado", "emparejados", "a la par"],
+  "transportar": [
+    "llevar",
+    "cargar",
+    "trasladar",
+    "conducir pasajeros",
+    "movilizar"
+  ],
+  "pasajeros": [
+    "ocupantes",
+    "personas",
+    "viajeros",
+    "usuarios",
+    "acompañantes"
+  ],
+  "autorizados": [
+    "permitidos",
+    "reglamentarios",
+    "indicados",
+    "oficiales",
+    "habilitados"
+  ],
+  "vuelta a la derecha": [
+    "giro a la derecha",
+    "doblar a la derecha",
+    "virar a la derecha",
+    "torno a la derecha"
+  ],
+  "vuelta a la izquierda": [
+    "giro a la izquierda",
+    "doblar a la izquierda",
+    "virar a la izquierda"
+  ],
+  "carril del extremo correspondiente": [
+    "carril apropiado",
+    "carril indicado",
+    "carril correcto",
+    "carril respectivo"
+  ],
+  "vuelta en U": [
+    "retorno",
+    "media vuelta",
+    "giro en U",
+    "cambio de sentido en forma de U",
+    "vuelta completa"
+  ],
+  "curva": ["curva cerrada", "revolcadero", "vuelta", "ángulo", "sinuosidad"],
+  "cima": ["colina", "loma", "elevación", "subida", "cumbre"],
+  "zona de tráfico intenso": [
+    "congestión vehicular",
+    "área con mucho tráfico",
+    "vía saturada",
+    "zona de alta densidad",
+    "embotellamiento"
+  ],
+  "señalamiento": ["señal", "letrero", "indicio", "marcaje", "aviso"],
+  "sistema de frenado": [
+    "frenos",
+    "freno",
+    "mecanismo de freno",
+    "sistema de frenos"
+  ],
+  "frenado adecuado": [
+    "frenos en buen estado",
+    "freno eficiente",
+    "capacidad de frenado",
+    "frenado seguro"
+  ],
+  "ascenso": ["subir", "abordar", "entrar al vehículo", "montarse"],
+  "descenso": ["bajar", "desabordar", "salir del vehículo", "desmontarse"],
+  "precauciones de seguridad": [
+    "medidas de seguridad",
+    "cuidados",
+    "prevensiones",
+    "resguardos"
+  ],
+  "maniobras": [
+    "movimientos",
+    "operaciones",
+    "acciones",
+    "giros",
+    "desplazamientos"
+  ],
+  "espacios autorizados": [
+    "lugares permitidos",
+    "zonas designadas",
+    "áreas habilitadas",
+    "paraderos oficiales"
+  ],
+  "abastecer combustible": [
+    "echar gasolina",
+    "cargar combustible",
+    "llenar tanque",
+    "poner gas",
+    "rep poste"
+  ],
+  "pasajeros a bordo": [
+    "con gente dentro",
+    "con ocupantes",
+    "transportando personas"
+  ],
+  "carril derecho": [
+    "carril de baja velocidad",
+    "carril exterior",
+    "carril lento",
+    "orilla derecha"
+  ],
+  "luces intermitentes": [
+    "intermitentes",
+    "direccionales",
+    "destellos",
+    "luz de emergencia",
+    "balizas"
+  ],
+  "doble fila": [
+    "en doble hilera",
+    "estacionarse en dos filas",
+    "fila doble",
+    "aparcar en paralelo a otro"
+  ],
+  "cubierta la carga": [
+    "carga tapada",
+    "con lona",
+    "protegida",
+    "asegurada",
+    "con toldo"
+  ],
+  "derramar": ["verter", "esparcir", "regar", "tirar", "desparramar"],
+  "esparcir": ["diseminar", "desperdigar", "lanzar al suelo", "arrojar"],
+  "vía pública": [
+    "calle",
+    "carretera",
+    "avenida",
+    "vía urbana",
+    "camino público"
+  ],
+  "ocultar": ["esconder", "tapar", "bloquear", "impedir la vista"],
+  "espejos retrovisores": [
+    "retrovisores",
+    "espejos laterales",
+    "espejos de visión trasera",
+    "espejos exteriores"
+  ],
+  "banderas": [
+    "banderines",
+    "señales de advertencia",
+    "bandas reflectantes",
+    "banderas rojas"
+  ],
+  "reflejantes": [
+    "reflectores",
+    "cintas reflectivas",
+    "elementos que reflejan",
+    "luces pasivas"
+  ],
+  "indicadores de peligro": [
+    "señales de riesgo",
+    "triángulos de seguridad",
+    "conos",
+    "dispositivos de advertencia"
+  ],
+  "sobresalga la carga": [
+    "carga que excede",
+    "bulto que sale",
+    "material que protruye",
+    "exceso de longitud"
+  ],
+  "carga y descarga": [
+    "cargar y descargar",
+    "maniobras de carga",
+    "estacionamiento de carga",
+    "zona de carga"
+  ],
+  "aviso del accidente": [
+    "reportar el accidente",
+    "notificar el siniestro",
+    "dar parte",
+    "comunicar el choque"
+  ],
+  "autoridad competente": [
+    "policía",
+    "tránsito",
+    "autoridad vial",
+    "juez calificador",
+    "ministerio público"
+  ],
+  "medidas preventivas": [
+    "precauciones",
+    "señalización",
+    "protección",
+    "acciones para evitar otro accidente"
+  ],
+  "retirar los vehículos": [
+    "remover los autos",
+    "despejar la vía",
+    "quitar los carros",
+    "apartar las unidades"
+  ],
+  "despejar los residuos": [
+    "limpiar los escombros",
+    "recoger los restos",
+    "remover los desechos",
+    "barrer"
+  ],
+  "abandonar el lugar": [
+    "huir",
+    "irse sin permiso",
+    "dejar el sitio",
+    "fugarse"
+  ],
+  "lesionado": ["herido", "lastimado", "accidentado", "con lesiones"],
+  "obedecer el alto": [
+    "respetar el alto",
+    "parar en la señal",
+    "detenerse",
+    "hacer caso al stop"
+  ],
+  "detenerse en intersección con ferrocarril": [
+    "parar en cruce de tren",
+    "alto en vías del tren",
+    "detenerse antes de las vías"
+  ],
+  "transitar por las aceras": [
+    "circular por la banqueta",
+    "manejar en la vereda",
+    "invadir la acera"
+  ],
+  "acera": ["banqueta", "andén", "vereda", "pavimento peatonal"],
+  "cambiar de carril": [
+    "moverse de carril",
+    "cambiarse de pista",
+    "rebasar lateralmente"
+  ],
+  "sin precaución": [
+    "imprudentemente",
+    "sin cuidado",
+    "de manera peligrosa",
+    "a lo loco"
+  ],
+  "excederse del tiempo máximo permitido": [
+    "pasarse del límite de tiempo",
+    "sobrepasar la hora permitida",
+    "estacionarse más de lo debido"
+  ],
+  "estacionamiento": [
+    "aparcamiento",
+    "estacionar",
+    "parqueo",
+    "detenerse con el motor apagado",
+    "dejar el coche"
+  ],
+  "derecho de motociclistas": [
+    "preferencia de las motos",
+    "prioridad de los motociclistas",
+    "vía para motos"
+  ],
+  "usar un carril": [
+    "ocupar un carril",
+    "circular en un carril",
+    "tener derecho a un carril completo"
+  ],
+  "parte exterior de la carrocería": [
+    "fuera del auto",
+    "en los estribos",
+    "en el toldo",
+    "en la defensa"
+  ],
+  "ceder el paso": [
+    "dar prioridad",
+    "dejar pasar",
+    "conceder el derecho de vía",
+    "permitir el cruce"
+  ],
+  "incorporarse a una vía primaria": [
+    "entrar a una avenida principal",
+    "unirse al flujo rápido",
+    "acceder a una vía de alta velocidad"
+  ],
+  "carriles de baja velocidad": [
+    "carriles lentos",
+    "carriles de la derecha",
+    "pistas de baja"
+  ],
+  "carriles de alta velocidad": [
+    "carriles rápidos",
+    "carriles izquierdos",
+    "vías de libre tránsito"
+  ],
+  "intersecciones": [
+    "cruces",
+    "encrucijadas",
+    "esquinas",
+    "bocacalles",
+    "empalmes"
+  ],
+  "alternar": [
+    "turnarse",
+    "ceder el paso uno a uno",
+    "intercalar",
+    "dar paso alternado"
+  ],
+  "mayor tránsito": [
+    "vía más congestionada",
+    "calle con más vehículos",
+    "arteria principal"
+  ],
+  "número de carriles": ["cantidad de pistas", "ancho de la vía"],
+  "cinturones de seguridad": [
+    "sinturón",
+    "cinto de seguridad",
+    "cinturón de auto",
+    "seguridad pasiva"
+  ],
+  "entorpecer": [
+    "obstaculizar",
+    "estorbar",
+    "interrumpir",
+    "dificultar",
+    "impedir"
+  ],
+  "marcha de columnas militares": [
+    "desfile de soldados",
+    "convoy militar",
+    "procesión de vehículos castrenses"
+  ],
+  "desfiles cívicos": [
+    "paradas patrióticas",
+    "procesiones cívicas",
+    "marchas conmemorativas"
+  ],
+  "cortejos fúnebres": [
+    "procesiones fúnebres",
+    "caravanas de entierro",
+    "comitiva mortuoria"
+  ],
+  "manifestaciones": [
+    "protestas",
+    "marchas",
+    "concentraciones",
+    "movilizaciones sociales"
+  ],
+  "abastecer de combustible con el motor en marcha": [
+    "cargar gasolina sin apagar el auto",
+    "echar gas con el encendido prendido"
+  ],
+  "detenerse en las vías de tráfico intenso por falta de combustible": [
+    "quedarse sin gasolina en medio del tráfico",
+    "pararse por falta de gas"
+  ],
+  "competencias de velocidad": [
+    "carreras clandestinas",
+    "piques ilegales",
+    "contiendas de rapidez"
+  ],
+  "llevar a una persona u objeto abrazado": [
+    "sostener a alguien en brazos",
+    "conducir con algo en el brazo",
+    "tener un objeto entre los brazos"
+  ],
+  "tome el control de la dirección": [
+    "maneje el volante",
+    "conduzca en lugar del conductor",
+    "interfiera con la dirección"
+  ],
+  "distraiga": ["despiste", "saque la atención", "moleste", "perturbe"],
+  "obstruya la conducción": [
+    "impida manejar",
+    "estorbe la visibilidad",
+    "bloquee los movimientos"
+  ],
+  "preferencia de paso a transeúntes": [
+    "prioridad a los peatones",
+    "ceder la vía a quien camina"
+  ],
+  "invadir la zona de transeúntes": [
+    "entrar a la acera",
+    "ocupar el espacio peatonal",
+    "pisar la banqueta con el auto"
+  ],
+  "deslumbramiento": [
+    "encandilar",
+    "cegar con luces",
+    "deslumbrar",
+    "luz intensa en los ojos"
+  ],
+  "luz alta": ["luz de carretera", "faros altos", "luz larga", "luz potente"],
+  "distancia que garantice la detención oportuna": [
+    "distancia de seguridad",
+    "separación suficiente para frenar",
+    "espacio de reacción"
+  ],
+  "tirar objetos": [
+    "arrojar basura",
+    "lanzar desperdicios",
+    "botar cosas",
+    "desechar"
+  ],
+  "basura": ["residuos", "desechos", "porquería", "desperdicios"],
+  "dejar el vehículo separado de la acera": [
+    "aparcar lejos de la banqueta",
+    "estacionarse a más de 30 cm",
+    "mal estacionado"
+  ],
+  "estacionamiento en batería": [
+    "aparcar en ángulo",
+    "estacionamiento en diagonal",
+    "en batería"
+  ],
+  "lugar prohibido": [
+    "zona no permitida",
+    "área restringida",
+    "sitio vedado",
+    "donde no se puede estacionar"
+  ],
+  "doble fila obstruyendo": [
+    "estacionar al lado de otro auto bloqueando",
+    "aparcar en paralelo estorbando"
+  ],
+  "superficie de rodamiento": [
+    "pavimento",
+    "carpeta asfáltica",
+    "calzada",
+    "pista de rodadura"
+  ],
+  "carreteras": [
+    "vías interurbanas",
+    "caminos",
+    "autopistas",
+    "carreteras federales"
+  ],
+  "vías de tránsito intenso": [
+    "autopistas saturadas",
+    "vías muy concurridas",
+    "calles principales"
+  ],
+  "dispositivos de seguridad": [
+    "triángulos de emergencia",
+    "conos reflectantes",
+    "luces de advertencia",
+    "señalización luminosa"
+  ],
+  "entrada de vehículos": [
+    "acceso a cochera",
+    "portón de garaje",
+    "puerta de estacionamiento privado"
+  ],
+  "sentido contrario": [
+    "dirección opuesta",
+    "en contraflujo",
+    "mano contraria"
+  ],
+  "simulando descompostura": [
+    "fingir avería",
+    "aparentar falla mecánica",
+    "hacerse el descompuesto"
+  ],
+  "desplazar o empujar": [
+    "mover a la fuerza",
+    "correr el coche",
+    "remolcar sin permiso"
+  ],
+  "maniobras de estacionamiento": [
+    "movimientos para aparcar",
+    "acomodar el auto",
+    "estacionarse"
+  ],
+  "conducir con exceso de velocidad": [
+    "manejar muy rápido",
+    "ir a más del límite",
+    "velocidad excesiva",
+    "carreras"
+  ],
+  "avanzar y obstruir la intersección": [
+    "quedar cruzado en el cruce",
+    "bloquear la bocacalle",
+    "no dejar espacio libre"
+  ],
+  "espacio libre en la siguiente cuadra": [
+    "hueco en la siguiente calle",
+    "área despejada",
+    "capacidad de la vía"
+  ],
+  "destello del semáforo": [
+    "luz intermitente",
+    "parpadeo rojo",
+    "intermitencia"
+  ],
+  "luz ámbar": ["luz amarilla", "precaución", "semáforo en amarillo"],
+  "dar marcha atrás": [
+    "retroceder",
+    "reversa",
+    "dar reversa",
+    "ir hacia atrás"
+  ],
+  "preferencia de paso a vehículos de emergencia": [
+    "prioridad a ambulancias, bomberos, policía",
+    "ceder el paso a sirenas",
+    "dejar pasar unidades de auxilio"
+  ],
+  "vehículos de emergencia": [
+    "ambulancias",
+    "patrullas",
+    "bomberos",
+    "unidades de rescate",
+    "coches de policía"
+  ],
+  "señales audibles": ["sirenas", "cláxones de emergencia", "altavoces"],
+  "señales visibles": [
+    "torretas",
+    "luces estroboscópicas",
+    "destellos azules o rojos"
+  ],
+  "transitar con las puertas abiertas": [
+    "manejar con puertas sin cerrar",
+    "puertas sueltas"
+  ],
+  "rayas separadoras de los carriles": [
+    "líneas divisorias",
+    "marcas longitudinales",
+    "rayas continuas o discontinuas"
+  ],
+  "conservar la derecha": [
+    "mantenerse a la derecha",
+    "no invadir el carril izquierdo"
+  ],
+  "aumentar la velocidad al ser rebasado": [
+    "acelerar cuando te adelantan",
+    "competir con el que rebasa"
+  ],
+  "rebasado": ["adelantado", "superado en la vía"],
+  "rebasar por la derecha": [
+    "adelantar por la derecha",
+    "sobrepasar por el carril derecho"
+  ],
+  "autorizados": ["permitidos por el reglamento", "excepciones legales"],
+  "rebasar por la izquierda sin tomar precauciones": [
+    "adelantar sin cuidado",
+    "sobrepasar sin mirar"
+  ],
+  "reincorporarse al carril de la derecha": [
+    "volver al carril derecho",
+    "regresar al carril lento"
+  ],
+  "anunciarlo con la luz direccional": [
+    "poner direccional",
+    "usar intermitente",
+    "señalizar el cambio"
+  ],
+  "ademán correspondiente": ["gesto con la mano", "señal manual"],
+  "zona peatonal": [
+    "cruce de peatones",
+    "paso de cebra",
+    "área para caminantes"
+  ],
+  "carril de tránsito opuesto": [
+    "carril del sentido contrario",
+    "vía en dirección inversa"
+  ],
+  "curva sin visibilidad": ["curva cerrada", "revolcadero sin alcance visual"],
+  "cima sin visibilidad": ["loma que tapa la vista", "subida que impide ver"],
+  "efectuar reparaciones en la vía pública": [
+    "arreglar el auto en la calle",
+    "hacer mecánica en vía pública"
+  ],
+  "sentido contrario": ["contramano", "dirección prohibida"],
+  "rebasar varios vehículos invadiendo el carril opuesto": [
+    "adelantar múltiples autos en curva",
+    "sobrepasar una fila por el carril contrario"
+  ],
+  "señales restrictivas": [
+    "señales de prohibición",
+    "no adelantar",
+    "límite de velocidad",
+    "no estacionarse"
+  ],
+  "aditamentos adecuados": [
+    "soportes para bicicletas",
+    "accesorios de fijación",
+    "canastillas"
+  ],
+  "baja velocidad": ["lento", "marcha mínima", "velocidad reducida"],
+  "avisar con la luz de freno": ["encender la luz de stop", "señal de frenado"],
+  "reducir bruscamente la velocidad": [
+    "frenar de golpe",
+    "desacelerar abruptamente"
+  ],
+  "educandos en zonas escolares": [
+    "estudiantes",
+    "niños en la escuela",
+    "alumnos"
+  ],
+  "concentración de transeúntes": [
+    "grupo de peatones",
+    "aglomeración de personas",
+    "mucho flujo peatonal"
+  ],
+  "límite de velocidad en zonas escolares": [
+    "máxima de 20 km/h",
+    "velocidad escolar"
+  ],
+  "señalización de protección": [
+    "señales de escuela",
+    "paso de peatones escolares"
+  ],
+  "promotores voluntarios": [
+    "padres de familia",
+    "brigadistas escolares",
+    "auxiliares de tránsito voluntarios"
+  ],
+  "uso indebido de la bocina": [
+    "tocar el claxon sin necesidad",
+    "pitidos injustificados",
+    "hacer ruido excesivo"
+  ],
+  "faros principales": ["luces delanteras", "focos altos", "faros de cruce"],
+  "cuartos traseros": [
+    "luces de posición traseras",
+    "luz de estacionamiento posterior"
+  ],
+  "circular sin licencia de conducir": [
+    "manejar sin licencia",
+    "conducir sin permiso",
+    "no portar licencia vigente"
+  ],
+  "licencia de conducir": [
+    "permiso para manejar",
+    "licencia de manejo",
+    "carnet de conductor",
+    "registro de conducir"
+  ],
+  "tipo de conductor": [
+    "clase de licencia",
+    "categoría",
+    "vehículos autorizados"
+  ],
+  "estorbe la visibilidad del conductor": [
+    "bloquee la vista",
+    "impida ver el camino",
+    "tape la perspectiva"
+  ],
+  "pago correspondiente en zonas tarifadas": [
+    "cobro de estacionómetro",
+    "parquímetro",
+    "tarifa de estacionamiento"
+  ],
+  "línea continua": [
+    "línea sólida",
+    "raya continua",
+    "marca longitudinal sin interrupción"
+  ],
+  "doble línea": ["dos rayas continuas", "separador central doble"],
+  "remolcar": ["arrastrar", "jalar", "halar", "tirar con grúa"],
+  "equipo apropiado": [
+    "grúa",
+    "barra de remolque",
+    "cables de seguridad",
+    "enganche homologado"
+  ],
+  "acelerar la marcha derrapando llanta": [
+    "quemar llanta",
+    "acelerón que patina",
+    "hacer huella de hule"
+  ],
+  "radio encendido con alto volumen": [
+    "música alta",
+    "estereo a máximo",
+    "sonido estridente"
+  ],
+  "salir del estacionamiento en reversa cruzar el centro": [
+    "hacer reversa y dar la vuelta completa",
+    "maniobra peligrosa de giro"
+  ],
+  "circular en reversa para cambiar el rumbo": [
+    "ir en reversa para dar vuelta",
+    "reversa para direccionarse"
+  ],
+  "traslade o transporte a un menor hasta de tres años": [
+    "llevar niño pequeño",
+    "transportar infante",
+    "mover a un bebé"
+  ],
+  "asegurarlo al asiento o silla especial": [
+    "sujetar con cinturón infantil",
+    "usar silla portabebé",
+    "sistema de retención infantil"
+  ]
+}
