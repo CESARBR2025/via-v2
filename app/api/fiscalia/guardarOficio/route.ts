@@ -61,22 +61,25 @@ export async function POST(req: NextRequest) {
 
   try {
     const formData = await req.formData();
-    console.log(formData);
 
     const folio = formData.get("folio") as string;
-
     const numero_oficio = formData.get("numero_oficio") as string;
-
+    const no_carpeta_investigacion = formData.get("no_carpeta_investigacion") as string;
     const archivo_oficio = formData.get("archivoIne") as File | null;
+
+    // Datos del titular para liberación
+    const nombre_titular_liberacion = formData.get("nombre_titular_liberacion") as string;
+    const appaterno_titular_liberacion = formData.get("appaterno_titular_liberacion") as string;
+    const apmaterno_titular_liberacion = formData.get("apmaterno_titular_liberacion") as string;
+    const correo_titular_liberacion = formData.get("correo_titular_liberacion") as string;
+    const curp_titular_liberacion = formData.get("curp_titular_liberacion") as string;
 
     if (!folio) {
       return NextResponse.json(
         {
-          message: "Folio de infacción es requerido",
+          message: "Folio de infracción es requerido",
         },
-        {
-          status: 400,
-        },
+        { status: 400 },
       );
     }
 
@@ -87,9 +90,7 @@ export async function POST(req: NextRequest) {
         {
           message: "No se enviaron documentos",
         },
-        {
-          status: 400,
-        },
+        { status: 400 },
       );
     }
 
@@ -107,7 +108,6 @@ export async function POST(req: NextRequest) {
         token,
       );
     }
-    console.log(url_oficio_fiscalia);
 
     await client.query("BEGIN");
 
@@ -116,11 +116,28 @@ export async function POST(req: NextRequest) {
       UPDATE public.v2_infracciones
       SET
         no_oficio_fiscalia = $2,
-        url_oficio_fiscalia = COALESCE($3, url_ine),
+        url_oficio_fiscalia = COALESCE($3, url_oficio_fiscalia),
+        no_carpeta_investigacion = COALESCE($4, no_carpeta_investigacion),
+        estatus_dependencia = 'LIBERADO_POR_FISCALIA',
+        nombre_titular_liberacion = COALESCE($5, nombre_titular_liberacion),
+        appaterno_titular_liberacion = COALESCE($6, appaterno_titular_liberacion),
+        apmaterno_titular_liberacion = COALESCE($7, apmaterno_titular_liberacion),
+        correo_titular_liberacion = COALESCE($8, correo_titular_liberacion),
+        curp_titular_liberacion = COALESCE($9, curp_titular_liberacion),
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       `,
-      [folio, numero_oficio, url_oficio_fiscalia],
+      [
+        folio,
+        numero_oficio,
+        url_oficio_fiscalia,
+        no_carpeta_investigacion || null,
+        nombre_titular_liberacion || null,
+        appaterno_titular_liberacion || null,
+        apmaterno_titular_liberacion || null,
+        correo_titular_liberacion || null,
+        curp_titular_liberacion || null,
+      ],
     );
 
     await client.query("COMMIT");
@@ -131,11 +148,10 @@ export async function POST(req: NextRequest) {
         data: {
           url_oficio_fiscalia,
           numero_oficio,
+          no_carpeta_investigacion,
         },
       },
-      {
-        status: 200,
-      },
+      { status: 200 },
     );
   } catch (error) {
     await client.query("ROLLBACK");
@@ -146,9 +162,7 @@ export async function POST(req: NextRequest) {
       {
         message: error instanceof Error ? error.message : "Error interno",
       },
-      {
-        status: 500,
-      },
+      { status: 500 },
     );
   } finally {
     client.release();

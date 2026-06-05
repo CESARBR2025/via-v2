@@ -1,8 +1,31 @@
-import { Home, FileExclamationPoint, FileClockIcon } from "lucide-react";
+import {
+  Home,
+  FileExclamationPoint,
+  FileClockIcon,
+  AtSign,
+} from "lucide-react";
 
 import { UserRole } from "./types";
 
 export const navigationByRole: Record<UserRole, any[]> = {
+  fiscalia: [
+    // =====================================
+    // SECCIÓN
+    // =====================================
+
+    {
+      title: "Infracciones ",
+
+      items: [
+        {
+          label: "Asignadas",
+          href: "/externos/fiscalia/dashboard",
+          icon: AtSign,
+        },
+      ],
+    },
+  ],
+
   oficial: [
     // =====================================
     // SECCIÓN
@@ -25,29 +48,6 @@ export const navigationByRole: Record<UserRole, any[]> = {
         {
           label: "Fiscalia",
           href: "/externos/fiscalia/dashboard",
-          icon: Home,
-        },
-      ],
-    },
-  ],
-
-  oficiales: [
-    // =====================================
-    // SECCIÓN
-    // =====================================
-
-    {
-      title: "Infracciones",
-
-      items: [
-        {
-          label: "Capturar",
-          href: "/oficiales/capturar",
-          icon: Home,
-        },
-        {
-          label: "Realizadas321",
-          href: "/oficiales/realizadas",
           icon: Home,
         },
       ],

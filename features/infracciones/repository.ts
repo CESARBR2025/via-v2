@@ -57,6 +57,7 @@ export class InfraccionesRepository {
             monto_final,
             grua_id,
             dependencia_receptora
+           
         )
         VALUES (
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,

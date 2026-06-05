@@ -25,7 +25,25 @@ const ROLE_CONFIG: Record<string, {
     accentLight: string;
     loadingMessage: string;
 }> = {
-    dependencia_externa: {
+    corralon_mejia: {
+        label: 'Corralon Mejia',
+        description: 'Consulta de infracciones y generación de acuse',
+        Icon: Building2,
+        accent: '#22C55E',
+        accentBg: '#DCFCE7',
+        accentLight: 'rgba(34,197,94,0.12)',
+        loadingMessage: 'Cargando tu panel de infracciones...',
+    },
+    corralon_mw: {
+        label: 'Corralon MW',
+        description: 'Consulta de infracciones y generación de acuse',
+        Icon: Building2,
+        accent: '#22C55E',
+        accentBg: '#DCFCE7',
+        accentLight: 'rgba(34,197,94,0.12)',
+        loadingMessage: 'Cargando tu panel de infracciones...',
+    },
+    fiscalia: {
         label: 'Fiscalía',
         description: 'Consulta de infracciones y generación de acuse',
         Icon: Building2,
@@ -34,15 +52,17 @@ const ROLE_CONFIG: Record<string, {
         accentLight: 'rgba(34,197,94,0.12)',
         loadingMessage: 'Cargando tu panel de infracciones...',
     },
-    corralon: {
-        label: 'Corralón',
+    juzgado_civico: {
+        label: 'Jusgado Civico',
         description: 'Consulta de infracciones y generación de acuse',
-        Icon: Warehouse,
+        Icon: Building2,
         accent: '#22C55E',
         accentBg: '#DCFCE7',
         accentLight: 'rgba(34,197,94,0.12)',
         loadingMessage: 'Cargando tu panel de infracciones...',
     },
+
+
     ciudadano: {
         label: 'Ciudadano',
         description: 'Consulta de infracciones y generación de acuse',

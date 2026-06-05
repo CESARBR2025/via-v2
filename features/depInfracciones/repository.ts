@@ -2,6 +2,13 @@
 
 import { POOL_PG as pool } from "@/lib/db";
 
+// Endpoint generico
+interface FiltroInfraccionesParams {
+  dependencia: string; // La clave que determina el flujo
+  from?: string; // Opcionales por si en el primer render no filtran fechas
+  to?: string;
+}
+
 export class DepInfraccionesRepository {
   static async getInfraccionesFiltradasRepository(params: {
     from: string;
@@ -71,6 +78,134 @@ export class DepInfraccionesRepository {
     return {
       rows: result.rows,
     };
+  }
+
+  static async getInfraccionesFiltradasPorDependenciaRepository(
+    params: FiltroInfraccionesParams,
+  ) {
+    console.log(
+      "=== Iniciando consulta de infracciones para:",
+      params.dependencia,
+    );
+
+    const { dependencia, from, to } = params;
+
+    // 1. Validamos la clave por seguridad
+    const dependenciasValidas = ["FISCALIA", "JUZGADO_CIVICO", "MW"];
+    if (!dependenciasValidas.includes(dependencia)) {
+      throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
+    }
+
+    const values: any[] = [];
+    let query = "";
+
+    // 2. Control de Flujo Dinámico
+    if (dependencia === "MW") {
+      console.log("-> Buscando el ID dinámico para la grúa 'MW'...");
+
+      // 2.A: Consultamos el ID de la grúa basándonos en su columna 'nombre'
+      const queryGrua = `SELECT id FROM v2_gruas WHERE nombre = $1 LIMIT 1`;
+      const resultGrua = await pool.query(queryGrua, ["MW"]);
+
+      // Si no encuentra la grúa con ese nombre, detenemos el proceso con un error descriptivo
+      if (resultGrua.rows.length === 0) {
+        throw new Error(
+          "No se encontró ningún registro en 'v2_gruas' con el nombre 'MW'",
+        );
+      }
+
+      const idGruaDinamico = resultGrua.rows[0].id;
+      console.log(`-> ID de grúa recuperado con éxito: ${idGruaDinamico}`);
+
+      // 2.B: Armamos la query principal usando el ID que acabamos de descubrir
+      query = `
+      SELECT
+        i.id,
+        i.folio,
+        i.estatus,
+        i.placa,
+        i.created_at,
+        i.correo_infractor,
+        i.nombre_infractor
+      FROM v2_infracciones i
+      WHERE i.garantia_retenida = 'VEHICULO'
+        AND i.estatus != 'LIBERADA'
+        AND i.grua_id = $1
+    `;
+
+      // El primer parámetro ($1) de esta query será el ID que encontramos en el paso A
+      values.push(idGruaDinamico);
+    } else if (dependencia === "FISCALIA") {
+      console.log("entro aqui");
+      console.log(dependencia);
+      // Flujo estándar para Dependencias (FISCALIA, JUZGADO_CIVICO)
+      query = `
+      SELECT
+        id,
+        folio,
+        estatus,
+        placa,
+        created_at,
+        correo_infractor,
+        nombre_infractor,
+        
+        estatus_dependencia,
+        no_carpeta_investigacion
+
+
+      FROM v2_infracciones
+      WHERE tipo_garantia = 'VEHICULO'
+        AND estatus = 'REGISTRADA'
+        
+        AND dependencia_receptora = $1
+    `;
+      values.push(dependencia);
+    } else {
+      // Flujo estándar para Dependencias (FISCALIA, JUZGADO_CIVICO)
+      query = `
+      SELECT
+        id,
+        folio,
+        estatus,
+        placa,
+        created_at,
+        correo_infractor,
+        nombre_infractor
+      FROM v2_infracciones
+      WHERE tipo_garantia = 'VEHICULO'
+        AND estatus = 'REGISTRADA'
+        AND dependencia_receptora = $1
+    `;
+      values.push(dependencia);
+    }
+    console.log("paso");
+
+    // 3. Condicionales Opcionales de Fechas (reutilizando las posiciones $2 y $3)
+    if (from && to) {
+      const fechaColumna = dependencia === "MW" ? "i.created_at" : "created_at";
+      query += ` AND ${fechaColumna} BETWEEN $${values.length + 1} AND $${values.length + 2}`;
+      values.push(from, to);
+    }
+
+    // Cierre de la consulta uniforme
+    const ordenColumna = dependencia === "MW" ? "i.created_at" : "created_at";
+    query += ` ORDER BY ${ordenColumna} DESC`;
+
+    try {
+      const result = await pool.query(query, values);
+      console.log(result);
+
+      return {
+        data: result.rows,
+        total: result.rowCount ?? result.rows.length,
+      };
+    } catch (error) {
+      console.error(
+        `Error en repositorio para la dependencia ${dependencia}:`,
+        error,
+      );
+      throw new Error("Error interno al consultar la base de datos");
+    }
   }
 
   //Listar infracciones de fiscalia
@@ -193,7 +328,9 @@ export class DepInfraccionesRepository {
 
     i.es_titular,
     i.no_oficio_fiscalia,
-    i.url_oficio_fiscalia
+    i.url_oficio_fiscalia,
+    i.estatus_dependencia,
+    i.no_carpeta_investigacion
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o
