@@ -4,6 +4,7 @@ import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Play, FileText, CheckCircle2, Upload, User } from "lucide-react"
 import FiscaliaDashboard from "@/features/fiscalia/components/FiscaliaDashboard"
+import JuzgadoDashboard from "@/features/juzgado/components/JuzgadoDashboard"
 import ModalDetalleGenerico, { DetalleCompleto } from "@/features/compartido/components/ModalDetalleGenerico"
 import ConfirmacionModal from "@/features/compartido/components/ConfirmacionModal"
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento'
@@ -28,17 +29,18 @@ interface TablaCompartidaProps {
 }
 
 const columns = [
-    { key: "folio", label: "Folio", roles: ["fiscalia", "corralon_mw", "corralon_mejia"] },
-    { key: "nombre_infractor", label: "Nombre Infractor", roles: ["fiscalia", "corralon_mw", "corralon_mejia"] },
-    { key: "correo_infractor", label: "Correo", roles: ["fiscalia", "corralon_mw", "corralon_mejia"] },
-    { key: "placa", label: "Placa", roles: ["fiscalia", "corralon_mw"] },
-    { key: "estatus", label: "Estatus", roles: ["fiscalia", "corralon_mw", "corralon_mejia"] },
-    { key: "acciones", label: "Acciones", roles: ["fiscalia", "corralon_mw", "corralon_mejia"] },
+    { key: "folio", label: "Folio", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
+    { key: "nombre_infractor", label: "Nombre Infractor", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
+    { key: "correo_infractor", label: "Correo", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
+    { key: "placa", label: "Placa", roles: ["fiscalia", "corralon_mw", 'juzgado_civico'] },
+    { key: "estatus", label: "Estatus", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
+    { key: "acciones", label: "Acciones", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
 ]
 
 export default function TablaCompartida({ respuestaServidor, userRole }: TablaCompartidaProps) {
     const router = useRouter()
 
+    console.log(respuestaServidor)
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [detalle, setDetalle] = useState<DetalleCompleto | null>(null)
@@ -77,11 +79,11 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
         router.refresh()
     }
 
-    const iniciarRevision = async () => {
+    const iniciarRevision = async (endpoint: string) => {
         if (!detalle?.Header?.id_infraccion) return
         setConfirmLoading(true)
         try {
-            const response = await fetch('/api/fiscalia/iniciarProceso', {
+            const response = await fetch(endpoint, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: detalle.Header.id_infraccion }),
@@ -101,7 +103,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
     if (userRole === 'fiscalia') {
         const estatus = detalle?.Header?.estatus_dependencia
         const mostrarBotonInicio = estatus === 'PENDIENTE'
-        const enRevision = estatus === 'EN_REVISION'
+        const enProceso = estatus === 'EN_PROCESO_FISCALIA'
 
         return (
             <>
@@ -132,7 +134,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                     }
                     sidebarExtra={
                         detalle?.Header && !mostrarBotonInicio ? [
-                            enRevision ? (
+                            enProceso ? (
                                 <CargarOficioSection
                                     key="cargar-oficio"
                                     idInfraccion={detalle.Header.id_infraccion}
@@ -159,11 +161,86 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
 
                 <ConfirmacionModal
                     isOpen={confirmOpen}
-                    onConfirmar={iniciarRevision}
+                    onConfirmar={() => iniciarRevision('/api/fiscalia/iniciarProceso')}
                     onCancelar={() => setConfirmOpen(false)}
                     loading={confirmLoading}
                     titulo="Iniciar atención al caso"
-                    mensaje="Esta acción cambiará el estatus de la infracción a «En Revisión» y notificará al área correspondiente. ¿Deseas continuar?"
+                    mensaje="Esta acción cambiará el estatus de la infracción a «En Proceso» y notificará al área correspondiente. ¿Deseas continuar?"
+                    labelConfirmar="Sí, iniciar proceso"
+                    labelCancelar="Cancelar"
+                    variant="success"
+                />
+            </>
+        )
+    }
+
+    if (userRole === 'juzgado_civico') {
+        const estatus = detalle?.Header?.estatus_dependencia
+        const mostrarBotonInicio = estatus === 'PENDIENTE'
+        const enProceso = estatus === 'EN_PROCESO_JUZGADO'
+
+        return (
+            <>
+                <JuzgadoDashboard
+                    data={listaDatos}
+                    visibleColumns={visibleColumns}
+                    onOpenDetalle={handleOpenDetalle}
+                />
+
+                <ModalDetalleGenerico
+                    isOpen={open}
+                    onClose={handleCloseDetalle}
+                    loading={loading}
+                    detalle={detalle}
+                    role="juzgado"
+                    onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
+                    antesContenido={
+                        mostrarBotonInicio ? (
+                            <button
+                                onClick={() => setConfirmOpen(true)}
+                                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-colors"
+                                style={{ background: '#8B5CF6', boxShadow: '0 4px 12px rgba(139,92,246,0.3)' }}
+                            >
+                                <Play size={14} strokeWidth={2.5} fill="white" />
+                                Iniciar atención al caso
+                            </button>
+                        ) : undefined
+                    }
+                    sidebarExtra={
+                        detalle?.Header && !mostrarBotonInicio ? [
+                            enProceso ? (
+                                <CargarOficioSection
+                                    key="cargar-oficio"
+                                    idInfraccion={detalle.Header.id_infraccion}
+                                    noOficioActual={detalle.Header.no_oficio_fiscalia}
+                                    noCarpetaActual={detalle.Header.no_carpeta_investigacion}
+                                    esTitular={detalle.datos_infractor?.es_titular}
+                                    nombreInfractor={detalle.datos_infractor?.nombre_infractor}
+                                    appaternoInfractor={detalle.datos_infractor?.appaterno_infractor}
+                                    apmaternoInfractor={detalle.datos_infractor?.apmaterno_infractor}
+                                    correoInfractor={detalle.datos_infractor?.correo_infractor}
+                                    curpInfractor={detalle.datos_infractor?.curp_infractor}
+                                    guardarOficioEndpoint="/api/juzgado/guardarOficio"
+                                    onSuccess={() => refetchDetalle(detalle.Header.id_infraccion)}
+                                />
+                            ) : (
+                                <OficioLiberacionSection
+                                    key="oficio"
+                                    numeroOficio={detalle.Header.no_oficio_fiscalia}
+                                    urlOficio={detalle.Header.url_oficio_fiscalia}
+                                />
+                            ),
+                        ] : []
+                    }
+                />
+
+                <ConfirmacionModal
+                    isOpen={confirmOpen}
+                    onConfirmar={() => iniciarRevision('/api/juzgado/iniciarProceso')}
+                    onCancelar={() => setConfirmOpen(false)}
+                    loading={confirmLoading}
+                    titulo="Iniciar atención al caso"
+                    mensaje="Esta acción cambiará el estatus de la infracción a «En Proceso» y notificará al área correspondiente. ¿Deseas continuar?"
                     labelConfirmar="Sí, iniciar proceso"
                     labelCancelar="Cancelar"
                     variant="success"
@@ -185,6 +262,7 @@ function CargarOficioSection({
     apmaternoInfractor,
     correoInfractor,
     curpInfractor,
+    guardarOficioEndpoint = '/api/fiscalia/guardarOficio',
     onSuccess,
 }: {
     idInfraccion: string
@@ -196,6 +274,7 @@ function CargarOficioSection({
     apmaternoInfractor?: string
     correoInfractor?: string
     curpInfractor?: string
+    guardarOficioEndpoint?: string
     onSuccess?: () => void
 }) {
     const esTitularBool = esTitular === true
@@ -229,7 +308,7 @@ function CargarOficioSection({
             if (correoTitular.trim()) fd.append('correo_titular_liberacion', correoTitular.trim())
             if (curpTitular.trim()) fd.append('curp_titular_liberacion', curpTitular.trim())
 
-            const res = await fetch('/api/fiscalia/guardarOficio', {
+            const res = await fetch(guardarOficioEndpoint, {
                 method: 'POST',
                 body: fd,
             })

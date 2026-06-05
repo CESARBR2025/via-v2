@@ -34,38 +34,39 @@ interface Props {
     onOpenDetalle: (id: string) => void
 }
 
-type EstatusFiscalia =
+type EstatusJuzgado =
     | 'PENDIENTE'
-    | 'EN_PROCESO_FISCALIA'
-    | 'LIBERADO_POR_FISCALIA'
+    | 'EN_PROCESO_JUZGADO'
+    | 'LIBERADO_POR_JUZGADO'
 
-const STATUS_TABS: { key: EstatusFiscalia; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
+const STATUS_TABS: { key: EstatusJuzgado; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
     { key: 'PENDIENTE', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
-    { key: 'EN_PROCESO_FISCALIA', label: 'En Proceso', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
-    { key: 'LIBERADO_POR_FISCALIA', label: 'Liberadas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
+    { key: 'EN_PROCESO_JUZGADO', label: 'En Proceso', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
+    { key: 'LIBERADO_POR_JUZGADO', label: 'Liberadas', icon: CheckCircle2, color: '#8B5CF6', accent: '#5B21B6', bg: '#F5F3FF' },
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
     PENDIENTE: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
-    EN_PROCESO_FISCALIA: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
-    LIBERADO_POR_FISCALIA: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
+    EN_PROCESO_JUZGADO: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
+    LIBERADO_POR_JUZGADO: { bg: '#F3E8FF', text: '#5B21B6', dot: '#8B5CF6', label: 'Liberada' },
 }
 
 function getBadge(status: string) {
     return STATUS_BADGE[status] ?? { bg: '#F1F5F9', text: '#475569', dot: '#94A3B8', label: status }
 }
 
-export default function FiscaliaDashboard({
+export default function JuzgadoDashboard({
     data,
     visibleColumns,
     onOpenDetalle,
 }: Props) {
-    const [filtro, setFiltro] = useState<EstatusFiscalia>('PENDIENTE')
+    const [filtro, setFiltro] = useState<EstatusJuzgado>('PENDIENTE')
+    console.log(data)
 
     const estadisticas = useMemo(() => {
         const pendientes = data.filter(x => x.estatus_dependencia === 'PENDIENTE').length
-        const revision = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_FISCALIA').length
-        const liberadas = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_FISCALIA').length
+        const revision = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_JUZGADO').length
+        const liberadas = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_JUZGADO').length
         return { pendientes, revision, liberadas }
     }, [data])
 
@@ -81,7 +82,7 @@ export default function FiscaliaDashboard({
             {/* ─── HEADER ─── */}
             <div className="flex items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-[22px] font-bold text-[#0F172A] tracking-tight">Panel Fiscalía</h2>
+                    <h2 className="text-[22px] font-bold text-[#0F172A] tracking-tight">Panel Juzgado</h2>
                     <p className="text-[14px] text-[#64748B] mt-0.5">
                         {total} infracción{total !== 1 ? 'es' : ''} asignada{total !== 1 ? 's' : ''}
                     </p>
@@ -95,7 +96,7 @@ export default function FiscaliaDashboard({
             {/* ─── STATS CARDS ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {STATUS_TABS.map(tab => {
-                    const count = estadisticas[tab.key === 'PENDIENTE' ? 'pendientes' : tab.key === 'EN_PROCESO_FISCALIA' ? 'revision' : 'liberadas']
+                    const count = estadisticas[tab.key === 'PENDIENTE' ? 'pendientes' : tab.key === 'EN_PROCESO_JUZGADO' ? 'revision' : 'liberadas']
                     const activo = filtro === tab.key
                     const Icon = tab.icon
 
@@ -160,10 +161,10 @@ export default function FiscaliaDashboard({
             <div className="rounded-xl border overflow-hidden" style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' }}>
                 <div className="px-5 py-3.5 border-b flex items-center justify-between" style={{ borderColor: '#F1F5F9', background: '#F8FAFC' }}>
                     <div className="flex items-center gap-2.5">
-                        <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: '#2563EB' }}>
+                        <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: '#8B5CF6' }}>
                             <AlertCircle size={12} strokeWidth={2.5} className="text-white" />
                         </div>
-                        <h3 className="text-[13px] font-semibold tracking-wider uppercase" style={{ color: '#2563EB' }}>
+                        <h3 className="text-[13px] font-semibold tracking-wider uppercase" style={{ color: '#8B5CF6' }}>
                             {STATUS_TABS.find(t => t.key === filtro)?.label ?? 'Infracciones'}
                         </h3>
                     </div>

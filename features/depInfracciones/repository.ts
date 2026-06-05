@@ -91,7 +91,7 @@ export class DepInfraccionesRepository {
     const { dependencia, from, to } = params;
 
     // 1. Validamos la clave por seguridad
-    const dependenciasValidas = ["FISCALIA", "JUZGADO_CIVICO", "MW"];
+    const dependenciasValidas = ["FISCALIA", "JUZGADO", "MW"];
     if (!dependenciasValidas.includes(dependencia)) {
       throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
     }
@@ -161,6 +161,8 @@ export class DepInfraccionesRepository {
     `;
       values.push(dependencia);
     } else {
+      console.log("entro");
+      console.log(dependencia);
       // Flujo estándar para Dependencias (FISCALIA, JUZGADO_CIVICO)
       query = `
       SELECT
@@ -170,7 +172,11 @@ export class DepInfraccionesRepository {
         placa,
         created_at,
         correo_infractor,
-        nombre_infractor
+        nombre_infractor,
+        
+        estatus_dependencia,
+        no_carpeta_investigacion
+
       FROM v2_infracciones
       WHERE tipo_garantia = 'VEHICULO'
         AND estatus = 'REGISTRADA'
