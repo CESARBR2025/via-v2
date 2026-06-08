@@ -71,4 +71,22 @@ export const navigationByRole: Record<UserRole, any[]> = {
       ],
     },
   ],
+
+  liberaciones: [
+    // =====================================
+    // SECCIÓN
+    // =====================================
+
+    {
+      title: "Infracciones Registradas",
+
+      items: [
+        {
+          label: "Liberaciones",
+          href: "/depLiberaciones/dashboard",
+          icon: FileClockIcon,
+        },
+      ],
+    },
+  ],
 };

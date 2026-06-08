@@ -30,12 +30,12 @@ interface TablaCompartidaProps {
 }
 
 const columns = [
-    { key: "folio", label: "Folio", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
-    { key: "nombre_infractor", label: "Nombre Infractor", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
-    { key: "correo_infractor", label: "Correo", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
-    { key: "placa", label: "Placa", roles: ["fiscalia", "corralon_mw", 'juzgado_civico'] },
-    { key: "estatus", label: "Estatus", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
-    { key: "acciones", label: "Acciones", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico'] },
+    { key: "folio", label: "Folio", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', , 'liberaciones'] },
+    { key: "nombre_infractor", label: "Nombre Infractor", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
+    { key: "correo_infractor", label: "Correo", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
+    { key: "placa", label: "Placa", roles: ["fiscalia", "corralon_mw", 'juzgado_civico', 'liberaciones'] },
+    { key: "estatus", label: "Estatus", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
+    { key: "acciones", label: "Acciones", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
 ]
 
 export default function TablaCompartida({ respuestaServidor, userRole }: TablaCompartidaProps) {
@@ -250,6 +250,83 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
             </>
         )
     }
+
+    if (userRole === 'liberaciones') {
+        const estatus = detalle?.Header?.estatus_dependencia
+        console.log(detalle?.Header.estatus_dependencia)
+        console.log(estatus)
+        const mostrarBotonInicio = estatus === 'ESPERA_REVISION'
+        const enProceso = estatus === 'EN_PROCESO_LIBERACIONES'
+
+        return (
+            <>
+                <FiscaliaDashboard
+                    data={listaDatos}
+                    visibleColumns={visibleColumns}
+                    onOpenDetalle={handleOpenDetalle}
+                />
+
+                <ModalDetalleGenerico
+                    isOpen={open}
+                    onClose={handleCloseDetalle}
+                    loading={loading}
+                    detalle={detalle}
+                    role="fiscalia"
+                    onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
+                    antesContenido={
+                        mostrarBotonInicio ? (
+                            <button
+                                onClick={() => setConfirmOpen(true)}
+                                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-colors"
+                                style={{ background: '#22C55E', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}
+                            >
+                                <Play size={14} strokeWidth={2.5} fill="white" />
+                                Iniciar atención al caso
+                            </button>
+                        ) : undefined
+                    }
+                    sidebarExtra={
+                        detalle?.Header && !mostrarBotonInicio ? [
+                            enProceso ? (
+                                <CargarOficioSection
+                                    key="cargar-oficio"
+                                    idInfraccion={detalle.Header.id_infraccion}
+                                    noOficioActual={detalle.Header.no_oficio_fiscalia}
+                                    noCarpetaActual={detalle.Header.no_carpeta_investigacion}
+                                    esTitular={detalle.datos_infractor?.es_titular}
+                                    nombreInfractor={detalle.datos_infractor?.nombre_infractor}
+                                    appaternoInfractor={detalle.datos_infractor?.appaterno_infractor}
+                                    apmaternoInfractor={detalle.datos_infractor?.apmaterno_infractor}
+                                    correoInfractor={detalle.datos_infractor?.correo_infractor}
+                                    curpInfractor={detalle.datos_infractor?.curp_infractor}
+                                    onSuccess={() => refetchDetalle(detalle.Header.id_infraccion)}
+                                />
+                            ) : (
+                                <OficioLiberacionSection
+                                    key="oficio"
+                                    numeroOficio={detalle.Header.no_oficio_fiscalia}
+                                    urlOficio={detalle.Header.url_oficio_fiscalia}
+                                />
+                            ),
+                        ] : []
+                    }
+                />
+
+                <ConfirmacionModal
+                    isOpen={confirmOpen}
+                    onConfirmar={() => iniciarRevision('/api/fiscalia/iniciarProceso')}
+                    onCancelar={() => setConfirmOpen(false)}
+                    loading={confirmLoading}
+                    titulo="Iniciar atención al caso"
+                    mensaje="Esta acción cambiará el estatus de la infracción a «En Proceso» y notificará al área correspondiente. ¿Deseas continuar?"
+                    labelConfirmar="Sí, iniciar proceso"
+                    labelCancelar="Cancelar"
+                    variant="success"
+                />
+            </>
+        )
+    }
+
 }
 
 // ─── FORMULARIO CARGA DE OFICIO ───

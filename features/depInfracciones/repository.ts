@@ -91,7 +91,13 @@ export class DepInfraccionesRepository {
     const { dependencia, from, to } = params;
 
     // 1. Validamos la clave por seguridad
-    const dependenciasValidas = ["FISCALIA", "JUZGADO", "MW", "MEJIA"];
+    const dependenciasValidas = [
+      "FISCALIA",
+      "JUZGADO",
+      "MW",
+      "MEJIA",
+      "LIBERACIONES",
+    ];
     if (!dependenciasValidas.includes(dependencia)) {
       throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
     }
@@ -157,6 +163,27 @@ export class DepInfraccionesRepository {
           AND dependencia_receptora = $1
       `;
       values.push(dependencia);
+    } else if (dependencia === "LIBERACIONES") {
+      // Query estándar para dependencias legales
+      console.log(`-> Buscando infracciones para: ${dependencia}`);
+
+      query = `
+       SELECT
+          id,
+          folio,
+          estatus,
+          placa,
+          created_at,
+          correo_infractor,
+          nombre_infractor,
+          estatus_dependencia,
+          no_carpeta_investigacion
+        FROM v2_infracciones
+        WHERE tipo_garantia = 'VEHICULO'
+          AND estatus_dependencia = 'ESPERA_REVISION'
+        
+          
+      `;
     }
 
     // 3. Ordenar resultados
@@ -164,7 +191,13 @@ export class DepInfraccionesRepository {
 
     // 4. Ejecutar query
     try {
-      const result = await pool.query(query, values);
+      let result;
+
+      if (dependencia === "LIBERACIONES") {
+        result = await pool.query(query);
+      } else {
+        result = await pool.query(query, values);
+      }
       console.log(`Se encontraron ${result.rowCount} registros`);
 
       return {
@@ -241,7 +274,13 @@ export class DepInfraccionesRepository {
     const { dependencia } = params;
 
     // 1. Validamos la dependencia
-    const dependenciasValidas = ["FISCALIA", "JUZGADO", "MW", "MEJIA"];
+    const dependenciasValidas = [
+      "FISCALIA",
+      "JUZGADO",
+      "MW",
+      "MEJIA",
+      "LIBERACIONES",
+    ];
     if (!dependenciasValidas.includes(dependencia)) {
       throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
     }

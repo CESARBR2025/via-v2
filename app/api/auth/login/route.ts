@@ -166,7 +166,7 @@ export const POST = withErrorHandling(async function POST(req: Request) {
   if (roles.includes("admin")) redirectTo = "/admin/dashboard";
   else if (roles.includes("oficial")) redirectTo = "/oficial/captura";
   else if (roles.includes("liberaciones"))
-    redirectTo = "/liberaciones/tramites";
+    redirectTo = "/depLiberaciones/dashboard";
 
   const response = {
     ok: true,

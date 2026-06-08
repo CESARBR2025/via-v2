@@ -95,7 +95,7 @@ export async function POST(req: Request) {
     } else if (rol === "oficial") {
       redirectTo = "/oficiales/captura";
     } else if (rol === "liberaciones") {
-      redirectTo = "/liberaciones/tramites";
+      redirectTo = "/depLiberaciones/dashboard";
     } else if (rol === "infracciones") {
       redirectTo = "/depInfracciones/dashboard";
     } else if (rol === "fiscalia") {
