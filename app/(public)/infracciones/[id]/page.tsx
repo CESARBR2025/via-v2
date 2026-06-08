@@ -10,11 +10,12 @@ import {
     BanknoteArrowDown,
 } from 'lucide-react';
 
-export default async function Page({
+export default async function InfraccionCiudadanoPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
+
     const { id } = await params;
 
     const baseUrl =
@@ -25,6 +26,7 @@ export default async function Page({
     const res = await fetch(`${baseUrl}/api/infracciones/registradas/${id}`);
     const responseDataInfraccion = await res.json();
     const infraccion = responseDataInfraccion.data;
+    console.log(infraccion)
 
     return (
         <main className="min-h-screen bg-[#F1F5F9]">

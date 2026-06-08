@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { POOL_PG } from "@/lib/db";
 import { getExpedienteToken } from "@/lib/expediente-digital/expediente";
+import { enviarCorreoAsignacionJuzgado } from "@/features/emails/server";
 
 async function subirArchivo(
   archivo: File,
@@ -64,14 +65,26 @@ export async function POST(req: NextRequest) {
 
     const folio = formData.get("folio") as string;
     const numero_oficio = formData.get("numero_oficio") as string;
-    const no_carpeta_investigacion = formData.get("no_carpeta_investigacion") as string;
+    const no_carpeta_investigacion = formData.get(
+      "no_carpeta_investigacion",
+    ) as string;
     const archivo_oficio = formData.get("archivoIne") as File | null;
 
-    const nombre_titular_liberacion = formData.get("nombre_titular_liberacion") as string;
-    const appaterno_titular_liberacion = formData.get("appaterno_titular_liberacion") as string;
-    const apmaterno_titular_liberacion = formData.get("apmaterno_titular_liberacion") as string;
-    const correo_titular_liberacion = formData.get("correo_titular_liberacion") as string;
-    const curp_titular_liberacion = formData.get("curp_titular_liberacion") as string;
+    const nombre_titular_liberacion = formData.get(
+      "nombre_titular_liberacion",
+    ) as string;
+    const appaterno_titular_liberacion = formData.get(
+      "appaterno_titular_liberacion",
+    ) as string;
+    const apmaterno_titular_liberacion = formData.get(
+      "apmaterno_titular_liberacion",
+    ) as string;
+    const correo_titular_liberacion = formData.get(
+      "correo_titular_liberacion",
+    ) as string;
+    const curp_titular_liberacion = formData.get(
+      "curp_titular_liberacion",
+    ) as string;
 
     if (!folio) {
       return NextResponse.json(
@@ -140,6 +153,24 @@ export async function POST(req: NextRequest) {
     );
 
     await client.query("COMMIT");
+
+    // Enviando correo
+    // Envio de correo de alerta
+    // Intentar enviar correo
+    try {
+      console.log("entro aqui");
+      await enviarCorreoAsignacionJuzgado({
+        correo_titular_liberacion,
+        nombreTitular:
+          `${nombre_titular_liberacion} ${appaterno_titular_liberacion} ${apmaterno_titular_liberacion}`.trim(),
+        folio: folio,
+        numero_oficio,
+      });
+
+      console.log("[MAIL][OK]");
+    } catch (mailError) {
+      console.error("[MAIL][ERROR]", mailError);
+    }
 
     return NextResponse.json(
       {

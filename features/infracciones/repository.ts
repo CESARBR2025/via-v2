@@ -130,7 +130,7 @@ export class InfraccionesRepository {
   }
   // Traer toda la data para vista de ciudadano publica
 
-  static async obtenerPorId(id: string) {
+  static async obtenerDatosInfraccionCiudadanoRP(id: string) {
     const result = await db.query(
       `
     SELECT

@@ -138,9 +138,8 @@ export class DepInfraccionesService {
           },
         ),
 
-        DepInfraccionesRepository.contarRegistrosFiscaliaInfracciones({
-          from,
-          to,
+        DepInfraccionesRepository.contarRegistrosPorDependenciaInfracciones({
+          dependencia,
         }),
       ]);
 
@@ -148,6 +147,8 @@ export class DepInfraccionesService {
         listResult,
         total,
       });
+
+      console.log(listResult);
 
       // 4. Mapear
       const data = listResult.data.map(mapInfraccionListItem);
@@ -192,7 +193,7 @@ export class DepInfraccionesService {
           to,
         }),
 
-        DepInfraccionesRepository.contarRegistrosFiscaliaInfracciones({
+        DepInfraccionesRepository.contarRegistrosInfracciones({
           from,
           to,
         }),

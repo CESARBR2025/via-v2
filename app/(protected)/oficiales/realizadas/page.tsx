@@ -1,5 +1,7 @@
 import TablaDepInfracciones from "@/features/depInfracciones/components/TablaDevInfracciones/TablaDepInfracciones";
 import { getSession } from "@/features/auth/service";
+
+
 export default async function DepInfraccionesPage() {
     const baseUrl =
         process.env.NODE_ENV === 'production'

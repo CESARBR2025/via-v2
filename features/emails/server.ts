@@ -1,7 +1,11 @@
 import QRCode from "qrcode";
 import { sendMail } from "./mailer";
 
-import { templateInfraccion } from "./templates/sendInfraccion";
+import {
+  templateAsignacionFiscalia,
+  templateAsignacionJuzgado,
+  templateInfraccion,
+} from "./templates/sendInfraccion";
 
 type EnviarCorreoParams = {
   idInfraccion: string;
@@ -9,6 +13,13 @@ type EnviarCorreoParams = {
   nombreInfractor: string;
   folio: string;
 };
+
+export interface EnviarCorreoAsignacionJuzgadoParams {
+  correo_titular_liberacion: string;
+  nombreTitular: string;
+  folio: string;
+  numero_oficio: string;
+}
 
 export async function enviarCorreoInfraccion(data: EnviarCorreoParams) {
   const baseUrl =
@@ -50,5 +61,31 @@ export async function enviarCorreoInfraccion(data: EnviarCorreoParams) {
         cid: "qr_infraccion",
       },
     ],
+  });
+}
+
+export async function enviarCorreoAsignacionJuzgado(
+  data: EnviarCorreoAsignacionJuzgadoParams,
+) {
+  const { html, text } = templateAsignacionJuzgado(data);
+
+  await sendMail({
+    to: data.correo_titular_liberacion,
+    subject: `SSPM - Asignación de Infracción ${data.folio}`,
+    text,
+    html,
+  });
+}
+
+export async function enviarCorreoAsignacionFiscalia(
+  data: EnviarCorreoAsignacionJuzgadoParams,
+) {
+  const { html, text } = templateAsignacionFiscalia(data);
+
+  await sendMail({
+    to: data.correo_titular_liberacion,
+    subject: `SSPM - Asignación de Infracción ${data.folio}`,
+    text,
+    html,
   });
 }

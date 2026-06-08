@@ -70,12 +70,17 @@ export default function JuzgadoDashboard({
         return { pendientes, revision, liberadas }
     }, [data])
 
+
+
     const total = estadisticas.pendientes + estadisticas.revision + estadisticas.liberadas
 
     const registrosFiltrados = useMemo(
         () => data.filter(x => x.estatus_dependencia === filtro),
         [data, filtro],
     )
+    console.log(registrosFiltrados)
+
+
 
     return (
         <div className="space-y-6">

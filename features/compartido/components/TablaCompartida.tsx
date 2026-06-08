@@ -8,6 +8,7 @@ import JuzgadoDashboard from "@/features/juzgado/components/JuzgadoDashboard"
 import ModalDetalleGenerico, { DetalleCompleto } from "@/features/compartido/components/ModalDetalleGenerico"
 import ConfirmacionModal from "@/features/compartido/components/ConfirmacionModal"
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento'
+import { enviarCorreoAsignacionJuzgado } from "@/features/emails/server"
 
 interface DataRow {
     id: string
@@ -175,6 +176,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
     }
 
     if (userRole === 'juzgado_civico') {
+        console.log('entro ')
         const estatus = detalle?.Header?.estatus_dependencia
         const mostrarBotonInicio = estatus === 'PENDIENTE'
         const enProceso = estatus === 'EN_PROCESO_JUZGADO'
@@ -313,6 +315,9 @@ function CargarOficioSection({
                 body: fd,
             })
             if (!res.ok) throw new Error('Error al guardar')
+
+
+
             setSuccess(true)
             onSuccess?.()
         } catch (error) {

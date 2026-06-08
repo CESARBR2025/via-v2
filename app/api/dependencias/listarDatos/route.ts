@@ -34,6 +34,7 @@ export async function GET(req: Request) {
     return NextResponse.json(result);
   } catch (error: any) {
     console.error("Error en el endpoint GET dependencias:", error);
+    console.log("error", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
