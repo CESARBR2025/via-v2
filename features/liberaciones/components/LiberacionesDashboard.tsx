@@ -37,12 +37,12 @@ interface Props {
 type EstatusLiberaciones =
     | 'ESPERA_REVISION'
     | 'EN_PROCESO_LIBERACIONES'
-    | 'LIBERADO'
+    | 'LIBERADO_POR_LIBERACIONES'
 
 const STATUS_TABS: { key: EstatusLiberaciones; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
     { key: 'ESPERA_REVISION', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
     { key: 'EN_PROCESO_LIBERACIONES', label: 'En Proceso', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
-    { key: 'LIBERADO', label: 'Liberadas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
+    { key: 'LIBERADO_POR_LIBERACIONES', label: 'Liberadas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
@@ -76,6 +76,8 @@ export default function LiberacionesDashboard({
         () => data.filter(x => x.estatus_dependencia === filtro),
         [data, filtro],
     )
+
+    console.log(registrosFiltrados)
 
     return (
         <div className="space-y-6">

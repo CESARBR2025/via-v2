@@ -45,13 +45,13 @@ const DOCS_INFRACCION: DocConfig[] = [
 const DOCS_DELITO: DocConfig[] = [
     { id: 'factura', label: 'Factura', formKey: 'archivoFactura' },
     { id: 'ine', label: 'INE', formKey: 'archivoIneTitular' },
-    { id: 'oficio_liberacion_fiscalia', label: 'Oficio de liberación fiscalía', formKey: 'archivoOficioLiberacionFiscalia' },
+
 ];
 
 const DOCS_ACCIDENTE: DocConfig[] = [
     { id: 'factura', label: 'Factura', formKey: 'archivoFactura' },
     { id: 'ine', label: 'INE', formKey: 'archivoIneTitular' },
-    { id: 'oficio_liberacion_juzgado', label: 'Oficio de liberación juzgado cívico', formKey: 'archivoOficioLiberacionJuzgado' },
+
 ];
 
 const SUBTIPOS_TITULAR: Record<SubtipoTitular, { label: string; docs: DocConfig[] }> = {
@@ -155,6 +155,7 @@ export default function SeccionLiberacion({
     const [reuploading, setReuploading] = useState(false);
 
     const tieneDocs = documentosLiberacion && Object.keys(documentosLiberacion).length > 0;
+    console.log(tieneDocs)
 
     useEffect(() => {
         if (!tieneDocs || !infraccionId) return;

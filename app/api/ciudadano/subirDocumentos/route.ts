@@ -78,26 +78,56 @@ type ArchivoConfig = {
 const REQUIRED_FILES: Record<TipoLiberacion, ArchivoConfig[]> = {
   INFRACCION: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
-    { campo: "ine_titular", formKey: "archivoIneTitular", label: "INE del titular" },
-    { campo: "comprobante_domicilio", formKey: "archivoComprobanteDomicilio", label: "Comprobante de domicilio" },
-    { campo: "tarjeta_circulacion", formKey: "archivoTarjetaCirculacion", label: "Tarjeta de circulación" },
+    {
+      campo: "ine_titular",
+      formKey: "archivoIneTitular",
+      label: "INE del titular",
+    },
+    {
+      campo: "comprobante_domicilio",
+      formKey: "archivoComprobanteDomicilio",
+      label: "Comprobante de domicilio",
+    },
+    {
+      campo: "tarjeta_circulacion",
+      formKey: "archivoTarjetaCirculacion",
+      label: "Tarjeta de circulación",
+    },
   ],
   DELITO: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
-    { campo: "ine_titular", formKey: "archivoIneTitular", label: "INE del titular" },
-    { campo: "oficio_liberacion_fiscalia", formKey: "archivoOficioLiberacionFiscalia", label: "Oficio de liberación fiscalía" },
+    {
+      campo: "ine_titular",
+      formKey: "archivoIneTitular",
+      label: "INE del titular",
+    },
   ],
   ACCIDENTE: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
-    { campo: "ine_titular", formKey: "archivoIneTitular", label: "INE del titular" },
-    { campo: "oficio_liberacion_juzgado", formKey: "archivoOficioLiberacionJuzgado", label: "Oficio de liberación juzgado cívico" },
+    {
+      campo: "ine_titular",
+      formKey: "archivoIneTitular",
+      label: "INE del titular",
+    },
   ],
 };
 
 const EMPRESA_FILES: ArchivoConfig[] = [
-  { campo: "ine_representante_legal", formKey: "archivoIneRepresentanteLegal", label: "INE del representante legal" },
-  { campo: "poder_notarial", formKey: "archivoPoderNotarial", label: "Poder notarial" },
-  { campo: "constancia_situacion_fiscal", formKey: "archivoConstanciaSituacionFiscal", label: "Constancia de situación fiscal" },
+  {
+    campo: "ine_representante_legal",
+    formKey: "archivoIneRepresentanteLegal",
+    label: "INE del representante legal",
+  },
+  {
+    campo: "poder_notarial",
+    formKey: "archivoPoderNotarial",
+    label: "Poder notarial",
+  },
+  {
+    campo: "constancia_situacion_fiscal",
+    formKey: "archivoConstanciaSituacionFiscal",
+    label: "Constancia de situación fiscal",
+  },
 ];
 
 // =====================================================
@@ -281,7 +311,7 @@ export async function POST(req: NextRequest) {
           solicitudId,
           tipoLiberacion: tipo,
           esEmpresa,
-          documentos: docsSubidos.map(d => ({ tipo: d.campo, url: d.url })),
+          documentos: docsSubidos.map((d) => ({ tipo: d.campo, url: d.url })),
         },
       },
       { status: 200 },

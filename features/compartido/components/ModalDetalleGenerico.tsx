@@ -4,10 +4,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     X, FileText, Clock, AlertCircle, User, Shield, MapPin,
     CheckCircle2, UserX, ExternalLink, DollarSign, Car,
-    Scale, Hash, FileSpreadsheet
+    Scale, Hash, FileSpreadsheet, CalendarDays, Image, Receipt,
+    ScrollText, Eye
 } from 'lucide-react';
 import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento';
+
 
 // ══════════════════════════════ TIPOS ══════════════════════════════
 
@@ -227,147 +229,294 @@ export default function ModalDetalleGenerico({
                             {fullWidthExtra?.map((s, i) => (
                                 <div key={`fwe-${i}`} className="mb-6">{s}</div>
                             ))}
-                            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                            <div className="flex flex-col gap-5">
 
-                                {/* ─── COLUMNA PRINCIPAL ─── */}
-                                <div className="lg:col-span-3 flex flex-col gap-6">
-
-                                    <Card label="Monto Total" accent="#2563EB" icon={<DollarSign size={14} strokeWidth={2.5} />}>
-                                        <div className="flex items-end justify-between gap-4">
-                                            <div>
-                                                <p className="text-[10px] font-semibold tracking-widest uppercase text-[#64748B] mb-0.5">Importe</p>
-                                                <p className="text-2xl sm:text-3xl font-bold text-[#0F172A]">{fmtCurrency(detalle.Infraccion.total_pesos)}</p>
-                                                <p className="text-[12px] text-[#64748B] mt-1">{detalle.Infraccion.total_umas} UMAs</p>
+                                {/* 1 ─── FECHA / FOLIO ─── */}
+                                <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                    <div className="flex items-stretch">
+                                        <div className="flex items-center gap-4 px-5 py-4 flex-1">
+                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#EFF6FF' }}>
+                                                <CalendarDays size={18} className="text-[#2563EB]" />
                                             </div>
-                                            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#EFF6FF' }}>
-                                                <DollarSign size={22} strokeWidth={1.8} className="text-[#2563EB]" />
+                                            <div>
+
+
+                                                <p className="text-[11px] text-[#64748B] mt-0.5">
+                                                    Folio <span className="font-semibold text-[#0F172A]">{h?.folio_de_infraccion ?? '—'}</span>
+                                                </p>
                                             </div>
                                         </div>
-                                    </Card>
+                                        <div className="flex items-center gap-2 px-5 py-4 shrink-0 border-l border-[#E2E8F0]">
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold"
+                                                style={{ background: status.bg, color: status.text }}>
+                                                <span className="w-1.5 h-1.5 rounded-full" style={{ background: status.dot }} />
+                                                {status.label}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    <DatosInfractorSection detalle={detalle} role={role} />
+                                {/* 2 ─── UBICACIÓN ─── */}
+                                <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                    <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
+                                        <MapPin size={15} className="text-[#0F766E]" />
+                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">Ubicación</h3>
+                                    </div>
+                                    <div className="p-5 space-y-3">
+                                        <div className="flex items-start gap-3 p-3.5 rounded-xl" style={{ background: '#F0FDFA', border: '1px solid #CCFBF1' }}>
+                                            <MapPin size={16} className="text-[#0F766E] mt-0.5 shrink-0" />
+                                            <div>
+                                                <p className="text-[14px] font-bold text-[#134E4A]">
+                                                    {detalle.ubicacion.calle} #{detalle.ubicacion.numero}
+                                                </p>
+                                                <p className="text-[12px] text-[#0F766E] mt-0.5">
+                                                    CP {detalle.ubicacion.cod_postal} &middot; {detalle.ubicacion.municipio}, {detalle.ubicacion.estado}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <a href={`https://www.google.com/maps/search/?api=1&query=${detalle.ubicacion.latitud},${detalle.ubicacion.longitud}`}
+                                            target="_blank" rel="noopener noreferrer"
+                                            className="flex items-center gap-2.5 p-3 rounded-xl group transition-all"
+                                            style={{ background: '#F0FDFA', border: '1px solid #CCFBF1' }}>
+                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#0F766E' }}>
+                                                <MapPin size={14} className="text-white" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-[10px] font-semibold tracking-widest text-[#0F766E] uppercase">Ver en Google Maps</p>
+                                                <p className="text-[11px] font-mono font-semibold text-[#134E4A] truncate">{detalle.ubicacion.latitud}, {detalle.ubicacion.longitud}</p>
+                                            </div>
+                                            <ExternalLink size={14} className="text-[#0F766E]/50 group-hover:text-[#0F766E] transition-colors shrink-0" />
+                                        </a>
+                                        {latOk && lngOk && (
+                                            <div className="rounded-xl overflow-hidden border border-[#CCFBF1]">
+                                                <MapboxLocationPreview lat={Number(detalle.ubicacion.latitud)} lng={Number(detalle.ubicacion.longitud)} height="240px" />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
 
-                                    <Card label="Vehículo" accent="#0891B2" icon={<Car size={14} strokeWidth={2.5} />}>
-                                        <div className="flex flex-wrap items-center gap-3 mb-4">
-                                            <div className="px-4 py-2 rounded-lg border-2" style={{ borderColor: '#0891B2', background: '#F0F9FF' }}>
-                                                <p className="text-[9px] font-semibold tracking-widest text-[#0891B2] uppercase mb-0.5">Placa</p>
+                                {/* 3 ─── DATOS DEL INFRACTOR ─── */}
+                                <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                    <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
+                                        <User size={15} className="text-[#475569]" />
+                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">Datos del Infractor</h3>
+                                    </div>
+                                    <div className="p-5">
+                                        {role === 'fiscalia' && !!detalle.datos_infractor.nombre_titular_liberacion ? (
+                                            <TitularVerificado detalle={detalle} />
+                                        ) : role === 'fiscalia' ? (
+                                            <CapturaTitular />
+                                        ) : (
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
+                                                    <p className="text-[10px] font-semibold tracking-widest uppercase text-[#94A3B8] mb-1">Nombre Completo</p>
+                                                    <p className="text-[14px] font-semibold text-[#0F172A]">{sani(detalle.datos_infractor.nombre_infractor)} {sani(detalle.datos_infractor.appaterno_infractor)} {sani(detalle.datos_infractor.apmaterno_infractor)}</p>
+                                                </div>
+                                                <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
+                                                    <p className="text-[10px] font-semibold tracking-widest uppercase text-[#94A3B8] mb-1">Correo</p>
+                                                    <p className="text-[14px] font-semibold text-[#0F172A]">{sani(detalle.datos_infractor.correo_infractor, 'No registrado')}</p>
+                                                </div>
+                                                <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
+                                                    <p className="text-[10px] font-semibold tracking-widest uppercase text-[#94A3B8] mb-1">CURP</p>
+                                                    <p className="text-[14px] font-semibold font-mono text-[#0F172A] tracking-wider">{sani(detalle.datos_infractor.curp_infractor, 'No registrado')}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* 4 ─── DATOS DEL TITULAR (condicional) ─── */}
+                                {!!detalle.datos_infractor.nombre_titular_liberacion && (
+                                    <div className="rounded-xl border border-[#22C55E]/40 bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                        <div className="px-5 py-3.5 border-b border-[#22C55E]/20 flex items-center gap-2.5" style={{ background: '#F0FDF4' }}>
+                                            <CheckCircle2 size={15} className="text-[#16A34A]" />
+                                            <h3 className="text-[13px] font-semibold text-[#0F172A]">Titular Verificado</h3>
+                                        </div>
+                                        <div className="p-5">
+                                            <div className="flex items-center gap-4 p-4 rounded-xl" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                                                <div className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#22C55E' }}>
+                                                    <CheckCircle2 size={24} className="text-white" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[15px] font-bold text-[#166534]">
+                                                        {sani(detalle.datos_infractor.nombre_titular_liberacion)} {sani(detalle.datos_infractor.appaterno_infractor)} {sani(detalle.datos_infractor.apmaterno_infractor)}
+                                                    </p>
+                                                    <p className="text-[12px] text-[#16A34A] mt-0.5">El ciudadano se identificó como titular</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* 5 ─── VEHÍCULO ─── */}
+                                <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                    <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
+                                        <Car size={15} className="text-[#0891B2]" />
+                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">Vehículo</h3>
+                                    </div>
+                                    <div className="p-5">
+                                        <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-xl border-2 mb-4" style={{ borderColor: '#0891B2', background: '#F0F9FF' }}>
+                                            <Car size={16} className="text-[#0891B2]" />
+                                            <div>
+                                                <p className="text-[9px] font-semibold tracking-widest text-[#0891B2] uppercase">Placa</p>
                                                 <p className="text-lg font-bold tracking-[0.2em] text-[#0C4A6E]" style={{ fontFamily: "'DM Mono', 'Fira Code', monospace" }}>
                                                     {sani(detalle.vehiculo.placa)}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-5 gap-y-3">
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                             <Fld label="Marca" value={sani(detalle.vehiculo.marca)} />
                                             <Fld label="Modelo" value={sani(detalle.vehiculo.modelo)} />
                                             <Fld label="Año" value={sani(detalle.vehiculo.anio, 'N/E')} />
-                                            <Fld label="Tipo" value={sani(detalle.vehiculo.tipo, 'N/E')} />
                                             <Fld label="Color" value={sani(detalle.vehiculo.color)} />
                                         </div>
-                                    </Card>
-
-                                    <Card label="Fundamento Legal" accent="#7C3AED" icon={<Scale size={14} strokeWidth={2.5} />}>
-                                        <div className="space-y-4">
-                                            <div className="flex items-start gap-3">
-                                                <Hash size={15} strokeWidth={2.5} className="text-[#7C3AED] mt-0.5 shrink-0" />
-                                                <div>
-                                                    <p className="text-[10px] font-semibold tracking-widest text-[#94A3B8] uppercase mb-0.5">Artículo</p>
-                                                    <p className="text-[14px] font-medium text-[#0F172A]">{detalle.Infraccion.articulo_descripcion}</p>
-                                                </div>
-                                            </div>
-                                            <div className="h-px" style={{ background: '#F1F5F9' }} />
-                                            <div className="flex items-start gap-3">
-                                                <FileSpreadsheet size={15} strokeWidth={2.5} className="text-[#7C3AED] mt-0.5 shrink-0" />
-                                                <div>
-                                                    <p className="text-[10px] font-semibold tracking-widest text-[#94A3B8] uppercase mb-0.5">Fracción</p>
-                                                    <p className="text-[14px] font-medium text-[#0F172A]">{detalle.Infraccion.fraccion_descripcion}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Card>
-
-                                    {mainExtra?.map((s, i) => (
-                                        <React.Fragment key={`me-${i}`}>{s}</React.Fragment>
-                                    ))}
+                                    </div>
                                 </div>
 
-                                {/* ─── COLUMNA LATERAL ─── */}
-                                <div className="lg:col-span-2 flex flex-col gap-6">
-
-                                    <Card label="Ubicación" accent="#0F766E" icon={<MapPin size={14} strokeWidth={2.5} />}>
-                                        <div className="space-y-3">
-                                            <div className="p-3 rounded-lg" style={{ background: '#F0FDFA', border: '1px solid #CCFBF1' }}>
-                                                <p className="text-[10px] font-semibold tracking-widest text-[#0F766E] uppercase mb-0.5">Dirección</p>
-                                                <p className="text-[15px] font-bold text-[#134E4A]">{detalle.ubicacion.calle} #{detalle.ubicacion.numero}</p>
-                                                <p className="text-[12px] text-[#0F766E] mt-0.5">CP {detalle.ubicacion.cod_postal} &middot; {detalle.ubicacion.municipio}, {detalle.ubicacion.estado}</p>
+                                {/* 6 ─── FUNDAMENTO LEGAL ─── */}
+                                <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                    <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
+                                        <Scale size={15} className="text-[#7C3AED]" />
+                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">Fundamento Legal</h3>
+                                    </div>
+                                    <div className="p-5 space-y-4">
+                                        <div className="flex items-start gap-3 p-3.5 rounded-xl" style={{ background: '#F5F3FF', border: '1px solid #EDE9FE' }}>
+                                            <Hash size={16} className="text-[#7C3AED] mt-0.5 shrink-0" />
+                                            <div>
+                                                <p className="text-[10px] font-semibold tracking-widest text-[#7C3AED] uppercase mb-0.5">Artículo</p>
+                                                <p className="text-[14px] font-medium text-[#0F172A]">{detalle.Infraccion.articulo_descripcion}</p>
                                             </div>
-                                            <a href={`https://www.google.com/maps/search/?api=1&query=${detalle.ubicacion.latitud},${detalle.ubicacion.longitud}`}
-                                                target="_blank" rel="noopener noreferrer"
-                                                className="flex items-center gap-2.5 p-3 rounded-lg group transition-all"
-                                                style={{ background: '#F0FDFA', border: '1px solid #CCFBF1' }}>
-                                                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#0F766E' }}>
-                                                    <MapPin size={14} strokeWidth={2.5} className="text-white" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-[10px] font-semibold tracking-widest text-[#0F766E] uppercase">Ver en Maps</p>
-                                                    <p className="text-[11px] font-mono font-semibold text-[#134E4A] truncate">{detalle.ubicacion.latitud}, {detalle.ubicacion.longitud}</p>
-                                                </div>
-                                                <ExternalLink size={14} className="text-[#0F766E]/50 group-hover:text-[#0F766E] transition-colors shrink-0" />
-                                            </a>
-                                            {latOk && lngOk && (
-                                                <div className="rounded-lg overflow-hidden border" style={{ borderColor: '#CCFBF1' }}>
-                                                    <MapboxLocationPreview lat={Number(detalle.ubicacion.latitud)} lng={Number(detalle.ubicacion.longitud)} height="220px" />
-                                                </div>
-                                            )}
                                         </div>
-                                    </Card>
+                                        <div className="flex items-start gap-3 p-3.5 rounded-xl" style={{ background: '#F5F3FF', border: '1px solid #EDE9FE' }}>
+                                            <FileSpreadsheet size={16} className="text-[#7C3AED] mt-0.5 shrink-0" />
+                                            <div>
+                                                <p className="text-[10px] font-semibold tracking-widest text-[#7C3AED] uppercase mb-0.5">Fracción</p>
+                                                <p className="text-[14px] font-medium text-[#0F172A]">{detalle.Infraccion.fraccion_descripcion}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    <Card label="Garantía Retenida" accent="#D97706" icon={<Shield size={14} strokeWidth={2.5} />}>
-                                        <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
-                                            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#F59E0B' }}>
-                                                <Shield size={16} strokeWidth={2.5} className="text-white" />
+                                {/* 7 ─── GARANTÍA + EVIDENCIAS ─── */}
+                                <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                    <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
+                                        <Shield size={15} className="text-[#D97706]" />
+                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">Garantía Retenida</h3>
+                                    </div>
+                                    <div className="p-5 space-y-4">
+                                        <div className="flex items-center gap-3 p-3.5 rounded-xl" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
+                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#F59E0B' }}>
+                                                <Shield size={16} className="text-white" />
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-semibold tracking-widest text-[#92400E] uppercase">Tipo</p>
-                                                <p className="text-[14px] font-bold text-[#78350F]">
+                                                <p className="text-[15px] font-bold text-[#78350F]">
                                                     {detalle.garantia.garantia_retenida === 'TRJ_CIRCULACION' ? 'Tarjeta de Circulación'
                                                         : detalle.garantia.garantia_retenida === 'VEHICULO' ? 'Vehículo'
                                                             : sani(detalle.garantia.garantia_retenida, 'Ninguna')}
                                                 </p>
                                             </div>
                                         </div>
-                                    </Card>
 
-                                    <Card label="Documentación" accent="#2563EB" icon={<FileText size={14} strokeWidth={2.5} />}>
+                                        {evidence.length > 0 && (
+                                            <div>
+                                                <p className="text-[11px] font-semibold text-[#64748B] mb-2.5 flex items-center gap-1.5">
+                                                    <Image size={13} />
+                                                    Evidencias ({evidence.length})
+                                                </p>
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                    {evidence.map((ev) => (
+                                                        <div key={ev.name}
+                                                            className="flex items-center gap-2.5 p-2.5 rounded-lg transition-colors cursor-pointer hover:bg-[#F8FAFC]"
+                                                            style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}
+                                                            onClick={() => abrirDocumento(ev.path)}
+                                                        >
+                                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#F1F5F9' }}>
+                                                                <Image size={14} className="text-[#64748B]" />
+                                                            </div>
+                                                            <span className="text-[12px] font-medium text-[#0F172A] truncate flex-1 min-w-0">{ev.name}</span>
+                                                            <Eye size={12} className="text-[#94A3B8] shrink-0" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* 8 ─── MONTOS ─── */}
+                                <div className="rounded-xl border border-[#E2E8F0] bg-gradient-to-br from-[#FFFFFF] to-[#F8FAFC] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                    <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
+                                        <DollarSign size={15} className="text-[#2563EB]" />
+                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">UMAs a Pagar</h3>
+                                    </div>
+                                    <div className="p-5">
+                                        <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+                                            <div className="space-y-1">
+                                                <p className="text-[10px] font-semibold tracking-widest uppercase text-[#64748B]">Total UMAs</p>
+                                                <p className="text-2xl font-bold text-[#0F172A]">{detalle.Infraccion.total_umas} UMAs</p>
+                                                <p className="text-[14px] text-[#64748B] font-medium">
+                                                    Equivalente a <span className="font-bold text-[#2563EB]">{fmtCurrency(detalle.Infraccion.total_pesos)}</span>
+                                                </p>
+                                            </div>
+                                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#2563EB', boxShadow: '0 4px 12px rgba(37,99,235,0.25)' }}>
+                                                <DollarSign size={26} className="text-white" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 9 ─── HISTORIAL DE DOCUMENTACIÓN ─── */}
+                                <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                    <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
+                                        <FileText size={15} className="text-[#2563EB]" />
+                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">Historial de Documentación</h3>
+                                    </div>
+                                    <div className="p-5">
                                         {allFiles.length === 0 ? (
-                                            <div className="rounded-lg border border-dashed p-4 text-center" style={{ borderColor: '#E2E8F0' }}>
-                                                <FileText size={20} strokeWidth={1.5} className="mx-auto mb-2 text-[#CBD5E1]" />
+                                            <div className="rounded-xl border border-dashed p-6 text-center" style={{ borderColor: '#E2E8F0' }}>
+                                                <FileText size={24} className="mx-auto mb-2 text-[#CBD5E1]" />
                                                 <p className="text-[13px] text-[#94A3B8]">Sin documentos adjuntos</p>
                                             </div>
                                         ) : (
-                                            <div className="space-y-2.5">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                                 {allFiles.map((f) => (
                                                     <div key={`${f.name}-${f.path}`}
-                                                        className="flex items-center justify-between gap-3 p-3 rounded-lg transition-colors"
-                                                        style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                                                        <div className="min-w-0">
-                                                            <p className="text-[10px] font-semibold tracking-widest text-[#64748B] uppercase">{f.isEvidence ? 'Evidencia' : 'Documento'}</p>
-                                                            <p className="text-[13px] font-medium text-[#0F172A] truncate">{f.name}</p>
+                                                        className="flex items-center gap-3 p-3 rounded-lg transition-colors"
+                                                        style={{
+                                                            background: f.isEvidence ? '#FFFBEB' : '#F8FAFC',
+                                                            border: f.isEvidence ? '1px solid #FDE68A' : '1px solid #E2E8F0',
+                                                        }}>
+                                                        <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                                                            style={{ background: f.isEvidence ? '#FEF3C7' : '#EFF6FF' }}>
+                                                            {f.isEvidence
+                                                                ? <Image size={15} className="text-[#D97706]" />
+                                                                : <FileText size={15} className="text-[#2563EB]" />
+                                                            }
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-[12px] font-medium text-[#0F172A] truncate">{f.name}</p>
+                                                            <p className="text-[10px] text-[#94A3B8]">{f.isEvidence ? 'Evidencia' : 'Documento'}</p>
                                                         </div>
                                                         <button onClick={() => abrirDocumento(f.path)}
-                                                            className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-white transition-colors"
+                                                            className="shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-colors"
                                                             style={{ background: '#2563EB' }}>
-                                                            Ver
+                                                            <Eye size={12} />
                                                         </button>
                                                     </div>
                                                 ))}
                                             </div>
                                         )}
-                                    </Card>
-
-                                    {sidebarExtra?.map((s, i) => (
-                                        <React.Fragment key={`se-${i}`}>{s}</React.Fragment>
-                                    ))}
+                                    </div>
                                 </div>
+
+                                {mainExtra?.map((s, i) => (
+                                    <div key={`me-${i}`}>{s}</div>
+                                ))}
+
+                                {sidebarExtra?.map((s, i) => (
+                                    <div key={`se-${i}`}>{s}</div>
+                                ))}
                             </div>
                         </div>
                     )}
