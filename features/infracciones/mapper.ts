@@ -79,8 +79,64 @@ export const mapCrearInfraccionToDB = (
   };
 };
 
+const DOC_LABELS: Record<string, string> = {
+  url_factura: "Factura",
+  url_ine_titular: "INE del titular",
+  url_comprobante_domicilio: "Comprobante de domicilio",
+  url_tarjeta_circulacion: "Tarjeta de circulación",
+  url_ine_propietario_anterior: "INE del propietario anterior",
+  url_oficio_liberacion_fiscalia: "Oficio de liberación fiscalía",
+  url_oficio_liberacion_juzgado: "Oficio de liberación juzgado",
+  url_ine_representante_legal: "INE del representante legal",
+  url_poder_notarial: "Poder notarial",
+  url_acta_constitutiva: "Acta constitutiva",
+  url_constancia_situacion_fiscal: "Constancia de situación fiscal",
+};
+
+const DOC_COLUMNS = [
+  "url_factura",
+  "url_ine_titular",
+  "url_comprobante_domicilio",
+  "url_tarjeta_circulacion",
+  "url_ine_propietario_anterior",
+  "url_oficio_liberacion_fiscalia",
+  "url_oficio_liberacion_juzgado",
+  "url_ine_representante_legal",
+  "url_poder_notarial",
+  "url_acta_constitutiva",
+  "url_constancia_situacion_fiscal",
+];
+
 export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
+  const documentosLiberacion: Record<string, { url: string; label: string }> =
+    {};
+
+  for (const col of DOC_COLUMNS) {
+    if (row[col]) {
+      documentosLiberacion[col] = {
+        url: row[col],
+        label: DOC_LABELS[col] || col,
+      };
+    }
+  }
+
   return {
+    // Datos de juzgado y tilar
+    dependenciaReceptora: row.dependencia_receptora,
+    noOficio: row.no_oficio_fiscalia ?? row.no_oficio_juzgado,
+    urlOficio: row.url_oficio_fiscalia ?? row.url_oficio_juzgado,
+    estatusDependencia: row.estatus_dependencia,
+    nombreTitular: [
+      row.nombre_titular_liberacion,
+      row.appaterno_titular_liberacion,
+      row.apmaterno_titular_liberacion,
+    ]
+      .filter(Boolean)
+      .join(" "),
+    correoTitular: row.correo_titular_liberacion,
+    curpTitular: row.curp_titular_liberacion,
+    noCarpetaInvestigacion: row.no_carpeta_investigacion,
+
     descuento_aplicado: row.descuento_aplicado,
     fecha_limite_descuento: row.fecha_limite_descuento,
     clasificacion: row.clasificacion,
@@ -136,5 +192,12 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
     total_umas: Number(row.total_umas),
     created_at: row.created_at,
     concepto_id: row.concepto_id,
+
+    documentosLiberacion,
+
+    dl_tipo_liberacion: row.dl_tipo_liberacion,
+    dl_es_empresa: row.dl_es_empresa,
+    dl_nombre_empresa: row.dl_nombre_empresa,
+    dl_rfc_empresa: row.dl_rfc_empresa,
   };
 };

@@ -150,7 +150,25 @@ export class InfraccionesRepository {
         ops.total_pesos,
         ops.total_umas,
         ops.created_at AS orden_pago_created_at,
-        ops.concepto_id
+        ops.concepto_id,
+
+        -- Datos de documentos de liberación
+        dl.tipo_liberacion AS dl_tipo_liberacion,
+        dl.es_empresa AS dl_es_empresa,
+        dl.nombre_empresa AS dl_nombre_empresa,
+        dl.rfc_empresa AS dl_rfc_empresa,
+
+        dl.url_factura,
+        dl.url_ine_titular,
+        dl.url_comprobante_domicilio,
+        dl.url_tarjeta_circulacion,
+        dl.url_ine_propietario_anterior,
+        dl.url_oficio_liberacion_fiscalia,
+        dl.url_oficio_liberacion_juzgado,
+        dl.url_ine_representante_legal,
+        dl.url_poder_notarial,
+        dl.url_acta_constitutiva,
+        dl.url_constancia_situacion_fiscal
 
     FROM v2_infracciones i
 
@@ -159,6 +177,9 @@ export class InfraccionesRepository {
 
     LEFT JOIN v2_ordenes_pago_sa7 ops
         ON ops.infraccion_id = i.id
+
+    LEFT JOIN v2_documentos_liberacion dl
+        ON dl.infraccion_id = i.id
 
     WHERE i.id = $1
     `,

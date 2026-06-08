@@ -149,9 +149,28 @@ export interface InfraccionDB {
 // Datos de infracción que se enviarán a la vista ciudadana
 
 export interface InfraccionDetalleDTO {
+  // Dependencias y titulares
+  dependenciaReceptora: string;
+  noOficio: string;
+  urlOficio: string;
+  estatusDependencia: string;
+  nombreTitular: string;
+  correoTitular: string;
+  curpTitular: string;
+  noCarpetaInvestigacion: string;
+
+  // Otrs datos
   descuento_aplicado: string;
   fecha_limite_descuento: string;
   concepto_id: string;
+
+  documentosLiberacion: Record<string, { url: string; label: string }>;
+
+  dl_tipo_liberacion: string | null;
+  dl_es_empresa: boolean | null;
+  dl_nombre_empresa: string | null;
+  dl_rfc_empresa: string | null;
+
   orden_pago_local_id: string | null;
   orden_pago_id: string | null;
   estatus_orden_pago: string | null;

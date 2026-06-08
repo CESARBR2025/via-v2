@@ -1,4 +1,5 @@
 import PagoInfraccion from '@/features/infracciones/components/PagoInfraccion';
+import SeccionLiberacion from '@/features/infracciones/components/SeccionLiberacion';
 import {
     CheckCircle2,
     CreditCard,
@@ -76,6 +77,21 @@ export default async function InfraccionCiudadanoPage({
                         )}
                     </div>
                 </section>
+
+                {/* LIBERACIÓN */}
+                <SeccionLiberacion
+                    dependenciaReceptora={infraccion.dependenciaReceptora}
+                    noOficio={infraccion.noOficio}
+                    urlOficio={infraccion.urlOficio}
+                    estatusDependencia={infraccion.estatusDependencia}
+                    nombreTitular={infraccion.nombreTitular}
+                    correoTitular={infraccion.correoTitular}
+                    curpTitular={infraccion.curpTitular}
+                    noCarpetaInvestigacion={infraccion.noCarpetaInvestigacion}
+                    motivoRetencion={infraccion.motivoRetencion}
+                    infraccionId={infraccion.id}
+                    documentosLiberacion={infraccion.documentosLiberacion || {}}
+                />
 
                 {/* GRID */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
