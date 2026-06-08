@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento';
 import {
     Scale,
@@ -17,6 +17,7 @@ import {
     Loader2,
     X,
     Eye,
+    MessageSquare,
 } from 'lucide-react';
 
 type DocConfig = {
@@ -148,8 +149,34 @@ export default function SeccionLiberacion({
     const [error, setError] = useState<string | null>(null);
     const [nombreEmpresa, setNombreEmpresa] = useState('');
     const [rfcEmpresa, setRfcEmpresa] = useState('');
+    const [revisionStatuses, setRevisionStatuses] = useState<Record<string, { estatus: string | null; observaciones: string | null }>>({});
+    const [loadingStatus, setLoadingStatus] = useState(false);
+    const [reuploadFiles, setReuploadFiles] = useState<Record<string, File>>({});
+    const [reuploading, setReuploading] = useState(false);
+
+    const tieneDocs = documentosLiberacion && Object.keys(documentosLiberacion).length > 0;
+
+    useEffect(() => {
+        if (!tieneDocs || !infraccionId) return;
+        setLoadingStatus(true);
+        fetch(`/api/liberaciones/documentos/${infraccionId}`)
+            .then((r) => r.ok ? r.json() : null)
+            .then((data) => {
+                if (data?.documentos) {
+                    const map: Record<string, { estatus: string | null; observaciones: string | null }> = {};
+                    data.documentos.forEach((d: any) => {
+                        map[d.tipo] = { estatus: d.estatusRevision, observaciones: d.observaciones };
+                    });
+                    setRevisionStatuses(map);
+                }
+            })
+            .catch(() => { })
+            .finally(() => setLoadingStatus(false));
+    }, [tieneDocs, infraccionId]);
 
     const estatusConfig = getEstatusConfig(estatusDependencia);
+    console.log(estatusDependencia)
+    console.log(estatusConfig)
 
     const motivoSubtipo = motivoRetencion ? MOTIVO_TO_SUBTIPO[motivoRetencion] : undefined;
 
@@ -233,6 +260,52 @@ export default function SeccionLiberacion({
         }
     };
 
+    const handleReupload = async () => {
+        const docsAReenviar = Object.keys(reuploadFiles);
+        if (docsAReenviar.length === 0) return;
+
+        setReuploading(true);
+        setError(null);
+
+        try {
+            const formData = new FormData();
+            formData.append('infraccionId', infraccionId);
+
+            for (const tipo of docsAReenviar) {
+                formData.append(tipo, reuploadFiles[tipo]);
+            }
+
+            const res = await fetch('/api/ciudadano/reintentarDocumentos', {
+                method: 'PATCH',
+                body: formData,
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al reenviar documentos');
+            }
+
+            setReuploadFiles({});
+            // Refrescar estatus
+            const r = await fetch(`/api/liberaciones/documentos/${infraccionId}`);
+            if (r.ok) {
+                const d = await r.json();
+                if (d?.documentos) {
+                    const map: Record<string, { estatus: string | null; observaciones: string | null }> = {};
+                    d.documentos.forEach((doc: any) => {
+                        map[doc.tipo] = { estatus: doc.estatusRevision, observaciones: doc.observaciones };
+                    });
+                    setRevisionStatuses(map);
+                }
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Error al reenviar documentos');
+        } finally {
+            setReuploading(false);
+        }
+    };
+
     return (
         <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
             <div className="px-6 py-[18px] border-b border-[#E2E8F0] flex items-center gap-3">
@@ -263,6 +336,7 @@ export default function SeccionLiberacion({
                     >
                         <estatusConfig.icon size={16} />
                         {estatusConfig.label}
+
                     </div>
                 </div>
 
@@ -306,10 +380,10 @@ export default function SeccionLiberacion({
                 )}
 
                 {/* SEPARADOR */}
-                {!submitted && estatusDependencia !== 'ESPERA_REVISION' && <div className="h-px bg-[#E2E8F0]" />}
+                {!tieneDocs && !submitted && estatusDependencia !== 'ESPERA_REVISION' && <div className="h-px bg-[#E2E8F0]" />}
 
-                {/* FORMULARIO */}
-                {!submitted && estatusDependencia !== 'ESPERA_REVISION' && (
+                {/* FORMULARIO (solo si no hay docs) */}
+                {!tieneDocs && !submitted && estatusDependencia !== 'ESPERA_REVISION' && (
                     <>
                         {/* SELECCIÓN TIPO */}
                         <div className="space-y-3">
@@ -444,53 +518,200 @@ export default function SeccionLiberacion({
                     </>
                 )}
 
-                {/* EN ESPERA DE REVISIÓN */}
-                {(submitted || estatusDependencia === 'ESPERA_REVISION') && (
+                {/* DOCUMENTOS SUBIDOS */}
+                {(tieneDocs || submitted || estatusDependencia === 'ESPERA_REVISION') && (
                     <div className="space-y-4">
-                        <div className="rounded-xl border border-[#22C55E]/30 bg-[#DCFCE7] p-6 text-center space-y-3">
-                            <div className="w-16 h-16 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center mx-auto">
-                                <CheckCircle2 size={32} className="text-[#16A34A]" />
-                            </div>
-                            <div>
-                                <h4 className="text-lg font-bold text-[#0F172A]">
-                                    En espera de revisión
-                                </h4>
-                                <p className="text-sm text-[#64748B] mt-1">
-                                    Todos los documentos fueron subidos correctamente.
-                                    La autoridad revisará la información y emitirá la
-                                    orden de liberación.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* DATOS EMPRESA (si aplica) */}
-                        {documentosLiberacion && Object.keys(documentosLiberacion).length > 0 && (
-                            <div className="space-y-3">
-                                <p className="text-sm font-semibold text-[#0F172A]">
-                                    Documentos subidos
-                                </p>
-                                <div className="space-y-2">
-                                    {Object.entries(documentosLiberacion).map(([key, doc]) => (
-                                        <div
-                                            key={key}
-                                            className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC]"
-                                        >
-                                            <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-                                                <FileText size={16} className="text-[#2563EB]" />
-                                            </div>
-                                            <span className="text-sm font-medium text-[#0F172A] flex-1 min-w-0">
-                                                {doc.label}
-                                            </span>
-                                            <button
-                                                onClick={() => abrirDocumento(doc.url)}
-                                                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition"
-                                            >
-                                                <Eye size={12} />
-                                                Ver documento
-                                            </button>
-                                        </div>
-                                    ))}
+                        {estatusDependencia === 'ESPERA_REVISION' && (
+                            <div className="rounded-xl border border-[#22C55E]/30 bg-[#DCFCE7] p-6 text-center space-y-3">
+                                <div className="w-16 h-16 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center mx-auto">
+                                    <CheckCircle2 size={32} className="text-[#16A34A]" />
                                 </div>
+                                <div>
+                                    <h4 className="text-lg font-bold text-[#0F172A]">
+                                        En espera de revisión
+                                    </h4>
+                                    <p className="text-sm text-[#64748B] mt-1">
+                                        Todos los documentos fueron subidos correctamente.
+                                        La autoridad revisará la información y emitirá la
+                                        orden de liberación.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {tieneDocs && (
+                            <div className="space-y-3">
+                                <p className="text-sm font-semibold text-[#0F172A] flex items-center gap-2">
+                                    <FileText size={15} className="text-[#2563EB]" />
+                                    Documentos subidos
+                                    {loadingStatus && <Loader2 size={12} className="animate-spin text-[#94A3B8]" />}
+                                </p>
+                                <div className="space-y-3">
+                                    {Object.entries(documentosLiberacion).map(([key, doc]) => {
+                                        const status = revisionStatuses[key];
+                                        const estatus = status?.estatus;
+                                        const obs = status?.observaciones;
+                                        const rechazado = estatus === 'RECHAZADO';
+                                        const aceptado = estatus === 'ACEPTADO';
+                                        const pendiente = !estatus;
+                                        const tieneReupload = !!reuploadFiles[key];
+
+                                        return (
+                                            <div key={key} className="space-y-2">
+                                                <div
+                                                    className="flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors"
+                                                    style={{
+                                                        borderColor: aceptado ? '#BBF7D0' : rechazado ? '#FECACA' : '#E2E8F0',
+                                                        background: aceptado ? '#F0FDF4' : rechazado ? '#FEF2F2' : '#F8FAFC',
+                                                    }}
+                                                >
+                                                    <div
+                                                        className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                                                        style={{
+                                                            background: aceptado ? '#DCFCE7' : rechazado ? '#FEE2E2' : '#EFF6FF',
+                                                        }}
+                                                    >
+                                                        {aceptado ? (
+                                                            <CheckCircle2 size={15} className="text-[#16A34A]" />
+                                                        ) : rechazado ? (
+                                                            <XCircle size={15} className="text-[#DC2626]" />
+                                                        ) : (
+                                                            <FileText size={15} className="text-[#2563EB]" />
+                                                        )}
+                                                    </div>
+
+                                                    <span className="text-sm font-medium text-[#0F172A] flex-1 min-w-0">
+                                                        {doc.label}
+                                                    </span>
+
+                                                    {aceptado && (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0"
+                                                            style={{ background: '#DCFCE7', color: '#16A34A' }}>
+                                                            <CheckCircle2 size={10} />
+                                                            Aceptado
+                                                        </span>
+                                                    )}
+
+                                                    {rechazado && (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0"
+                                                            style={{ background: '#FEE2E2', color: '#DC2626' }}>
+                                                            <XCircle size={10} />
+                                                            Rechazado
+                                                        </span>
+                                                    )}
+
+                                                    {pendiente && !loadingStatus && (
+                                                        <span className="text-[11px] text-[#94A3B8] shrink-0 flex items-center gap-1.5">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-[#94A3B8] animate-pulse" />
+                                                            Pendiente
+                                                        </span>
+                                                    )}
+
+                                                    <button
+                                                        onClick={() => abrirDocumento(doc.url)}
+                                                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition"
+                                                    >
+                                                        <Eye size={12} />
+                                                        Ver
+                                                    </button>
+                                                </div>
+
+                                                {/* RECHAZO: comentario + re-upload */}
+                                                {rechazado && obs && (
+                                                    <div className="ml-12 flex items-start gap-2 px-4 py-2.5 rounded-lg"
+                                                        style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
+                                                        <MessageSquare size={13} className="text-[#D97706] mt-0.5 shrink-0" />
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-[11px] font-semibold text-[#D97706] mb-0.5">
+                                                                Motivo del rechazo
+                                                            </p>
+                                                            <p className="text-[12px] text-[#92400E] italic">
+                                                                &ldquo;{obs}&rdquo;
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* RE-UPLOAD solo si rechazado */}
+                                                {rechazado && (
+                                                    <div className="ml-12 flex items-center gap-3">
+                                                        <label className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-[#FCA5A5] bg-[#FFFFFF] cursor-pointer hover:bg-[#FFF1F2] transition"
+                                                            style={{ borderColor: tieneReupload ? '#22C55E' : '#FCA5A5' }}>
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*,application/pdf"
+                                                                className="hidden"
+                                                                onChange={(e) => {
+                                                                    const f = e.target.files?.[0];
+                                                                    if (f) {
+                                                                        setReuploadFiles((p) => ({ ...p, [key]: f }));
+                                                                    }
+                                                                    e.target.value = '';
+                                                                }}
+                                                            />
+                                                            {tieneReupload ? (
+                                                                <>
+                                                                    <CheckCircle2 size={14} className="text-[#16A34A]" />
+                                                                    <span className="text-[12px] font-medium text-[#16A34A] truncate">
+                                                                        {reuploadFiles[key].name}
+                                                                    </span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Upload size={14} className="text-[#DC2626]" />
+                                                                    <span className="text-[12px] text-[#64748B]">
+                                                                        Seleccionar nuevo archivo
+                                                                    </span>
+                                                                </>
+                                                            )}
+                                                        </label>
+                                                        {tieneReupload && (
+                                                            <button
+                                                                onClick={() => setReuploadFiles((p) => {
+                                                                    const n = { ...p };
+                                                                    delete n[key];
+                                                                    return n;
+                                                                })}
+                                                                className="shrink-0 px-2 py-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[11px] text-[#64748B] transition"
+                                                            >
+                                                                <X size={13} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* BOTÓN RE-ENVIAR */}
+                                {Object.keys(reuploadFiles).length > 0 && (
+                                    <button
+                                        onClick={handleReupload}
+                                        disabled={reuploading}
+                                        className="w-full h-11 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] disabled:opacity-60 text-white text-sm font-semibold flex items-center justify-center gap-2 transition"
+                                    >
+                                        {reuploading ? (
+                                            <>
+                                                <Loader2 size={16} className="animate-spin" />
+                                                Reenviando...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload size={16} />
+                                                Reenviar {Object.keys(reuploadFiles).length} documento(s) a revisión
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+
+                                {/* ERROR */}
+                                {error && (
+                                    <div className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 flex items-center gap-2">
+                                        <AlertCircle size={14} className="text-[#DC2626] shrink-0" />
+                                        <p className="text-sm text-[#DC2626]">{error}</p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

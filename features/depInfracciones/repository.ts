@@ -164,7 +164,6 @@ export class DepInfraccionesRepository {
       `;
       values.push(dependencia);
     } else if (dependencia === "LIBERACIONES") {
-      // Query estándar para dependencias legales
       console.log(`-> Buscando infracciones para: ${dependencia}`);
 
       query = `
@@ -179,10 +178,7 @@ export class DepInfraccionesRepository {
           estatus_dependencia,
           no_carpeta_investigacion
         FROM v2_infracciones
-        WHERE tipo_garantia = 'VEHICULO'
-          AND estatus_dependencia = 'ESPERA_REVISION'
-        
-          
+        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES')
       `;
     }
 
@@ -311,6 +307,12 @@ export class DepInfraccionesRepository {
         AND grua_id = $1
     `;
       values.push(idGruaDinamico);
+    } else if (dependencia === "LIBERACIONES") {
+      query = `
+      SELECT COUNT(*)::int AS total
+      FROM v2_infracciones
+      WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES')
+    `;
     } else {
       // Query estándar para FISCALIA, JUZGADO, MEJIA
       query = `
@@ -358,6 +360,12 @@ export class DepInfraccionesRepository {
     i.apellido_paterno_infractor,
     i.apellido_materno_infractor,
     i.curp_infractor,
+    i.nombre_titular_liberacion,
+    i.appaterno_titular_liberacion,
+    i.apmaterno_titular_liberacion,
+  
+
+
     i.marca,
     i.modelo,
     i.color,

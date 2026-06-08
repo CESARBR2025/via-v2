@@ -50,6 +50,9 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
     nombre_infractor: safeRowMapper(
       `${row.nombre_infractor ?? ""} ${row.apellido_paterno_infractor ?? ""} ${row.apellido_materno_infractor ?? ""}`.trim(),
     ),
+    nombre_titular_liberacion: safeRowMapper(
+      `${row.nombre_titular_liberacion ?? ""} ${row.appaterno_titular_liberacion ?? ""} ${row.apmaterno_titular_liberacion ?? ""}`.trim(),
+    ),
     correo_infractor: safeRowMapper(row.correo_infractor),
     curp_infractor: safeRowMapper(row.curp_infractor),
     appaterno_infractor: safeRowMapper(row.apellido_paterno_infractor),

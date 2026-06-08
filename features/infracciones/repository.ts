@@ -152,23 +152,48 @@ export class InfraccionesRepository {
         ops.created_at AS orden_pago_created_at,
         ops.concepto_id,
 
-        -- Datos de documentos de liberación
-        dl.tipo_liberacion AS dl_tipo_liberacion,
-        dl.es_empresa AS dl_es_empresa,
-        dl.nombre_empresa AS dl_nombre_empresa,
-        dl.rfc_empresa AS dl_rfc_empresa,
+        -- Datos de solicitud de liberación
+        sl.id AS sl_id,
+        sl.tipo_liberacion AS sl_tipo_liberacion,
+        sl.es_empresa AS sl_es_empresa,
+        sl.nombre_empresa AS sl_nombre_empresa,
+        sl.rfc_empresa AS sl_rfc_empresa,
+        sl.estatus AS sl_estatus,
 
-        dl.url_factura,
-        dl.url_ine_titular,
-        dl.url_comprobante_domicilio,
-        dl.url_tarjeta_circulacion,
-        dl.url_ine_propietario_anterior,
-        dl.url_oficio_liberacion_fiscalia,
-        dl.url_oficio_liberacion_juzgado,
-        dl.url_ine_representante_legal,
-        dl.url_poder_notarial,
-        dl.url_acta_constitutiva,
-        dl.url_constancia_situacion_fiscal
+        -- Documentos (agregados como JSON)
+        CASE
+            WHEN COUNT(dl.id) = 0 THEN '[]'::jsonb
+            ELSE jsonb_agg(
+                jsonb_build_object(
+                    'tipo', dl.tipo_documento,
+                    'url', dl.url_documento,
+                    'label', COALESCE((
+                        SELECT 'Factura' WHERE dl.tipo_documento = 'factura'
+                    ), (
+                        SELECT 'INE del titular' WHERE dl.tipo_documento = 'ine_titular'
+                    ), (
+                        SELECT 'Comprobante de domicilio' WHERE dl.tipo_documento = 'comprobante_domicilio'
+                    ), (
+                        SELECT 'Tarjeta de circulación' WHERE dl.tipo_documento = 'tarjeta_circulacion'
+                    ), (
+                        SELECT 'INE del propietario anterior' WHERE dl.tipo_documento = 'ine_propietario_anterior'
+                    ), (
+                        SELECT 'Oficio de liberación fiscalía' WHERE dl.tipo_documento = 'oficio_liberacion_fiscalia'
+                    ), (
+                        SELECT 'Oficio de liberación juzgado' WHERE dl.tipo_documento = 'oficio_liberacion_juzgado'
+                    ), (
+                        SELECT 'INE del representante legal' WHERE dl.tipo_documento = 'ine_representante_legal'
+                    ), (
+                        SELECT 'Poder notarial' WHERE dl.tipo_documento = 'poder_notarial'
+                    ), (
+                        SELECT 'Acta constitutiva' WHERE dl.tipo_documento = 'acta_constitutiva'
+                    ), (
+                        SELECT 'Constancia de situación fiscal' WHERE dl.tipo_documento = 'constancia_situacion_fiscal'
+                    ), dl.tipo_documento)
+                )
+                ORDER BY dl.created_at
+            )
+        END AS documentos_liberacion_json
 
     FROM v2_infracciones i
 
@@ -178,10 +203,18 @@ export class InfraccionesRepository {
     LEFT JOIN v2_ordenes_pago_sa7 ops
         ON ops.infraccion_id = i.id
 
+    LEFT JOIN v2_solicitudes_liberacion sl
+        ON sl.infraccion_id = i.id
+
     LEFT JOIN v2_documentos_liberacion dl
-        ON dl.infraccion_id = i.id
+        ON dl.solicitud_id = sl.id
 
     WHERE i.id = $1
+    GROUP BY i.id, vfl.clasificacion, ops.id, ops.orden_pago_id, ops.estatus,
+             ops.url_pago, ops.url_guardado, ops.folio_orden,
+             ops.fecha_vencimiento, ops.total_pesos, ops.total_umas,
+             ops.created_at, ops.concepto_id, sl.id, sl.tipo_liberacion,
+             sl.es_empresa, sl.nombre_empresa, sl.rfc_empresa, sl.estatus
     `,
       [id],
     );

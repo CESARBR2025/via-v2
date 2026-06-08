@@ -41,6 +41,7 @@ export type DetalleInfractor = {
     es_titular: boolean;
     apmaterno_infractor: string
     appaterno_infractor: string
+    nombre_titular_liberacion: string
 };
 
 export type DetalleVehiculo = {
@@ -85,6 +86,7 @@ interface ModalDetalleGenericoProps {
     antesContenido?: React.ReactNode;
     sidebarExtra?: React.ReactNode[];
     mainExtra?: React.ReactNode[];
+    fullWidthExtra?: React.ReactNode[];
 }
 
 // ══════════════════════════════ HELPERS ══════════════════════════════
@@ -121,9 +123,10 @@ function sani(value: string | null | undefined, fallback = '—'): string {
 
 export default function ModalDetalleGenerico({
     isOpen, onClose, loading, detalle, role, onRefresh,
-    antesContenido, sidebarExtra, mainExtra,
+    antesContenido, sidebarExtra, mainExtra, fullWidthExtra,
 }: ModalDetalleGenericoProps) {
     const ref = useRef<HTMLDivElement>(null);
+    console.log(detalle)
 
 
 
@@ -221,6 +224,9 @@ export default function ModalDetalleGenerico({
                 <div className="flex-1 overflow-y-auto" style={{ background: '#F8FAFC' }}>
                     {loading ? <LoadingState /> : !detalle ? <EmptyState /> : (
                         <div className="p-5 sm:p-7">
+                            {fullWidthExtra?.map((s, i) => (
+                                <div key={`fwe-${i}`} className="mb-6">{s}</div>
+                            ))}
                             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
                                 {/* ─── COLUMNA PRINCIPAL ─── */}
@@ -384,7 +390,9 @@ export default function ModalDetalleGenerico({
 // ══════════════════════════════ DATOS INFRACTOR (role-aware) ══════════════════════════════
 
 function DatosInfractorSection({ detalle, role }: { detalle: DetalleCompleto; role: string }) {
-    const esTitular = detalle.datos_infractor?.es_titular === true;
+    const esTitular = !!detalle.datos_infractor.nombre_titular_liberacion;
+    console.log(detalle)
+    console.log(esTitular)
 
     if (role === 'fiscalia') {
         return esTitular ? <TitularVerificado detalle={detalle} /> : <CapturaTitular />;

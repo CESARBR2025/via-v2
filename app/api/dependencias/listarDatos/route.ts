@@ -11,7 +11,8 @@ export async function GET(req: Request) {
     // 2. Obtenemos el valor de 'dependencia' y lo casteamos al tipo estricto
     const dependencia = searchParams.get("dependencia") as
       | "FISCALIA"
-      | "JUZGADO";
+      | "JUZGADO"
+      | "LIBERACIONES";
 
     // Opcionales: por si mandas filtros de fechas en el futuro
     const from = searchParams.get("from") || undefined;

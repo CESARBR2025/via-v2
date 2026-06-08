@@ -69,97 +69,35 @@ type TipoLiberacion = (typeof TIPOS_LIBERACION)[number];
 // ARCHIVOS REQUERIDOS POR TIPO
 // =====================================================
 
-const REQUIRED_FILES: Record<
-  TipoLiberacion,
-  { campo: string; formKey: string; dbColumn: string; label: string }[]
-> = {
+type ArchivoConfig = {
+  campo: string;
+  formKey: string;
+  label: string;
+};
+
+const REQUIRED_FILES: Record<TipoLiberacion, ArchivoConfig[]> = {
   INFRACCION: [
-    {
-      campo: "factura",
-      formKey: "archivoFactura",
-      dbColumn: "url_factura",
-      label: "Factura",
-    },
-    {
-      campo: "ine_titular",
-      formKey: "archivoIneTitular",
-      dbColumn: "url_ine_titular",
-      label: "INE del titular",
-    },
-    {
-      campo: "comprobante_domicilio",
-      formKey: "archivoComprobanteDomicilio",
-      dbColumn: "url_comprobante_domicilio",
-      label: "Comprobante de domicilio",
-    },
-    {
-      campo: "tarjeta_circulacion",
-      formKey: "archivoTarjetaCirculacion",
-      dbColumn: "url_tarjeta_circulacion",
-      label: "Tarjeta de circulación",
-    },
+    { campo: "factura", formKey: "archivoFactura", label: "Factura" },
+    { campo: "ine_titular", formKey: "archivoIneTitular", label: "INE del titular" },
+    { campo: "comprobante_domicilio", formKey: "archivoComprobanteDomicilio", label: "Comprobante de domicilio" },
+    { campo: "tarjeta_circulacion", formKey: "archivoTarjetaCirculacion", label: "Tarjeta de circulación" },
   ],
   DELITO: [
-    {
-      campo: "factura",
-      formKey: "archivoFactura",
-      dbColumn: "url_factura",
-      label: "Factura",
-    },
-    {
-      campo: "ine_titular",
-      formKey: "archivoIneTitular",
-      dbColumn: "url_ine_titular",
-      label: "INE del titular",
-    },
-    {
-      campo: "oficio_liberacion_fiscalia",
-      formKey: "archivoOficioLiberacionFiscalia",
-      dbColumn: "url_oficio_liberacion_fiscalia",
-      label: "Oficio de liberación fiscalía",
-    },
+    { campo: "factura", formKey: "archivoFactura", label: "Factura" },
+    { campo: "ine_titular", formKey: "archivoIneTitular", label: "INE del titular" },
+    { campo: "oficio_liberacion_fiscalia", formKey: "archivoOficioLiberacionFiscalia", label: "Oficio de liberación fiscalía" },
   ],
   ACCIDENTE: [
-    {
-      campo: "factura",
-      formKey: "archivoFactura",
-      dbColumn: "url_factura",
-      label: "Factura",
-    },
-    {
-      campo: "ine_titular",
-      formKey: "archivoIneTitular",
-      dbColumn: "url_ine_titular",
-      label: "INE del titular",
-    },
-    {
-      campo: "oficio_liberacion_juzgado",
-      formKey: "archivoOficioLiberacionJuzgado",
-      dbColumn: "url_oficio_liberacion_juzgado",
-      label: "Oficio de liberación juzgado cívico",
-    },
+    { campo: "factura", formKey: "archivoFactura", label: "Factura" },
+    { campo: "ine_titular", formKey: "archivoIneTitular", label: "INE del titular" },
+    { campo: "oficio_liberacion_juzgado", formKey: "archivoOficioLiberacionJuzgado", label: "Oficio de liberación juzgado cívico" },
   ],
 };
 
-const EMPRESA_FILES = [
-  {
-    campo: "ine_representante_legal",
-    formKey: "archivoIneRepresentanteLegal",
-    dbColumn: "url_ine_representante_legal",
-    label: "INE del representante legal",
-  },
-  {
-    campo: "poder_notarial",
-    formKey: "archivoPoderNotarial",
-    dbColumn: "url_poder_notarial",
-    label: "Poder notarial",
-  },
-  {
-    campo: "constancia_situacion_fiscal",
-    formKey: "archivoConstanciaSituacionFiscal",
-    dbColumn: "url_constancia_situacion_fiscal",
-    label: "Constancia de situación fiscal",
-  },
+const EMPRESA_FILES: ArchivoConfig[] = [
+  { campo: "ine_representante_legal", formKey: "archivoIneRepresentanteLegal", label: "INE del representante legal" },
+  { campo: "poder_notarial", formKey: "archivoPoderNotarial", label: "Poder notarial" },
+  { campo: "constancia_situacion_fiscal", formKey: "archivoConstanciaSituacionFiscal", label: "Constancia de situación fiscal" },
 ];
 
 // =====================================================
@@ -214,13 +152,7 @@ export async function POST(req: NextRequest) {
     // COLECTAR ARCHIVOS
     // =====================================================
 
-    const archivos: {
-      campo: string;
-      formKey: string;
-      dbColumn: string;
-      label: string;
-      file: File | null;
-    }[] = [];
+    const archivos: (ArchivoConfig & { file: File | null })[] = [];
 
     // Archivos comunes del tipo
     const tipoFiles = REQUIRED_FILES[tipo];
@@ -264,18 +196,12 @@ export async function POST(req: NextRequest) {
 
     const token = await getExpedienteToken();
 
-    const urls: Record<string, string | null> = {};
+    const docsSubidos: { campo: string; url: string; label: string }[] = [];
 
     for (const a of archivos) {
       if (a.file) {
-        urls[a.dbColumn] = await subirArchivo(
-          a.file,
-          a.campo,
-          idInfraccion,
-          token,
-        );
-      } else {
-        urls[a.dbColumn] = null;
+        const url = await subirArchivo(a.file, a.campo, idInfraccion, token);
+        docsSubidos.push({ campo: a.campo, url, label: a.label });
       }
     }
 
@@ -283,58 +209,55 @@ export async function POST(req: NextRequest) {
     // PERSISTIR EN BD
     // =====================================================
 
-    const columnas = Object.keys(urls);
-    const valores = Object.values(urls);
-
     await client.query("BEGIN");
 
-    // Verificar si ya existe un registro para esta infracción
+    // Insertar o reutilizar solicitud de liberación
+    let solicitudId: string;
+
     const existente = await client.query(
-      `SELECT id FROM v2_documentos_liberacion WHERE infraccion_id = $1`,
+      `SELECT id FROM v2_solicitudes_liberacion WHERE infraccion_id = $1`,
       [idInfraccion],
     );
 
     if (existente.rows.length > 0) {
-      const setClauses = columnas.map(
-        (col, i) => `${col} = COALESCE($${i + 6}, ${col})`,
-      );
+      solicitudId = existente.rows[0].id;
 
       await client.query(
         `
-        UPDATE v2_documentos_liberacion
+        UPDATE v2_solicitudes_liberacion
         SET
           tipo_liberacion = $2,
           es_empresa = $3,
           nombre_empresa = COALESCE($4, nombre_empresa),
           rfc_empresa = COALESCE($5, rfc_empresa),
-          ${setClauses.join(", ")},
           updated_at = CURRENT_TIMESTAMP
-        WHERE infraccion_id = $1
+        WHERE id = $1
         `,
-        [idInfraccion, tipo, esEmpresa, nombreEmpresa, rfcEmpresa, ...valores],
+        [solicitudId, tipo, esEmpresa, nombreEmpresa, rfcEmpresa],
       );
     } else {
+      const r = await client.query(
+        `
+        INSERT INTO v2_solicitudes_liberacion (
+          infraccion_id, tipo_liberacion, es_empresa,
+          nombre_empresa, rfc_empresa, estatus
+        ) VALUES ($1, $2, $3, $4, $5, 'PENDIENTE')
+        RETURNING id
+        `,
+        [idInfraccion, tipo, esEmpresa, nombreEmpresa, rfcEmpresa],
+      );
+      solicitudId = r.rows[0].id;
+    }
+
+    // Insertar documentos asociados a la solicitud
+    for (const doc of docsSubidos) {
       await client.query(
         `
         INSERT INTO v2_documentos_liberacion (
-          infraccion_id,
-          tipo_liberacion,
-          es_empresa,
-          nombre_empresa,
-          rfc_empresa,
-          ${columnas.join(", ")},
-
-          created_at,
-          updated_at
-        ) VALUES (
-          $1, $2, $3, $4, $5,
-          ${valores.map((_, i) => `$${i + 6}`).join(", ")},
-
-          CURRENT_TIMESTAMP,
-          CURRENT_TIMESTAMP
-        )
+          solicitud_id, tipo_documento, url_documento
+        ) VALUES ($1, $2, $3)
         `,
-        [idInfraccion, tipo, esEmpresa, nombreEmpresa, rfcEmpresa, ...valores],
+        [solicitudId, doc.campo, doc.url],
       );
     }
 
@@ -355,9 +278,10 @@ export async function POST(req: NextRequest) {
         message: "Documentos guardados correctamente",
         data: {
           idInfraccion,
+          solicitudId,
           tipoLiberacion: tipo,
           esEmpresa,
-          ...urls,
+          documentos: docsSubidos.map(d => ({ tipo: d.campo, url: d.url })),
         },
       },
       { status: 200 },

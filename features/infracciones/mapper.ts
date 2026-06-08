@@ -79,44 +79,19 @@ export const mapCrearInfraccionToDB = (
   };
 };
 
-const DOC_LABELS: Record<string, string> = {
-  url_factura: "Factura",
-  url_ine_titular: "INE del titular",
-  url_comprobante_domicilio: "Comprobante de domicilio",
-  url_tarjeta_circulacion: "Tarjeta de circulación",
-  url_ine_propietario_anterior: "INE del propietario anterior",
-  url_oficio_liberacion_fiscalia: "Oficio de liberación fiscalía",
-  url_oficio_liberacion_juzgado: "Oficio de liberación juzgado",
-  url_ine_representante_legal: "INE del representante legal",
-  url_poder_notarial: "Poder notarial",
-  url_acta_constitutiva: "Acta constitutiva",
-  url_constancia_situacion_fiscal: "Constancia de situación fiscal",
-};
-
-const DOC_COLUMNS = [
-  "url_factura",
-  "url_ine_titular",
-  "url_comprobante_domicilio",
-  "url_tarjeta_circulacion",
-  "url_ine_propietario_anterior",
-  "url_oficio_liberacion_fiscalia",
-  "url_oficio_liberacion_juzgado",
-  "url_ine_representante_legal",
-  "url_poder_notarial",
-  "url_acta_constitutiva",
-  "url_constancia_situacion_fiscal",
-];
-
 export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
   const documentosLiberacion: Record<string, { url: string; label: string }> =
     {};
 
-  for (const col of DOC_COLUMNS) {
-    if (row[col]) {
-      documentosLiberacion[col] = {
-        url: row[col],
-        label: DOC_LABELS[col] || col,
-      };
+  const docsJson = row.documentos_liberacion_json;
+  if (docsJson && Array.isArray(docsJson)) {
+    for (const doc of docsJson) {
+      if (doc.url) {
+        documentosLiberacion[doc.tipo] = {
+          url: doc.url,
+          label: doc.label || doc.tipo,
+        };
+      }
     }
   }
 
@@ -195,9 +170,9 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
 
     documentosLiberacion,
 
-    dl_tipo_liberacion: row.dl_tipo_liberacion,
-    dl_es_empresa: row.dl_es_empresa,
-    dl_nombre_empresa: row.dl_nombre_empresa,
-    dl_rfc_empresa: row.dl_rfc_empresa,
+    dl_tipo_liberacion: row.sl_tipo_liberacion ?? row.dl_tipo_liberacion,
+    dl_es_empresa: row.sl_es_empresa ?? row.dl_es_empresa,
+    dl_nombre_empresa: row.sl_nombre_empresa ?? row.dl_nombre_empresa,
+    dl_rfc_empresa: row.sl_rfc_empresa ?? row.dl_rfc_empresa,
   };
 };

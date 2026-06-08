@@ -52,6 +52,9 @@ export type InfraccionDetail = {
     curp_infractor: string | null;
     appaterno_infractor: string | null;
     apmaterno_infractor: string | null;
+
+    // Datos de titularidad
+    nombre_titular_liberacion: string;
   };
 
   vehiculo: {

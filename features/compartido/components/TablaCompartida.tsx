@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { Play, FileText, CheckCircle2, Upload, User } from "lucide-react"
 import FiscaliaDashboard from "@/features/fiscalia/components/FiscaliaDashboard"
 import JuzgadoDashboard from "@/features/juzgado/components/JuzgadoDashboard"
+import LiberacionesDashboard from "@/features/liberaciones/components/LiberacionesDashboard"
+import RevisionDocumentosSection from "@/features/liberaciones/components/RevisionDocumentosSection"
 import ModalDetalleGenerico, { DetalleCompleto } from "@/features/compartido/components/ModalDetalleGenerico"
 import ConfirmacionModal from "@/features/compartido/components/ConfirmacionModal"
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento'
@@ -68,6 +70,8 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
             setLoading(false)
         }
     }
+
+    console.log(detalle)
 
     async function handleOpenDetalle(id: string) {
         setOpen(true)
@@ -238,12 +242,12 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
 
                 <ConfirmacionModal
                     isOpen={confirmOpen}
-                    onConfirmar={() => iniciarRevision('/api/juzgado/iniciarProceso')}
+                    onConfirmar={() => iniciarRevision('/api/liberaciones/iniciarProceso')}
                     onCancelar={() => setConfirmOpen(false)}
                     loading={confirmLoading}
-                    titulo="Iniciar atención al caso"
-                    mensaje="Esta acción cambiará el estatus de la infracción a «En Proceso» y notificará al área correspondiente. ¿Deseas continuar?"
-                    labelConfirmar="Sí, iniciar proceso"
+                    titulo="Asignar caso"
+                    mensaje="¿Deseas tomar este caso? El estatus cambiará a «En Proceso» y se te asignará la atención."
+                    labelConfirmar="Sí, tomar caso"
                     labelCancelar="Cancelar"
                     variant="success"
                 />
@@ -253,14 +257,13 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
 
     if (userRole === 'liberaciones') {
         const estatus = detalle?.Header?.estatus_dependencia
-        console.log(detalle?.Header.estatus_dependencia)
-        console.log(estatus)
         const mostrarBotonInicio = estatus === 'ESPERA_REVISION'
         const enProceso = estatus === 'EN_PROCESO_LIBERACIONES'
+        console.log(detalle)
 
         return (
             <>
-                <FiscaliaDashboard
+                <LiberacionesDashboard
                     data={listaDatos}
                     visibleColumns={visibleColumns}
                     onOpenDetalle={handleOpenDetalle}
@@ -271,55 +274,39 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                     onClose={handleCloseDetalle}
                     loading={loading}
                     detalle={detalle}
-                    role="fiscalia"
+                    role="liberaciones"
                     onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
                     antesContenido={
                         mostrarBotonInicio ? (
                             <button
                                 onClick={() => setConfirmOpen(true)}
                                 className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-colors"
-                                style={{ background: '#22C55E', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}
+                                style={{ background: '#F59E0B', boxShadow: '0 4px 12px rgba(245,158,11,0.3)' }}
                             >
                                 <Play size={14} strokeWidth={2.5} fill="white" />
-                                Iniciar atención al caso
+                                Tomar caso
                             </button>
                         ) : undefined
                     }
-                    sidebarExtra={
-                        detalle?.Header && !mostrarBotonInicio ? [
-                            enProceso ? (
-                                <CargarOficioSection
-                                    key="cargar-oficio"
-                                    idInfraccion={detalle.Header.id_infraccion}
-                                    noOficioActual={detalle.Header.no_oficio_fiscalia}
-                                    noCarpetaActual={detalle.Header.no_carpeta_investigacion}
-                                    esTitular={detalle.datos_infractor?.es_titular}
-                                    nombreInfractor={detalle.datos_infractor?.nombre_infractor}
-                                    appaternoInfractor={detalle.datos_infractor?.appaterno_infractor}
-                                    apmaternoInfractor={detalle.datos_infractor?.apmaterno_infractor}
-                                    correoInfractor={detalle.datos_infractor?.correo_infractor}
-                                    curpInfractor={detalle.datos_infractor?.curp_infractor}
-                                    onSuccess={() => refetchDetalle(detalle.Header.id_infraccion)}
-                                />
-                            ) : (
-                                <OficioLiberacionSection
-                                    key="oficio"
-                                    numeroOficio={detalle.Header.no_oficio_fiscalia}
-                                    urlOficio={detalle.Header.url_oficio_fiscalia}
-                                />
-                            ),
-                        ] : []
+                    fullWidthExtra={
+                        enProceso && detalle?.Header ? [
+                            <RevisionDocumentosSection
+                                key="revision-docs"
+                                infraccionId={detalle.Header.id_infraccion}
+                            />,
+                        ] : undefined
                     }
+
                 />
 
                 <ConfirmacionModal
                     isOpen={confirmOpen}
-                    onConfirmar={() => iniciarRevision('/api/fiscalia/iniciarProceso')}
+                    onConfirmar={() => iniciarRevision('/api/liberaciones/iniciarProceso')}
                     onCancelar={() => setConfirmOpen(false)}
                     loading={confirmLoading}
-                    titulo="Iniciar atención al caso"
-                    mensaje="Esta acción cambiará el estatus de la infracción a «En Proceso» y notificará al área correspondiente. ¿Deseas continuar?"
-                    labelConfirmar="Sí, iniciar proceso"
+                    titulo="Asignar caso"
+                    mensaje="¿Deseas tomar este caso? El estatus cambiará a «En Proceso» y se te asignará la atención."
+                    labelConfirmar="Sí, tomar caso"
                     labelCancelar="Cancelar"
                     variant="success"
                 />
@@ -410,7 +397,7 @@ function CargarOficioSection({
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#F97316' }}>
                     <FileText size={14} strokeWidth={2.2} className="text-white" />
                 </div>
-                <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#F97316' }}>Registrar Oficio</h3>
+                <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#F97316' }}>Registrar Oficio </h3>
             </div>
 
             <div className="p-5 space-y-4">
