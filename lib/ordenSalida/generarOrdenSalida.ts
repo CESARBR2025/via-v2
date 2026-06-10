@@ -131,12 +131,12 @@ export async function generarOrdenSalidaVehiculo({ data }: any) {
   const placa = (data.placa ?? "—").toUpperCase();
 
   const director = "CMTE. FRANCISCO JAVIER VERTIZ VELAZQUEZ".toUpperCase();
-  const nombreRecibe = `C. ${
-    data.rfc ? data.empresaFiscal : data.nombreTitularCompleto
-  }`.toUpperCase();
+  const nombreRecibe = `C. ${data.nombreTitular}`.toUpperCase();
+  console.log(nombreRecibe);
 
-  const empresaFiscal =
-    `${data.rfc ? data.empresaFiscal : "Infractor"}`.toUpperCase();
+  const empresaFiscal = data.rfc ? data.empresaFiscal : "Titular";
+
+  console.log(empresaFiscal);
 
   const grua = (
     data.garantiaRetenida === "VEHICULO" ? data.grua! : "Sin Grua"
@@ -245,9 +245,9 @@ export async function generarOrdenSalidaVehiculo({ data }: any) {
       { text: "LOCAL DE ENCIERRO GRUAS ", bold: false },
       { text: `${grua}`, bold: true },
     ],
-    mgL,
+    20,
     195.6,
-    anchoUtil,
+    180,
     FS,
     LH,
   );

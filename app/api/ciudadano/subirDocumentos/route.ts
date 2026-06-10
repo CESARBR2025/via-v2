@@ -172,10 +172,19 @@ export async function POST(req: NextRequest) {
 
     let nombreEmpresa: string | null = null;
     let rfcEmpresa: string | null = null;
+    let nombreRespFiscal: string | null = null;
+    let apPaternoRespFiscal: string | null = null;
+    let apMaternoRespFiscal: string | null = null;
 
     if (esEmpresa) {
       nombreEmpresa = (formData.get("nombreEmpresa") as string) || null;
       rfcEmpresa = (formData.get("rfcEmpresa") as string) || null;
+      nombreRespFiscal =
+        (formData.get("nombreRespFiscal") as string) || null;
+      apPaternoRespFiscal =
+        (formData.get("apPaternoRespFiscal") as string) || null;
+      apMaternoRespFiscal =
+        (formData.get("apMaternoRespFiscal") as string) || null;
     }
 
     // =====================================================
@@ -260,21 +269,43 @@ export async function POST(req: NextRequest) {
           es_empresa = $3,
           nombre_empresa = COALESCE($4, nombre_empresa),
           rfc_empresa = COALESCE($5, rfc_empresa),
+          nombre_resp_fiscal = COALESCE($6, nombre_resp_fiscal),
+          appaterno_resp_fiscal = COALESCE($7, appaterno_resp_fiscal),
+          apmaterno_resp_fiscal = COALESCE($8, apmaterno_resp_fiscal),
           updated_at = CURRENT_TIMESTAMP
         WHERE id = $1
         `,
-        [solicitudId, tipo, esEmpresa, nombreEmpresa, rfcEmpresa],
+        [
+          solicitudId,
+          tipo,
+          esEmpresa,
+          nombreEmpresa,
+          rfcEmpresa,
+          nombreRespFiscal,
+          apPaternoRespFiscal,
+          apMaternoRespFiscal,
+        ],
       );
     } else {
       const r = await client.query(
         `
         INSERT INTO v2_solicitudes_liberacion (
           infraccion_id, tipo_liberacion, es_empresa,
-          nombre_empresa, rfc_empresa, estatus
-        ) VALUES ($1, $2, $3, $4, $5, 'PENDIENTE')
+          nombre_empresa, rfc_empresa, estatus,
+          nombre_resp_fiscal, appaterno_resp_fiscal, apmaterno_resp_fiscal
+        ) VALUES ($1, $2, $3, $4, $5, 'PENDIENTE', $6, $7, $8)
         RETURNING id
         `,
-        [idInfraccion, tipo, esEmpresa, nombreEmpresa, rfcEmpresa],
+        [
+          idInfraccion,
+          tipo,
+          esEmpresa,
+          nombreEmpresa,
+          rfcEmpresa,
+          nombreRespFiscal,
+          apPaternoRespFiscal,
+          apMaternoRespFiscal,
+        ],
       );
       solicitudId = r.rows[0].id;
     }

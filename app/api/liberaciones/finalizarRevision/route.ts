@@ -123,11 +123,12 @@ export async function PATCH(request: Request) {
         i.appaterno_titular_liberacion,
         i.apmaterno_titular_liberacion,
         i.correo_titular_liberacion,
-        i.es_persona_moral,
-        i.razon_social_empresa,
         s.es_empresa,
         s.nombre_empresa,
         s.rfc_empresa,
+        s.nombre_resp_fiscal,
+        s.appaterno_resp_fiscal,
+        s.apmaterno_resp_fiscal,
         g.nombre as nombre_grua
       FROM v2_infracciones i
       LEFT JOIN v2_solicitudes_liberacion s ON s.infraccion_id = i.id
@@ -146,28 +147,23 @@ export async function PATCH(request: Request) {
           const esEmpresa = dbData.es_persona_moral || dbData.es_empresa;
 
           // Regla de negocio: Nombre de la Empresa vs Nombre del Titular
-          let nombreRecibe = "";
-          if (esEmpresa) {
-            nombreRecibe =
-              dbData.razon_social_empresa ||
-              dbData.nombre_empresa ||
-              "EMPRESA NO REGISTRADA";
-          } else {
-            // Prioriza el titular de la liberación; si no existe, usa los datos del infractor original
-            const tNombre =
-              dbData.nombre_titular_liberacion || dbData.nombre_infractor || "";
-            const tPaterno =
-              dbData.appaterno_titular_liberacion ||
-              dbData.apellido_paterno_infractor ||
-              "";
-            const tMaterno =
-              dbData.apmaterno_titular_liberacion ||
-              dbData.apellido_materno_infractor ||
-              "";
-            nombreRecibe = `${tNombre} ${tPaterno} ${tMaterno}`
-              .trim()
-              .replace(/\s+/g, " ");
-          }
+
+          // Prioriza el titular de la liberación; si no existe, usa los datos del infractor original
+          const tNombre = !dbData.es_empresa
+            ? dbData.nombre_titular_liberacion
+            : dbData.nombre_resp_fiscal;
+          const tPaterno = !dbData.es_empresa
+            ? dbData.appaterno_titular_liberacion
+            : dbData.appaterno_resp_fiscal;
+
+          const tMaterno = !dbData.es_empresa
+            ? dbData.apmaterno_titular_liberacion
+            : dbData.apmaterno_resp_fiscal;
+
+          const nombreRecibe = `${tNombre} ${tPaterno} ${tMaterno}`;
+          ("");
+
+          console.log(nombreRecibe);
 
           // Construir el objeto estructurado para el generador de PDF
           const dataParaPDF = {
@@ -180,9 +176,8 @@ export async function PATCH(request: Request) {
             grua: dbData.nombre_grua,
             noOficio: dbData.folio || "0000",
             rfc: esEmpresa,
-            responsableFiscal: nombreRecibe,
-            nombreTitularCompleto: nombreRecibe,
-            empresaFiscal: esEmpresa ? nombreRecibe : "Infractor",
+            empresaFiscal: dbData.nombre_empresa,
+            nombreTitular: nombreRecibe,
             marca: dbData.marca,
             tipoVehiculo: dbData.tipo_vehiculo,
             modelo: dbData.anio_vehiculo,

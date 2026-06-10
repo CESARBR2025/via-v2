@@ -149,6 +149,9 @@ export default function SeccionLiberacion({
     const [error, setError] = useState<string | null>(null);
     const [nombreEmpresa, setNombreEmpresa] = useState('');
     const [rfcEmpresa, setRfcEmpresa] = useState('');
+    const [nombreRespFiscal, setNombreRespFiscal] = useState('');
+    const [apPaternoRespFiscal, setApPaternoRespFiscal] = useState('');
+    const [apMaternoRespFiscal, setApMaternoRespFiscal] = useState('');
     const [revisionStatuses, setRevisionStatuses] = useState<Record<string, { estatus: string | null; observaciones: string | null }>>({});
     const [loadingStatus, setLoadingStatus] = useState(false);
     const [reuploadFiles, setReuploadFiles] = useState<Record<string, File>>({});
@@ -220,6 +223,14 @@ export default function SeccionLiberacion({
             setError('El RFC de la empresa es requerido');
             return;
         }
+        if (selectedType === 'empresa' && !nombreRespFiscal.trim()) {
+            setError('El nombre del representante fiscal es requerido');
+            return;
+        }
+        if (selectedType === 'empresa' && !apPaternoRespFiscal.trim()) {
+            setError('El apellido paterno del representante fiscal es requerido');
+            return;
+        }
 
         setSubmitting(true);
         setError(null);
@@ -233,6 +244,9 @@ export default function SeccionLiberacion({
             if (selectedType === 'empresa') {
                 formData.append('nombreEmpresa', nombreEmpresa.trim());
                 formData.append('rfcEmpresa', rfcEmpresa.trim());
+                formData.append('nombreRespFiscal', nombreRespFiscal.trim());
+                formData.append('apPaternoRespFiscal', apPaternoRespFiscal.trim());
+                formData.append('apMaternoRespFiscal', apMaternoRespFiscal.trim());
             }
 
             for (const doc of currentDocs) {
@@ -434,30 +448,76 @@ export default function SeccionLiberacion({
 
                         {/* DATOS EMPRESA */}
                         {selectedType === 'empresa' && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
-                                        Nombre de la empresa <span className="text-red-400">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={nombreEmpresa}
-                                        onChange={e => setNombreEmpresa(e.target.value)}
-                                        placeholder="Razón social"
-                                        className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
-                                    />
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            Nombre de la empresa <span className="text-red-400">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={nombreEmpresa}
+                                            onChange={e => setNombreEmpresa(e.target.value)}
+                                            placeholder="Razón social"
+                                            className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            RFC <span className="text-red-400">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={rfcEmpresa}
+                                            onChange={e => setRfcEmpresa(e.target.value)}
+                                            placeholder="RFC de la empresa"
+                                            className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
-                                        RFC <span className="text-red-400">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={rfcEmpresa}
-                                        onChange={e => setRfcEmpresa(e.target.value)}
-                                        placeholder="RFC de la empresa"
-                                        className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
-                                    />
+
+                                <div className="border-t border-[#E2E8F0] pt-4">
+                                    <p className="text-sm font-semibold text-[#0F172A] mb-3">
+                                        Representante fiscal
+                                    </p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                                Nombre(s) <span className="text-red-400">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={nombreRespFiscal}
+                                                onChange={e => setNombreRespFiscal(e.target.value)}
+                                                placeholder="Nombre(s)"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                                A. Paterno <span className="text-red-400">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={apPaternoRespFiscal}
+                                                onChange={e => setApPaternoRespFiscal(e.target.value)}
+                                                placeholder="Apellido paterno"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                                A. Materno
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={apMaternoRespFiscal}
+                                                onChange={e => setApMaternoRespFiscal(e.target.value)}
+                                                placeholder="Apellido materno"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
