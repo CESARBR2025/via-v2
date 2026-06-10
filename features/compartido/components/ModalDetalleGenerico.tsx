@@ -468,7 +468,7 @@ export default function ModalDetalleGenerico({
                                     </div>
                                 </div>
 
-                                {role !== 'corralon_mw' && <>
+                                {role !== 'corralon_mw' && role !== 'corralon_mejia' && <>
                                 {/* 9 ─── HISTORIAL DE DOCUMENTACIÓN ─── */}
                                 <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
                                     <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
@@ -515,7 +515,7 @@ export default function ModalDetalleGenerico({
                                 </>}
 
                                 {/* 10 ─── COMPROBANTE DE PAGO (Corralón MW) ─── */}
-                                {role === 'corralon_mw' && (
+                                 {(role === 'corralon_mw' || role === 'corralon_mejia') && (
                                     <ComprobantePagoSection
                                         infraccionId={h?.id_infraccion ?? ''}
                                         urlExistente={h?.url_oficio_pago_corralon}

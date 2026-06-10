@@ -95,7 +95,7 @@ export class DepInfraccionesRepository {
       "FISCALIA",
       "JUZGADO",
       "MW",
-      "CORRALON_MEJIA",
+      "MEJIA",
       "LIBERACIONES",
     ];
     if (!dependenciasValidas.includes(dependencia)) {
@@ -106,7 +106,7 @@ export class DepInfraccionesRepository {
     const values: any[] = [];
 
     // 2. Construir la query según el tipo de dependencia
-    if (dependencia === "MW") {
+    if (dependencia === "MW" || dependencia === "MEJIA") {
       console.log("-> Buscando el ID dinámico para la grúa 'MW'...");
 
       // Obtener el ID de la grúa
@@ -142,11 +142,7 @@ export class DepInfraccionesRepository {
 
       `;
       values.push(idGruaDinamico);
-    } else if (
-      dependencia === "FISCALIA" ||
-      dependencia === "JUZGADO" ||
-      dependencia === "CORRALON_MEJIA"
-    ) {
+    } else if (dependencia === "FISCALIA" || dependencia === "JUZGADO") {
       // Query estándar para dependencias legales
       console.log(`-> Buscando infracciones para: ${dependencia}`);
 

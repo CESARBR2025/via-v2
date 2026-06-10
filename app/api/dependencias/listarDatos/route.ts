@@ -13,7 +13,8 @@ export async function GET(req: Request) {
       | "FISCALIA"
       | "JUZGADO"
       | "LIBERACIONES"
-      | "MW";
+      | "MW"
+      | "MEJIA";
 
     console.log(dependencia);
     // Opcionales: por si mandas filtros de fechas en el futuro

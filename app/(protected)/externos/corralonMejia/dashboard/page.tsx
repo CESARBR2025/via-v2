@@ -6,6 +6,7 @@ export default async function CorralonMejiaPage() {
     const session = await getSession();
     const roleString = session?.user?.roles?.[0];
     const dependenciaClave = 'MEJIA'
+    console.log(roleString)
 
     // 2. Determinamos la URL base según el entorno
     const baseUrl =
@@ -22,6 +23,8 @@ export default async function CorralonMejiaPage() {
     if (!res.ok) {
         throw new Error("Error cargando infracciones de CORRALON MEJIA");
     }
+
+
 
 
     const respuestaApi = await res.json();
