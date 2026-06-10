@@ -132,10 +132,11 @@ export class DepInfraccionesRepository {
           placa,
           created_at,
           correo_infractor,
-          nombre_infractor
+          nombre_infractor,
+          estatus_dependencia
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA')
+        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'EN_REVISION_MW')
           AND grua_id = $1
 
 

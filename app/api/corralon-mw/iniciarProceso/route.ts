@@ -15,7 +15,7 @@ export async function PATCH(request: Request) {
 
     const query = `
       UPDATE public.v2_infracciones
-      SET estatus_dependencia = 'EN_PROCESO_MW',
+      SET estatus_dependencia = 'EN_REVISION_MW',
           updated_at = NOW()
       WHERE id = $1
       RETURNING id, folio, estatus_dependencia;
@@ -32,7 +32,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json(
       {
-        message: "Estatus actualizado a EN_PROCESO_MW correctamente.",
+        message: "Estatus actualizado a EN_REVISION_MW correctamente.",
         infraccion: resultado.rows[0],
       },
       { status: 200 },

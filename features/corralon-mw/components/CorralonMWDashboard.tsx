@@ -36,18 +36,18 @@ interface Props {
 
 type EstatusMW =
     | 'LIBERADO_POR_LIBERACIONES'
-    | 'EN_PROCESO_MW'
+    | 'EN_REVISION_MW'
     | 'CERRADA'
 
 const STATUS_TABS: { key: EstatusMW; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
     { key: 'LIBERADO_POR_LIBERACIONES', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
-    { key: 'EN_PROCESO_MW', label: 'En Proceso', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
+    { key: 'EN_REVISION_MW', label: 'En Revisión', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
     { key: 'CERRADA', label: 'Finalizadas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
     LIBERADO_POR_LIBERACIONES: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
-    EN_PROCESO_MW: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
+    EN_REVISION_MW: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Revisión' },
     CERRADA: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Finalizada' },
 }
 
@@ -64,7 +64,7 @@ export default function CorralonMWDashboard({
 
     const estadisticas = useMemo(() => {
         const pendientes = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_LIBERACIONES').length
-        const proceso = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_MW').length
+        const proceso = data.filter(x => x.estatus_dependencia === 'EN_REVISION_MW').length
         const finalizadas = data.filter(x => x.estatus_dependencia === 'CERRADA').length
         return { pendientes, proceso, finalizadas }
     }, [data])
@@ -95,7 +95,7 @@ export default function CorralonMWDashboard({
             {/* ─── STATS CARDS ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {STATUS_TABS.map(tab => {
-                    const count = estadisticas[tab.key === 'LIBERADO_POR_LIBERACIONES' ? 'pendientes' : tab.key === 'EN_PROCESO_MW' ? 'proceso' : 'finalizadas']
+                    const count = estadisticas[tab.key === 'LIBERADO_POR_LIBERACIONES' ? 'pendientes' : tab.key === 'EN_REVISION_MW' ? 'proceso' : 'finalizadas']
                     const activo = filtro === tab.key
                     const Icon = tab.icon
 
