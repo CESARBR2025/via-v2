@@ -32,6 +32,7 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
     url_oficio_fiscalia: safeRowMapper(row.url_oficio_fiscalia),
     estatus_dependencia: safeRowMapper(row.estatus_dependencia),
     no_carpeta_investigacion: safeRowMapper(row.no_carpeta_investigacion),
+    url_oficio_pago_corralon: row.url_oficio_pago_corralon,
   },
 
   Infraccion: {

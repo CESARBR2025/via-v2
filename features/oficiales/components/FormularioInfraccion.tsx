@@ -797,7 +797,7 @@ export default function FormularioInfraccion() {
             } catch (error) {
                 logError('GENERACIÓN ORDEN DE PAGO', error);
                 setModalState('error');
-                setProcesoMensaje('Error al generar orden de pago');
+                setProcesoMensaje('Error aml generar orden de pago');
                 throw new Error('Fallo en orden de pago');
             }
 

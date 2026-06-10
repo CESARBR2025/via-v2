@@ -36,6 +36,7 @@ export type InfraccionDetail = {
     no_oficio_fiscalia: string;
     estatus_dependencia: string;
     no_carpeta_investigacion: string;
+    url_oficio_pago_corralon?: string;
   };
 
   Infraccion: {

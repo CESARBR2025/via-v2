@@ -5,7 +5,7 @@ import {
     X, FileText, Clock, AlertCircle, User, Shield, MapPin,
     CheckCircle2, UserX, ExternalLink, DollarSign, Car,
     Scale, Hash, FileSpreadsheet, CalendarDays, Image, Receipt,
-    ScrollText, Eye
+    ScrollText, Eye, Upload, Loader2
 } from 'lucide-react';
 import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento';
@@ -27,6 +27,7 @@ export type DetalleHeader = {
     estatus_dependencia: string
     no_carpeta_investigacion: string
     appaterno_infractor: string
+    url_oficio_pago_corralon?: string
 };
 
 export type DetalleInfraccion = {
@@ -155,6 +156,7 @@ export default function ModalDetalleGenerico({
         h?.url_ine && h.url_ine !== 'NO_DATA' ? { name: 'INE', path: h.url_ine } : null,
         h?.url_inapam && h.url_inapam !== 'NO_DATA' ? { name: 'INAPAM', path: h.url_inapam } : null,
         h?.url_tarjeta_circulacion && h.url_tarjeta_circulacion !== 'NO_DATA' ? { name: 'Tarjeta de Circulación', path: h.url_tarjeta_circulacion } : null,
+        h?.url_oficio_pago_corralon ? { name: 'Comprobante de Pago (Corralón)', path: h.url_oficio_pago_corralon } : null,
     ].filter(Boolean) as { name: string; path: string }[];
 
     const evidence = (h?.url_evidencias ?? []).map((p, i) => ({ name: `Evidencia ${i + 1}`, path: p, isEvidence: true }));
@@ -466,6 +468,7 @@ export default function ModalDetalleGenerico({
                                     </div>
                                 </div>
 
+                                {role !== 'corralon_mw' && <>
                                 {/* 9 ─── HISTORIAL DE DOCUMENTACIÓN ─── */}
                                 <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
                                     <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
@@ -509,6 +512,16 @@ export default function ModalDetalleGenerico({
                                         )}
                                     </div>
                                 </div>
+                                </>}
+
+                                {/* 10 ─── COMPROBANTE DE PAGO (Corralón MW) ─── */}
+                                {role === 'corralon_mw' && (
+                                    <ComprobantePagoSection
+                                        infraccionId={h?.id_infraccion ?? ''}
+                                        urlExistente={h?.url_oficio_pago_corralon}
+                                        onSuccess={() => onRefresh?.()}
+                                    />
+                                )}
 
                                 {mainExtra?.map((s, i) => (
                                     <div key={`me-${i}`}>{s}</div>
@@ -722,6 +735,142 @@ function EmptyState() {
             <div className="text-center">
                 <p className="text-[15px] font-bold text-[#475569]">No se encontr&oacute; informaci&oacute;n</p>
                 <p className="text-[13px] text-[#94A3B8] mt-1">No se pudo obtener el detalle de esta infracci&oacute;n.</p>
+            </div>
+        </div>
+    );
+}
+
+// ══════════════════════════════ COMPROBANTE DE PAGO (Corralón MW) ══════════════════════════════
+
+function ComprobantePagoSection({
+    infraccionId,
+    urlExistente,
+    onSuccess,
+}: {
+    infraccionId: string;
+    urlExistente?: string;
+    onSuccess: () => void;
+}) {
+    const [archivo, setArchivo] = useState<File | null>(null);
+    const [subiendo, setSubiendo] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const yaSubido = !!urlExistente && urlExistente !== 'NO_DATA';
+
+    const handleSubmit = async () => {
+        if (!archivo) return;
+        setSubiendo(true);
+        try {
+            const fd = new FormData();
+            fd.append('infraccionId', infraccionId);
+            fd.append('archivo', archivo);
+
+            const res = await fetch('/api/corralon-mw/subirComprobante', {
+                method: 'POST',
+                body: fd,
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Error al subir comprobante');
+            }
+
+            onSuccess();
+        } catch (error) {
+            console.error('[COMPROBANTE PAGO]', error);
+        } finally {
+            setSubiendo(false);
+        }
+    };
+
+    return (
+        <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
+                <Receipt size={15} className="text-[#D97706]" />
+                <h3 className="text-[13px] font-semibold text-[#0F172A]">Comprobante de Pago</h3>
+            </div>
+            <div className="p-5">
+                {yaSubido ? (
+                    <div className="flex flex-col items-center gap-4 py-4">
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#F0FDF4' }}>
+                            <CheckCircle2 size={28} className="text-[#16A34A]" />
+                        </div>
+                        <div className="text-center">
+                            <p className="text-[14px] font-semibold text-[#0F172A]">Comprobante registrado</p>
+                            <p className="text-[12px] text-[#64748B] mt-1">El comprobante de pago ya fue subido correctamente</p>
+                        </div>
+                        <button
+                            onClick={() => abrirDocumento(urlExistente)}
+                            className="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-[12px] font-semibold text-white transition-colors"
+                            style={{ background: '#2563EB' }}
+                        >
+                            <Eye size={14} />
+                            Ver comprobante
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        <div
+                            onClick={() => inputRef.current?.click()}
+                            className="w-full rounded-xl border-2 border-dashed p-6 flex flex-col items-center gap-3 cursor-pointer transition-colors"
+                            style={{ borderColor: archivo ? '#2563EB' : '#E2E8F0', background: archivo ? '#EFF6FF' : '#FAFAFA' }}
+                        >
+                            <input
+                                ref={inputRef}
+                                type="file"
+                                accept="image/*,application/pdf"
+                                className="hidden"
+                                onChange={(e) => setArchivo(e.target.files?.[0] ?? null)}
+                            />
+                            {archivo ? (
+                                <>
+                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#2563EB' }}>
+                                        <FileText size={18} className="text-white" />
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-[13px] font-semibold text-[#0F172A]">{archivo.name}</p>
+                                        <p className="text-[11px] text-[#64748B]">{(archivo.size / 1024).toFixed(1)} KB</p>
+                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setArchivo(null); if (inputRef.current) inputRef.current.value = ''; }}
+                                        className="text-[11px] text-[#EF4444] font-medium hover:underline"
+                                    >
+                                        Quitar archivo
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#F1F5F9' }}>
+                                        <Upload size={18} className="text-[#64748B]" />
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-[13px] font-semibold text-[#0F172A]">Seleccionar comprobante</p>
+                                        <p className="text-[11px] text-[#94A3B8]">JPG, PNG o PDF &middot; Máx 10 MB</p>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <button
+                            onClick={handleSubmit}
+                            disabled={!archivo || subiendo}
+                            className="w-full h-11 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 transition disabled:opacity-50"
+                            style={{ background: archivo ? '#D97706' : '#E2E8F0' }}
+                        >
+                            {subiendo ? (
+                                <>
+                                    <Loader2 size={16} className="animate-spin" />
+                                    Subiendo...
+                                </>
+                            ) : (
+                                <>
+                                    <Upload size={16} />
+                                    Subir comprobante y finalizar proceso
+                                </>
+                            )}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

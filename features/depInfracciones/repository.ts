@@ -136,7 +136,7 @@ export class DepInfraccionesRepository {
           estatus_dependencia
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'EN_REVISION_MW')
+        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'EN_REVISION_MW', 'CERRADA')
           AND grua_id = $1
 
 
@@ -311,7 +311,7 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE tipo_garantia  = 'VEHICULO'
-      AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA')
+      AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA', 'EN_REVISION_MW')
         AND grua_id = $1
     `;
       values.push(idGruaDinamico);
@@ -399,7 +399,8 @@ export class DepInfraccionesRepository {
     i.no_oficio_fiscalia,
     i.url_oficio_fiscalia,
     i.estatus_dependencia,
-    i.no_carpeta_investigacion
+    i.no_carpeta_investigacion,
+    i.url_oficio_pago_corralon
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o
