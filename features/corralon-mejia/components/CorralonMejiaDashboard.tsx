@@ -55,7 +55,7 @@ function getBadge(status: string) {
     return STATUS_BADGE[status] ?? { bg: '#F1F5F9', text: '#475569', dot: '#94A3B8', label: status }
 }
 
-export default function CorralonMWDashboard({
+export default function CorralonMejiaDashboard({
     data,
     visibleColumns,
     onOpenDetalle,
@@ -81,7 +81,7 @@ export default function CorralonMWDashboard({
             {/* ─── HEADER ─── */}
             <div className="flex items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-[22px] font-bold text-[#0F172A] tracking-tight">Panel Corralón MW</h2>
+                    <h2 className="text-[22px] font-bold text-[#0F172A] tracking-tight">Panel Corralón Mejía</h2>
                     <p className="text-[14px] text-[#64748B] mt-0.5">
                         {total} vehículo{total !== 1 ? 's' : ''} en el corralón
                     </p>

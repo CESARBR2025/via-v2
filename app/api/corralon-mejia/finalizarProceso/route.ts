@@ -15,7 +15,7 @@ export async function PATCH(request: Request) {
 
     const query = `
       UPDATE public.v2_infracciones
-      SET estatus_dependencia = 'EN_REVISION_MW',
+      SET estatus_dependencia = 'CERRADA',
           updated_at = NOW()
       WHERE id = $1
       RETURNING id, folio, estatus_dependencia;
@@ -32,13 +32,13 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json(
       {
-        message: "Estatus actualizado a EN_REVISION_MW correctamente.",
+        message: "Proceso finalizado. Estatus actualizado a CERRADA.",
         infraccion: resultado.rows[0],
       },
       { status: 200 },
     );
   } catch (error) {
-    console.error("Error al actualizar la infracción:", error);
+    console.error("Error al finalizar proceso Mejía:", error);
     return NextResponse.json(
       { error: "Error interno del servidor." },
       { status: 500 },

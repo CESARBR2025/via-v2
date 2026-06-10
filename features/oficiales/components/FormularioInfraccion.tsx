@@ -288,18 +288,36 @@ export default function FormularioInfraccion() {
         setMounted(true);
     }, []);
 
-    // Obtener ubicación inicial del dispositivo
     useEffect(() => {
-        if (navigator.geolocation) {
+        try {
+            if (!navigator.geolocation) {
+                console.error('Geolocalización no soportada');
+                return;
+            }
+
+            console.log('paso')
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
+                    console.log('Ubicación obtenida:', pos);
+
                     setLatInicial(pos.coords.latitude);
                     setLngInicial(pos.coords.longitude);
                     setPrecision(pos.coords.accuracy);
                 },
-                (err) => console.warn('No se pudo obtener ubicación', err),
-                { enableHighAccuracy: true }
+                (err) => {
+                    console.error('Error geolocalización', {
+                        code: err.code,
+                        message: err.message,
+                    });
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
             );
+        } catch (error) {
+            console.error('Error inesperado:', error);
         }
     }, []);
 
@@ -797,7 +815,7 @@ export default function FormularioInfraccion() {
             } catch (error) {
                 logError('GENERACIÓN ORDEN DE PAGO', error);
                 setModalState('error');
-                setProcesoMensaje('Error al generar orden de pago');
+                setProcesoMensaje('Error aml generar orden de pago');
                 throw new Error('Fallo en orden de pago');
             }
 

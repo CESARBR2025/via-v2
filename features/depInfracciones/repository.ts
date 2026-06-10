@@ -95,7 +95,7 @@ export class DepInfraccionesRepository {
       "FISCALIA",
       "JUZGADO",
       "MW",
-      "CORRALON_MEJIA",
+      "MEJIA",
       "LIBERACIONES",
     ];
     if (!dependenciasValidas.includes(dependencia)) {
@@ -106,7 +106,7 @@ export class DepInfraccionesRepository {
     const values: any[] = [];
 
     // 2. Construir la query según el tipo de dependencia
-    if (dependencia === "MW") {
+    if (dependencia === "MW" || dependencia === "MEJIA") {
       console.log("-> Buscando el ID dinámico para la grúa 'MW'...");
 
       // Obtener el ID de la grúa
@@ -132,20 +132,17 @@ export class DepInfraccionesRepository {
           placa,
           created_at,
           correo_infractor,
-          nombre_infractor
+          nombre_infractor,
+          estatus_dependencia
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA')
+        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'EN_REVISION_MW', 'CERRADA')
           AND grua_id = $1
 
 
       `;
       values.push(idGruaDinamico);
-    } else if (
-      dependencia === "FISCALIA" ||
-      dependencia === "JUZGADO" ||
-      dependencia === "CORRALON_MEJIA"
-    ) {
+    } else if (dependencia === "FISCALIA" || dependencia === "JUZGADO") {
       // Query estándar para dependencias legales
       console.log(`-> Buscando infracciones para: ${dependencia}`);
 
@@ -310,7 +307,7 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE tipo_garantia  = 'VEHICULO'
-      AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA')
+      AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA', 'EN_REVISION_MW')
         AND grua_id = $1
     `;
       values.push(idGruaDinamico);
@@ -398,7 +395,8 @@ export class DepInfraccionesRepository {
     i.no_oficio_fiscalia,
     i.url_oficio_fiscalia,
     i.estatus_dependencia,
-    i.no_carpeta_investigacion
+    i.no_carpeta_investigacion,
+    i.url_oficio_pago_corralon
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o
