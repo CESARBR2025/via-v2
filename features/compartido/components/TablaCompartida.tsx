@@ -257,7 +257,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
 
     if (userRole === 'liberaciones') {
         const estatus = detalle?.Header?.estatus_dependencia
-        const mostrarBotonInicio = estatus === 'PENDIENTE_REVISION'
+        const mostrarBotonInicio = estatus === 'ESPERA_REVISION'
         const enProceso = estatus === 'EN_PROCESO_LIBERACIONES'
         const liberado = estatus === 'LIBERADO_POR_LIBERACIONES'
         console.log(detalle)

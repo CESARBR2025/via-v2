@@ -102,36 +102,39 @@ export async function PATCH(request: Request) {
         // Consultamos todos los campos reales de tus tablas unificados
         const datosOrdenRes = await db.query(
           `
-                    SELECT 
-                        i.id,
-                        i.folio,
-                        i.motivo_retencion,
-                        i.tipo_garantia,
-                        i.no_oficio_fiscalia, -- O el campo de oficio que corresponda
-                        i.no_carpeta_investigacion,
-                        i.marca,
-                        i.modelo,
-                        i.color,
-                        i.placa,
-                        i.estado,
-                        i.grua_id, -- ID de la grúa si aplica
-                        i.correo_infractor,
-                        i.nombre_infractor,
-                        i.apellido_paterno_infractor,
-                        i.apellido_materno_infractor,
-                        i.nombre_titular_liberacion,
-                        i.appaterno_titular_liberacion,
-                        i.apmaterno_titular_liberacion,
-                        i.es_persona_moral,
-                        i.razon_social_empresa,
-                        s.es_empresa,
-                        s.nombre_empresa,
-                        s.rfc_empresa
-                    FROM v2_infracciones i
-                    LEFT JOIN v2_solicitudes_liberacion s ON s.infraccion_id = i.id
-                    WHERE i.id = $1
-                    ORDER BY s.created_at DESC
-                    LIMIT 1
+                     SELECT 
+        i.id,
+        i.folio,
+        i.motivo_retencion,
+        i.tipo_garantia,
+        i.no_oficio_fiscalia,
+        i.no_carpeta_investigacion,
+        i.marca,
+        i.modelo,
+        i.color,
+        i.placa,
+        i.anio_vehiculo,
+        i.tipo_vehiculo,
+        i.estado,
+        i.nombre_infractor,
+        i.apellido_paterno_infractor,
+        i.apellido_materno_infractor,
+        i.nombre_titular_liberacion,
+        i.appaterno_titular_liberacion,
+        i.apmaterno_titular_liberacion,
+        i.correo_titular_liberacion,
+        i.es_persona_moral,
+        i.razon_social_empresa,
+        s.es_empresa,
+        s.nombre_empresa,
+        s.rfc_empresa,
+        g.nombre as nombre_grua
+      FROM v2_infracciones i
+      LEFT JOIN v2_solicitudes_liberacion s ON s.infraccion_id = i.id
+      left join v2_gruas g on g.id = i.grua_id 
+      WHERE i.id = $1
+      ORDER BY s.created_at DESC
+      LIMIT 1
                     `,
           [infraccionId],
         );
@@ -172,21 +175,17 @@ export async function PATCH(request: Request) {
             motivoRetencion:
               dbData.motivo_retencion || "SIN MOTIVO ESPECIFICADO",
             estadoOrigen: dbData.estado || "QUERÉTARO",
-            noSerie: dbData.no_carpeta_investigacion || "—", // Mapeado a carpeta o campo de serie homólogo
+            noSerie: dbData.no_carpeta_investigacion || "—",
             garantiaRetenida: dbData.tipo_garantia || "VEHICULO",
-            grua: dbData.grua_id ? `GRUA ID: ${dbData.grua_id}` : "SIN GRUA",
-            noOficio: dbData.no_oficio_fiscalia || "0000",
-
-            // Mapeos adaptados a tu regla
+            grua: dbData.nombre_grua,
+            noOficio: dbData.folio || "0000",
             rfc: esEmpresa,
             responsableFiscal: nombreRecibe,
             nombreTitularCompleto: nombreRecibe,
             empresaFiscal: esEmpresa ? nombreRecibe : "Infractor",
-
-            // Datos del Vehículo
             marca: dbData.marca,
-            tipoVehiculo: "VEHÍCULO CORRIENTE", // Campo genérico o constante si no hay tipo_vehiculo explícito
-            modelo: dbData.modelo,
+            tipoVehiculo: dbData.tipo_vehiculo,
+            modelo: dbData.anio_vehiculo,
             color: dbData.color,
             placa: dbData.placa,
             noExterno: dbData.folio,
@@ -195,14 +194,24 @@ export async function PATCH(request: Request) {
           // Enviar notificación por correo electrónico
           try {
             const correoDestino =
-              dbData.correo_infractor || "sin_correo@dominio.com";
+              dbData.correo_titular_liberacion || "sin_correo@dominio.com";
             const nombreNotificacion = esEmpresa
               ? nombreRecibe
               : `${dbData.nombre_infractor} ${dbData.apellido_paterno_infractor}`.trim();
 
+            console.log(correoDestino);
+            console.log(nombreNotificacion);
+            console.log(dataParaPDF);
             const pdfBuffer = await generarOrdenSalidaVehiculo({
               data: dataParaPDF,
             });
+
+            console.log("Es buffer:", Buffer.isBuffer(pdfBuffer));
+            console.log("Tamaño:", pdfBuffer.length);
+            console.log(
+              "Primeros bytes:",
+              pdfBuffer.subarray(0, 20).toString(),
+            );
 
             await enviarOrdenLiberacionCorreo({
               idInfraccion: dataParaPDF.id,
