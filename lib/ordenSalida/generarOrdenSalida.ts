@@ -1,26 +1,26 @@
 import jsPDF from "jspdf";
 
 /** Carga una imagen desde una URL pública y devuelve su base64 */
-async function loadImageAsBase64(url: string): Promise<string> {
-  const response = await fetch(url);
+import fs from "fs/promises";
+import path from "path";
 
-  if (!response.ok) {
-    throw new Error("No se pudo cargar la imagen");
-  }
+export async function loadImageAsBase64(publicPath: string): Promise<string> {
+  const normalizedPath = publicPath.replace(/^\/+/, "");
 
-  const blob = await response.blob();
+  const imagePath = path.join(process.cwd(), "public", normalizedPath);
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+  const buffer = await fs.readFile(imagePath);
 
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
+  const extension = path.extname(imagePath).toLowerCase();
 
-    reader.onerror = reject;
+  const mimeType =
+    extension === ".png"
+      ? "image/png"
+      : extension === ".jpg" || extension === ".jpeg"
+        ? "image/jpeg"
+        : "application/octet-stream";
 
-    reader.readAsDataURL(blob);
-  });
+  return `data:${mimeType};base64,${buffer.toString("base64")}`;
 }
 /** Formatea la fecha al estilo del documento: "17 FEBRERO DEL 2026" */
 function formatearFecha(date = new Date()): string {
@@ -112,6 +112,7 @@ function parrafoMixtoConWrap(
 }
 
 export async function generarOrdenSalidaVehiculo({ data }: any) {
+  console.log(data);
   const no_externo = data.noExterno ?? " ";
 
   const motivo = data.motivoRetencion;
@@ -280,8 +281,7 @@ export async function generarOrdenSalidaVehiculo({ data }: any) {
   doc.setFontSize(FS_SMALL);
   doc.text(cargoText, directorX + directorW / 2, 232.4, { align: "center" });
 
-  // ─────────────────────────────────────────────
-  // 4. DESCARGAR COMO PDF
-  // ─────────────────────────────────────────────
-  doc.save(`orden_salida_${data.id}.pdf`);
+  const pdfArrayBuffer = doc.output("arraybuffer");
+
+  return Buffer.from(pdfArrayBuffer);
 }

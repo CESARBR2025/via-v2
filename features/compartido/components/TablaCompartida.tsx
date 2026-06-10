@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Play, FileText, CheckCircle2, Upload, User, Eye, ShieldCheck, ScrollText } from "lucide-react"
+import { Play, FileText, CheckCircle2, Upload, User, Eye, ShieldCheck, ScrollText, Download } from "lucide-react"
 import FiscaliaDashboard from "@/features/fiscalia/components/FiscaliaDashboard"
 import JuzgadoDashboard from "@/features/juzgado/components/JuzgadoDashboard"
 import LiberacionesDashboard from "@/features/liberaciones/components/LiberacionesDashboard"
@@ -257,7 +257,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
 
     if (userRole === 'liberaciones') {
         const estatus = detalle?.Header?.estatus_dependencia
-        const mostrarBotonInicio = estatus === 'ESPERA_REVISION'
+        const mostrarBotonInicio = estatus === 'PENDIENTE_REVISION'
         const enProceso = estatus === 'EN_PROCESO_LIBERACIONES'
         const liberado = estatus === 'LIBERADO_POR_LIBERACIONES'
         console.log(detalle)
@@ -632,6 +632,30 @@ function DocumentosLiberadosSection({ detalle }: { detalle: DetalleCompleto }) {
     const h = detalle.Header;
     const [docsLiberacion, setDocsLiberacion] = useState<{ tipo: string; label: string; url: string }[]>([]);
     const [loadingLiberacion, setLoadingLiberacion] = useState(true);
+    const [descargandoOrden, setDescargandoOrden] = useState(false);
+
+    const handleDownloadOrden = async () => {
+        if (!h?.id_infraccion) return;
+        setDescargandoOrden(true);
+        try {
+            const res = await fetch(`/api/liberaciones/descargarOrden/${h.id_infraccion}`);
+            if (!res.ok) throw new Error('Error al generar la orden');
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const folio = h.folio_de_infraccion?.replace(/[^a-zA-Z0-9_-]/g, '_') || h.id_infraccion;
+            a.download = `orden_salida_${folio}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('[DESCARGAR ORDEN]', error);
+        } finally {
+            setDescargandoOrden(false);
+        }
+    };
 
     useEffect(() => {
         if (!h?.id_infraccion) return;
@@ -688,10 +712,21 @@ function DocumentosLiberadosSection({ detalle }: { detalle: DetalleCompleto }) {
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#DCFCE7' }}>
                     <ShieldCheck size={17} className="text-[#16A34A]" />
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                     <h3 className="text-[15px] font-semibold text-[#0F172A] tracking-tight">Historial de Documentación</h3>
                     <p className="text-[12px] text-[#64748B]">Infracción liberada por liberaciones</p>
                 </div>
+                <button
+                    onClick={handleDownloadOrden}
+                    disabled={descargandoOrden}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold text-white transition-all duration-150 shrink-0 disabled:opacity-50"
+                    style={{ background: '#2563EB' }}
+                    onMouseEnter={(e) => { if (!descargandoOrden) e.currentTarget.style.background = '#1D4ED8'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = '#2563EB'; }}
+                >
+                    <Download size={14} />
+                    {descargandoOrden ? 'Generando...' : 'Descargar Orden de Salida'}
+                </button>
             </div>
 
             <div className="p-5 space-y-6">

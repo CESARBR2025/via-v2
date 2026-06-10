@@ -35,12 +35,12 @@ interface Props {
 }
 
 type EstatusLiberaciones =
-    | 'ESPERA_REVISION'
+    | 'PENDIENTE_REVISION'
     | 'EN_PROCESO_LIBERACIONES'
     | 'LIBERADO_POR_LIBERACIONES'
 
 const STATUS_TABS: { key: EstatusLiberaciones; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
-    { key: 'ESPERA_REVISION', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
+    { key: 'PENDIENTE_REVISION', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
     { key: 'EN_PROCESO_LIBERACIONES', label: 'En Proceso', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
     { key: 'LIBERADO_POR_LIBERACIONES', label: 'Liberadas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
 ]
@@ -60,11 +60,11 @@ export default function LiberacionesDashboard({
     visibleColumns,
     onOpenDetalle,
 }: Props) {
-    const [filtro, setFiltro] = useState<EstatusLiberaciones>('ESPERA_REVISION')
+    const [filtro, setFiltro] = useState<EstatusLiberaciones>('PENDIENTE_REVISION')
     console.log(data)
     const estadisticas = useMemo(() => {
 
-        const pendientes = data.filter(x => x.estatus_dependencia === 'ESPERA_REVISION').length
+        const pendientes = data.filter(x => x.estatus_dependencia === 'PENDIENTE_REVISION').length
         const revision = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_LIBERACIONES').length
         const liberadas = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_LIBERACIONES').length
         return { pendientes, revision, liberadas }
@@ -98,7 +98,7 @@ export default function LiberacionesDashboard({
             {/* ─── STATS CARDS ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {STATUS_TABS.map(tab => {
-                    const count = estadisticas[tab.key === 'ESPERA_REVISION' ? 'pendientes' : tab.key === 'EN_PROCESO_LIBERACIONES' ? 'revision' : 'liberadas']
+                    const count = estadisticas[tab.key === 'PENDIENTE_REVISION' ? 'pendientes' : tab.key === 'EN_PROCESO_LIBERACIONES' ? 'revision' : 'liberadas']
                     const activo = filtro === tab.key
                     const Icon = tab.icon
 

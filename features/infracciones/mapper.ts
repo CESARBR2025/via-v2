@@ -40,6 +40,9 @@ export const mapCrearInfraccionToDB = (
 
     color: data.color ?? null,
 
+    tipoVehiculo: data.tipoVehiculo ?? "VACIO",
+    anioVehiculo: data.anioVehiculo ?? "VACIO",
+
     placa: data.placa,
 
     latitud: data.latitud ?? null,

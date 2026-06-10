@@ -56,14 +56,16 @@ export class InfraccionesRepository {
             fecha_limite_descuento,
             monto_final,
             grua_id,
-            dependencia_receptora
+            dependencia_receptora,
+            anio_vehiculo,
+            tipo_vehiculo
            
         )
         VALUES (
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
             $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
             $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,
-            $31,$32,$33,$34,$35,$36,$37
+            $31,$32,$33,$34,$35,$36,$37, $38, $39
         )
         RETURNING *
     )
@@ -123,6 +125,8 @@ export class InfraccionesRepository {
         data.monto_final,
         "11564675-0e54-49ec-8f73-8ea24a1556c4",
         data.dependenciaRemisora ?? null,
+        data.anioVehiculo,
+        data.tipoVehiculo,
       ],
     );
 
