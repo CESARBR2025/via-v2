@@ -95,7 +95,7 @@ export class DepInfraccionesRepository {
       "FISCALIA",
       "JUZGADO",
       "MW",
-      "MEJIA",
+      "CORRALON_MEJIA",
       "LIBERACIONES",
     ];
     if (!dependenciasValidas.includes(dependencia)) {
@@ -124,7 +124,8 @@ export class DepInfraccionesRepository {
 
       // Query para MW (basada en grúa)
       query = `
-        SELECT
+
+            SELECT
           id,
           folio,
           estatus,
@@ -133,15 +134,17 @@ export class DepInfraccionesRepository {
           correo_infractor,
           nombre_infractor
         FROM v2_infracciones
-        WHERE garantia_retenida = 'VEHICULO'
-          AND estatus != 'LIBERADA'
+        WHERE tipo_garantia = 'VEHICULO'
+        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA')
           AND grua_id = $1
+
+
       `;
       values.push(idGruaDinamico);
     } else if (
       dependencia === "FISCALIA" ||
       dependencia === "JUZGADO" ||
-      dependencia === "MEJIA"
+      dependencia === "CORRALON_MEJIA"
     ) {
       // Query estándar para dependencias legales
       console.log(`-> Buscando infracciones para: ${dependencia}`);
@@ -161,6 +164,8 @@ export class DepInfraccionesRepository {
         WHERE tipo_garantia = 'VEHICULO'
           AND estatus = 'REGISTRADA'
           AND dependencia_receptora = $1
+
+          
       `;
       values.push(dependencia);
     } else if (dependencia === "LIBERACIONES") {
@@ -197,6 +202,7 @@ export class DepInfraccionesRepository {
       }
       console.log(`Se encontraron ${result.rowCount} registros`);
 
+      console.log(result.rows);
       return {
         data: result.rows,
         total: result.rowCount ?? result.rows.length,
@@ -303,8 +309,8 @@ export class DepInfraccionesRepository {
       query = `
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
-      WHERE garantia_retenida = 'VEHICULO'
-        AND estatus != 'LIBERADA'
+      WHERE tipo_garantia  = 'VEHICULO'
+      AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA')
         AND grua_id = $1
     `;
       values.push(idGruaDinamico);

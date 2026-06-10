@@ -7,13 +7,15 @@ export async function GET(req: Request) {
 
     // 1. Extraemos los Query Parms usando la URL de la petición (req.url)
     const { searchParams } = new URL(req.url);
-
+    console.log(searchParams);
     // 2. Obtenemos el valor de 'dependencia' y lo casteamos al tipo estricto
     const dependencia = searchParams.get("dependencia") as
       | "FISCALIA"
       | "JUZGADO"
-      | "LIBERACIONES";
+      | "LIBERACIONES"
+      | "MW";
 
+    console.log(dependencia);
     // Opcionales: por si mandas filtros de fechas en el futuro
     const from = searchParams.get("from") || undefined;
     const to = searchParams.get("to") || undefined;
