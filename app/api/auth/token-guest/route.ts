@@ -7,6 +7,7 @@ const GUEST_TOKEN_URL =
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("entro");
     const body = await req.json();
 
     const { codigo_invitacion, nombre_invitado } = body;

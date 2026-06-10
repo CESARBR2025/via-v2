@@ -103,6 +103,8 @@ export const POST = withErrorHandling(async function POST(req: Request) {
     rbacRows = reloadedRbac.rows;
   }
 
+  console.log(rbacRows);
+
   // 5. Mapear y unificar los Roles y Permisos (Eliminando duplicados con Sets)
   // Ejemplo de formato de salida: ['oficial', 'infracciones']
   const roles = Array.from(new Set(rbacRows.map((row) => row.rol_nombre)));
@@ -126,10 +128,8 @@ export const POST = withErrorHandling(async function POST(req: Request) {
       userId: user.id,
       roles: roles, // Los roles limpios extraídos de tu query ['oficial', 'admin']
     };
-  
 
     const preSessionToken = await createPreSession(preSessionData);
-
 
     const res = NextResponse.json({
       ok: true,
@@ -166,7 +166,7 @@ export const POST = withErrorHandling(async function POST(req: Request) {
   if (roles.includes("admin")) redirectTo = "/admin/dashboard";
   else if (roles.includes("oficial")) redirectTo = "/oficial/captura";
   else if (roles.includes("liberaciones"))
-    redirectTo = "/liberaciones/tramites";
+    redirectTo = "/depLiberaciones/dashboard";
 
   const response = {
     ok: true,

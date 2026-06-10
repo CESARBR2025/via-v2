@@ -4,6 +4,10 @@ import { safeRowMapper } from "./components/TablaDevInfracciones/utils/safeRow";
 import { InfraccionDetail, InfraccionListItem } from "./types";
 
 export const mapInfraccionListItem = (row: any): InfraccionListItem => ({
+  // Extras para fiscalia
+  estatus_dependencia: row.estatus_dependencia,
+  no_carpeta_investigacion: row.no_carpeta_investigacion,
+
   nombre_infractor: row.nombre_infractor,
   correo_infractor: row.correo_infractor,
   id: row.id,
@@ -24,6 +28,10 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
     url_tarjeta_circulacion: safeRowMapper(row.url_tarjeta_circulacion),
     url_ine: safeRowMapper(row.url_ine),
     url_evidencias: row.evidencias,
+    no_oficio_fiscalia: safeRowMapper(row.no_oficio_fiscalia),
+    url_oficio_fiscalia: safeRowMapper(row.url_oficio_fiscalia),
+    estatus_dependencia: safeRowMapper(row.estatus_dependencia),
+    no_carpeta_investigacion: safeRowMapper(row.no_carpeta_investigacion),
   },
 
   Infraccion: {
@@ -42,8 +50,13 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
     nombre_infractor: safeRowMapper(
       `${row.nombre_infractor ?? ""} ${row.apellido_paterno_infractor ?? ""} ${row.apellido_materno_infractor ?? ""}`.trim(),
     ),
+    nombre_titular_liberacion: safeRowMapper(
+      `${row.nombre_titular_liberacion ?? ""} ${row.appaterno_titular_liberacion ?? ""} ${row.apmaterno_titular_liberacion ?? ""}`.trim(),
+    ),
     correo_infractor: safeRowMapper(row.correo_infractor),
     curp_infractor: safeRowMapper(row.curp_infractor),
+    appaterno_infractor: safeRowMapper(row.apellido_paterno_infractor),
+    apmaterno_infractor: safeRowMapper(row.apellido_materno_infractor),
   },
 
   vehiculo: {

@@ -1,6 +1,10 @@
 // types/infraccion.types.ts
 
 export type InfraccionListItem = {
+  //extras fiscalia
+  estatus_dependencia: string;
+  no_carpeta_investigacion: string;
+
   nombre_infractor: string;
   correo_infractor: string;
   id: number;
@@ -28,6 +32,10 @@ export type InfraccionDetail = {
     url_tarjeta_circulacion: string;
     url_ine: string;
     url_evidencias: string[];
+    url_oficio_fiscalia: string;
+    no_oficio_fiscalia: string;
+    estatus_dependencia: string;
+    no_carpeta_investigacion: string;
   };
 
   Infraccion: {
@@ -42,6 +50,11 @@ export type InfraccionDetail = {
     nombre_infractor: string;
     correo_infractor: string | null;
     curp_infractor: string | null;
+    appaterno_infractor: string | null;
+    apmaterno_infractor: string | null;
+
+    // Datos de titularidad
+    nombre_titular_liberacion: string;
   };
 
   vehiculo: {

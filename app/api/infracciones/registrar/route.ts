@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     try {
       body = await req.json();
       console.log("[BODY RECIBIDO]");
+      console.log(body);
       console.dir(body, { depth: null });
     } catch (error) {
       console.error("[ERROR PARSEANDO JSON]", error);
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     const payload = sanitizeCrearInfraccionPayload(body, oficialId);
 
-    console.log("[PAYLOAD GENERADO]");
+    console.log("[PAYLOAD GENERADO]", payload);
     console.dir(payload, { depth: null });
 
     console.log("[LLAMANDO SERVICE]");
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
     const infraccion =
       await InfraccionesService.registrarNuevaInfraccionSV(payload);
 
+    console.log(infraccion);
     console.log("[RESPUESTA SERVICE]");
     console.dir(infraccion, { depth: null });
 

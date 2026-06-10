@@ -9,7 +9,7 @@ export interface FraccionLey {
   numero: string;
   descripcion: string;
   monto_umas: number;
-  clasificacion: "L" | "M" | "G";
+  clasificacion: "Leve" | "Media" | "Grave";
   activo: boolean;
 }
 

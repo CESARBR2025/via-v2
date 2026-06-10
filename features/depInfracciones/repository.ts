@@ -2,6 +2,13 @@
 
 import { POOL_PG as pool } from "@/lib/db";
 
+// Endpoint generico
+interface FiltroInfraccionesParams {
+  dependencia: string; // La clave que determina el flujo
+  from?: string; // Opcionales por si en el primer render no filtran fechas
+  to?: string;
+}
+
 export class DepInfraccionesRepository {
   static async getInfraccionesFiltradasRepository(params: {
     from: string;
@@ -35,6 +42,178 @@ export class DepInfraccionesRepository {
     return {
       rows: result.rows,
     };
+  }
+
+  //Listar infracciones de oficiales realizdas
+  static async getInfraccionesRealizadasOficialRP(params: {
+    from: string;
+    to: string;
+    userId: string;
+  }) {
+    console.log("entro");
+
+    const { from, to, userId } = params;
+
+    const query = `
+        SELECT
+        id,
+        folio,
+        estatus,
+        placa,
+        created_at,
+        correo_infractor,
+        nombre_infractor
+      FROM v2_infracciones
+      WHERE oficial_id = $1
+      ORDER BY created_at DESC
+
+    `;
+
+    const values = [userId];
+    console.log(values);
+
+    const result = await pool.query(query, values);
+    console.log(result);
+
+    return {
+      rows: result.rows,
+    };
+  }
+
+  static async getInfraccionesFiltradasPorDependenciaRepository(
+    params: FiltroInfraccionesParams,
+  ) {
+    console.log(
+      "=== Iniciando consulta de infracciones para:",
+      params.dependencia,
+    );
+
+    const { dependencia, from, to } = params;
+
+    // 1. Validamos la clave por seguridad
+    const dependenciasValidas = [
+      "FISCALIA",
+      "JUZGADO",
+      "MW",
+      "CORRALON_MEJIA",
+      "LIBERACIONES",
+    ];
+    if (!dependenciasValidas.includes(dependencia)) {
+      throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
+    }
+
+    let query = "";
+    const values: any[] = [];
+
+    // 2. Construir la query según el tipo de dependencia
+    if (dependencia === "MW") {
+      console.log("-> Buscando el ID dinámico para la grúa 'MW'...");
+
+      // Obtener el ID de la grúa
+      const queryGrua = `SELECT id FROM v2_gruas WHERE nombre = $1 LIMIT 1`;
+      const resultGrua = await pool.query(queryGrua, ["MW"]);
+
+      if (resultGrua.rows.length === 0) {
+        throw new Error(
+          "No se encontró ningún registro en 'v2_gruas' con el nombre 'MW'",
+        );
+      }
+
+      const idGruaDinamico = resultGrua.rows[0].id;
+      console.log(`-> ID de grúa recuperado con éxito: ${idGruaDinamico}`);
+
+      // Query para MW (basada en grúa)
+      query = `
+
+            SELECT
+          id,
+          folio,
+          estatus,
+          placa,
+          created_at,
+          correo_infractor,
+          nombre_infractor
+        FROM v2_infracciones
+        WHERE tipo_garantia = 'VEHICULO'
+        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA')
+          AND grua_id = $1
+
+
+      `;
+      values.push(idGruaDinamico);
+    } else if (
+      dependencia === "FISCALIA" ||
+      dependencia === "JUZGADO" ||
+      dependencia === "CORRALON_MEJIA"
+    ) {
+      // Query estándar para dependencias legales
+      console.log(`-> Buscando infracciones para: ${dependencia}`);
+
+      query = `
+        SELECT
+          id,
+          folio,
+          estatus,
+          placa,
+          created_at,
+          correo_infractor,
+          nombre_infractor,
+          estatus_dependencia,
+          no_carpeta_investigacion
+        FROM v2_infracciones
+        WHERE tipo_garantia = 'VEHICULO'
+          AND estatus = 'REGISTRADA'
+          AND dependencia_receptora = $1
+
+          
+      `;
+      values.push(dependencia);
+    } else if (dependencia === "LIBERACIONES") {
+      console.log(`-> Buscando infracciones para: ${dependencia}`);
+
+      query = `
+       SELECT
+          id,
+          folio,
+          estatus,
+          placa,
+          created_at,
+          correo_infractor,
+          nombre_infractor,
+          estatus_dependencia,
+          no_carpeta_investigacion
+        FROM v2_infracciones
+        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADO_POR_LIBERACIONES') 
+      
+      `;
+    }
+
+    // 3. Ordenar resultados
+    query += ` ORDER BY created_at DESC`;
+
+    // 4. Ejecutar query
+    try {
+      let result;
+
+      if (dependencia === "LIBERACIONES") {
+        result = await pool.query(query);
+      } else {
+        result = await pool.query(query, values);
+      }
+      console.log(`Se encontraron ${result.rowCount} registros`);
+
+      console.log(result.rows);
+      return {
+        data: result.rows,
+        total: result.rowCount ?? result.rows.length,
+      };
+    } catch (error) {
+      console.error(
+        `Error en repositorio para la dependencia ${dependencia}:`,
+        error,
+      );
+      throw new Error("Error interno al consultar la base de datos");
+    }
   }
 
   //Listar infracciones de fiscalia
@@ -91,24 +270,78 @@ export class DepInfraccionesRepository {
     return result.rows[0].total;
   }
 
-  // Contar registros de fiscalia
-  static async contarRegistrosFiscaliaInfracciones(params: {
-    from: string;
-    to: string;
+  // Contar registros por dependencia (genérico para FISCALIA, JUZGADO, MW, MEJIA)
+  static async contarRegistrosPorDependenciaInfracciones(params: {
+    dependencia: string;
   }) {
-    const { from, to } = params;
+    const { dependencia } = params;
 
-    const query = `
+    // 1. Validamos la dependencia
+    const dependenciasValidas = [
+      "FISCALIA",
+      "JUZGADO",
+      "MW",
+      "MEJIA",
+      "LIBERACIONES",
+    ];
+    if (!dependenciasValidas.includes(dependencia)) {
+      throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
+    }
+
+    let query = "";
+    const values: any[] = [];
+
+    // 2. Construir la query según el tipo de dependencia
+    if (dependencia === "MW") {
+      // Obtener el ID de la grúa
+      const queryGrua = `SELECT id FROM v2_gruas WHERE nombre = $1 LIMIT 1`;
+      const resultGrua = await pool.query(queryGrua, ["MW"]);
+
+      if (resultGrua.rows.length === 0) {
+        throw new Error(
+          "No se encontró ningún registro en 'v2_gruas' con el nombre 'MW'",
+        );
+      }
+
+      const idGruaDinamico = resultGrua.rows[0].id;
+
+      // Query para MW (basada en grúa)
+      query = `
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
-      WHERE tipo_garantia = 'VEHICULO'   
-      AND dependencia_receptora = 'FISCALIA'     
-        AND created_at BETWEEN $1 AND $2
+      WHERE tipo_garantia  = 'VEHICULO'
+      AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA')
+        AND grua_id = $1
     `;
+      values.push(idGruaDinamico);
+    } else if (dependencia === "LIBERACIONES") {
+      query = `
+      SELECT COUNT(*)::int AS total
+      FROM v2_infracciones
+      WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES')
+    `;
+    } else {
+      // Query estándar para FISCALIA, JUZGADO, MEJIA
+      query = `
+      SELECT COUNT(*)::int AS total
+      FROM v2_infracciones
+      WHERE tipo_garantia = 'VEHICULO'
+        AND estatus = 'REGISTRADA'
+        AND dependencia_receptora = $1
+    `;
+      values.push(dependencia);
+    }
 
-    const result = await pool.query(query, [from, to]);
-
-    return result.rows[0].total;
+    try {
+      const result = await pool.query(query, values);
+      return result.rows[0].total;
+    } catch (error) {
+      console.error(
+        `Error al contar registros para la dependencia ${dependencia}:`,
+        error,
+      );
+      throw new Error("Error interno al consultar la base de datos");
+    }
   }
 
   static async detalleInfraccionRP(id: string) {
@@ -134,6 +367,12 @@ export class DepInfraccionesRepository {
     i.apellido_paterno_infractor,
     i.apellido_materno_infractor,
     i.curp_infractor,
+    i.nombre_titular_liberacion,
+    i.appaterno_titular_liberacion,
+    i.apmaterno_titular_liberacion,
+  
+
+
     i.marca,
     i.modelo,
     i.color,
@@ -155,7 +394,11 @@ export class DepInfraccionesRepository {
     o.total_umas,
     o.total_pesos,
 
-    i.es_titular
+    i.es_titular,
+    i.no_oficio_fiscalia,
+    i.url_oficio_fiscalia,
+    i.estatus_dependencia,
+    i.no_carpeta_investigacion
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o

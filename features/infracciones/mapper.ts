@@ -40,6 +40,9 @@ export const mapCrearInfraccionToDB = (
 
     color: data.color ?? null,
 
+    tipoVehiculo: data.tipoVehiculo ?? "VACIO",
+    anioVehiculo: data.anioVehiculo ?? "VACIO",
+
     placa: data.placa,
 
     latitud: data.latitud ?? null,
@@ -80,7 +83,38 @@ export const mapCrearInfraccionToDB = (
 };
 
 export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
+  const documentosLiberacion: Record<string, { url: string; label: string }> =
+    {};
+
+  const docsJson = row.documentos_liberacion_json;
+  if (docsJson && Array.isArray(docsJson)) {
+    for (const doc of docsJson) {
+      if (doc.url) {
+        documentosLiberacion[doc.tipo] = {
+          url: doc.url,
+          label: doc.label || doc.tipo,
+        };
+      }
+    }
+  }
+
   return {
+    // Datos de juzgado y tilar
+    dependenciaReceptora: row.dependencia_receptora,
+    noOficio: row.no_oficio_fiscalia ?? row.no_oficio_juzgado,
+    urlOficio: row.url_oficio_fiscalia ?? row.url_oficio_juzgado,
+    estatusDependencia: row.estatus_dependencia,
+    nombreTitular: [
+      row.nombre_titular_liberacion,
+      row.appaterno_titular_liberacion,
+      row.apmaterno_titular_liberacion,
+    ]
+      .filter(Boolean)
+      .join(" "),
+    correoTitular: row.correo_titular_liberacion,
+    curpTitular: row.curp_titular_liberacion,
+    noCarpetaInvestigacion: row.no_carpeta_investigacion,
+
     descuento_aplicado: row.descuento_aplicado,
     fecha_limite_descuento: row.fecha_limite_descuento,
     clasificacion: row.clasificacion,
@@ -136,5 +170,12 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
     total_umas: Number(row.total_umas),
     created_at: row.created_at,
     concepto_id: row.concepto_id,
+
+    documentosLiberacion,
+
+    dl_tipo_liberacion: row.sl_tipo_liberacion ?? row.dl_tipo_liberacion,
+    dl_es_empresa: row.sl_es_empresa ?? row.dl_es_empresa,
+    dl_nombre_empresa: row.sl_nombre_empresa ?? row.dl_nombre_empresa,
+    dl_rfc_empresa: row.sl_rfc_empresa ?? row.dl_rfc_empresa,
   };
 };

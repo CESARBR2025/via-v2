@@ -97,7 +97,8 @@ export class InfraccionesService {
   //Data de infracciones publicas
   static async obtenerPorId(id: string) {
     console.log("Obteniendo infracción por ID:", id);
-    const data = await InfraccionesRepository.obtenerPorId(id);
+    const data =
+      await InfraccionesRepository.obtenerDatosInfraccionCiudadanoRP(id);
     console.log("Data obtenida de la base de datos:", data);
     if (!data) {
       throw new Error("Infracción no encontrada");
@@ -144,6 +145,8 @@ export const sanitizeCrearInfraccionPayload = (
     color: (body.otroColor || body.color)?.trim()?.toUpperCase() || null,
 
     placa: body.placa?.trim()?.toUpperCase(),
+    tipoVehiculo: body.tipoVehiculo.trim().toUpperCase(),
+    anioVehiculo: body.anio.trim().toUpperCase(),
 
     latitud: body.latitud ?? null,
 

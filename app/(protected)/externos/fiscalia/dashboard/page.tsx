@@ -1,36 +1,43 @@
-
-import TablaFiscalia from "@/features/fiscalia/components/TablaFiscalia";
+import { getSession } from "@/features/auth/service";
+import TablaCompartida from "@/features/compartido/components/TablaCompartida";
 
 export default async function FiscaliaPage() {
+    const session = await getSession();
+    const roleString = session?.user?.roles?.[0];
+
+    const dependenciaClave = "FISCALIA";
+
     const baseUrl =
-        process.env.NODE_ENV === 'production'
-            ? 'https://via-v2.vercel.app'
-            : 'http://localhost:3000';
+        process.env.NODE_ENV === "production"
+            ? "https://via-v2.vercel.app"
+            : "http://localhost:3000";
 
-    const res = await fetch(
-        `${baseUrl}/api/fiscalia/listar`,
-        { cache: "no-store" }
-    );
+    let respuestaApi = [];
 
-    if (!res.ok) {
-        throw new Error("Error cargando infracciones");
+    try {
+        const res = await fetch(
+            `${baseUrl}/api/dependencias/listarDatos?dependencia=${dependenciaClave}`,
+            { cache: "no-store" }
+        );
+
+        if (res.ok) {
+            respuestaApi = await res.json();
+        }
+    } catch (error) {
+        console.error("Error obteniendo datos:", error);
     }
 
-    const data = await res.json();
-    console.log(data)
+    console.log(respuestaApi)
+
     return (
         <div className="flex flex-col h-full">
-            <div className="shrink-0">
-                <h1 className="text-[22px] font-bold text-[#0F172A]">
-                    Vinculados a Fiscalia
-                </h1>
-                <p className="text-[14px] text-[#64748B] mt-1 mb-6">
-                    Infractores vinculados a proceso interno
-                </p>
-            </div>
+
 
             <div className="flex flex-col flex-1 min-h-0">
-                <TablaFiscalia data={data} />
+                <TablaCompartida
+                    respuestaServidor={respuestaApi}
+                    userRole={roleString}
+                />
             </div>
         </div>
     );

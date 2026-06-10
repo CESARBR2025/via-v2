@@ -1,4 +1,5 @@
 import PagoInfraccion from '@/features/infracciones/components/PagoInfraccion';
+import SeccionLiberacion from '@/features/infracciones/components/SeccionLiberacion';
 import {
     CheckCircle2,
     CreditCard,
@@ -10,11 +11,12 @@ import {
     BanknoteArrowDown,
 } from 'lucide-react';
 
-export default async function Page({
+export default async function InfraccionCiudadanoPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
+
     const { id } = await params;
 
     const baseUrl =
@@ -25,6 +27,7 @@ export default async function Page({
     const res = await fetch(`${baseUrl}/api/infracciones/registradas/${id}`);
     const responseDataInfraccion = await res.json();
     const infraccion = responseDataInfraccion.data;
+    console.log(infraccion)
 
     return (
         <main className="min-h-screen bg-[#F1F5F9]">
@@ -74,6 +77,21 @@ export default async function Page({
                         )}
                     </div>
                 </section>
+
+                {/* LIBERACIÓN */}
+                <SeccionLiberacion
+                    dependenciaReceptora={infraccion.dependenciaReceptora}
+                    noOficio={infraccion.noOficio}
+                    urlOficio={infraccion.urlOficio}
+                    estatusDependencia={infraccion.estatusDependencia}
+                    nombreTitular={infraccion.nombreTitular}
+                    correoTitular={infraccion.correoTitular}
+                    curpTitular={infraccion.curpTitular}
+                    noCarpetaInvestigacion={infraccion.noCarpetaInvestigacion}
+                    motivoRetencion={infraccion.motivoRetencion}
+                    infraccionId={infraccion.id}
+                    documentosLiberacion={infraccion.documentosLiberacion || {}}
+                />
 
                 {/* GRID */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

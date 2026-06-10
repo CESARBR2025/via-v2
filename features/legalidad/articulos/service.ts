@@ -13,6 +13,7 @@ export class ArticulosService {
     async () => {
       const rows = await ArticulosRepository.obtenerArticulos();
 
+      console.log(rows);
       return ArticulosMapper.toDomain(rows);
     },
 
