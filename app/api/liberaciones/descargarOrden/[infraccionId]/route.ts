@@ -39,12 +39,15 @@ export async function GET(
         i.nombre_titular_liberacion,
         i.appaterno_titular_liberacion,
         i.apmaterno_titular_liberacion,
-        i.es_persona_moral,
-        i.razon_social_empresa,
+
         s.es_empresa,
         s.nombre_empresa,
         s.rfc_empresa,
-        g.nombre as nombre_grua
+        g.nombre as nombre_grua,
+
+        s.nombre_resp_fiscal,
+        s.appaterno_resp_fiscal,
+        s.apmaterno_resp_fiscal
       FROM v2_infracciones i
       LEFT JOIN v2_solicitudes_liberacion s ON s.infraccion_id = i.id
       left join v2_gruas g on g.id = i.grua_id 
@@ -67,26 +70,27 @@ export async function GET(
     const esEmpresa = dbData.es_persona_moral || dbData.es_empresa;
 
     let nombreRecibe = "";
-    if (esEmpresa) {
-      nombreRecibe =
-        dbData.razon_social_empresa ||
-        dbData.nombre_empresa ||
-        "EMPRESA NO REGISTRADA";
-    } else {
-      const tNombre =
-        dbData.nombre_titular_liberacion || dbData.nombre_infractor || "";
-      const tPaterno =
-        dbData.appaterno_titular_liberacion ||
-        dbData.apellido_paterno_infractor ||
-        "";
-      const tMaterno =
-        dbData.apmaterno_titular_liberacion ||
-        dbData.apellido_materno_infractor ||
-        "";
-      nombreRecibe = `${tNombre} ${tPaterno} ${tMaterno}`
-        .trim()
-        .replace(/\s+/g, " ");
-    }
+
+    const tNombre = !dbData.rfc
+      ? dbData.nombre_titular_liberacion
+      : dbData.nombre_resp_fiscal;
+
+    console.log(tNombre);
+    const tPaterno = !dbData.rfc
+      ? dbData.appaterno_titular_liberacion
+      : dbData.appaterno_resp_fiscal;
+
+    console.log(tPaterno);
+    const tMaterno = !dbData.rfc
+      ? dbData.apmaterno_titular_liberacion
+      : dbData.apmaterno_resp_fiscal;
+
+    console.log(tMaterno);
+    nombreRecibe = `${tNombre} ${tPaterno} ${tMaterno}`
+      .trim()
+      .replace(/\s+/g, " ");
+
+    console.log(nombreRecibe);
 
     const dataParaPDF = {
       id: dbData.id,
@@ -95,11 +99,11 @@ export async function GET(
       noSerie: dbData.no_carpeta_investigacion || "—",
       garantiaRetenida: dbData.tipo_garantia || "VEHICULO",
       grua: dbData.nombre_grua,
-      noOficio: dbData.no_oficio_fiscalia || "0000",
+      noOficio: dbData.folio || "0000",
       rfc: esEmpresa,
       responsableFiscal: nombreRecibe,
       nombreTitularCompleto: nombreRecibe,
-      empresaFiscal: esEmpresa ? nombreRecibe : "Infractor",
+      empresaFiscal: esEmpresa ? dbData.nombre_empresa : "Infractor",
       marca: dbData.marca,
       tipoVehiculo: dbData.tipo_vehiculo,
       modelo: dbData.anio_vehiculo,
