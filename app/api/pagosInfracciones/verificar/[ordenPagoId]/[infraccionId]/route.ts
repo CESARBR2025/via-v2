@@ -124,7 +124,11 @@ export async function GET(
                         estatus_dependencia = $3
                     WHERE id = $1
                     `,
-          [infraccionId, finalizar ? 'CERRADA' : 'PAGADA', finalizar ? 'LIBERADA_INFRACCIONES_INSTANTE' : 'PAGADA_PENDIENTE_VERIFICACION'],
+          [
+            infraccionId,
+            finalizar ? 'CERRADA' : 'PAGADA',
+            finalizar ? 'LIBERADA_INFRACCIONES_INSTANTE' : 'PENDIENTE_DEVOLUCION_GARANTIA',
+          ],
         );
 
         await client.query("COMMIT");
@@ -134,7 +138,9 @@ export async function GET(
           pagado: true,
           finalizado: finalizar,
           estatus: "P",
-          message: finalizar ? "Pago confirmado e infracción finalizada" : "Pago confirmado",
+          message: finalizar
+            ? "Pago confirmado e infracción finalizada"
+            : "Pago confirmado",
         });
       } catch (dbError) {
         await client.query("ROLLBACK");

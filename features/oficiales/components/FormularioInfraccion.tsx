@@ -201,6 +201,23 @@ export default function FormularioInfraccion() {
 
 
     /**
+     * Finaliza el proceso sin pago: actualiza estatus a PLACA_RETENIDA_EN_TRANSITO
+     */
+    const handleFinalizarSinPago = useCallback(async () => {
+        if (!infraccionCreada?.id) return;
+        try {
+            await fetch('/api/infracciones/retencionPlaca', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: infraccionCreada.id }),
+            });
+        } catch (err) {
+            console.error('Error al actualizar retención de placa:', err);
+        }
+        window.location.reload();
+    }, [infraccionCreada]);
+
+    /**
      * Verifica el estado del pago de una infracción
      * Realiza polling para buscar la orden de pago y verificar si fue pagada
      */
@@ -536,6 +553,7 @@ export default function FormularioInfraccion() {
                         setDeseaPagar={setDeseaPagar}
                         datos={datos}
                         verificarPago={verificarPago}
+                        onFinalizarSinPago={handleFinalizarSinPago}
                         loading={loading}
                     />
                 ),

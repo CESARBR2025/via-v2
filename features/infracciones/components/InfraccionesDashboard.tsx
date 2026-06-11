@@ -88,7 +88,7 @@ export default function InfraccionesDashboard({
     console.log(data)
     const estadisticas = useMemo(() => {
         const pendientes = data.filter(x => !dataCompleta(x)).length
-        const pagadas = data.filter(x => x.estatus === 'PAGADA' && x.estatus_dependencia === 'PENDIENTE_ENTREGA_GARANTIA').length
+        const pagadas = data.filter(x => x.estatus === 'PAGADA' && (x.estatus_dependencia === 'PENDIENTE_ENTREGA_GARANTIA' || x.estatus_dependencia === 'PENDIENTE_DEVOLUCION_GARANTIA')).length
         const liberadas = data.filter(x => esLiberada(x)).length
         return { pendientes, pagadas, liberadas }
     }, [data])
@@ -100,7 +100,7 @@ export default function InfraccionesDashboard({
             case 'PENDIENTES_DATOS':
                 return data.filter(x => !dataCompleta(x))
             case 'PAGADAS':
-                return data.filter(x => x.estatus === 'PAGADA' && x.estatus_dependencia === 'PENDIENTE_ENTREGA_GARANTIA')
+                return data.filter(x => x.estatus === 'PAGADA' && (x.estatus_dependencia === 'PENDIENTE_ENTREGA_GARANTIA' || x.estatus_dependencia === 'PENDIENTE_DEVOLUCION_GARANTIA'))
             case 'LIBERADO_POR_INFRACCIONES':
                 return data.filter(x => esLiberada(x))
             default:

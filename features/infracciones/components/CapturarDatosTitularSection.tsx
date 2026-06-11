@@ -18,7 +18,7 @@ export default function CapturarDatosTitularSection({ detalle, onSuccess }: Prop
     return <TitularForm detalle={detalle} onSuccess={onSuccess} />
   }
 
-  if (estatus === 'PENDIENTE_PAGO_INFRACCION' || estatus === 'PENDIENTE_ENTREGA_GARANTIA') {
+  if (estatus === 'PENDIENTE_PAGO_INFRACCION' || estatus === 'PENDIENTE_ENTREGA_GARANTIA' || estatus === 'PENDIENTE_DEVOLUCION_GARANTIA') {
     return <EntregarGarantiaButton detalle={detalle} onSuccess={onSuccess} />
   }
 

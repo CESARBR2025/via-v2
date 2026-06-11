@@ -114,7 +114,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
         const estatus = detalle?.Header?.estatus_dependencia
 
         const mostrarBotonInicio = estatus === 'PENDIENTE_DATOS_INFRACTOR'
-        const enProceso = estatus === 'PENDIENTE_PAGO_INFRACCION' || estatus === 'PENDIENTE_ENTREGA_GARANTIA'
+        const enProceso = estatus === 'PENDIENTE_PAGO_INFRACCION' || estatus === 'PENDIENTE_ENTREGA_GARANTIA' || estatus === 'PENDIENTE_DEVOLUCION_GARANTIA'
         const liberado = estatus === 'LIBERADO_POR_INFRACCIONES'
 
         return (
