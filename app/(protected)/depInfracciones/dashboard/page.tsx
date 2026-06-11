@@ -1,6 +1,13 @@
+import { getSession } from "@/features/auth/service";
+import TablaCompartida from "@/features/compartido/components/TablaCompartida";
 import TablaDepInfracciones from "@/features/depInfracciones/components/TablaDevInfracciones/TablaDepInfracciones";
 
 export default async function DepInfraccionesPage() {
+    const session = await getSession();
+    const roleString = session?.user?.roles?.[0];
+
+    console.log(roleString)
+    const dependenciaClave = "INFRACCIONES";
     const baseUrl =
         process.env.NODE_ENV === 'production'
             ? 'https://via-v2.vercel.app'
@@ -19,17 +26,13 @@ export default async function DepInfraccionesPage() {
     console.log(data)
     return (
         <div className="flex flex-col h-full">
-            <div className="shrink-0">
-                <h1 className="text-[22px] font-bold text-[#0F172A]">
-                    Gestión de infracciones
-                </h1>
-                <p className="text-[14px] text-[#64748B] mt-1 mb-6">
-                    Administra infracciones pendientes de liberación en campo
-                </p>
-            </div>
+
 
             <div className="flex flex-col flex-1 min-h-0">
-                <TablaDepInfracciones data={data} />
+                <TablaCompartida
+                    respuestaServidor={data}
+                    userRole={roleString}
+                />
             </div>
         </div>
     );

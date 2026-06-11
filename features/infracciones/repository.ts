@@ -58,14 +58,15 @@ export class InfraccionesRepository {
             grua_id,
             dependencia_receptora,
             anio_vehiculo,
-            tipo_vehiculo
+            tipo_vehiculo,
+            estatus
            
         )
         VALUES (
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
             $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
             $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,
-            $31,$32,$33,$34,$35,$36,$37, $38, $39
+            $31,$32,$33,$34,$35,$36,$37, $38, $39, $40
         )
         RETURNING *
     )
@@ -121,12 +122,13 @@ export class InfraccionesRepository {
         data.monto_total,
         data.aplica_descuento_inapam,
         data.descuento_aplicado,
-        data.fecha_limite_descuento,
+        data.fecha_limite_descuento ?? "",
         data.monto_final,
         "11564675-0e54-49ec-8f73-8ea24a1556c4",
         data.dependenciaRemisora ?? null,
         data.anioVehiculo,
         data.tipoVehiculo,
+        data.estatus,
       ],
     );
 

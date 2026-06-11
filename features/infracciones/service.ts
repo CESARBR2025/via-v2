@@ -180,7 +180,17 @@ export const sanitizeCrearInfraccionPayload = (
 
     pagoAlMomento: body.pagoAlMomento ?? false,
 
-    montoFinal: Math.round(Number(body.fraccionMonto || 0) * (1 - Number(body.descuentoAplicado || 0) / 100) * 100) / 100,
+    montoFinal:
+      Math.round(
+        Number(body.fraccionMonto || 0) *
+          (1 - Number(body.descuentoAplicado || 0) / 100) *
+          100,
+      ) / 100,
+
+    estatus:
+      body.estaCiudadanoPresente === false
+        ? "PENDIENTE_ORDEN_PAGO"
+        : "REGISTRADA",
 
     gruaId: body.gruaInvolucrada || null,
 

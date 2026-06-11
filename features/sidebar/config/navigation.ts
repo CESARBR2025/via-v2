@@ -22,10 +22,6 @@ export const navigationByRole: Record<UserRole, any[]> = {
   ],
 
   oficial: [
-    // =====================================
-    // SECCIÓN
-    // =====================================
-
     {
       title: "Infracciones",
 

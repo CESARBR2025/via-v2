@@ -164,6 +164,12 @@ export default function FormularioInfraccion() {
         folio: string;
     } | null>(null);
 
+    const [ausenteCompletado, setAusenteCompletado] = useState<{
+        id: number;
+        folio: string;
+        data: Record<string, any>;
+    } | null>(null);
+
     // ═══════════════════════════════════════════════════════════════════
     // FUNCIONES VALIDACIÓN - Se memoizan para evitar re-renders
     // ═══════════════════════════════════════════════════════════════════
@@ -841,6 +847,37 @@ export default function FormularioInfraccion() {
             }
 
             // ─────────────────────────────────────────────────────────────
+            // CIUDADANO AUSENTE — saltar orden de pago, mostrar resumen
+            // ─────────────────────────────────────────────────────────────
+            if (datos.estaCiudadanoPresente === false) {
+                setModalState('inicio');
+                setAusenteCompletado({
+                    id: nuevaInfraccion.data.id,
+                    folio: nuevaInfraccion.data.folio,
+                    data: {
+                        placa: storeData.placa,
+                        marca: storeData.marca,
+                        modelo: storeData.modelo,
+                        anio: storeData.anio,
+                        color: storeData.color,
+                        tipoVehiculo: storeData.tipoVehiculo,
+                        lugar: `${storeData.calle || ''} ${storeData.numero || ''}, ${storeData.colonia || ''}`.trim(),
+                        municipio: storeData.municipio,
+                        estado: storeData.estado,
+                        fraccion: storeData.fraccionDescripcion,
+                        articulo: storeData.articuloNumero,
+                        monto: storeData.fraccionMonto,
+                        descuento: storeData.descuentoAplicado,
+                        fechaLimite: storeData.fechaLimiteDescuento,
+                        garantia: storeData.garantiaSeleccionada,
+                        dependenciaRemisora: storeData.dependenciaRemisora,
+                        fecha: new Date().toISOString(),
+                    },
+                });
+                return;
+            }
+
+            // ─────────────────────────────────────────────────────────────
             // FASE 2: GENERAR ORDEN DE PAGO
             // ─────────────────────────────────────────────────────────────
             setModalState('orden');
@@ -866,7 +903,7 @@ export default function FormularioInfraccion() {
             } catch (error) {
                 logError('GENERACIÓN ORDEN DE PAGO', error);
                 setModalState('error');
-                setProcesoMensaje('Error aml generar orden de pago');
+                setProcesoMensaje('Error al generar orden de pago');
                 throw new Error('Fallo en orden de pago');
             }
 
@@ -979,8 +1016,9 @@ export default function FormularioInfraccion() {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-          HEADER - Información de navegación y progreso
+          HEADER - Información de navegación y progreso (oculto en resumen ausente)
           ════════════════════════════════════════════════════════════════ */}
+            {!ausenteCompletado && (
             <header className="bg-[#FFFFFF] border-b border-[#E2E8F0] shrink-0">
                 {/* Top bar: ícono + título + % completado */}
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
@@ -1122,38 +1160,138 @@ export default function FormularioInfraccion() {
                     </div>
                 </div>
             </header>
+            )}
 
             {/* ═══════════════════════════════════════════════════════════════
-          MAIN CONTENT - Renderizar paso actual
+          MAIN CONTENT - Renderizar paso actual o resumen ausente
           ════════════════════════════════════════════════════════════════ */}
             <main className="flex-1 min-h-0 overflow-y-auto">
-                <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-5">
-                    <div>
-                        <h2 className="text-[22px] font-bold text-[#0F172A] leading-tight">
-                            {activeStepConfig.title}
-                        </h2>
-                        <p className="text-sm text-[#64748B] mt-1">
-                            {activeStepConfig.description}
-                        </p>
-                        {validationError && (
-                            <div className="mt-3 flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[13px] font-medium"
-                                style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
-                                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                                </svg>
-                                {validationError}
-                            </div>
-                        )}
-                    </div>
+                {ausenteCompletado ? (
+                    <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-8">
+                        <div className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+                            <div className="h-1.5 bg-gradient-to-r from-[#2563EB] to-[#60A5FA]" />
 
-                    {activeStepConfig.component}
-                </div>
+                            <div className="p-6 sm:p-8 space-y-6">
+                                {/* Header */}
+                                <div className="text-center space-y-2">
+                                    <div className="w-16 h-16 rounded-2xl bg-[#EFF6FF] flex items-center justify-center mx-auto shadow-[0_0_0_4px_rgba(37,99,235,0.15)]">
+                                        <svg className="w-8 h-8 text-[#2563EB]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                                        </svg>
+                                    </div>
+                                    <h2 className="text-[22px] font-bold text-[#0F172A]">
+                                        Infracción Registrada
+                                    </h2>
+                                    <p className="text-sm text-[#64748B]">
+                                        Ciudadano ausente — transcripción manual requerida
+                                    </p>
+                                </div>
+
+                                {/* Folio destacado */}
+                                <div className="bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] p-5 text-center space-y-2">
+                                    <p className="text-[11px] font-semibold uppercase tracking-wide text-[#64748B]">
+                                        Folio de infracción
+                                    </p>
+                                    <p className="text-[28px] font-bold text-[#0F172A] font-mono tracking-tight">
+                                        {ausenteCompletado.folio}
+                                    </p>
+                                    <p className="text-xs text-[#64748B] font-mono">
+                                        ID: {ausenteCompletado.id}
+                                    </p>
+                                </div>
+
+                                {/* Datos del vehículo / infracción */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                        { label: 'Placa', value: ausenteCompletado.data.placa },
+                                        { label: 'Marca', value: ausenteCompletado.data.marca },
+                                        { label: 'Modelo', value: ausenteCompletado.data.modelo },
+                                        { label: 'Año', value: ausenteCompletado.data.anio },
+                                        { label: 'Color', value: ausenteCompletado.data.color },
+                                        { label: 'Tipo', value: ausenteCompletado.data.tipoVehiculo },
+                                        { label: 'Artículo', value: ausenteCompletado.data.articulo },
+                                        { label: 'Monto', value: ausenteCompletado.data.monto ? `$${Number(ausenteCompletado.data.monto).toLocaleString('es-MX')}` : '--' },
+                                        { label: 'Descuento', value: ausenteCompletado.data.descuento ? `${ausenteCompletado.data.descuento}%` : '--' },
+                                        { label: 'Garantía', value: ausenteCompletado.data.garantia },
+                                    ].map((item) => (
+                                        <div key={item.label} className="bg-[#F8FAFC] rounded-lg px-3 py-2.5">
+                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">
+                                                {item.label}
+                                            </p>
+                                            <p className="text-sm font-semibold text-[#0F172A] mt-0.5 break-all">
+                                                {item.value || '--'}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Lugar */}
+                                {ausenteCompletado.data.lugar && (
+                                    <div className="bg-[#F8FAFC] rounded-lg px-4 py-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">
+                                            Lugar
+                                        </p>
+                                        <p className="text-sm font-medium text-[#0F172A] mt-0.5">
+                                            {ausenteCompletado.data.lugar}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Nota informativa */}
+                                <div className="flex items-start gap-3 bg-[#FEF3C7] border border-[#F59E0B]/30 rounded-lg p-4">
+                                    <svg className="w-5 h-5 shrink-0 text-[#D97706] mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                    </svg>
+                                    <div>
+                                        <p className="text-xs font-semibold text-[#92400E]">
+                                            Transcripción a boleta física
+                                        </p>
+                                        <p className="text-xs text-[#92400E]/80 mt-1 leading-relaxed">
+                                            Transcribe el folio y los datos de la infracción a la boleta física. El ciudadano deberá liquidar en ventanilla o portales autorizados usando el folio proporcionado.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Botón Terminar */}
+                                <button
+                                    type="button"
+                                    onClick={() => window.location.reload()}
+                                    className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-sm py-3.5 px-4 rounded-lg transition-all active:scale-[0.98]"
+                                >
+                                    Terminar y Salir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-5">
+                        <div>
+                            <h2 className="text-[22px] font-bold text-[#0F172A] leading-tight">
+                                {activeStepConfig.title}
+                            </h2>
+                            <p className="text-sm text-[#64748B] mt-1">
+                                {activeStepConfig.description}
+                            </p>
+                            {validationError && (
+                                <div className="mt-3 flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[13px] font-medium"
+                                    style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
+                                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                    </svg>
+                                    {validationError}
+                                </div>
+                            )}
+                        </div>
+
+                        {activeStepConfig.component}
+                    </div>
+                )}
             </main>
 
             {/* ═══════════════════════════════════════════════════════════════
-          FOOTER - Botones de navegación
+          FOOTER - Botones de navegación (oculto en resumen ausente)
           ════════════════════════════════════════════════════════════════ */}
-            {activeStepConfig.id !== 'pago' && (
+            {!ausenteCompletado && activeStepConfig.id !== 'pago' && (
                 <footer className="bg-[#FFFFFF] border-t border-[#E2E8F0] px-4 sm:px-6 py-4 flex items-center justify-between shrink-0">
                     <button
                         type="button"

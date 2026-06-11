@@ -78,6 +78,8 @@ export const mapCrearInfraccionToDB = (
 
     monto_final: data.montoFinal,
 
+    estatus: data.estatus,
+
     grua_id: data.gruaId ?? null,
   };
 };

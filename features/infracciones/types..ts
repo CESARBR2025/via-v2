@@ -61,6 +61,8 @@ export interface CrearInfraccionDTO {
   montoFinal: number;
 
   gruaId?: string | null;
+
+  estatus: string;
 }
 
 export interface InfraccionDB {

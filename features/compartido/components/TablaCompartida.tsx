@@ -34,12 +34,12 @@ interface TablaCompartidaProps {
 }
 
 const columns = [
-    { key: "folio", label: "Folio", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', , 'liberaciones'] },
-    { key: "nombre_infractor", label: "Nombre Infractor", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
-    { key: "correo_infractor", label: "Correo", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
-    { key: "placa", label: "Placa", roles: ["fiscalia", "corralon_mw", 'juzgado_civico', 'liberaciones'] },
-    { key: "estatus", label: "Estatus", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
-    { key: "acciones", label: "Acciones", roles: ["fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
+    { key: "folio", label: "Folio", roles: ["infracciones", "fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', , 'liberaciones'] },
+    { key: "nombre_infractor", label: "Nombre Infractor", roles: ["infracciones", "fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
+    { key: "correo_infractor", label: "Correo", roles: ["infracciones", "fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
+    { key: "placa", label: "Placa", roles: ["infracciones", "fiscalia", "corralon_mw", 'juzgado_civico', 'liberaciones'] },
+    { key: "estatus", label: "Estatus", roles: ["infracciones", "fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
+    { key: "acciones", label: "Acciones", roles: ["infracciones", "fiscalia", "corralon_mw", "corralon_mejia", 'juzgado_civico', 'liberaciones'] },
 ]
 
 export default function TablaCompartida({ respuestaServidor, userRole }: TablaCompartidaProps) {
@@ -106,6 +106,96 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
         } finally {
             setConfirmLoading(false)
         }
+    }
+
+    if (userRole === 'infracciones') {
+        const estatus = detalle?.Header?.estatus_dependencia
+        const mostrarBotonInicio = estatus === 'PENDIENTE_ORDEN_PAGO'
+        const enProceso = estatus === 'EN_PROCESO_INFRACCIONES'
+        const liberado = estatus === 'LIBERADO_POR_INFRACCIONES'
+        console.log(detalle)
+
+        return (
+            <>
+                <LiberacionesDashboard
+                    data={listaDatos}
+                    visibleColumns={visibleColumns}
+                    onOpenDetalle={handleOpenDetalle}
+                />
+
+                <ModalDetalleGenerico
+                    isOpen={open}
+                    onClose={handleCloseDetalle}
+                    loading={loading}
+                    detalle={detalle}
+                    role="liberaciones"
+                    onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
+                    antesContenido={
+                        mostrarBotonInicio ? (
+                            <button
+                                onClick={() => setConfirmOpen(true)}
+                                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-colors"
+                                style={{ background: '#F59E0B', boxShadow: '0 4px 12px rgba(245,158,11,0.3)' }}
+                            >
+                                <Play size={14} strokeWidth={2.5} fill="white" />
+                                Tomar caso
+                            </button>
+                        ) : undefined
+                    }
+                    fullWidthExtra={
+                        enProceso && detalle?.Header ? [
+                            <RevisionDocumentosSection
+                                key="revision-docs"
+                                infraccionId={detalle.Header.id_infraccion}
+                            />,
+                        ] : liberado && detalle?.Header ? [
+                            <DocumentosLiberadosSection
+                                key="docs-liberados"
+                                detalle={detalle}
+                            />,
+                        ] : undefined
+                    }
+                    sidebarExtra={
+                        detalle?.Header && !mostrarBotonInicio && !liberado ? [
+                            enProceso ? (
+                                <CargarOficioSection
+                                    key="cargar-oficio"
+                                    idInfraccion={detalle.Header.id_infraccion}
+                                    noOficioActual={detalle.Header.no_oficio_fiscalia}
+                                    noCarpetaActual={detalle.Header.no_carpeta_investigacion}
+                                    esTitular={detalle.datos_infractor?.es_titular}
+                                    nombreInfractor={detalle.datos_infractor?.nombre_infractor}
+                                    appaternoInfractor={detalle.datos_infractor?.appaterno_infractor}
+                                    apmaternoInfractor={detalle.datos_infractor?.apmaterno_infractor}
+                                    correoInfractor={detalle.datos_infractor?.correo_infractor}
+                                    curpInfractor={detalle.datos_infractor?.curp_infractor}
+                                    onSuccess={() => refetchDetalle(detalle.Header.id_infraccion)}
+                                />
+                            ) : (
+                                <OficioLiberacionSection
+                                    key="oficio"
+                                    numeroOficio={detalle.Header.no_oficio_fiscalia}
+                                    urlOficio={detalle.Header.url_oficio_fiscalia}
+                                />
+                            ),
+                        ] : []
+                    }
+
+                />
+
+                <ConfirmacionModal
+                    isOpen={confirmOpen}
+                    onConfirmar={() => iniciarRevision('/api/liberaciones/iniciarProceso')}
+                    onCancelar={() => setConfirmOpen(false)}
+                    loading={confirmLoading}
+                    titulo="Asignar caso"
+                    mensaje="¿Deseas tomar este caso? El estatus cambiará a «En Proceso» y se te asignará la atención."
+                    labelConfirmar="Sí, tomar caso"
+                    labelCancelar="Cancelar"
+                    variant="success"
+                />
+            </>
+        )
     }
 
     if (userRole === 'fiscalia') {
