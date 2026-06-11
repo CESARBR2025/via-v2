@@ -262,7 +262,7 @@ export default function ModalDetalleGenerico({
                                 <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
                                     <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
                                         <MapPin size={15} className="text-[#0F766E]" />
-                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">Ubicación</h3>
+                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">Ubicación123</h3>
                                     </div>
                                     <div className="p-5 space-y-3">
                                         <div className="flex items-start gap-3 p-3.5 rounded-xl" style={{ background: '#F0FDFA', border: '1px solid #CCFBF1' }}>
@@ -469,53 +469,53 @@ export default function ModalDetalleGenerico({
                                 </div>
 
                                 {role !== 'corralon_mw' && role !== 'corralon_mejia' && <>
-                                {/* 9 ─── HISTORIAL DE DOCUMENTACIÓN ─── */}
-                                <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
-                                    <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
-                                        <FileText size={15} className="text-[#2563EB]" />
-                                        <h3 className="text-[13px] font-semibold text-[#0F172A]">Historial de Documentación</h3>
-                                    </div>
-                                    <div className="p-5">
-                                        {allFiles.length === 0 ? (
-                                            <div className="rounded-xl border border-dashed p-6 text-center" style={{ borderColor: '#E2E8F0' }}>
-                                                <FileText size={24} className="mx-auto mb-2 text-[#CBD5E1]" />
-                                                <p className="text-[13px] text-[#94A3B8]">Sin documentos adjuntos</p>
-                                            </div>
-                                        ) : (
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                                {allFiles.map((f) => (
-                                                    <div key={`${f.name}-${f.path}`}
-                                                        className="flex items-center gap-3 p-3 rounded-lg transition-colors"
-                                                        style={{
-                                                            background: f.isEvidence ? '#FFFBEB' : '#F8FAFC',
-                                                            border: f.isEvidence ? '1px solid #FDE68A' : '1px solid #E2E8F0',
-                                                        }}>
-                                                        <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                                                            style={{ background: f.isEvidence ? '#FEF3C7' : '#EFF6FF' }}>
-                                                            {f.isEvidence
-                                                                ? <Image size={15} className="text-[#D97706]" />
-                                                                : <FileText size={15} className="text-[#2563EB]" />
-                                                            }
+                                    {/* 9 ─── HISTORIAL DE DOCUMENTACIÓN ─── */}
+                                    <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+                                        <div className="px-5 py-3.5 border-b border-[#E2E8F0] flex items-center gap-2.5">
+                                            <FileText size={15} className="text-[#2563EB]" />
+                                            <h3 className="text-[13px] font-semibold text-[#0F172A]">Historial de Documentación</h3>
+                                        </div>
+                                        <div className="p-5">
+                                            {allFiles.length === 0 ? (
+                                                <div className="rounded-xl border border-dashed p-6 text-center" style={{ borderColor: '#E2E8F0' }}>
+                                                    <FileText size={24} className="mx-auto mb-2 text-[#CBD5E1]" />
+                                                    <p className="text-[13px] text-[#94A3B8]">Sin documentos adjuntos</p>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                                    {allFiles.map((f) => (
+                                                        <div key={`${f.name}-${f.path}`}
+                                                            className="flex items-center gap-3 p-3 rounded-lg transition-colors"
+                                                            style={{
+                                                                background: f.isEvidence ? '#FFFBEB' : '#F8FAFC',
+                                                                border: f.isEvidence ? '1px solid #FDE68A' : '1px solid #E2E8F0',
+                                                            }}>
+                                                            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                                                                style={{ background: f.isEvidence ? '#FEF3C7' : '#EFF6FF' }}>
+                                                                {f.isEvidence
+                                                                    ? <Image size={15} className="text-[#D97706]" />
+                                                                    : <FileText size={15} className="text-[#2563EB]" />
+                                                                }
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-[12px] font-medium text-[#0F172A] truncate">{f.name}</p>
+                                                                <p className="text-[10px] text-[#94A3B8]">{f.isEvidence ? 'Evidencia' : 'Documento'}</p>
+                                                            </div>
+                                                            <button onClick={() => abrirDocumento(f.path)}
+                                                                className="shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-colors"
+                                                                style={{ background: '#2563EB' }}>
+                                                                <Eye size={12} />
+                                                            </button>
                                                         </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-[12px] font-medium text-[#0F172A] truncate">{f.name}</p>
-                                                            <p className="text-[10px] text-[#94A3B8]">{f.isEvidence ? 'Evidencia' : 'Documento'}</p>
-                                                        </div>
-                                                        <button onClick={() => abrirDocumento(f.path)}
-                                                            className="shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-colors"
-                                                            style={{ background: '#2563EB' }}>
-                                                            <Eye size={12} />
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
                                 </>}
 
                                 {/* 10 ─── COMPROBANTE DE PAGO (Corralón MW) ─── */}
-                                 {(role === 'corralon_mw' || role === 'corralon_mejia') && (
+                                {(role === 'corralon_mw' || role === 'corralon_mejia') && (
                                     <ComprobantePagoSection
                                         infraccionId={h?.id_infraccion ?? ''}
                                         urlExistente={h?.url_oficio_pago_corralon}
