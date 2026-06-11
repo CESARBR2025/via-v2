@@ -31,14 +31,7 @@ export default async function CorralonMejiaPage() {
     console.log(respuestaApi)
     return (
         <div className="flex flex-col h-full">
-            <div className="shrink-0">
-                <h1 className="text-[22px] font-bold text-[#0F172A]">
-                    Vinculados a Corralon Mejia
-                </h1>
-                <p className="text-[14px] text-[#64748B] mt-1 mb-6">
-                    Infractores vinculados a proceso interno
-                </p>
-            </div>
+
 
             <div className="flex flex-col flex-1 min-h-0">
                 {/* 4. Pasamos los datos estructurados y el rol del usuario */}
