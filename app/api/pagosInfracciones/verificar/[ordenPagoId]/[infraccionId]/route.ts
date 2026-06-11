@@ -117,7 +117,8 @@ export async function GET(
         await client.query(
           `
                     UPDATE v2_infracciones
-                    SET estatus = 'PAGADA'
+                    SET estatus = 'PAGADA',
+                        estatus_dependencia = 'PENDIENTE_ENTREGA_GARANTIA'
                     WHERE id = $1
                     `,
           [infraccionId],

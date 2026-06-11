@@ -40,7 +40,7 @@ type EstatusInfracciones =
     | 'LIBERADO_POR_INFRACCIONES'
 
 const STATUS_TABS: { key: EstatusInfracciones; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
-    { key: 'PENDIENTES_DATOS', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
+    { key: 'PENDIENTES_DATOS', label: 'Captura de datos', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
     { key: 'PAGADAS', label: 'Pagadas', icon: RefreshCw, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
     { key: 'LIBERADO_POR_INFRACCIONES', label: 'Liberadas', icon: CheckCircle2, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
 ]
@@ -73,6 +73,10 @@ function esLiberada(row: any): boolean {
     return row.estatus_dependencia === 'LIBERADO_POR_INFRACCIONES'
 }
 
+function esPendientePago(row: any): boolean {
+    return row.estatus_dependencia === 'PENDIENTE_PAGO_INFRACCION'
+}
+
 export default function InfraccionesDashboard({
     data,
     visibleColumns,
@@ -83,7 +87,7 @@ export default function InfraccionesDashboard({
     console.log(data)
     const estadisticas = useMemo(() => {
         const pendientes = data.filter(x => !dataCompleta(x)).length
-        const pagadas = data.filter(x => dataCompleta(x) && isPagada(x) && !esLiberada(x)).length
+        const pagadas = data.filter(x => x.estatus === 'PAGADA' && x.estatus_dependencia === 'PENDIENTE_ENTREGA_GARANTIA').length
         const liberadas = data.filter(x => esLiberada(x)).length
         return { pendientes, pagadas, liberadas }
     }, [data])
@@ -95,7 +99,7 @@ export default function InfraccionesDashboard({
             case 'PENDIENTES_DATOS':
                 return data.filter(x => !dataCompleta(x))
             case 'PAGADAS':
-                return data.filter(x => dataCompleta(x) && isPagada(x) && !esLiberada(x))
+                return data.filter(x => x.estatus === 'PAGADA' && x.estatus_dependencia === 'PENDIENTE_ENTREGA_GARANTIA')
             case 'LIBERADO_POR_INFRACCIONES':
                 return data.filter(x => esLiberada(x))
             default:
@@ -254,7 +258,9 @@ export default function InfraccionesDashboard({
                                                         ? STATUS_BADGE.LIBERADO_POR_INFRACCIONES
                                                         : isPagada(row)
                                                             ? STATUS_BADGE.PAGADAS
-                                                            : getBadge(row.estatus_dependencia)
+                                                            : esPendientePago(row)
+                                                                ? { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente pago' }
+                                                                : getBadge(row.estatus_dependencia)
                                                 return (
                                                     <td key={column.key} className="px-4 py-2.5">
                                                         <span

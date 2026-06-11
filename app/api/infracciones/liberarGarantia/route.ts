@@ -15,10 +15,11 @@ export async function PATCH(request: Request) {
 
     const query = `
       UPDATE public.v2_infracciones
-      SET estatus_dependencia = 'LIBERADO_POR_INFRACCIONES',
+      SET estatus = 'CERRADA',
+          estatus_dependencia = 'LIBERADO_POR_INFRACCIONES',
           updated_at = NOW()
       WHERE id = $1
-      RETURNING id, folio, estatus_dependencia;
+      RETURNING id, folio, estatus, estatus_dependencia;
     `;
 
     const resultado = await db.query(query, [id]);
@@ -32,7 +33,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json(
       {
-        message: "Estatus actualizado a LIBERADO_POR_INFRACCIONES correctamente.",
+        message: "Infracción liberada correctamente (estatus=CERRADA, estatus_dependencia=LIBERADO_POR_INFRACCIONES).",
         infraccion: resultado.rows[0],
       },
       { status: 200 },

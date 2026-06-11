@@ -183,17 +183,18 @@ export async function PATCH(request: Request) {
       }).catch(e => console.error("Error enviando correo:", e))
     }
 
-    // 6. Update estatus_dependencia to EN_PROCESO_INFRACCIONES
+    // 6. Update estatus and estatus_dependencia
     await db.query(`
       UPDATE public.v2_infracciones
-      SET estatus_dependencia = 'EN_PROCESO_INFRACCIONES',
+      SET estatus = 'PENDIENTE_PAGO',
+          estatus_dependencia = 'PENDIENTE_PAGO_INFRACCION',
           updated_at = NOW()
       WHERE id = $1
     `, [id])
 
     return NextResponse.json(
       {
-        message: "Orden generada y estatus actualizado a EN_PROCESO_INFRACCIONES.",
+        message: "Orden generada y estatus actualizado a PENDIENTE_PAGO_INFRACCION.",
         data: {
           orden_pago_id,
           estatus,

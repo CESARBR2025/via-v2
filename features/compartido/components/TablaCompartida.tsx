@@ -113,8 +113,8 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
     if (userRole === 'infracciones') {
         const estatus = detalle?.Header?.estatus_dependencia
 
-        const mostrarBotonInicio = estatus === 'PENDIENTE_ORDEN_PAGO'
-        const enProceso = estatus === 'EN_PROCESO_INFRACCIONES'
+        const mostrarBotonInicio = estatus === 'PENDIENTE_DATOS_INFRACTOR'
+        const enProceso = estatus === 'PENDIENTE_PAGO_INFRACCION' || estatus === 'PENDIENTE_ENTREGA_GARANTIA'
         const liberado = estatus === 'LIBERADO_POR_INFRACCIONES'
 
         return (

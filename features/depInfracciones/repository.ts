@@ -226,9 +226,9 @@ export class DepInfraccionesRepository {
         LEFT JOIN v2_ordenes_pago_sa7 ops ON ops.infraccion_id = i.id
         WHERE i.tipo_garantia != 'VEHICULO'
           AND (
-            i.estatus_dependencia IN ('PENDIENTE_ORDEN_PAGO', 'EN_PROCESO_INFRACCIONES', 'LIBERADO_POR_INFRACCIONES')
+            i.estatus_dependencia IN ('PENDIENTE_DATOS_INFRACTOR', 'PENDIENTE_PAGO_INFRACCION', 'PENDIENTE_ENTREGA_GARANTIA', 'LIBERADO_POR_INFRACCIONES')
             OR
-            (i.estatus_dependencia IS NULL AND i.estatus = 'PENDIENTE_ORDEN_PAGO')
+            (i.estatus_dependencia IS NULL AND i.estatus = 'PENDIENTE_DATOS_INFRACTOR')
           )
           
       `;

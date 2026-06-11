@@ -62,6 +62,8 @@ export interface CrearInfraccionDTO {
 
   gruaId?: string | null;
 
+  estatus: string;
+
   estatusDependencia?: string | null;
 }
 

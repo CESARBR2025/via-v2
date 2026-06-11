@@ -14,11 +14,11 @@ export default function CapturarDatosTitularSection({ detalle, onSuccess }: Prop
 
   console.log(detalle)
 
-  if (estatus === 'PENDIENTE_ORDEN_PAGO') {
+  if (estatus === 'PENDIENTE_DATOS_INFRACTOR') {
     return <TitularForm detalle={detalle} onSuccess={onSuccess} />
   }
 
-  if (estatus === 'EN_PROCESO_INFRACCIONES') {
+  if (estatus === 'PENDIENTE_PAGO_INFRACCION' || estatus === 'PENDIENTE_ENTREGA_GARANTIA') {
     return <EntregarGarantiaButton detalle={detalle} onSuccess={onSuccess} />
   }
 
@@ -226,6 +226,7 @@ function TitularForm({ detalle, onSuccess }: Props) {
               </div>
             </div>
           )}
+
         </div>
 
         {/* Toggle ¿Es el titular? */}
@@ -259,7 +260,6 @@ function TitularForm({ detalle, onSuccess }: Props) {
           </div>
         </div>
 
-        {/* Titular data fields */}
         {!esTitular && (
           <div className="rounded-lg p-4 space-y-3" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
             <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#DC2626]">Datos del titular (capturar)</p>
@@ -335,9 +335,15 @@ function Field({
 
 function EntregarGarantiaButton({ detalle, onSuccess }: Props) {
   const [liberando, setLiberando] = useState(false)
-  console.log(detalle)
-  const pagoCompletado = detalle.Header.estatus_de_infraccion === 'PAGADA'
-  console.log(pagoCompletado)
+  const [modalOpen, setModalOpen] = useState(false)
+  const pagoCompletado = detalle.Header.estatus_orden_pago === 'P'
+
+  const garantiaLabel = (() => {
+    const g = detalle.garantia?.garantia_retenida
+    if (!g || g === 'NO_DATA') return 'No especificada'
+    if (g === 'true') return 'Garantía entregada'
+    return g
+  })()
 
   const handleLiberar = async () => {
     setLiberando(true)
@@ -348,6 +354,7 @@ function EntregarGarantiaButton({ detalle, onSuccess }: Props) {
         body: JSON.stringify({ id: detalle.Header.id_infraccion }),
       })
       if (!res.ok) throw new Error('Error al liberar garantía')
+      setModalOpen(false)
       onSuccess()
     } catch (err) {
       console.error(err)
@@ -357,38 +364,104 @@ function EntregarGarantiaButton({ detalle, onSuccess }: Props) {
   }
 
   return (
-    <div className="rounded-xl border overflow-hidden" style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' }}>
-      <div className="px-5 py-3 flex items-center gap-3 border-b" style={{ background: '#F0FDF4', borderColor: '#BBF7D066' }}>
-        <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#22C55E' }}>
-          <Shield size={14} strokeWidth={2.2} className="text-white" />
-        </div>
-        <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#16A34A' }}>Liberar garantía</h3>
-      </div>
-      <div className="p-5 space-y-3">
-        {!pagoCompletado && (
-          <div className="rounded-lg p-3 flex items-start gap-2.5" style={{ background: '#FEF3C7', border: '1px solid #FDE68A' }}>
-            <p className="text-[12px] text-[#92400E]">
-              El pago de la orden aún no ha sido completado. Espera a que el ciudadano realice el pago para liberar la garantía.
-            </p>
+    <>
+      <div className="rounded-xl border overflow-hidden" style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' }}>
+        <div className="px-5 py-3 flex items-center gap-3 border-b" style={{ background: '#F0FDF4', borderColor: '#BBF7D066' }}>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#22C55E' }}>
+            <Shield size={14} strokeWidth={2.2} className="text-white" />
           </div>
-        )}
-        <button
-          onClick={handleLiberar}
-          disabled={!pagoCompletado || liberando}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{
-            background: pagoCompletado ? '#22C55E' : '#94A3B8',
-            boxShadow: pagoCompletado ? '0 4px 12px rgba(34,197,94,0.25)' : 'none',
-          }}
-        >
-          {liberando ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <CheckCircle2 size={14} strokeWidth={2.5} />
-          )}
-          {liberando ? 'Liberando…' : 'Entregar garantía'}
-        </button>
+          <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#16A34A' }}>Liberar garantía</h3>
+        </div>
+        <div className="p-5 space-y-3">
+          <div className="rounded-lg p-4 space-y-2" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+            <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#16A34A]">Garantía retenida</p>
+            <p className="text-[15px] font-bold text-[#0F172A]">{garantiaLabel}</p>
+          </div>
+          <button
+            onClick={() => setModalOpen(true)}
+            disabled={!pagoCompletado || liberando}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              background: pagoCompletado ? '#22C55E' : '#94A3B8',
+              boxShadow: pagoCompletado ? '0 4px 12px rgba(34,197,94,0.25)' : 'none',
+            }}
+          >
+            {liberando ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <CheckCircle2 size={14} strokeWidth={2.5} />
+            )}
+            {liberando ? 'Liberando…' : 'Entregar garantía'}
+          </button>
+        </div>
       </div>
-    </div>
+
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          style={{ background: 'rgba(15,23,42,0.5)' }}
+          onClick={() => !liberando && setModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border overflow-hidden"
+            style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 8px 20px rgba(0,0,0,0.08)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: '#F1F5F9' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#22C55E' }}>
+                  <Shield size={16} strokeWidth={2.2} className="text-white" />
+                </div>
+                <h2 className="text-[16px] font-bold text-[#0F172A]">Confirmar liberación</h2>
+              </div>
+              <button
+                onClick={() => setModalOpen(false)}
+                disabled={liberando}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#64748B] transition-colors disabled:opacity-50"
+                style={{ background: '#F1F5F9' }}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div className="rounded-xl p-4" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] mb-1">Folio</p>
+                <p className="text-[15px] font-bold text-[#0F172A] font-mono">{detalle.Header.folio_de_infraccion}</p>
+              </div>
+              <div className="rounded-xl p-4" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#16A34A] mb-1">Garantía retenida</p>
+                <p className="text-[15px] font-bold text-[#0F172A]">{garantiaLabel}</p>
+              </div>
+              <p className="text-[12px] text-[#64748B]">
+                Al liberar la garantía, el estatus cambiará a <strong>Liberada</strong> y se dará por concluido el proceso de infracciones.
+              </p>
+            </div>
+            <div className="px-6 py-4 border-t flex items-center justify-end gap-3" style={{ borderColor: '#F1F5F9', background: '#F8FAFC' }}>
+              <button
+                onClick={() => setModalOpen(false)}
+                disabled={liberando}
+                className="px-4 py-2 rounded-lg text-[13px] font-semibold border transition-colors disabled:opacity-50"
+                style={{ borderColor: '#E2E8F0', color: '#64748B', background: '#FFFFFF' }}
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={handleLiberar}
+                disabled={liberando}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold text-white transition-all disabled:opacity-50"
+                style={{ background: liberando ? '#94A3B8' : '#22C55E', boxShadow: liberando ? 'none' : '0 4px 12px rgba(34,197,94,0.25)' }}
+              >
+                {liberando ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <CheckCircle2 size={14} strokeWidth={2.5} />
+                )}
+                {liberando ? 'Liberando…' : 'Liberar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
