@@ -32,12 +32,6 @@ export function CustomSelect({
 
     const selectedLabel = options.find((o) => o.value === value)?.label;
 
-    console.log({
-        value,
-        options: options.map(o => o.value),
-        types: options.map(o => typeof o.value),
-    });
-
     // Cierra el panel si se hace clic fuera
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
@@ -52,23 +46,47 @@ export function CustomSelect({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Cierra con Escape
+    // Cierra con Escape y navegación con teclado
+    const [activeIndex, setActiveIndex] = useState(-1);
+
     useEffect(() => {
         function handleKey(e: KeyboardEvent) {
-            if (e.key === 'Escape') setOpen(false);
+            if (e.key === 'Escape') {
+                setOpen(false);
+                setActiveIndex(-1);
+            }
+            if (!open) return;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActiveIndex((prev) =>
+                    prev < options.length - 1 ? prev + 1 : 0
+                );
+            }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveIndex((prev) =>
+                    prev > 0 ? prev - 1 : options.length - 1
+                );
+            }
+            if (e.key === 'Enter' && activeIndex >= 0) {
+                e.preventDefault();
+                onChange(options[activeIndex].value);
+                setOpen(false);
+                setActiveIndex(-1);
+            }
         }
         document.addEventListener('keydown', handleKey);
         return () => document.removeEventListener('keydown', handleKey);
-    }, []);
+    }, [open, options, activeIndex, onChange]);
 
     const triggerClasses = [
         'flex w-full items-center justify-between gap-2 px-3 h-[42px]',
         'rounded-lg border bg-white text-sm transition-all cursor-pointer',
         open
-            ? 'border-teal-500 ring-2 ring-teal-500/15'
+            ? 'border-[#2563EB] ring-2 ring-[#2563EB]/15'
             : error
                 ? 'border-red-400'
-                : 'border-gray-300 hover:border-teal-400',
+                : 'border-gray-300 hover:border-[#2563EB]',
         disabled ? 'opacity-50 cursor-not-allowed' : '',
     ]
         .filter(Boolean)
@@ -125,7 +143,7 @@ export function CustomSelect({
                                 onChange('');
                                 setOpen(false);
                             }}
-                            className="w-full px-3 py-2.5 text-left text-sm text-gray-400 hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                            className="w-full px-3 py-2.5 text-left text-sm text-gray-400 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                         >
                             {placeholder}
                         </button>
@@ -136,18 +154,21 @@ export function CustomSelect({
                                 type="button"
                                 role="option"
                                 aria-selected={value === opt.value}
+                                ref={i === activeIndex ? (el) => el?.scrollIntoView({ block: 'nearest' }) : undefined}
+                                onMouseEnter={() => setActiveIndex(i)}
                                 onClick={() => {
                                     onChange(opt.value);
                                     setOpen(false);
+                                    setActiveIndex(-1);
                                 }}
                                 className={[
                                     'w-full px-3 py-2.5 text-left text-sm leading-snug transition-colors',
-                                    // ✅ Aquí está la clave: texto largo se wrappea, no se desborda
                                     'whitespace-normal break-words',
                                     i > 0 ? 'border-t border-gray-100' : '',
                                     value === opt.value
-                                        ? 'bg-teal-50 text-teal-700 font-medium'
-                                        : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700',
+                                        ? 'bg-blue-50 text-blue-700 font-medium'
+                                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700',
+                                    i === activeIndex ? 'bg-blue-50' : '',
                                 ]
                                     .filter(Boolean)
                                     .join(' ')}

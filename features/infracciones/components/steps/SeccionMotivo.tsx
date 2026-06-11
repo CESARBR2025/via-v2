@@ -38,7 +38,6 @@ export const SeccionMotivo: React.FC<SeccionMotivoProps> = ({
     // Obtener datos y función de actualización del store
     const datos = useInfraccionStore((s) => s.datos);
     const actualizarDatos = useInfraccionStore((s) => s.actualizarDatos);
-    console.log(datos)
     // Encontrar artículo y fracción seleccionados usando IDs correctos
     const articuloSeleccionado = articulos.find((a) => a.id === datos.articuloId);
     const fraccionSeleccionada = articuloSeleccionado?.fracciones?.find(

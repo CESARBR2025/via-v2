@@ -30,7 +30,6 @@ export default function PasoUbicacion({
     const actualizarDatos =
         useInfraccionStore((s) => s.actualizarDatos);
 
-    console.log(datos)
     return (
         <Card>
 
@@ -40,54 +39,48 @@ export default function PasoUbicacion({
 
             <div className="h-96 overflow-hidden rounded-xl border border-[#E2E8F0]">
 
-                {latInicial !== null && lngInicial !== null && (
+                <MapaSelector
+                    initialLat={latInicial?.toString() ?? '20.5888'}
+                    initialLng={lngInicial?.toString() ?? '-100.3899'}
+                    editable
 
-                    <MapaSelector
-                        initialLat={latInicial.toString()}
-                        initialLng={lngInicial.toString()}
-                        editable
+                    //=====================================================
+                    // DIRECCION
+                    //=====================================================
+                    onAddressChange={(addressData) => {
 
-                        //=====================================================
-                        // DIRECCION
-                        //=====================================================
-                        onAddressChange={(addressData) => {
+                        setDireccion(addressData);
 
-                            setDireccion(addressData);
+                        actualizarDatos({
 
-                            actualizarDatos({
+                            // Coordenadas
+                            latitud:
+                                addressData.latitud ?? null,
 
-                                // Coordenadas
-                                latitud:
-                                    addressData.latitud ?? null,
+                            longitud:
+                                addressData.longitud ?? null,
 
-                                longitud:
-                                    addressData.longitud ?? null,
+                            // Dirección
+                            calle:
+                                addressData.calle ?? '',
 
-                                // Dirección
-                                calle:
-                                    addressData.calle ?? '',
+                            numero:
+                                addressData.numero ?? '',
 
-                                numero:
-                                    addressData.numero ?? '',
+                            colonia:
+                                addressData.colonia ?? '',
 
-                                colonia:
-                                    addressData.colonia ?? '',
+                            codigoPostal:
+                                addressData.codigoPostal ?? '',
 
-                                codigoPostal:
-                                    addressData.codigoPostal ?? '',
+                            municipio:
+                                addressData.municipio ?? '',
 
-                                municipio:
-                                    addressData.municipio ?? '',
-
-                                estado:
-                                    addressData.estado ?? '',
-                            });
-                        }}
-                    />
-
-                )
-
-                }
+                            estado:
+                                addressData.estado ?? '',
+                        });
+                    }}
+                />
             </div>
 
 

@@ -308,6 +308,8 @@ export interface DatosInfraccion {
 
   //======== FASE 6 ========
   agregarEvidencia: boolean;
+
+  pagoAlMomento: boolean;
 }
 
 // Formulario de infraccion types

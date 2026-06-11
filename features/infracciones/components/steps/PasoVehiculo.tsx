@@ -861,6 +861,11 @@ export default function PasoVehiculo({
     const [mostrarColores, setMostrarColores] = useState(false);
     const [mostrarEstados, setMostrarEstados] = useState(false);
 
+    const [activeMarcaIdx, setActiveMarcaIdx] = useState(-1);
+    const [activeModeloIdx, setActiveModeloIdx] = useState(-1);
+    const [activeColorIdx, setActiveColorIdx] = useState(-1);
+    const [activeEstadoIdx, setActiveEstadoIdx] = useState(-1);
+
     //=========================================
     // MOCKS (aquí puedes conectar API real)
     //=========================================
@@ -904,6 +909,25 @@ export default function PasoVehiculo({
                         placeholder="Escribe la marca"
                         className={fieldError(datos.marca) ? inputError : inputBase}
                         onFocus={() => setMostrarOpciones(true)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                setActiveMarcaIdx(prev => prev < marcasFiltradas.length - 1 ? prev + 1 : 0);
+                            } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                setActiveMarcaIdx(prev => prev > 0 ? prev - 1 : marcasFiltradas.length - 1);
+                            } else if (e.key === 'Enter' && activeMarcaIdx >= 0) {
+                                e.preventDefault();
+                                const selected = marcasFiltradas[activeMarcaIdx];
+                                if (selected) {
+                                    setBusquedaMarca(selected);
+                                    actualizarDatos({ marca: selected });
+                                    setMostrarOpciones(false);
+                                }
+                            } else if (e.key === 'Escape') {
+                                setMostrarOpciones(false);
+                            }
+                        }}
                         onChange={(e) => {
                             const value = e.target.value.toUpperCase();
 
@@ -921,9 +945,11 @@ export default function PasoVehiculo({
                     {mostrarOpciones && busquedaMarca.length > 0 && (
                         <div className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-white shadow-lg">
                             {marcasFiltradas.length > 0 ? (
-                                marcasFiltradas.map((marca) => (
+                                marcasFiltradas.map((marca, i) => (
                                     <button
                                         key={marca}
+                                        ref={i === activeMarcaIdx ? (el) => el?.scrollIntoView({ block: 'nearest' }) : undefined}
+                                        onMouseEnter={() => setActiveMarcaIdx(i)}
                                         type="button"
                                         className="w-full px-3 py-2 text-left hover:bg-gray-100"
                                         onClick={() => {
@@ -965,6 +991,25 @@ export default function PasoVehiculo({
                         placeholder={datos.marca ? 'Escribe el modelo' : 'Primero selecciona marca'}
                         className={fieldError(datos.modelo) ? inputError : inputBase}
                         onFocus={() => setMostrarModelos(true)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                setActiveModeloIdx(prev => prev < modelosFiltrados.length - 1 ? prev + 1 : 0);
+                            } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                setActiveModeloIdx(prev => prev > 0 ? prev - 1 : modelosFiltrados.length - 1);
+                            } else if (e.key === 'Enter' && activeModeloIdx >= 0) {
+                                e.preventDefault();
+                                const selected = modelosFiltrados[activeModeloIdx];
+                                if (selected) {
+                                    setBusquedaModelo(selected);
+                                    actualizarDatos({ modelo: selected });
+                                    setMostrarModelos(false);
+                                }
+                            } else if (e.key === 'Escape') {
+                                setMostrarModelos(false);
+                            }
+                        }}
                         onChange={(e) => {
                             const value = e.target.value.toUpperCase();
 
@@ -981,9 +1026,11 @@ export default function PasoVehiculo({
                     {mostrarModelos && datos.marca && busquedaModelo.length > 0 && (
                         <div className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-white shadow-lg">
                             {modelosFiltrados.length > 0 ? (
-                                modelosFiltrados.map((modelo) => (
+                                modelosFiltrados.map((modelo, i) => (
                                     <button
                                         key={modelo}
+                                        ref={i === activeModeloIdx ? (el) => el?.scrollIntoView({ block: 'nearest' }) : undefined}
+                                        onMouseEnter={() => setActiveModeloIdx(i)}
                                         type="button"
                                         className="w-full px-3 py-2 text-left hover:bg-gray-100"
                                         onClick={() => {
@@ -1032,7 +1079,11 @@ export default function PasoVehiculo({
                     />
 
                     <p className="text-xs text-red-500">
-                        {fieldError(datos.anio) ? 'Este campo es requerido' : ''}
+                        {fieldError(datos.anio)
+                            ? (datos.anio && (parseInt(datos.anio) < 1980 || parseInt(datos.anio) > 2026)
+                                ? 'Año debe estar entre 1980 y 2026'
+                                : 'Este campo es requerido')
+                            : ''}
                     </p>
                 </div>
 
@@ -1046,6 +1097,25 @@ export default function PasoVehiculo({
                         placeholder="Escribe el color"
                         className={fieldError(datos.color) ? inputError : inputBase}
                         onFocus={() => setMostrarColores(true)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                setActiveColorIdx(prev => prev < coloresFiltrados.length - 1 ? prev + 1 : 0);
+                            } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                setActiveColorIdx(prev => prev > 0 ? prev - 1 : coloresFiltrados.length - 1);
+                            } else if (e.key === 'Enter' && activeColorIdx >= 0) {
+                                e.preventDefault();
+                                const selected = coloresFiltrados[activeColorIdx];
+                                if (selected) {
+                                    setBusquedaColor(selected);
+                                    actualizarDatos({ color: selected });
+                                    setMostrarColores(false);
+                                }
+                            } else if (e.key === 'Escape') {
+                                setMostrarColores(false);
+                            }
+                        }}
                         onChange={(e) => {
                             const value = e.target.value.toUpperCase();
 
@@ -1062,9 +1132,11 @@ export default function PasoVehiculo({
                     {mostrarColores && busquedaColor.length > 0 && (
                         <div className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-white shadow-lg">
                             {coloresFiltrados.length > 0 ? (
-                                coloresFiltrados.map((color) => (
+                                coloresFiltrados.map((color, i) => (
                                     <button
                                         key={color}
+                                        ref={i === activeColorIdx ? (el) => el?.scrollIntoView({ block: 'nearest' }) : undefined}
+                                        onMouseEnter={() => setActiveColorIdx(i)}
                                         type="button"
                                         className="w-full px-3 py-2 text-left hover:bg-gray-100"
                                         onClick={() => {
@@ -1149,6 +1221,25 @@ export default function PasoVehiculo({
                         placeholder="Escribe el estado"
                         className={fieldError(datos.estadoOrigen) ? inputError : inputBase}
                         onFocus={() => setMostrarEstados(true)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                setActiveEstadoIdx(prev => prev < estadosFiltrados.length - 1 ? prev + 1 : 0);
+                            } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                setActiveEstadoIdx(prev => prev > 0 ? prev - 1 : estadosFiltrados.length - 1);
+                            } else if (e.key === 'Enter' && activeEstadoIdx >= 0) {
+                                e.preventDefault();
+                                const selected = estadosFiltrados[activeEstadoIdx];
+                                if (selected) {
+                                    setBusquedaEstado(selected);
+                                    actualizarDatos({ estadoOrigen: selected });
+                                    setMostrarEstados(false);
+                                }
+                            } else if (e.key === 'Escape') {
+                                setMostrarEstados(false);
+                            }
+                        }}
                         onChange={(e) => {
                             const value = e.target.value;
 
@@ -1165,9 +1256,11 @@ export default function PasoVehiculo({
                     {mostrarEstados && busquedaEstado.length > 0 && (
                         <div className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-white shadow-lg">
                             {estadosFiltrados.length > 0 ? (
-                                estadosFiltrados.map((estado) => (
+                                estadosFiltrados.map((estado, i) => (
                                     <button
                                         key={estado}
+                                        ref={i === activeEstadoIdx ? (el) => el?.scrollIntoView({ block: 'nearest' }) : undefined}
+                                        onMouseEnter={() => setActiveEstadoIdx(i)}
                                         type="button"
                                         className="w-full px-3 py-2 text-left hover:bg-gray-100"
                                         onClick={() => {

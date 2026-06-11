@@ -31,7 +31,6 @@ export const PasoConfirmacion: React.FC<PasoConfirmacionProps> = ({
     // Obtener datos del store Zustand
     const datos = useInfraccionStore((s) => s.datos);
     console.log(datos)
-
     // Formatear la dirección completa si existe
     const direccionCompleta = [
         datos.calle && `Calle ${datos.calle}`,

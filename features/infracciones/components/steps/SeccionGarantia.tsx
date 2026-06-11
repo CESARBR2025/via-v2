@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { CardTitle } from '../ui/CardTitle';
 import { Card } from '../ui/Card';
-import { SelectWrapper } from '../ui/SelectWrapper';
+import { CustomSelect } from '../ui/CustomSelect';
 import { FieldLabel } from '../ui/FieldLabel';
 import { useInfraccionStore } from '@/stores/useInfraccionStore';
 
@@ -29,8 +29,6 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
     // Obtener datos y función de actualización del store
     const datos = useInfraccionStore((s) => s.datos);
     const actualizarDatos = useInfraccionStore((s) => s.actualizarDatos);
-    console.log(datos)
-
     const [gruas, setGruas] = useState<
         {
             id: string;
@@ -59,7 +57,6 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
         cargarGruas();
     }, []);
 
-    console.log(gruas)
     return (
         <Card>
             <CardTitle>Garantía retenida</CardTitle>
@@ -67,27 +64,26 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
                 {/* Tipo de Garantía */}
                 <div className="relative pb-5">
                     <FieldLabel required>Tipo de garantía</FieldLabel>
-                    <SelectWrapper>
-                        <select
-                            name="garantia"
-                            disabled={loading}
-                            value={datos.garantiaSeleccionada}
-                            onChange={(e) =>
-                                actualizarDatos({
-                                    garantiaSeleccionada: e.target.value,
-                                    motivoRetencionVehiculo: '',
-                                    gruaInvolucrada: '',
-                                })
-                            }
-                            className={fieldError(datos.garantiaSeleccionada) ? selectError : selectBase}
-                        >
-                            <option value="">Selecciona garantía</option>
-                            <option value="TRJ_CIRCULACION">Tarjeta de circulación</option>
-                            <option value="PLACA">Placa</option>
-                            <option value="LICENCIA">Licencia</option>
-                            <option value="VEHICULO">Vehículo</option>
-                        </select>
-                    </SelectWrapper>
+                    <CustomSelect
+                        name="garantia"
+                        disabled={loading}
+                        value={datos.garantiaSeleccionada}
+                        onChange={(value) =>
+                            actualizarDatos({
+                                garantiaSeleccionada: String(value),
+                                motivoRetencionVehiculo: '',
+                                gruaInvolucrada: '',
+                            })
+                        }
+                        error={fieldError(datos.garantiaSeleccionada)}
+                        placeholder="Selecciona garantía"
+                        options={[
+                            { value: 'TRJ_CIRCULACION', label: 'Tarjeta de circulación' },
+                            { value: 'PLACA', label: 'Placa' },
+                            { value: 'LICENCIA', label: 'Licencia' },
+                            { value: 'VEHICULO', label: 'Vehículo' },
+                        ]}
+                    />
                     <p className="absolute bottom-0 left-0 text-xs text-red-500">
                         {fieldError(datos.garantiaSeleccionada) ? 'Selecciona el tipo de garantía' : ''}
                     </p>
@@ -99,25 +95,24 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
                         {/* Motivo Retención */}
                         <div className="relative pb-5">
                             <FieldLabel required>Motivo de retención</FieldLabel>
-                            <SelectWrapper>
-                                <select
-                                    name="motivoRetencionVehiculo"
-                                    disabled={loading}
-                                    value={datos.motivoRetencionVehiculo}
-                                    onChange={(e) =>
-                                        actualizarDatos({
-                                            motivoRetencionVehiculo: e.target.value,
-                                            gruaInvolucrada: '',
-                                        })
-                                    }
-                                    className={fieldError(datos.motivoRetencionVehiculo) ? selectError : selectBase}
-                                >
-                                    <option value="">Selecciona motivo</option>
-                                    <option value="DELITO">Delito</option>
-                                    <option value="ACCIDENTE">Accidente</option>
-                                    <option value="INFRACCION">Infracción</option>
-                                </select>
-                            </SelectWrapper>
+                            <CustomSelect
+                                name="motivoRetencionVehiculo"
+                                disabled={loading}
+                                value={datos.motivoRetencionVehiculo}
+                                onChange={(value) =>
+                                    actualizarDatos({
+                                        motivoRetencionVehiculo: String(value),
+                                        gruaInvolucrada: '',
+                                    })
+                                }
+                                error={fieldError(datos.motivoRetencionVehiculo)}
+                                placeholder="Selecciona motivo"
+                                options={[
+                                    { value: 'DELITO', label: 'Delito' },
+                                    { value: 'ACCIDENTE', label: 'Accidente' },
+                                    { value: 'INFRACCION', label: 'Infracción' },
+                                ]}
+                            />
                             <p className="absolute bottom-0 left-0 text-xs text-red-500">
                                 {fieldError(datos.motivoRetencionVehiculo)
                                     ? 'Selecciona el motivo de retención'
@@ -129,36 +124,22 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
                             <div className="relative pb-5">
                                 <FieldLabel required>Grúa asignada</FieldLabel>
 
-                                <SelectWrapper>
-                                    <select
-                                        name="grua"
-                                        disabled={loading}
-                                        value={datos.gruaInvolucrada}
-                                        onChange={(e) =>
-                                            actualizarDatos({
-                                                gruaInvolucrada: e.target.value,
-                                            })
-                                        }
-                                        className={
-                                            fieldError(datos.gruaInvolucrada)
-                                                ? selectError
-                                                : selectBase
-                                        }
-                                    >
-                                        <option value="">
-                                            Selecciona grúa
-                                        </option>
-
-                                        {gruas.map((grua) => (
-                                            <option
-                                                key={grua.id}
-                                                value={grua.id}
-                                            >
-                                                {grua.nombre}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </SelectWrapper>
+                                <CustomSelect
+                                    name="grua"
+                                    disabled={loading}
+                                    value={datos.gruaInvolucrada}
+                                    onChange={(value) =>
+                                        actualizarDatos({
+                                            gruaInvolucrada: String(value),
+                                        })
+                                    }
+                                    error={fieldError(datos.gruaInvolucrada)}
+                                    placeholder="Selecciona grúa"
+                                    options={gruas.map((g) => ({
+                                        value: g.id,
+                                        label: g.nombre,
+                                    }))}
+                                />
 
                                 <p className="absolute bottom-0 left-0 text-xs text-red-500">
                                     {fieldError(datos.gruaInvolucrada)
@@ -172,23 +153,22 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
                         {datos.gruaInvolucrada && (
                             <div className="relative pb-5">
                                 <FieldLabel required>Infractor sera remitido a</FieldLabel>
-                                <SelectWrapper>
-                                    <select
-                                        name="dependenciaRemisora"
-                                        disabled={loading}
-                                        value={datos.dependenciaRemisora}
-                                        onChange={(e) =>
-                                            actualizarDatos({
-                                                dependenciaRemisora: e.target.value,
-                                            })
-                                        }
-                                        className={fieldError(datos.dependenciaRemisora) ? selectError : selectBase}
-                                    >
-                                        <option value="">Selecciona dependencia</option>
-                                        <option value="FISCALIA">FISCALIA</option>
-                                        <option value="JUZGADO">JUZGADO CIVICO</option>
-                                    </select>
-                                </SelectWrapper>
+                                <CustomSelect
+                                    name="dependenciaRemisora"
+                                    disabled={loading}
+                                    value={datos.dependenciaRemisora}
+                                    onChange={(value) =>
+                                        actualizarDatos({
+                                            dependenciaRemisora: String(value),
+                                        })
+                                    }
+                                    error={fieldError(datos.dependenciaRemisora)}
+                                    placeholder="Selecciona dependencia"
+                                    options={[
+                                        { value: 'FISCALIA', label: 'FISCALIA' },
+                                        { value: 'JUZGADO', label: 'JUZGADO CIVICO' },
+                                    ]}
+                                />
                                 <p className="absolute bottom-0 left-0 text-xs text-red-500">
                                     {fieldError(datos.dependenciaRemisora)
                                         ? 'Selecciona la dependencia a donde sera remitido el infractor'

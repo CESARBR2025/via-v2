@@ -75,4 +75,6 @@ export const datosIniciales: DatosInfraccion = {
 
   //======== FASE 6 ========
   agregarEvidencia: false,
+
+  pagoAlMomento: false,
 };

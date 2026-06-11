@@ -62,9 +62,11 @@ function createMarkerElement(): HTMLElement {
 }
 
 export default function MapaSelector({ initialLat, initialLng, editable, onLocationChange, onAddressChange }: Props) {
+    console.log('entro')
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const markerRef = useRef<mapboxgl.Marker | null>(null);
+    const geolocateRef = useRef<mapboxgl.GeolocateControl | null>(null);
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [isSatellite, setIsSatellite] = useState(true);
@@ -79,6 +81,7 @@ export default function MapaSelector({ initialLat, initialLng, editable, onLocat
     const [precisionGps, setPrecisionGps] = useState<number | null>(null);
     const [latitudActual, setLatitudActual] = useState(Number(initialLat));
     const [longitudActual, setLongitudActual] = useState(Number(initialLng));
+    const [geoError, setGeoError] = useState<string | null>(null);
 
     useEffect(() => { onLocationChangeRef.current = onLocationChange; }, [onLocationChange]);
     useEffect(() => { onAddressChangeRef.current = onAddressChange; }, [onAddressChange]);
@@ -123,75 +126,94 @@ export default function MapaSelector({ initialLat, initialLng, editable, onLocat
 
     useEffect(() => {
         if (!mapContainer.current) return;
-        const startLat = Number(initialLatRef.current);
-        const startLng = Number(initialLngRef.current);
-
-        const map = new mapboxgl.Map({
-            container: mapContainer.current,
-            style: MAP_STYLES.satellite,
-            center: [startLng, startLat],
-            zoom: 15,
-            bearing: -17,
-            antialias: true,
-        });
-        mapRef.current = map;
-
-        map.addControl(new mapboxgl.NavigationControl({ showCompass: true, showZoom: true }), 'top-right');
-        map.addControl(new mapboxgl.ScaleControl({ unit: 'metric' }), 'bottom-left');
-
-        const marker = new mapboxgl.Marker({ element: createMarkerElement(), anchor: 'bottom', draggable: editableRef.current })
-            .setLngLat([startLng, startLat])
-            .addTo(map);
-        markerRef.current = marker;
-
-        if (editableRef.current) {
-            marker.on('dragend', async () => {
-                const { lat, lng } = marker.getLngLat();
-                onLocationChangeRef.current?.(lat, lng, 0);
-                await obtenerDireccion(lat, lng);
-            });
-            map.on('click', async (e) => {
-                const { lat, lng } = e.lngLat;
-                markerRef.current?.setLngLat([lng, lat]);
-                onLocationChangeRef.current?.(lat, lng, 0);
-                await obtenerDireccion(lat, lng);
-                setLatitudActual(lat);
-                setLongitudActual(lng);
-            });
+        if (!mapboxgl.accessToken) {
+            console.error('[MAPBOX] No access token configured');
+            return;
         }
 
-        if (editableRef.current) {
-            const geolocate = new mapboxgl.GeolocateControl({
-                positionOptions: { enableHighAccuracy: true },
-                trackUserLocation: false,
-                showUserLocation: false,
-                showAccuracyCircle: false,
+        const startLat = Number(initialLatRef.current) || 20.5888;
+        const startLng = Number(initialLngRef.current) || -100.3899;
+
+        try {
+            const map = new mapboxgl.Map({
+                container: mapContainer.current,
+                style: MAP_STYLES.satellite,
+                center: [startLng, startLat],
+                zoom: 15,
+                bearing: -17,
+                antialias: true,
+                attributionControl: true,
             });
-            geolocate.on('geolocate', async (e: any) => {
-                const lat = e.coords.latitude;
-                const lng = e.coords.longitude;
-                const precision = e.coords.accuracy;
-                markerRef.current?.setLngLat([lng, lat]);
-                mapRef.current?.flyTo({ center: [lng, lat], zoom: 16, duration: 1000 });
-                onLocationChangeRef.current?.(lat, lng, precision);
-                setPrecisionGps(e.coords.accuracy);
-                setLatitudActual(e.coords.latitude);
-                setLongitudActual(e.coords.longitude);
-                await obtenerDireccion(lat, lng);
+            mapRef.current = map;
+
+            map.addControl(new mapboxgl.NavigationControl({ showCompass: true, showZoom: true }), 'top-right');
+            map.addControl(new mapboxgl.ScaleControl({ unit: 'metric' }), 'bottom-left');
+
+            const marker = new mapboxgl.Marker({ element: createMarkerElement(), anchor: 'bottom', draggable: editableRef.current })
+                .setLngLat([startLng, startLat])
+                .addTo(map);
+            markerRef.current = marker;
+
+            if (editableRef.current) {
+                marker.on('dragend', async () => {
+                    const { lat, lng } = marker.getLngLat();
+                    onLocationChangeRef.current?.(lat, lng, 0);
+                    await obtenerDireccion(lat, lng);
+                });
+                map.on('click', async (e) => {
+                    const { lat, lng } = e.lngLat;
+                    markerRef.current?.setLngLat([lng, lat]);
+                    onLocationChangeRef.current?.(lat, lng, 0);
+                    await obtenerDireccion(lat, lng);
+                    setLatitudActual(lat);
+                    setLongitudActual(lng);
+                });
+            }
+
+            if (editableRef.current) {
+                const geolocate = new mapboxgl.GeolocateControl({
+                    positionOptions: { enableHighAccuracy: true },
+                    trackUserLocation: false,
+                    showUserLocation: false,
+                    showAccuracyCircle: false,
+                });
+                geolocateRef.current = geolocate;
+                geolocate.on('geolocate', async (e: any) => {
+                    const lat = e.coords.latitude;
+                    const lng = e.coords.longitude;
+                    const precision = e.coords.accuracy;
+                    markerRef.current?.setLngLat([lng, lat]);
+                    mapRef.current?.flyTo({ center: [lng, lat], zoom: 16, duration: 1000 });
+                    onLocationChangeRef.current?.(lat, lng, precision);
+                    setPrecisionGps(e.coords.accuracy);
+                    setLatitudActual(e.coords.latitude);
+                    setLongitudActual(e.coords.longitude);
+                    setGeoError(null);
+                    await obtenerDireccion(lat, lng);
+                });
+                geolocate.on('error', () => {
+                    setGeoError('No se pudo obtener la ubicación. Activa los Servicios de Localización en Sistema → Privacidad.');
+                });
+                map.addControl(geolocate, 'top-right');
+            }
+
+            map.once('load', async () => {
+                setIsLoaded(true);
+                await obtenerDireccion(startLat, startLng);
             });
-            map.addControl(geolocate, 'top-right');
+
+            map.on('error', (e) => {
+                console.error('[MAPBOX] Map error:', e.error?.message || e);
+            });
+
+            return () => {
+                map.remove();
+                mapRef.current = null;
+                markerRef.current = null;
+            };
+        } catch (error) {
+            console.error('[MAPBOX] Error initializing map:', error);
         }
-
-        map.once('load', async () => {
-            setIsLoaded(true);
-            await obtenerDireccion(startLat, startLng);
-        });
-
-        return () => {
-            map.remove();
-            mapRef.current = null;
-            markerRef.current = null;
-        };
     }, []);
 
     return (
@@ -201,7 +223,6 @@ export default function MapaSelector({ initialLat, initialLng, editable, onLocat
             <div
                 ref={mapContainer}
                 className="w-full h-full"
-                style={{ opacity: isLoaded ? 1 : 0, transition: 'opacity 700ms ease-in-out' }}
             />
 
             {/* ─── TOP BAR: VIEW TOGGLE ─── */}
@@ -229,18 +250,12 @@ export default function MapaSelector({ initialLat, initialLng, editable, onLocat
                         <button
                             type="button"
                             onClick={() => {
-                                navigator.geolocation.getCurrentPosition(async (pos) => {
-                                    const { latitude: lat, longitude: lng, accuracy: precision } = pos.coords;
-                                    markerRef.current?.setLngLat([lng, lat]);
-                                    mapRef.current?.flyTo({ center: [lng, lat], zoom: 16, duration: 1000 });
-                                    onLocationChangeRef.current?.(lat, lng, precision);
-                                    setPrecisionGps(precision);
-                                    setLatitudActual(lat);
-                                    setLongitudActual(lng);
-                                    await obtenerDireccion(lat, lng);
-                                }, (err) => {
-                                    console.error('[GEOLOCATION]', err);
-                                }, { enableHighAccuracy: true });
+                                setGeoError(null);
+                                if (geolocateRef.current) {
+                                    geolocateRef.current.trigger();
+                                } else {
+                                    setGeoError('Control de geolocalización no disponible');
+                                }
                             }}
                             className="inline-flex items-center gap-2 px-3.5 py-2 text-[12px] font-semibold transition-all duration-200"
                             style={{
@@ -254,6 +269,11 @@ export default function MapaSelector({ initialLat, initialLng, editable, onLocat
                             <Crosshair size={14} />
                             Mi ubicación
                         </button>
+                    )}
+                    {geoError && (
+                        <p className="absolute top-16 left-4 text-[10px] font-medium text-[#EF4444] bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-[#FECACA] shadow-sm max-w-[260px]">
+                            {geoError}
+                        </p>
                     )}
                 </div>
             )}

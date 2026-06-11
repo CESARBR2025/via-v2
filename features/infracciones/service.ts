@@ -178,7 +178,9 @@ export const sanitizeCrearInfraccionPayload = (
 
     fechaLimiteDescuento: body.fechaLimiteDescuento,
 
-    montoFinal: Number(body.fraccionMonto || 0),
+    pagoAlMomento: body.pagoAlMomento ?? false,
+
+    montoFinal: Math.round(Number(body.fraccionMonto || 0) * (1 - Number(body.descuentoAplicado || 0) / 100) * 100) / 100,
 
     gruaId: body.gruaInvolucrada || null,
 

@@ -62,7 +62,6 @@ export default function FormularioInfraccion() {
     // ───────────────────────────────────────────────────────────────────
     const [mounted, setMounted] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
-    console.log(files)
 
     const [success, setSuccess] = useState<string | null | boolean>(null);
     const [error, setError] = useState<string | null>(null);
@@ -70,6 +69,7 @@ export default function FormularioInfraccion() {
     const [lngInicial, setLngInicial] = useState<number | null>(null);
     const [, setPrecision] = useState(0);
     const [intentoAvanzar, setIntentoAvanzar] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
     const stepScrollRef = useRef<HTMLDivElement>(null);
 
     // ───────────────────────────────────────────────────────────────────
@@ -115,7 +115,13 @@ export default function FormularioInfraccion() {
     // ───────────────────────────────────────────────────────────────────
     // ESTADO DESEO DE PAGO - Se mantiene local porque es decisión UI
     // ───────────────────────────────────────────────────────────────────
-    const [deseaPagar, setDeseaPagar] = useState<boolean | null>(null);
+    const [deseaPagar, setDeseaPagarLocal] = useState<boolean | null>(null);
+    const setDeseaPagar = useCallback((value: boolean | null) => {
+        setDeseaPagarLocal(value);
+        if (value !== null) {
+            useInfraccionStore.getState().setPagoAlMomento(value);
+        }
+    }, [setDeseaPagarLocal]);
 
     // ───────────────────────────────────────────────────────────────────
     // CONEXIÓN A INTERNET
@@ -128,7 +134,6 @@ export default function FormularioInfraccion() {
     // Los selectores evitan re-renders innecesarios cuando otras partes
     // del store cambian. Solo re-renders cuando estas propiedades específicas cambien.
     const datos = useInfraccionStore((state) => state.datos);
-    console.log(datos)
     const actualizarDatos = useInfraccionStore(
         (state) => state.actualizarDatos
     );
@@ -143,6 +148,7 @@ export default function FormularioInfraccion() {
     const setPagado = useInfraccionStore((state) => state.setPagado);
     const loading = useInfraccionStore((state) => state.loading);
     const setLoading = useInfraccionStore((state) => state.setLoading);
+    const setPagoAlMomento = useInfraccionStore((state) => state.setPagoAlMomento);
 
 
 
@@ -295,10 +301,8 @@ export default function FormularioInfraccion() {
                 return;
             }
 
-            console.log('paso')
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    console.log('Ubicación obtenida:', pos);
 
                     setLatInicial(pos.coords.latitude);
                     setLngInicial(pos.coords.longitude);
@@ -568,6 +572,59 @@ export default function FormularioInfraccion() {
     ]);
 
     // ═══════════════════════════════════════════════════════════════════
+    // VALIDACIÓN POR PASO
+    // ═══════════════════════════════════════════════════════════════════
+
+    const stepIds = useMemo(() => steps.map(s => s.id), [steps]);
+
+    const validateStep = useCallback((stepId: string): boolean => {
+        const d = datos;
+        switch (stepId) {
+            case 'ciudadano':
+                return d.estaCiudadanoPresente === true || d.estaCiudadanoPresente === false;
+
+            case 'ubicacion':
+                return d.latitud !== null && d.longitud !== null;
+
+            case 'conductor':
+                if (d.presentaIne === null || d.presentaIne === undefined) return false;
+                if (d.presentaIne) {
+                    return d.curpInfractor.trim().length > 0;
+                }
+                return d.nombreInfractor.trim().length > 0 &&
+                    d.apPaternoInfractor.trim().length > 0;
+
+            case 'descuentos':
+                return true;
+
+            case 'vehiculo': {
+                const anio = parseInt(d.anio, 10);
+                const anioValido = d.anio.trim().length > 0 && !isNaN(anio) && anio >= 1980 && anio <= 2026;
+                return d.placa.trim().length > 0 &&
+                    d.marca.trim().length > 0 &&
+                    d.modelo.trim().length > 0 &&
+                    anioValido &&
+                    d.color.trim().length > 0 &&
+                    d.tipoVehiculo.trim().length > 0;
+            }
+
+            case 'infraccion':
+                return d.articuloId.trim().length > 0 &&
+                    d.fraccionId.trim().length > 0 &&
+                    d.garantiaSeleccionada.trim().length > 0;
+
+            case 'evidencias':
+                return true;
+
+            case 'confirmacion':
+                return true;
+
+            default:
+                return true;
+        }
+    }, [datos]);
+
+    // ═══════════════════════════════════════════════════════════════════
     // FUNCIONES HANDLER - Registro e Interacción
     // ═══════════════════════════════════════════════════════════════════
 
@@ -578,21 +635,32 @@ export default function FormularioInfraccion() {
      * 2. Generar orden de pago en sistema de pagos
      */
     const handleRegistrarNuevaInfraccion = useCallback(async () => {
-        const storeData = datos;
-
         const logError = (fase: string, error: unknown) => {
             console.error(`❌ ERROR EN: ${fase}`, error);
         };
 
         try {
             // ─────────────────────────────────────────────────────────────
+            // AUTO-DESCUENTO: si ciudadano ausente, aplicar 50% por defecto
+            // ─────────────────────────────────────────────────────────────
+            if (datos.estaCiudadanoPresente === false) {
+                const fechaLimite = new Date();
+                fechaLimite.setDate(fechaLimite.getDate() + 10);
+                actualizarDatos({
+                    descuentoAplicado: 50,
+                    fechaLimiteDescuento: fechaLimite.toISOString(),
+                });
+            }
+
+            // Leer datos frescos del store (después del auto-descuento)
+            const storeData = useInfraccionStore.getState().datos;
+
+            // ─────────────────────────────────────────────────────────────
             // VALIDACIÓN INICIAL
             // ─────────────────────────────────────────────────────────────
             if (!storeData) {
                 throw new Error('No hay datos en el store');
             }
-
-            console.log('📦 Datos a registrar:', storeData);
 
             // ─────────────────────────────────────────────────────────────
             // FASE 1: CREAR INFRACCIÓN
@@ -601,9 +669,6 @@ export default function FormularioInfraccion() {
             setProcesoMensaje('Creando infracción...');
 
             let nuevaInfraccion;
-
-            console.log(storeData)
-            console.log('llego')
 
             try {
                 const res = await fetch(
@@ -614,10 +679,7 @@ export default function FormularioInfraccion() {
                         body: JSON.stringify(storeData),
                     }
                 );
-                console.log(res)
-
                 const data = await res.json();
-                console.log(data)
 
                 if (!res.ok) {
                     throw new Error(
@@ -625,17 +687,14 @@ export default function FormularioInfraccion() {
                     );
                 }
 
-                console.log('paso')
                 nuevaInfraccion = data;
-
-                console.log('✅ Infracción creada:', nuevaInfraccion);
                 setInfraccionCreada(nuevaInfraccion.data);
             } catch (error) {
+                const msg = error instanceof Error ? error.message : 'Error desconocido';
                 logError('CREACIÓN DE INFRACCIÓN', error);
                 setModalState('error');
-                setProcesoMensaje('Error al crear infracción');
-                throw new Error('Fallo en creación de infracción');
-                return
+                setProcesoMensaje(`Error al crear infracción: ${msg}`);
+                throw new Error(`Fallo en creación de infracción — ${msg}`);
 
             }
 
@@ -698,10 +757,7 @@ export default function FormularioInfraccion() {
                         );
                     }
 
-                    console.log(
-                        '📁 Documentos guardados:',
-                        data
-                    );
+
                 }
             } catch (error) {
                 logError(
@@ -727,7 +783,6 @@ export default function FormularioInfraccion() {
             setProcesoMensaje('Guardando evidencias digitales...');
 
             try {
-                console.log(nuevaInfraccion)
                 const evidencias =
                     storeData.evidencias ?? [];
 
@@ -766,10 +821,7 @@ export default function FormularioInfraccion() {
                         );
                     }
 
-                    console.log(
-                        '📸 Evidencias guardadas:',
-                        data
-                    );
+
                 }
             } catch (error) {
                 logError(
@@ -795,7 +847,6 @@ export default function FormularioInfraccion() {
             setProcesoMensaje('Generando orden de pago...');
 
             let orden;
-            console.log(nuevaInfraccion.data)
             try {
 
                 orden = await generarOrdenPago({
@@ -811,7 +862,7 @@ export default function FormularioInfraccion() {
 
 
 
-                console.log('💰 Orden creada:', orden);
+
             } catch (error) {
                 logError('GENERACIÓN ORDEN DE PAGO', error);
                 setModalState('error');
@@ -826,8 +877,6 @@ export default function FormularioInfraccion() {
             // ─────────────────────────────────────────────────────────────
             setModalState('completado');
             setProcesoMensaje('Infracción generada correctamente');
-
-            console.log('🎉 Flujo completo OK');
 
             // Esperar 3 segundos y luego navegar al paso de pago
             setTimeout(() => {
@@ -870,17 +919,21 @@ export default function FormularioInfraccion() {
      * Valida campos requeridos en el paso actual antes de permitir el avance
      */
     const handleNextStep = useCallback(() => {
-        // Si hay errores de validación, marcar intento y no avanzar
         setIntentoAvanzar(true);
+        setValidationError(null);
 
-        // En un escenario real, aquí validarías los campos del paso actual
-        // Ejemplo:
-        // const stepValidation = validateCurrentStep(activeStepConfig.id);
-        // if (!stepValidation.isValid) return;
+        const stepId = stepIds[currentStep];
+        if (!stepId) return;
+
+        const isValid = validateStep(stepId);
+        if (!isValid) {
+            setValidationError('Completa todos los campos requeridos antes de continuar.');
+            return;
+        }
 
         setIntentoAvanzar(false);
         nextStep();
-    }, [nextStep]);
+    }, [nextStep, currentStep, stepIds, validateStep]);
 
     // ═══════════════════════════════════════════════════════════════════
     // RENDER
@@ -895,7 +948,11 @@ export default function FormularioInfraccion() {
           MODAL DE PROCESO - Feedback visual durante registro
           ─────────────────────────────────────────────────────────────── */}
             {procesoModal !== 'inicio' && (
-                <ProcesoModal estado={procesoModal} mensaje={procesoMensaje} />
+                <ProcesoModal
+                    estado={procesoModal}
+                    mensaje={procesoMensaje}
+                    onRetry={procesoModal === 'error' ? handleRegistrarNuevaInfraccion : undefined}
+                />
             )}
 
             {/* ───────────────────────────────────────────────────────────────
@@ -963,11 +1020,23 @@ export default function FormularioInfraccion() {
                     />
                 </div>
 
-                {/* Stepper con etiquetas — scrollable en móvil */}
+                {/* Stepper con etiquetas — visible solo en desktop */}
                 <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                    {/* Mobile indicator */}
+                    <div className="sm:hidden flex items-center gap-2 py-3">
+                        <div className="flex-1 h-[3px] bg-[#F1F5F9] rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-[#2563EB] transition-all duration-500"
+                                style={{ width: `${progressPct}%` }}
+                            />
+                        </div>
+                        <span className="text-[11px] font-semibold text-[#64748B] shrink-0">
+                            {currentStep + 1}/{steps.length}
+                        </span>
+                    </div>
                     <div
                         ref={stepScrollRef}
-                        className="flex items-start overflow-x-auto scrollbar-hide py-3"
+                        className="hidden sm:flex items-start overflow-x-auto scrollbar-hide py-3"
                     >
                         {steps.map((step, idx) => {
                             const isDone = idx < currentStep;
@@ -1066,6 +1135,15 @@ export default function FormularioInfraccion() {
                         <p className="text-sm text-[#64748B] mt-1">
                             {activeStepConfig.description}
                         </p>
+                        {validationError && (
+                            <div className="mt-3 flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[13px] font-medium"
+                                style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
+                                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                </svg>
+                                {validationError}
+                            </div>
+                        )}
                     </div>
 
                     {activeStepConfig.component}
