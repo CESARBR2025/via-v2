@@ -187,12 +187,13 @@ export const sanitizeCrearInfraccionPayload = (
           100,
       ) / 100,
 
-    estatus: 'REGISTRADA',
+    estatus:
+      body.estaCiudadanoPresente === false ? 'REGISTRADA' : 'PENDIENTE_PAGO',
 
     estatusDependencia:
       body.estaCiudadanoPresente === false
         ? 'PENDIENTE_DATOS_INFRACTOR'
-        : null,
+        : 'PENDIENTE_PAGO_INSTANTE',
 
     gruaId: body.gruaInvolucrada || null,
 

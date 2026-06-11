@@ -60,6 +60,7 @@ function isNoData(v: string | null | undefined): boolean {
 }
 
 function dataCompleta(row: any): boolean {
+    if (row.estatus === 'PENDIENTE_PAGO' && row.estatus_dependencia === 'PENDIENTE_PAGO_INSTANTE') return true
     const nombre = row.nombre_infractor ?? ''
     const titular = row.nombre_titular_liberacion ?? ''
     return !isNoData(nombre) && !isNoData(titular)
