@@ -62,7 +62,7 @@ export interface CrearInfraccionDTO {
 
   gruaId?: string | null;
 
-  estatus: string;
+  estatusDependencia?: string | null;
 }
 
 export interface InfraccionDB {
@@ -77,6 +77,8 @@ export interface InfraccionDB {
   seq_valor: number;
 
   estatus: string;
+
+  estatus_dependencia: string | null;
 
   oficial_id: string;
 

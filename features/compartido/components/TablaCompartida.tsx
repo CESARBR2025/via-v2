@@ -8,9 +8,11 @@ import JuzgadoDashboard from "@/features/juzgado/components/JuzgadoDashboard"
 import LiberacionesDashboard from "@/features/liberaciones/components/LiberacionesDashboard"
 import CorralonMWDashboard from "@/features/corralon-mw/components/CorralonMWDashboard"
 import CorralonMejiaDashboard from "@/features/corralon-mejia/components/CorralonMejiaDashboard"
+import InfraccionesDashboard from "@/features/infracciones/components/InfraccionesDashboard"
 import RevisionDocumentosSection from "@/features/liberaciones/components/RevisionDocumentosSection"
 import ModalDetalleGenerico, { DetalleCompleto } from "@/features/compartido/components/ModalDetalleGenerico"
 import ConfirmacionModal from "@/features/compartido/components/ConfirmacionModal"
+import CapturarDatosTitularSection from "@/features/infracciones/components/CapturarDatosTitularSection"
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento'
 import { enviarCorreoAsignacionJuzgado } from "@/features/emails/server"
 
@@ -110,14 +112,14 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
 
     if (userRole === 'infracciones') {
         const estatus = detalle?.Header?.estatus_dependencia
+
         const mostrarBotonInicio = estatus === 'PENDIENTE_ORDEN_PAGO'
         const enProceso = estatus === 'EN_PROCESO_INFRACCIONES'
         const liberado = estatus === 'LIBERADO_POR_INFRACCIONES'
-        console.log(detalle)
 
         return (
             <>
-                <LiberacionesDashboard
+                <InfraccionesDashboard
                     data={listaDatos}
                     visibleColumns={visibleColumns}
                     onOpenDetalle={handleOpenDetalle}
@@ -128,18 +130,14 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                     onClose={handleCloseDetalle}
                     loading={loading}
                     detalle={detalle}
-                    role="liberaciones"
+                    role="infracciones"
                     onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
                     antesContenido={
-                        mostrarBotonInicio ? (
-                            <button
-                                onClick={() => setConfirmOpen(true)}
-                                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-colors"
-                                style={{ background: '#F59E0B', boxShadow: '0 4px 12px rgba(245,158,11,0.3)' }}
-                            >
-                                <Play size={14} strokeWidth={2.5} fill="white" />
-                                Tomar caso
-                            </button>
+                        mostrarBotonInicio || enProceso ? (
+                            <CapturarDatosTitularSection
+                                detalle={detalle!}
+                                onSuccess={() => refetchDetalle(detalle!.Header.id_infraccion)}
+                            />
                         ) : undefined
                     }
                     fullWidthExtra={
@@ -180,19 +178,6 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                             ),
                         ] : []
                     }
-
-                />
-
-                <ConfirmacionModal
-                    isOpen={confirmOpen}
-                    onConfirmar={() => iniciarRevision('/api/liberaciones/iniciarProceso')}
-                    onCancelar={() => setConfirmOpen(false)}
-                    loading={confirmLoading}
-                    titulo="Asignar caso"
-                    mensaje="¿Deseas tomar este caso? El estatus cambiará a «En Proceso» y se te asignará la atención."
-                    labelConfirmar="Sí, tomar caso"
-                    labelCancelar="Cancelar"
-                    variant="success"
                 />
             </>
         )
@@ -205,7 +190,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
 
         return (
             <>
-                <FiscaliaDashboard
+                <InfraccionesDashboard
                     data={listaDatos}
                     visibleColumns={visibleColumns}
                     onOpenDetalle={handleOpenDetalle}
@@ -219,15 +204,11 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                     role="fiscalia"
                     onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
                     antesContenido={
-                        mostrarBotonInicio ? (
-                            <button
-                                onClick={() => setConfirmOpen(true)}
-                                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-colors"
-                                style={{ background: '#22C55E', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}
-                            >
-                                <Play size={14} strokeWidth={2.5} fill="white" />
-                                Iniciar atención al caso
-                            </button>
+                        mostrarBotonInicio || enProceso ? (
+                            <CapturarDatosTitularSection
+                                detalle={detalle!}
+                                onSuccess={() => refetchDetalle(detalle!.Header.id_infraccion)}
+                            />
                         ) : undefined
                     }
                     sidebarExtra={

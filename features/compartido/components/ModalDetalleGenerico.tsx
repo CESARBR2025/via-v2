@@ -28,6 +28,8 @@ export type DetalleHeader = {
     no_carpeta_investigacion: string
     appaterno_infractor: string
     url_oficio_pago_corralon?: string
+    estatus_orden_pago?: string
+    estatus: string
 };
 
 export type DetalleInfraccion = {

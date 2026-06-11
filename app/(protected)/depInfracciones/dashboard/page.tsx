@@ -8,29 +8,35 @@ export default async function DepInfraccionesPage() {
 
     console.log(roleString)
     const dependenciaClave = "INFRACCIONES";
+    let respuestaApi = [];
+
     const baseUrl =
-        process.env.NODE_ENV === 'production'
-            ? 'https://via-v2.vercel.app'
-            : 'http://localhost:3000';
+        process.env.NODE_ENV === "production"
+            ? "https://via-v2.vercel.app"
+            : "http://localhost:3000";
 
-    const res = await fetch(
-        `${baseUrl}/api/depInfracciones/listarInfracciones`,
-        { cache: "no-store" }
-    );
+    try {
+        const res = await fetch(
+            `${baseUrl}/api/dependencias/listarDatos?dependencia=${dependenciaClave}`,
+            { cache: "no-store" }
+        );
 
-    if (!res.ok) {
-        throw new Error("Error cargando infracciones");
+        if (res.ok) {
+            respuestaApi = await res.json();
+        }
+    } catch (error) {
+        console.error("Error obteniendo datos:", error);
     }
 
-    const data = await res.json();
-    console.log(data)
+    console.log(respuestaApi)
+
     return (
         <div className="flex flex-col h-full">
 
 
             <div className="flex flex-col flex-1 min-h-0">
                 <TablaCompartida
-                    respuestaServidor={data}
+                    respuestaServidor={respuestaApi}
                     userRole={roleString}
                 />
             </div>

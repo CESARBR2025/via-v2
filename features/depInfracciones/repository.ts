@@ -89,6 +89,7 @@ export class DepInfraccionesRepository {
     );
 
     const { dependencia, from, to } = params;
+    console.log(dependencia);
 
     // 1. Validamos la clave por seguridad
     const dependenciasValidas = [
@@ -97,8 +98,10 @@ export class DepInfraccionesRepository {
       "MW",
       "MEJIA",
       "LIBERACIONES",
+      "INFRACCIONES",
     ];
     if (!dependenciasValidas.includes(dependencia)) {
+      console.log(dependencia);
       throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
     }
 
@@ -182,6 +185,52 @@ export class DepInfraccionesRepository {
         FROM v2_infracciones
         WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADO_POR_LIBERACIONES') 
       
+      `;
+    } else if (dependencia === "LIBERACIONES") {
+      console.log(`-> Buscando infracciones para: ${dependencia}`);
+
+      query = `
+       SELECT
+          id,
+          folio,
+          estatus,
+          placa,
+          created_at,
+          correo_infractor,
+          nombre_infractor,
+          estatus_dependencia,
+          no_carpeta_investigacion
+        FROM v2_infracciones
+        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADO_POR_LIBERACIONES') 
+      
+      `;
+    } else if (dependencia === "INFRACCIONES") {
+      console.log(`-> Buscando infracciones para: ${dependencia}`);
+
+      query = `
+     SELECT
+          i.id,
+          i.folio,
+          i.estatus,
+          i.placa,
+          i.created_at,
+          i.correo_infractor,
+          i.nombre_infractor,
+          i.estatus_dependencia,
+          i.no_carpeta_investigacion,
+          i.nombre_titular_liberacion,
+          i.appaterno_titular_liberacion,
+          i.apmaterno_titular_liberacion,
+          ops.estatus AS estatus_orden_pago
+        FROM v2_infracciones i
+        LEFT JOIN v2_ordenes_pago_sa7 ops ON ops.infraccion_id = i.id
+        WHERE i.tipo_garantia != 'VEHICULO'
+          AND (
+            i.estatus_dependencia IN ('PENDIENTE_ORDEN_PAGO', 'EN_PROCESO_INFRACCIONES', 'LIBERADO_POR_INFRACCIONES')
+            OR
+            (i.estatus_dependencia IS NULL AND i.estatus = 'PENDIENTE_ORDEN_PAGO')
+          )
+          
       `;
     }
 
@@ -280,6 +329,7 @@ export class DepInfraccionesRepository {
       "MW",
       "MEJIA",
       "LIBERACIONES",
+      "INFRACCIONES",
     ];
     if (!dependenciasValidas.includes(dependencia)) {
       throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
@@ -316,6 +366,14 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES')
+    `;
+    } else if (dependencia === "INFRACCIONES") {
+      query = `
+      SELECT COUNT(*)::int AS total
+      FROM v2_infracciones
+      where estatus IN ('PENDIENTE_ORDEN_PAGO', 'REGISTRADA') 
+        and tipo_garantia != 'VEHICULO'
+       
     `;
     } else {
       // Query estándar para FISCALIA, JUZGADO, MEJIA
@@ -396,7 +454,8 @@ export class DepInfraccionesRepository {
     i.url_oficio_fiscalia,
     i.estatus_dependencia,
     i.no_carpeta_investigacion,
-    i.url_oficio_pago_corralon
+    i.url_oficio_pago_corralon,
+    o.estatus as estatus_orden_pago
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o

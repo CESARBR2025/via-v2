@@ -80,6 +80,8 @@ export const mapCrearInfraccionToDB = (
 
     estatus: data.estatus,
 
+    estatus_dependencia: data.estatusDependencia ?? null,
+
     grua_id: data.gruaId ?? null,
   };
 };
