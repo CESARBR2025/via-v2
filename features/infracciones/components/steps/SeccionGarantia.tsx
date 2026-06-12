@@ -149,8 +149,8 @@ export const SeccionGarantia: React.FC<SeccionGarantiaProps> = ({
                             </div>
                         )}
 
-                        {/* Dependencia a remitir */}
-                        {datos.gruaInvolucrada && (
+                        {/* Dependencia a remitir — solo si es Delito o Accidente */}
+                        {datos.gruaInvolucrada && datos.motivoRetencionVehiculo !== 'INFRACCION' && (
                             <div className="relative pb-5">
                                 <FieldLabel required>Infractor sera remitido a</FieldLabel>
                                 <CustomSelect

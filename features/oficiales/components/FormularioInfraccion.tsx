@@ -865,9 +865,9 @@ export default function FormularioInfraccion() {
             }
 
             // ─────────────────────────────────────────────────────────────
-            // CIUDADANO AUSENTE — saltar orden de pago, mostrar resumen
+            // CIUDADANO AUSENTE o GARANTÍA VEHICULAR — saltar orden de pago, mostrar resumen
             // ─────────────────────────────────────────────────────────────
-            if (datos.estaCiudadanoPresente === false) {
+            if (datos.estaCiudadanoPresente === false || datos.garantiaSeleccionada === 'VEHICULO') {
                 setModalState('inicio');
                 setAusenteCompletado({
                     id: nuevaInfraccion.data.id,
