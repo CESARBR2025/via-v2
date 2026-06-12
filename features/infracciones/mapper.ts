@@ -108,6 +108,7 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
     noOficio: row.no_oficio_fiscalia ?? row.no_oficio_juzgado,
     urlOficio: row.url_oficio_fiscalia ?? row.url_oficio_juzgado,
     estatusDependencia: row.estatus_dependencia,
+    estatusInfraccion: row.estatus,
     nombreTitular: [
       row.nombre_titular_liberacion,
       row.appaterno_titular_liberacion,
@@ -125,7 +126,7 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
     id: row.id,
     folio: row.folio,
 
-    estatus: row.estatus,
+    estatusPago: row.estatusPago,
     fechaInfraccion: row.fecha_infraccion,
 
     montoTotal: Number(row.monto_total),

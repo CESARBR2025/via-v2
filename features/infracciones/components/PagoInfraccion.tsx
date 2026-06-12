@@ -15,6 +15,9 @@ type Props = {
     ordenPagoId: string;
     urlPago: string;
     estatus: string;
+    estatusDependencia: string;
+    estatusInfraccion: string
+
 };
 
 export default function PagoInfraccion({
@@ -22,6 +25,8 @@ export default function PagoInfraccion({
     ordenPagoId,
     urlPago,
     estatus,
+    estatusDependencia,
+    estatusInfraccion
 }: Props) {
     console.log(estatus)
 
@@ -44,6 +49,11 @@ export default function PagoInfraccion({
 
     const verificarPago = async () => {
 
+        // Estados actuales
+        console.log(estatusInfraccion)
+        console.log(estatusDependencia)
+
+
         // EVITAR REQUESTS DUPLICADOS
 
         if (loading) return;
@@ -52,8 +62,15 @@ export default function PagoInfraccion({
 
             setLoading(true);
 
-            const res = await fetch(
-                `/api/pagosInfracciones/verificar/${ordenPagoId}/${infraccionId}`,
+            let url = ''
+
+            // Caso 1: Ciudadano ausente
+            if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_INFRACCION') {
+                url = `/api/pagosInfracciones/confirmarPagoAusente/${ordenPagoId}/${infraccionId}`
+
+            }
+
+            const res = await fetch(url,
                 {
                     method: 'GET',
                     cache: 'no-store',

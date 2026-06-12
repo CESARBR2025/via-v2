@@ -149,7 +149,7 @@ export class InfraccionesRepository {
         -- Datos de orden de pago
         ops.id AS orden_pago_local_id,
         ops.orden_pago_id,
-        ops.estatus,
+        ops.estatus as estatusPago,
         ops.url_pago,
         ops.url_guardado,
         ops.folio_orden,

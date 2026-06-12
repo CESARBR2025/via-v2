@@ -161,11 +161,14 @@ export interface InfraccionDB {
 // Datos de infracción que se enviarán a la vista ciudadana
 
 export interface InfraccionDetalleDTO {
+  //
+  estatusPago: string;
   // Dependencias y titulares
   dependenciaReceptora: string;
   noOficio: string;
   urlOficio: string;
   estatusDependencia: string;
+  estatusInfraccion: string;
   nombreTitular: string;
   correoTitular: string;
   curpTitular: string;
@@ -198,8 +201,6 @@ export interface InfraccionDetalleDTO {
 
   id: string;
   folio: string;
-
-  estatus: string;
 
   fechaInfraccion: string;
 

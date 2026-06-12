@@ -205,6 +205,8 @@ export default async function InfraccionCiudadanoPage({
                                 ordenPagoId={infraccion.orden_pago_id}
                                 urlPago={infraccion.url_pago}
                                 estatus={infraccion.estatus}
+                                estatusDependencia={infraccion.estatusDependencia}
+                                estatusInfraccion={infraccion.estatusInfraccion}
                             />
                         </section>
                     </div>

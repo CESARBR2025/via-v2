@@ -81,7 +81,7 @@ export async function GET(
     // LOGICA DE NEGOCIO
     // =====================================================
 
-    if (infraccion.estatus !== "P") {
+    if (infraccion.estatusPago !== "P") {
       // Prioridad 1:
       // Si el descuento venció, la orden actual deja de servir.
       // Debe generarse una nueva SIN descuento.
