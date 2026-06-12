@@ -66,7 +66,7 @@ export async function GET(
         );
 
         await client.query(
-          `UPDATE v2_infracciones SET estatus = 'PAGADA', estatus_dependencia = 'PENDIENTE_ENTREGA_GARANTIA' WHERE id = $1`,
+          `UPDATE v2_infracciones SET estatus = 'PAGADA', estatus_dependencia = 'PENDIENTE_DEVOLUCION_GARANTIA' WHERE id = $1`,
           [infraccionId],
         );
 

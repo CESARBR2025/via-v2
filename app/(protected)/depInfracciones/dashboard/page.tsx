@@ -1,12 +1,6 @@
-import { getSession } from "@/features/auth/service";
-import TablaCompartida from "@/features/compartido/components/TablaCompartida";
-import TablaDepInfracciones from "@/features/depInfracciones/components/TablaDevInfracciones/TablaDepInfracciones";
+import InfraccionesTable from "@/features/infracciones/components/InfraccionesTable";
 
 export default async function DepInfraccionesPage() {
-    const session = await getSession();
-    const roleString = session?.user?.roles?.[0];
-
-    console.log(roleString)
     const dependenciaClave = "INFRACCIONES";
     let respuestaApi = [];
 
@@ -28,16 +22,11 @@ export default async function DepInfraccionesPage() {
         console.error("Error obteniendo datos:", error);
     }
 
-    console.log(respuestaApi)
-
     return (
         <div className="flex flex-col h-full">
-
-
             <div className="flex flex-col flex-1 min-h-0">
-                <TablaCompartida
+                <InfraccionesTable
                     respuestaServidor={respuestaApi}
-                    userRole={roleString}
                 />
             </div>
         </div>
