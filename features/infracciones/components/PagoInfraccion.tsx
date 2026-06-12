@@ -72,6 +72,9 @@ export default function PagoInfraccion({
             } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_INSTANTE') {
                 // Caso 2: ciudaadno paga infraccion al instante y no se retiene la garantia
                 url = `/api/pagosInfracciones/confirmarPagoInstante/${ordenPagoId}/${infraccionId}`
+            } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PLACA_RETENIDA_EN_TRANSITO') {
+                // Caso 3: garantia retenida y pago despues
+                url = `/api/pagosInfracciones/confirmarPagoRetenida/${ordenPagoId}/${infraccionId}`
             }
 
             const res = await fetch(url,
