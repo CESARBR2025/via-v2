@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Play, FileText, CheckCircle2, Upload, User, Eye, ShieldCheck, ScrollText, Download, Loader2 } from "lucide-react"
+import { Play, FileText, CheckCircle2, Eye, ShieldCheck, ScrollText, Download, Loader2 } from "lucide-react"
 import FiscaliaDashboard from "@/features/fiscalia/components/FiscaliaDashboard"
+import CargarOficioSection from "@/features/compartido/components/CargarOficioSection"
 import JuzgadoDashboard from "@/features/juzgado/components/JuzgadoDashboard"
 import LiberacionesDashboard from "@/features/liberaciones/components/LiberacionesDashboard"
 import CapturarInfractorSection from "@/features/liberaciones/components/CapturarInfractorSection"
@@ -15,7 +16,6 @@ import ModalDetalleGenerico, { DetalleCompleto } from "@/features/compartido/com
 import ConfirmacionModal from "@/features/compartido/components/ConfirmacionModal"
 import CapturarDatosTitularSection from "@/features/infracciones/components/CapturarDatosTitularSection"
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento'
-import { enviarCorreoAsignacionJuzgado } from "@/features/emails/server"
 
 interface DataRow {
     id: string
@@ -120,7 +120,9 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
     }
 
     if (userRole === 'infracciones') {
+        console.log('entro aqui')
         const estatus = detalle?.Header?.estatus_dependencia
+        console.log(estatus)
 
         const mostrarBotonInicio = estatus === 'PENDIENTE_DATOS_INFRACTOR'
         const enProceso = estatus === 'PENDIENTE_PAGO_INFRACCION' || estatus === 'PENDIENTE_ENTREGA_GARANTIA' || estatus === 'PENDIENTE_DEVOLUCION_GARANTIA'
@@ -189,17 +191,17 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                     }
 
                 />
-            </> 
-            )
-        }
+            </>
+        )
+    }
 
-        if (userRole === 'liberaciones') {
-            const estatus = detalle?.Header?.estatus_dependencia
-            const estatusInfraccion = detalle?.Header?.estatus
-            const mostrarBotonInicio = estatus === 'ESPERA_REVISION'
-            const mostrarCapturaInfractor = estatus === 'VEHICULO_EN_CORRALON'
-            const enProceso = estatus === 'EN_PROCESO_LIBERACIONES'
-            const liberado = estatus === 'LIBERADO_POR_LIBERACIONES'
+    if (userRole === 'liberaciones') {
+        const estatus = detalle?.Header?.estatus_dependencia
+        const estatusInfraccion = detalle?.Header?.estatus
+        const mostrarBotonInicio = estatus === 'ESPERA_REVISION'
+        const mostrarCapturaInfractor = estatus === 'VEHICULO_EN_CORRALON'
+        const enProceso = estatus === 'EN_PROCESO_LIBERACIONES'
+        const liberado = estatus === 'LIBERADO_POR_LIBERACIONES'
         console.log(detalle)
 
         return (
@@ -334,7 +336,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                     onClose={handleCloseDetalle}
                     loading={loading}
                     detalle={detalle}
-                    role="corralon_mw"
+                    role="corralon_mejia"
                     onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
                     antesContenido={
                         pendiente ? (
@@ -352,7 +354,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                                     if (!detalle?.Header?.id_infraccion) return
                                     setFinalizando(true)
                                     try {
-                                        const res = await fetch('/api/corralon-mw/finalizarProceso', {
+                                        const res = await fetch('/api/corralon-mejia/finalizarProceso', {
                                             method: 'PATCH',
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({ id: detalle.Header.id_infraccion }),
@@ -382,6 +384,31 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                                 detalle={detalle}
                             />,
                         ] : undefined
+                    }
+                    sidebarExtra={
+                        detalle?.Header && !pendiente && !finalizada ? [
+                            enRevision ? (
+                                <CargarOficioSection
+                                    key="cargar-oficio"
+                                    idInfraccion={detalle.Header.id_infraccion}
+                                    noOficioActual={detalle.Header.no_oficio_fiscalia}
+                                    noCarpetaActual={detalle.Header.no_carpeta_investigacion}
+                                    esTitular={detalle.datos_infractor?.es_titular}
+                                    nombreInfractor={detalle.datos_infractor?.nombre_infractor}
+                                    appaternoInfractor={detalle.datos_infractor?.appaterno_infractor}
+                                    apmaternoInfractor={detalle.datos_infractor?.apmaterno_infractor}
+                                    correoInfractor={detalle.datos_infractor?.correo_infractor}
+                                    curpInfractor={detalle.datos_infractor?.curp_infractor}
+                                    onSuccess={() => refetchDetalle(detalle.Header.id_infraccion)}
+                                />
+                            ) : (
+                                <OficioLiberacionSection
+                                    key="oficio"
+                                    numeroOficio={detalle.Header.no_oficio_fiscalia}
+                                    urlOficio={detalle.Header.url_oficio_fiscalia}
+                                />
+                            ),
+                        ] : []
                     }
                 />
 
@@ -486,235 +513,29 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
         )
     }
 
-}
+    if (userRole === 'fiscalia') {
+        const estatus = detalle?.Header?.estatus_dependencia
+        console.log(estatus)
+        const estatusInfraccion = detalle?.Header?.estatus_de_infraccion
+        console.log(estatusInfraccion)
+        const pendiente = estatus === 'LIBERADO_POR_LIBERACIONES'
+        const enRevision = estatus === 'EN_REVISION_MW'
+        const finalizada = estatus === 'CERRADA'
+        const [finalizando, setFinalizando] = useState(false)
+        console.log(handleCloseDetalle)
 
-// ─── FORMULARIO CARGA DE OFICIO ───
+        return (
+            <>
+                <FiscaliaDashboard
+                    data={listaDatos}
+                    visibleColumns={visibleColumns}
+                    onOpenDetalle={handleOpenDetalle}
+                />
 
-function CargarOficioSection({
-    idInfraccion,
-    noOficioActual,
-    noCarpetaActual,
-    esTitular,
-    nombreInfractor,
-    appaternoInfractor,
-    apmaternoInfractor,
-    correoInfractor,
-    curpInfractor,
-    guardarOficioEndpoint = '/api/fiscalia/guardarOficio',
-    onSuccess,
-}: {
-    idInfraccion: string
-    noOficioActual?: string
-    noCarpetaActual?: string
-    esTitular?: boolean
-    nombreInfractor?: string
-    appaternoInfractor?: string
-    apmaternoInfractor?: string
-    correoInfractor?: string
-    curpInfractor?: string
-    guardarOficioEndpoint?: string
-    onSuccess?: () => void
-}) {
-    const esTitularBool = esTitular === true
-    const [numeroOficio, setNumeroOficio] = useState(noOficioActual && noOficioActual !== 'NO_DATA' ? noOficioActual : '')
-    const [noCarpeta, setNoCarpeta] = useState(noCarpetaActual && noCarpetaActual !== 'NO_DATA' ? noCarpetaActual : '')
-    const [archivo, setArchivo] = useState<File | null>(null)
-    const [saving, setSaving] = useState(false)
-    const [success, setSuccess] = useState(false)
-    const fileRef = useRef<HTMLInputElement>(null)
-
-    const [nombre, setNombre] = useState(esTitularBool ? (nombreInfractor ?? '') : '')
-    const [appaterno, setAppaterno] = useState(esTitularBool ? (appaternoInfractor ?? '') : '')
-    const [apmaterno, setApmaterno] = useState(esTitularBool ? (apmaternoInfractor ?? '') : '')
-    const [correoTitular, setCorreoTitular] = useState(esTitularBool ? (correoInfractor ?? '') : '')
-    const [curpTitular, setCurpTitular] = useState(esTitularBool ? (curpInfractor ?? '') : '')
-
-    const handleSubmit = async () => {
-        if (!numeroOficio.trim() && !archivo) return
-        setSaving(true)
-        try {
-            const fd = new FormData()
-            fd.append('folio', idInfraccion)
-            fd.append('numero_oficio', numeroOficio.trim())
-            if (archivo) fd.append('archivoIne', archivo)
-            if (noCarpeta.trim()) fd.append('no_carpeta_investigacion', noCarpeta.trim())
-
-            // Datos del titular
-            if (nombre.trim()) fd.append('nombre_titular_liberacion', nombre.trim())
-            if (appaterno.trim()) fd.append('appaterno_titular_liberacion', appaterno.trim())
-            if (apmaterno.trim()) fd.append('apmaterno_titular_liberacion', apmaterno.trim())
-            if (correoTitular.trim()) fd.append('correo_titular_liberacion', correoTitular.trim())
-            if (curpTitular.trim()) fd.append('curp_titular_liberacion', curpTitular.trim())
-
-            const res = await fetch(guardarOficioEndpoint, {
-                method: 'POST',
-                body: fd,
-            })
-            if (!res.ok) throw new Error('Error al guardar')
-
-
-
-            setSuccess(true)
-            onSuccess?.()
-        } catch (error) {
-            console.error(error)
-        } finally {
-            setSaving(false)
-        }
+            </>
+        )
     }
 
-    return (
-        <div className="rounded-xl border overflow-hidden" style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' }}>
-            <div className="px-5 py-3 flex items-center gap-3 border-b" style={{ background: '#FFF7ED', borderColor: '#FED7AA66' }}>
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#F97316' }}>
-                    <FileText size={14} strokeWidth={2.2} className="text-white" />
-                </div>
-                <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#F97316' }}>Registrar Oficio </h3>
-            </div>
-
-            <div className="p-5 space-y-4">
-                {success ? (
-                    <div className="rounded-xl border p-4 text-center" style={{ borderColor: '#BBF7D0', background: '#F0FDF4' }}>
-                        <CheckCircle2 size={24} strokeWidth={2} className="mx-auto text-[#22C55E]" />
-                        <p className="text-[14px] font-semibold text-[#166534] mt-2">Oficio registrado</p>
-                        <p className="text-[12px] text-[#16A34A] mt-0.5">Los datos se guardaron correctamente.</p>
-                    </div>
-                ) : (
-                    <>
-                        {/* Número de Oficio */}
-                        <div className="space-y-1">
-                            <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B]">Número de Oficio</label>
-                            <input
-                                type="text"
-                                value={numeroOficio}
-                                onChange={e => setNumeroOficio(e.target.value)}
-                                placeholder="Escriba el número de oficio"
-                                className="w-full rounded-lg border px-3 py-2 text-[14px] outline-none transition-all"
-                                style={{ borderColor: '#E2E8F0', color: '#0F172A', background: '#FFFFFF' }}
-                                onFocus={e => { e.target.style.borderColor = '#F97316'; e.target.style.boxShadow = '0 0 0 3px rgba(249,115,22,0.12)' }}
-                                onBlur={e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.boxShadow = 'none' }}
-                            />
-                        </div>
-
-                        {/* No. Carpeta Investigación */}
-                        <div className="space-y-1">
-                            <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B]">
-                                No. Carpeta de Investigación <span className="text-[#94A3B8] font-normal normal-case">(opcional)</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={noCarpeta}
-                                onChange={e => setNoCarpeta(e.target.value)}
-                                placeholder="Ej: C-2025-00123"
-                                className="w-full rounded-lg border px-3 py-2 text-[14px] outline-none transition-all"
-                                style={{ borderColor: '#E2E8F0', color: '#0F172A', background: '#FFFFFF' }}
-                                onFocus={e => { e.target.style.borderColor = '#F97316'; e.target.style.boxShadow = '0 0 0 3px rgba(249,115,22,0.12)' }}
-                                onBlur={e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.boxShadow = 'none' }}
-                            />
-                        </div>
-
-                        {/* ─── DATOS DEL TITULAR ─── */}
-                        <div className="rounded-lg p-4 space-y-3" style={{ background: esTitularBool ? '#F0FDF4' : '#FEF2F2', border: `1px solid ${esTitularBool ? '#BBF7D0' : '#FECACA'}` }}>
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="w-5 h-5 rounded flex items-center justify-center shrink-0" style={{ background: esTitularBool ? '#22C55E' : '#EF4444' }}>
-                                    <User size={11} strokeWidth={2.5} className="text-white" />
-                                </div>
-                                <p className="text-[12px] font-semibold" style={{ color: esTitularBool ? '#166534' : '#991B1B' }}>
-                                    {esTitularBool ? 'Datos del Titular (prellenados)' : 'Datos del Titular (capturar)'}
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <InputField label="Nombre(s)" value={nombre} onChange={setNombre} placeholder="Nombre(s)" />
-                                <InputField label="A. Paterno" value={appaterno} onChange={setAppaterno} placeholder="Paterno" />
-                                <InputField label="A. Materno" value={apmaterno} onChange={setApmaterno} placeholder="Materno" />
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <InputField label="Correo Electrónico" value={correoTitular} onChange={setCorreoTitular} placeholder="correo@ejemplo.com" />
-                                <InputField label="CURP" value={curpTitular} onChange={setCurpTitular} placeholder="CURP (18 caracteres)" mono maxLength={18} />
-                            </div>
-                        </div>
-
-                        {/* Subir Archivo */}
-                        <div className="space-y-1">
-                            <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B]">
-                                Archivo del Oficio <span className="text-[#94A3B8] font-normal normal-case">(PDF o imagen)</span>
-                            </label>
-                            <button
-                                onClick={() => fileRef.current?.click()}
-                                className="w-full rounded-lg border-2 border-dashed p-4 flex flex-col items-center gap-2 transition-colors cursor-pointer"
-                                style={{ borderColor: archivo ? '#F97316' : '#E2E8F0', background: archivo ? '#FFF7ED' : '#FAFAFA' }}
-                            >
-                                {archivo ? (
-                                    <>
-                                        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#F97316' }}>
-                                            <FileText size={16} strokeWidth={2} className="text-white" />
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-[13px] font-medium text-[#0F172A] truncate max-w-[180px]">{archivo.name}</p>
-                                            <p className="text-[11px] text-[#64748B]">{(archivo.size / 1024).toFixed(1)} KB</p>
-                                        </div>
-                                        <button
-                                            onClick={e => { e.stopPropagation(); setArchivo(null); if (fileRef.current) fileRef.current.value = '' }}
-                                            className="text-[11px] text-[#EF4444] font-medium hover:underline"
-                                        >
-                                            Quitar archivo
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Upload size={20} strokeWidth={1.5} className="text-[#94A3B8]" />
-                                        <p className="text-[13px] font-medium text-[#64748B]">Seleccionar archivo</p>
-                                        <p className="text-[11px] text-[#94A3B8]">PDF o imagen &middot; Máx 10 MB</p>
-                                    </>
-                                )}
-                            </button>
-                            <input
-                                ref={fileRef}
-                                type="file"
-                                accept="image/*,.pdf"
-                                className="hidden"
-                                onChange={e => setArchivo(e.target.files?.[0] ?? null)}
-                            />
-                        </div>
-
-                        <button
-                            onClick={handleSubmit}
-                            disabled={saving || (!numeroOficio.trim() && !archivo)}
-                            className="w-full rounded-lg py-2.5 text-[13px] font-semibold text-white transition-colors"
-                            style={{
-                                background: saving ? '#94A3B8' : '#F97316',
-                            }}
-                        >
-                            {saving ? 'Guardando…' : 'Guardar Documentos'}
-                        </button>
-                    </>
-                )}
-            </div>
-        </div>
-    )
-}
-
-// ─── INPUT FIELD ───
-
-function InputField({ label, value, onChange, placeholder, mono, maxLength }: {
-    label: string; value: string; onChange: (v: string) => void; placeholder?: string; mono?: boolean; maxLength?: number
-}) {
-    return (
-        <div className="space-y-1">
-            <label className="text-[10px] font-semibold tracking-wider uppercase text-[#64748B]">{label}</label>
-            <input
-                type="text"
-                value={value}
-                onChange={e => onChange(e.target.value)}
-                placeholder={placeholder}
-                maxLength={maxLength}
-                className={`w-full rounded-lg border px-2.5 py-1.5 text-[13px] outline-none transition-all ${mono ? 'font-mono tracking-wider' : ''}`}
-                style={{ borderColor: '#E2E8F0', color: '#0F172A', background: '#FFFFFF' }}
-                onFocus={e => { e.target.style.borderColor = '#F97316'; e.target.style.boxShadow = '0 0 0 3px rgba(249,115,22,0.12)' }}
-                onBlur={e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.boxShadow = 'none' }}
-            />
-        </div>
-    )
 }
 
 // ─── OFICIO LIBERACIÓN (solo lectura) ───

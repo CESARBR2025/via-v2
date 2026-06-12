@@ -151,7 +151,7 @@ export class DepInfraccionesRepository {
       console.log(`-> Buscando infracciones para: ${dependencia}`);
 
       query = `
-        SELECT
+       SELECT
           id,
           folio,
           estatus,
@@ -163,7 +163,7 @@ export class DepInfraccionesRepository {
           no_carpeta_investigacion
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-          AND estatus = 'REGISTRADA'
+          AND estatus_dependencia IN ('RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO')
           AND dependencia_receptora = $1
 
           
@@ -365,7 +365,7 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE tipo_garantia = 'VEHICULO'
-        AND estatus = 'REGISTRADA'
+         AND estatus_dependencia IN ('RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO')
         AND dependencia_receptora = $1
     `;
       values.push(dependencia);

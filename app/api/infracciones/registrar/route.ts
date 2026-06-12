@@ -34,6 +34,16 @@ export async function POST(req: NextRequest) {
 
     const payload = sanitizeCrearInfraccionPayload(body, oficialId);
 
+    // ─── ACCIDENTE + VEHICULO + DEPENDENCIA RECEPTORA ───
+    if (
+      body.garantiaSeleccionada === "VEHICULO" &&
+      body.motivoRetencionVehiculo === "ACCIDENTE" &&
+      body.dependenciaRemisora
+    ) {
+      payload.estatus = "REGISTRADA";
+      payload.estatusDependencia = "RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO";
+    }
+
     console.log("[PAYLOAD GENERADO]", payload);
     console.dir(payload, { depth: null });
 

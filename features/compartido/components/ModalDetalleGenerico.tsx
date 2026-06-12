@@ -306,9 +306,9 @@ export default function ModalDetalleGenerico({
                                         <h3 className="text-[13px] font-semibold text-[#0F172A]">Datos del Infractor</h3>
                                     </div>
                                     <div className="p-5">
-                                        {role === 'fiscalia' && !!detalle.datos_infractor.nombre_titular_liberacion ? (
+                                        {role === 'fiscalia' && detalle.Header.estatus === 'REGISTRADA' && detalle.Header.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO' && !!detalle.datos_infractor.nombre_titular_liberacion ? (
                                             <TitularVerificado detalle={detalle} />
-                                        ) : role === 'fiscalia' ? (
+                                        ) : role === 'fiscalia' && detalle.Header.estatus === 'REGISTRADA' && detalle.Header.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO' ? (
                                             <CapturaTitular />
                                         ) : (
                                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -558,7 +558,7 @@ function DatosInfractorSection({ detalle, role }: { detalle: DetalleCompleto; ro
     console.log(detalle)
     console.log(esTitular)
 
-    if (role === 'fiscalia') {
+    if (role === 'fiscalia' && detalle.Header.estatus === 'REGISTRADA' && detalle.Header.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO') {
         return esTitular ? <TitularVerificado detalle={detalle} /> : <CapturaTitular />;
     }
 

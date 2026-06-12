@@ -47,6 +47,7 @@ const STATUS_TABS: { key: EstatusFiscalia; label: string; icon: typeof Clock; co
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
     PENDIENTE: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
+    RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
     EN_PROCESO_FISCALIA: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
     LIBERADO_POR_FISCALIA: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
 }
@@ -63,7 +64,7 @@ export default function FiscaliaDashboard({
     const [filtro, setFiltro] = useState<EstatusFiscalia>('PENDIENTE')
 
     const estadisticas = useMemo(() => {
-        const pendientes = data.filter(x => x.estatus_dependencia === 'PENDIENTE').length
+        const pendientes = data.filter(x => x.estatus_dependencia === 'PENDIENTE' || x.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO').length
         const revision = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_FISCALIA').length
         const liberadas = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_FISCALIA').length
         return { pendientes, revision, liberadas }
@@ -72,7 +73,12 @@ export default function FiscaliaDashboard({
     const total = estadisticas.pendientes + estadisticas.revision + estadisticas.liberadas
 
     const registrosFiltrados = useMemo(
-        () => data.filter(x => x.estatus_dependencia === filtro),
+        () => data.filter(x => {
+            if (filtro === 'PENDIENTE') {
+                return x.estatus_dependencia === 'PENDIENTE' || x.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO'
+            }
+            return x.estatus_dependencia === filtro
+        }),
         [data, filtro],
     )
 
