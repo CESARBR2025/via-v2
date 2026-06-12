@@ -6,6 +6,7 @@ import { Play, FileText, CheckCircle2, Upload, User, Eye, ShieldCheck, ScrollTex
 import FiscaliaDashboard from "@/features/fiscalia/components/FiscaliaDashboard"
 import JuzgadoDashboard from "@/features/juzgado/components/JuzgadoDashboard"
 import LiberacionesDashboard from "@/features/liberaciones/components/LiberacionesDashboard"
+import CapturarInfractorSection from "@/features/liberaciones/components/CapturarInfractorSection"
 import CorralonMWDashboard from "@/features/corralon-mw/components/CorralonMWDashboard"
 import CorralonMejiaDashboard from "@/features/corralon-mejia/components/CorralonMejiaDashboard"
 import InfraccionesDashboard from "@/features/infracciones/components/InfraccionesDashboard"
@@ -54,6 +55,7 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
     const [detalle, setDetalle] = useState<DetalleCompleto | null>(null)
     const [confirmOpen, setConfirmOpen] = useState(false)
     const [confirmLoading, setConfirmLoading] = useState(false)
+    const [revisionModalId, setRevisionModalId] = useState<string | null>(null)
 
     if (!userRole) {
         return <div className="text-red-500 font-medium p-4">Error: No tienes un rol asignado.</div>
@@ -79,13 +81,20 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
     console.log(detalle)
 
     async function handleOpenDetalle(id: string) {
-        setOpen(true)
-        setDetalle(null)
-        await refetchDetalle(id)
+        const row = listaDatos.find(r => r.id === id)
+        if (row?.estatus === 'REGISTRADA' && row?.estatus_dependencia === 'MESA_DE_CONTROL_REVISION') {
+            setOpen(false)
+            setRevisionModalId(id)
+        } else {
+            setOpen(true)
+            setDetalle(null)
+            await refetchDetalle(id)
+        }
     }
 
     function handleCloseDetalle() {
         setOpen(false)
+        setRevisionModalId(null)
         router.refresh()
     }
 
@@ -178,162 +187,19 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                             ),
                         ] : []
                     }
+
                 />
-            </>
-        )
-    }
+            </> 
+            )
+        }
 
-    if (userRole === 'fiscalia') {
-        const estatus = detalle?.Header?.estatus_dependencia
-        const mostrarBotonInicio = estatus === 'PENDIENTE'
-        const enProceso = estatus === 'EN_PROCESO_FISCALIA'
-
-        return (
-            <>
-                <InfraccionesDashboard
-                    data={listaDatos}
-                    visibleColumns={visibleColumns}
-                    onOpenDetalle={handleOpenDetalle}
-                />
-
-                <ModalDetalleGenerico
-                    isOpen={open}
-                    onClose={handleCloseDetalle}
-                    loading={loading}
-                    detalle={detalle}
-                    role="fiscalia"
-                    onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
-                    antesContenido={
-                        mostrarBotonInicio || enProceso ? (
-                            <CapturarDatosTitularSection
-                                detalle={detalle!}
-                                onSuccess={() => refetchDetalle(detalle!.Header.id_infraccion)}
-                            />
-                        ) : undefined
-                    }
-                    sidebarExtra={
-                        detalle?.Header && !mostrarBotonInicio ? [
-                            enProceso ? (
-                                <CargarOficioSection
-                                    key="cargar-oficio"
-                                    idInfraccion={detalle.Header.id_infraccion}
-                                    noOficioActual={detalle.Header.no_oficio_fiscalia}
-                                    noCarpetaActual={detalle.Header.no_carpeta_investigacion}
-                                    esTitular={detalle.datos_infractor?.es_titular}
-                                    nombreInfractor={detalle.datos_infractor?.nombre_infractor}
-                                    appaternoInfractor={detalle.datos_infractor?.appaterno_infractor}
-                                    apmaternoInfractor={detalle.datos_infractor?.apmaterno_infractor}
-                                    correoInfractor={detalle.datos_infractor?.correo_infractor}
-                                    curpInfractor={detalle.datos_infractor?.curp_infractor}
-                                    onSuccess={() => refetchDetalle(detalle.Header.id_infraccion)}
-                                />
-                            ) : (
-                                <OficioLiberacionSection
-                                    key="oficio"
-                                    numeroOficio={detalle.Header.no_oficio_fiscalia}
-                                    urlOficio={detalle.Header.url_oficio_fiscalia}
-                                />
-                            ),
-                        ] : []
-                    }
-                />
-
-                <ConfirmacionModal
-                    isOpen={confirmOpen}
-                    onConfirmar={() => iniciarRevision('/api/fiscalia/iniciarProceso')}
-                    onCancelar={() => setConfirmOpen(false)}
-                    loading={confirmLoading}
-                    titulo="Iniciar atención al caso"
-                    mensaje="Esta acción cambiará el estatus de la infracción a «En Proceso» y notificará al área correspondiente. ¿Deseas continuar?"
-                    labelConfirmar="Sí, iniciar proceso"
-                    labelCancelar="Cancelar"
-                    variant="success"
-                />
-            </>
-        )
-    }
-
-    if (userRole === 'juzgado_civico') {
-        console.log('entro ')
-        const estatus = detalle?.Header?.estatus_dependencia
-        const mostrarBotonInicio = estatus === 'PENDIENTE'
-        const enProceso = estatus === 'EN_PROCESO_JUZGADO'
-
-        return (
-            <>
-                <JuzgadoDashboard
-                    data={listaDatos}
-                    visibleColumns={visibleColumns}
-                    onOpenDetalle={handleOpenDetalle}
-                />
-
-                <ModalDetalleGenerico
-                    isOpen={open}
-                    onClose={handleCloseDetalle}
-                    loading={loading}
-                    detalle={detalle}
-                    role="juzgado"
-                    onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
-                    antesContenido={
-                        mostrarBotonInicio ? (
-                            <button
-                                onClick={() => setConfirmOpen(true)}
-                                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-colors"
-                                style={{ background: '#8B5CF6', boxShadow: '0 4px 12px rgba(139,92,246,0.3)' }}
-                            >
-                                <Play size={14} strokeWidth={2.5} fill="white" />
-                                Iniciar atención al caso
-                            </button>
-                        ) : undefined
-                    }
-                    sidebarExtra={
-                        detalle?.Header && !mostrarBotonInicio ? [
-                            enProceso ? (
-                                <CargarOficioSection
-                                    key="cargar-oficio"
-                                    idInfraccion={detalle.Header.id_infraccion}
-                                    noOficioActual={detalle.Header.no_oficio_fiscalia}
-                                    noCarpetaActual={detalle.Header.no_carpeta_investigacion}
-                                    esTitular={detalle.datos_infractor?.es_titular}
-                                    nombreInfractor={detalle.datos_infractor?.nombre_infractor}
-                                    appaternoInfractor={detalle.datos_infractor?.appaterno_infractor}
-                                    apmaternoInfractor={detalle.datos_infractor?.apmaterno_infractor}
-                                    correoInfractor={detalle.datos_infractor?.correo_infractor}
-                                    curpInfractor={detalle.datos_infractor?.curp_infractor}
-                                    guardarOficioEndpoint="/api/juzgado/guardarOficio"
-                                    onSuccess={() => refetchDetalle(detalle.Header.id_infraccion)}
-                                />
-                            ) : (
-                                <OficioLiberacionSection
-                                    key="oficio"
-                                    numeroOficio={detalle.Header.no_oficio_fiscalia}
-                                    urlOficio={detalle.Header.url_oficio_fiscalia}
-                                />
-                            ),
-                        ] : []
-                    }
-                />
-
-                <ConfirmacionModal
-                    isOpen={confirmOpen}
-                    onConfirmar={() => iniciarRevision('/api/liberaciones/iniciarProceso')}
-                    onCancelar={() => setConfirmOpen(false)}
-                    loading={confirmLoading}
-                    titulo="Asignar caso"
-                    mensaje="¿Deseas tomar este caso? El estatus cambiará a «En Proceso» y se te asignará la atención."
-                    labelConfirmar="Sí, tomar caso"
-                    labelCancelar="Cancelar"
-                    variant="success"
-                />
-            </>
-        )
-    }
-
-    if (userRole === 'liberaciones') {
-        const estatus = detalle?.Header?.estatus_dependencia
-        const mostrarBotonInicio = estatus === 'ESPERA_REVISION'
-        const enProceso = estatus === 'EN_PROCESO_LIBERACIONES'
-        const liberado = estatus === 'LIBERADO_POR_LIBERACIONES'
+        if (userRole === 'liberaciones') {
+            const estatus = detalle?.Header?.estatus_dependencia
+            const estatusInfraccion = detalle?.Header?.estatus
+            const mostrarBotonInicio = estatus === 'ESPERA_REVISION'
+            const mostrarCapturaInfractor = estatus === 'VEHICULO_EN_CORRALON'
+            const enProceso = estatus === 'EN_PROCESO_LIBERACIONES'
+            const liberado = estatus === 'LIBERADO_POR_LIBERACIONES'
         console.log(detalle)
 
         return (
@@ -343,6 +209,29 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                     visibleColumns={visibleColumns}
                     onOpenDetalle={handleOpenDetalle}
                 />
+
+                {/* MODAL REVISIÓN DOCUMENTOS (MESA_DE_CONTROL_REVISION) */}
+                {revisionModalId && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#F1F5F9] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+                            <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-[#E2E8F0] rounded-t-2xl">
+                                <h2 className="text-[15px] font-semibold text-[#0F172A]">Revisión de documentos</h2>
+                                <button
+                                    onClick={() => { setRevisionModalId(null); router.refresh() }}
+                                    className="px-4 py-2 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[13px] font-medium text-[#64748B] transition"
+                                >
+                                    Cerrar
+                                </button>
+                            </div>
+                            <div className="p-6">
+                                <RevisionDocumentosSection
+                                    infraccionId={revisionModalId}
+                                    onValidated={() => { setRevisionModalId(null); router.refresh() }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <ModalDetalleGenerico
                     isOpen={open}
@@ -364,7 +253,13 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                         ) : undefined
                     }
                     fullWidthExtra={
-                        enProceso && detalle?.Header ? [
+                        mostrarCapturaInfractor && detalle?.Header ? [
+                            <CapturarInfractorSection
+                                key="capturar-infractor"
+                                infraccionId={detalle.Header.id_infraccion}
+                                onSuccess={() => refetchDetalle(detalle.Header.id_infraccion)}
+                            />,
+                        ] : enProceso && detalle?.Header ? [
                             <RevisionDocumentosSection
                                 key="revision-docs"
                                 infraccionId={detalle.Header.id_infraccion}

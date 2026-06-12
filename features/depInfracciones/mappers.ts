@@ -4,6 +4,9 @@ import { safeRowMapper } from "./components/TablaDevInfracciones/utils/safeRow";
 import { InfraccionDetail, InfraccionListItem } from "./types";
 
 export const mapInfraccionListItem = (row: any): InfraccionListItem => ({
+  // Estatus importantes
+  estatusInfraccion: row.estatus,
+
   // Extras para fiscalia
   estatus_dependencia: row.estatus_dependencia,
   no_carpeta_investigacion: row.no_carpeta_investigacion,

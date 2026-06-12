@@ -6,7 +6,8 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     const data = await procesarSubidaDocumentos(formData, {
-      estatus_dependencia: "ESPERA_REVISION",
+      estatus: "REGISTRADA",
+      estatus_dependencia: "MESA_DE_CONTROL_REVISION",
     });
 
     return NextResponse.json(
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.error("[CIUDADANO][SUBIR DOCUMENTOS]", error);
+    console.error("[CIUDADANO][SUBIR DOCUMENTOS INFRACCION]", error);
 
     return NextResponse.json(
       {

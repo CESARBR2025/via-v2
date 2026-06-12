@@ -112,7 +112,7 @@ export const sanitizeCrearInfraccionPayload = (
   body: any,
   oficialId: string,
 ): CrearInfraccionDTO => {
-  return {
+  const payload: CrearInfraccionDTO = {
     dependenciaRemisora: body.dependenciaRemisora,
 
     correoInfractor: body.correoInfractor,
@@ -201,4 +201,11 @@ export const sanitizeCrearInfraccionPayload = (
 
     placaPatrulla: null,
   };
+
+  if (body.garantiaSeleccionada === "VEHICULO") {
+    payload.estatus = "REGISTRADA";
+    payload.estatusDependencia = "VEHICULO_EN_CORRALON";
+  }
+
+  return payload;
 };

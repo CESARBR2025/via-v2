@@ -1,6 +1,8 @@
 // types/infraccion.types.ts
 
 export type InfraccionListItem = {
+  estatusInfraccion: string;
+
   //extras fiscalia
   estatus_dependencia: string;
   no_carpeta_investigacion: string;

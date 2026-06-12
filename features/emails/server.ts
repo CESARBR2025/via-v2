@@ -4,6 +4,7 @@ import { sendMail } from "./mailer";
 import {
   templateAsignacionFiscalia,
   templateAsignacionJuzgado,
+  templateCapturaInfractor,
   templateInfraccion,
 } from "./templates/sendInfraccion";
 
@@ -62,6 +63,36 @@ export async function enviarCorreoInfraccion(data: EnviarCorreoParams) {
     text,
     html,
 
+    attachments: [
+      {
+        filename: "qr.png",
+        content: qrBuffer,
+        cid: "qr_infraccion",
+      },
+    ],
+  });
+}
+
+export async function enviarCorreoCapturaInfractor(data: EnviarCorreoParams) {
+  const baseUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://via-v2.vercel.app"
+      : "http://localhost:3000";
+
+  const urlVistaCiudadano = `${baseUrl}/infracciones/${data.idInfraccion}`;
+
+  const qrBuffer = await QRCode.toBuffer(urlVistaCiudadano);
+
+  const { html, text } = templateCapturaInfractor({
+    ...data,
+    urlVistaCiudadano,
+  });
+
+  await sendMail({
+    to: data.correoInfractor,
+    subject: `SSPM - Documentación Requerida #${data.folio}`,
+    text,
+    html,
     attachments: [
       {
         filename: "qr.png",

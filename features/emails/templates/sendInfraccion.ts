@@ -117,6 +117,109 @@ export function templateInfraccion(data: TemplateParams) {
   };
 }
 
+export function templateCapturaInfractor(data: TemplateParams) {
+  const html = `
+    <div style="
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        padding: 40px;
+    ">
+        <div style="
+            max-width: 620px;
+            margin: auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            border: 1px solid #e5e7eb;
+        ">
+            <h1 style="
+                color: #1e3a8a;
+                margin-bottom: 10px;
+            ">
+                Documentación Requerida
+            </h1>
+
+            <p>
+                Hola <b>${data.nombreInfractor}</b>,
+            </p>
+
+            <p>
+                Tus datos han sido registrados correctamente. Tu vehículo se
+                encuentra en el corralón y necesitas subir la documentación
+                requerida para continuar con el proceso de liberación.
+            </p>
+
+            <div style="
+                background: #eff6ff;
+                padding: 16px;
+                border-radius: 12px;
+                margin: 24px 0;
+            ">
+                <p style="margin:0;">
+                    <b>Folio:</b> ${data.folio}
+                </p>
+            </div>
+
+            <p>
+                Ingresa al siguiente enlace para subir tus documentos:
+            </p>
+
+            <div style="
+                text-align:center;
+                margin: 30px 0;
+            ">
+                <img
+                    src="cid:qr_infraccion"
+                    width="220"
+                    height="220"
+                />
+            </div>
+
+            <a
+                href="${data.urlVistaCiudadano}"
+                style="
+                    color:#2563eb;
+                    word-break: break-all;
+                    display:block;
+                    text-align:center;
+                    margin-top:16px;
+                "
+            >
+                ${data.urlVistaCiudadano}
+            </a>
+
+            <hr style="
+                margin: 32px 0;
+                border:none;
+                border-top:1px solid #e5e7eb;
+            " />
+
+            <p style="
+                font-size: 12px;
+                color:#6b7280;
+            ">
+                SSPM - Sistema de Gestión de Infracciones
+            </p>
+        </div>
+    </div>
+  `;
+
+  const text = `
+    Hola ${data.nombreInfractor}
+
+    Tus datos han sido registrados correctamente. Tu vehículo se
+    encuentra en el corralón y necesitas subir la documentación
+    requerida para continuar con el proceso de liberación.
+
+    Folio: ${data.folio}
+
+    Ingresa al siguiente enlace para subir tus documentos:
+    ${data.urlVistaCiudadano}
+  `;
+
+  return { html, text };
+}
+
 export function templateAsignacionJuzgado(
   data: EnviarCorreoAsignacionJuzgadoParams,
 ) {

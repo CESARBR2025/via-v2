@@ -136,7 +136,8 @@ export class DepInfraccionesRepository {
           created_at,
           correo_infractor,
           nombre_infractor,
-          estatus_dependencia
+          estatus_dependencia,
+          estatus
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
         AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'EN_REVISION_MW', 'CERRADA')
@@ -183,26 +184,9 @@ export class DepInfraccionesRepository {
           estatus_dependencia,
           no_carpeta_investigacion
         FROM v2_infracciones
-        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADO_POR_LIBERACIONES') 
-      
-      `;
-    } else if (dependencia === "LIBERACIONES") {
-      console.log(`-> Buscando infracciones para: ${dependencia}`);
+        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADO_POR_LIBERACIONES', 'VEHICULO_EN_CORRALON')
+           OR (estatus = 'REGISTRADA' AND estatus_dependencia = 'MESA_DE_CONTROL_REVISION')
 
-      query = `
-       SELECT
-          id,
-          folio,
-          estatus,
-          placa,
-          created_at,
-          correo_infractor,
-          nombre_infractor,
-          estatus_dependencia,
-          no_carpeta_investigacion
-        FROM v2_infracciones
-        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADO_POR_LIBERACIONES') 
-      
       `;
     } else if (dependencia === "INFRACCIONES") {
       console.log(`-> Buscando infracciones para: ${dependencia}`);
@@ -224,13 +208,13 @@ export class DepInfraccionesRepository {
           ops.estatus AS estatus_orden_pago
         FROM v2_infracciones i
         LEFT JOIN v2_ordenes_pago_sa7 ops ON ops.infraccion_id = i.id
-        WHERE i.tipo_garantia != 'VEHICULO'
+        WHERE (i.tipo_garantia != 'VEHICULO' OR i.estatus_dependencia = 'VEHICULO_EN_CORRALON')
           AND (
-            i.estatus_dependencia IN ('PENDIENTE_DATOS_INFRACTOR', 'PENDIENTE_PAGO_INFRACCION', 'PENDIENTE_PAGO_INSTANTE', 'PLACA_RETENIDA_EN_TRANSITO', 'PENDIENTE_ENTREGA_GARANTIA', 'PENDIENTE_DEVOLUCION_GARANTIA', 'LIBERADO_POR_INFRACCIONES')
+            i.estatus_dependencia IN ('PENDIENTE_DATOS_INFRACTOR', 'PENDIENTE_PAGO_INFRACCION', 'PENDIENTE_PAGO_INSTANTE', 'PLACA_RETENIDA_EN_TRANSITO', 'PENDIENTE_ENTREGA_GARANTIA', 'PENDIENTE_DEVOLUCION_GARANTIA', 'LIBERADO_POR_INFRACCIONES', 'VEHICULO_EN_CORRALON')
             OR
             (i.estatus_dependencia IS NULL AND i.estatus = 'PENDIENTE_DATOS_INFRACTOR')
           )
-          
+
       `;
     }
 
@@ -365,7 +349,7 @@ export class DepInfraccionesRepository {
       query = `
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
-      WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES')
+      WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'VEHICULO_EN_CORRALON')
     `;
     } else if (dependencia === "INFRACCIONES") {
       query = `

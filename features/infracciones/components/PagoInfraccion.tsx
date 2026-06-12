@@ -31,6 +31,7 @@ export default function PagoInfraccion({
 }: Props) {
     console.log(estatus)
 
+    console.log(urlPago)
     const router = useRouter();
 
     const [open, setOpen] = useState(false);
@@ -75,6 +76,10 @@ export default function PagoInfraccion({
             } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PLACA_RETENIDA_EN_TRANSITO') {
                 // Caso 3: garantia retenida y pago despues
                 url = `/api/pagosInfracciones/confirmarPagoRetenida/${ordenPagoId}/${infraccionId}`
+            } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_LIBERACION') {
+                // Caso 4: Pago de infraccion liberacion
+                console.log('entro aqui')
+                url = `/api/pagosInfracciones/confirmarPagoLiberacion/${ordenPagoId}/${infraccionId}`
             }
 
             const res = await fetch(url,
@@ -297,6 +302,10 @@ export default function PagoInfraccion({
                                 <p className="text-xs text-slate-500">
                                     Plataforma segura
                                 </p>
+
+
+
+
 
                             </div>
 

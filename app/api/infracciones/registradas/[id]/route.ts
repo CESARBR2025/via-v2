@@ -7,9 +7,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  console.log(id);
 
   try {
     let infraccion = await InfraccionesService.obtenerPorId(id);
+    console.log(infraccion);
 
     if (!infraccion) {
       return NextResponse.json(
@@ -21,23 +23,17 @@ export async function GET(
       );
     }
 
-    if (!infraccion.fecha_vencimiento) {
-      throw new Error("La infracción no tiene fecha de vencimiento");
-    }
-
     // =====================================================
     // FECHAS
     // =====================================================
 
     const fechaActual = new Date();
-
-    const fechaLimiteDescuento = new Date(infraccion.fecha_limite_descuento);
-
-    const fechaVencimientoOrden = new Date(infraccion.fecha_vencimiento);
-
-    const descuentoVencido = fechaActual > fechaLimiteDescuento;
-
-    const ordenVencida = fechaActual > fechaVencimientoOrden;
+    const fechaLimiteDescuento = infraccion.fecha_limite_descuento
+      ? new Date(infraccion.fecha_limite_descuento)
+      : null;
+    const fechaVencimientoOrden = infraccion.fecha_vencimiento
+      ? new Date(infraccion.fecha_vencimiento)
+      : null;
 
     // =====================================================
     // REGENERAR ORDEN
@@ -81,7 +77,12 @@ export async function GET(
     // LOGICA DE NEGOCIO
     // =====================================================
 
-    if (infraccion.estatusPago !== "P") {
+    if (fechaVencimientoOrden && infraccion.estatusPago !== "P") {
+      const descuentoVencido = fechaLimiteDescuento
+        ? fechaActual > fechaLimiteDescuento
+        : false;
+      const ordenVencida = fechaActual > fechaVencimientoOrden;
+
       // Prioridad 1:
       // Si el descuento venció, la orden actual deja de servir.
       // Debe generarse una nueva SIN descuento.
