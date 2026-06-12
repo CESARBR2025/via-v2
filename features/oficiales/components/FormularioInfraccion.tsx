@@ -676,6 +676,10 @@ export default function FormularioInfraccion() {
                 });
             }
 
+            // Meter datos de estatus a
+
+
+
             // Leer datos frescos del store (después del auto-descuento)
             const storeData = useInfraccionStore.getState().datos;
 

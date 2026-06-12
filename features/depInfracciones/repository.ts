@@ -184,7 +184,7 @@ export class DepInfraccionesRepository {
           estatus_dependencia,
           no_carpeta_investigacion
         FROM v2_infracciones
-        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADO_POR_LIBERACIONES', 'VEHICULO_EN_CORRALON')
+        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADA_POR_INFRACCION', 'VEHICULO_EN_CORRALON')
            OR (estatus = 'REGISTRADA' AND estatus_dependencia = 'MESA_DE_CONTROL_REVISION')
 
       `;

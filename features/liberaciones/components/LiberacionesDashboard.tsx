@@ -51,6 +51,7 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; labe
     MESA_DE_CONTROL_REVISION: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'En revisión' },
     EN_PROCESO_LIBERACIONES: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
     LIBERADO: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
+    LIBERADA_POR_INFRACCION: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
 }
 
 function getBadge(status: string) {
@@ -68,7 +69,7 @@ export default function LiberacionesDashboard({
 
         const pendientes = data.filter(x => x.estatus_dependencia === 'ESPERA_REVISION' || x.estatus_dependencia === 'VEHICULO_EN_CORRALON').length
         const revision = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_LIBERACIONES' || (x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'MESA_DE_CONTROL_REVISION')).length
-        const liberadas = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_LIBERACIONES').length
+        const liberadas = data.filter(x => x.estatus === 'CERRADA' && x.estatus_dependencia === 'LIBERADA_POR_INFRACCION').length
         return { pendientes, revision, liberadas }
     }, [data])
 
@@ -82,7 +83,7 @@ export default function LiberacionesDashboard({
             if (filtro === 'EN_PROCESO_LIBERACIONES') {
                 return x.estatus_dependencia === 'EN_PROCESO_LIBERACIONES' || (x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'MESA_DE_CONTROL_REVISION')
             }
-            return x.estatus_dependencia === filtro
+            return x.estatus === 'CERRADA' && x.estatus_dependencia === 'LIBERADA_POR_INFRACCION'
         }),
         [data, filtro],
     )
