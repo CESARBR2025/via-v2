@@ -272,7 +272,7 @@ export default function FormularioInfraccion() {
             // ─────────────────────────────────────────────────────────────
             try {
                 const res = await fetch(
-                    `/api/pagosInfracciones/verificar/${ordenPagoId}/${infraccionCreada.id}?finalizar=true`,
+                    `/api/pagosInfracciones/finalizarPagoInstante/${ordenPagoId}/${infraccionCreada.id}`,
                     {
                         method: 'GET',
                         cache: 'no-store',

@@ -9,6 +9,7 @@ import {
     Loader2,
     X,
 } from 'lucide-react';
+import { emitKeypressEvents } from 'readline';
 
 type Props = {
     infraccionId: string;
@@ -68,6 +69,9 @@ export default function PagoInfraccion({
             if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_INFRACCION') {
                 url = `/api/pagosInfracciones/confirmarPagoAusente/${ordenPagoId}/${infraccionId}`
 
+            } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_INSTANTE') {
+                // Caso 2: ciudaadno paga infraccion al instante y no se retiene la garantia
+                url = `/api/pagosInfracciones/confirmarPagoInstante/${ordenPagoId}/${infraccionId}`
             }
 
             const res = await fetch(url,
