@@ -30,6 +30,8 @@ export interface CrearInfraccionDTO {
 
   placa: string;
 
+  noSerieVehiculo?: string | null;
+
   tipoVehiculo: string;
   anioVehiculo: string;
 
@@ -116,6 +118,7 @@ export interface InfraccionDB {
 
   anioVehiculo: string;
   tipoVehiculo: string;
+  no_serie_vehiculo: string;
 
   latitud: number | null;
 

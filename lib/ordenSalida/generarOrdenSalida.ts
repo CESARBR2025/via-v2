@@ -112,6 +112,7 @@ function parrafoMixtoConWrap(
 }
 
 export async function generarOrdenSalidaVehiculo({ data }: any) {
+  console.log("entro");
   console.log(data);
   const no_externo = data.noExterno ?? " ";
 
@@ -131,7 +132,7 @@ export async function generarOrdenSalidaVehiculo({ data }: any) {
   const placa = (data.placa ?? "—").toUpperCase();
 
   const director = "CMTE. FRANCISCO JAVIER VERTIZ VELAZQUEZ".toUpperCase();
-  const nombreRecibe = `C. ${data.nombreTitularCompleto}`.toUpperCase();
+  const nombreRecibe = `C. ${data.nombreTitular}`.toUpperCase();
   console.log(nombreRecibe);
 
   const empresaFiscal = data.rfc ? data.empresaFiscal : "Titular";

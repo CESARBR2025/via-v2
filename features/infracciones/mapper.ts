@@ -34,17 +34,16 @@ export const mapCrearInfraccionToDB = (
 
     apellido_materno_infractor: data.apellidoMaternoInfractor ?? null,
 
+    // Datos de vehiculo
     marca: data.marca ?? null,
-
     modelo: data.modelo ?? null,
-
     color: data.color ?? null,
-
     tipoVehiculo: data.tipoVehiculo ?? "VACIO",
     anioVehiculo: data.anioVehiculo ?? "VACIO",
-
     placa: data.placa,
+    no_serie_vehiculo: data.noSerieVehiculo ?? undefined,
 
+    // Datos de ubicación
     latitud: data.latitud ?? null,
     longitud: data.longitud ?? null,
 

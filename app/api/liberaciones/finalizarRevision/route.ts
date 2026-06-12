@@ -74,9 +74,7 @@ export async function PATCH(request: Request) {
       ? "MESA_DE_CONTROL_RECHAZADA"
       : "PENDIENTE_PAGO_LIBERACION";
 
-    const nuevoEstatus = tieneRechazados
-      ? "REGISTRADA"
-      : "PENDIENTE_PAGO";
+    const nuevoEstatus = tieneRechazados ? "REGISTRADA" : "PENDIENTE_PAGO";
 
     // ─────────────────────────────────────────────────────────────
     // GENERAR ORDEN DE PAGO SA7 (solo si todos aprobados)
@@ -105,15 +103,28 @@ export async function PATCH(request: Request) {
         if (datosSA7Res.rows.length > 0) {
           const dbData = datosSA7Res.rows[0];
 
-          const nombreUsuario = (dbData.nombre_titular_liberacion || dbData.nombre_infractor || "").trim();
-          const apellidosUsuario = [
-            dbData.appaterno_titular_liberacion || dbData.apellido_paterno_infractor || "",
-            dbData.apmaterno_titular_liberacion || dbData.apellido_materno_infractor || "",
-          ].filter(Boolean).join(" ").trim() || "SIN APELLIDO";
+          const nombreUsuario = (
+            dbData.nombre_titular_liberacion ||
+            dbData.nombre_infractor ||
+            ""
+          ).trim();
+          const apellidosUsuario =
+            [
+              dbData.appaterno_titular_liberacion ||
+                dbData.apellido_paterno_infractor ||
+                "",
+              dbData.apmaterno_titular_liberacion ||
+                dbData.apellido_materno_infractor ||
+                "",
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .trim() || "SIN APELLIDO";
 
-          const baseUrl = process.env.NODE_ENV === "production"
-            ? "https://via-v2.vercel.app"
-            : "http://localhost:3000";
+          const baseUrl =
+            process.env.NODE_ENV === "production"
+              ? "https://via-v2.vercel.app"
+              : "http://localhost:3000";
 
           const tokenRes = await fetch(`${baseUrl}/api/auth/token-guest`, {
             method: "POST",
@@ -146,13 +157,19 @@ export async function PATCH(request: Request) {
                 rfc: "",
                 conceptosIds: [CONCEPTO_PRUEBA],
                 cantidades: { [CONCEPTO_PRUEBA]: descuento },
-                referencias: { [CONCEPTO_PRUEBA]: [`${nombreUsuario} ${apellidosUsuario}`, ""] },
+                referencias: {
+                  [CONCEPTO_PRUEBA]: [
+                    `${nombreUsuario} ${apellidosUsuario}`,
+                    "",
+                  ],
+                },
                 id_usuario_general: "17336",
                 tipo_tramite: "via_v2_cobro_infracciones_online",
                 folio: dbData.folio,
               };
 
-              const SA7_URL = "https://sanjuandelrio.sytes.net:3044/api/sasiete/qas/generar-orden-completa";
+              const SA7_URL =
+                "https://sanjuandelrio.sytes.net:3044/api/sasiete/qas/generar-orden-completa";
 
               const sa7Res = await fetch(SA7_URL, {
                 method: "POST",
@@ -168,7 +185,9 @@ export async function PATCH(request: Request) {
               const url_pago = sa7Res.headers.get("x-url-pago");
               const url_guardado = sa7Res.headers.get("x-url-guardado");
               const folio_orden = sa7Res.headers.get("x-folio-orden");
-              const fecha_vencimiento = sa7Res.headers.get("x-fecha-vencimiento");
+              const fecha_vencimiento = sa7Res.headers.get(
+                "x-fecha-vencimiento",
+              );
               const total_pesos = sa7Res.headers.get("x-total-pesos");
               const total_umas = sa7Res.headers.get("x-total-umas");
 
@@ -185,9 +204,19 @@ export async function PATCH(request: Request) {
                 )
                 `,
                 [
-                  infraccionId, dbData.folio, nombreUsuario, apellidosUsuario, CONCEPTO_PRUEBA,
-                  orden_pago_id, estatus, url_pago, url_guardado, folio_orden,
-                  fecha_vencimiento || null, total_pesos || 0, total_umas || 0,
+                  infraccionId,
+                  dbData.folio,
+                  nombreUsuario,
+                  apellidosUsuario,
+                  CONCEPTO_PRUEBA,
+                  orden_pago_id,
+                  estatus,
+                  url_pago,
+                  url_guardado,
+                  folio_orden,
+                  fecha_vencimiento || null,
+                  total_pesos || 0,
+                  total_umas || 0,
                   JSON.stringify(payloadSA7),
                 ],
               );
@@ -195,7 +224,10 @@ export async function PATCH(request: Request) {
           }
         }
       } catch (orderError) {
-        console.error("[SA7][ERROR] No se pudo generar la orden de pago:", orderError);
+        console.error(
+          "[SA7][ERROR] No se pudo generar la orden de pago:",
+          orderError,
+        );
       }
     }
 
@@ -218,144 +250,6 @@ export async function PATCH(request: Request) {
             `,
       [nuevoEstatusDep, solicitudId],
     );
-
-    // ─────────────────────────────────────────────────────────────
-    // LÓGICA PARA EMITIR ORDEN DE SALIDA Y ENVIAR POR CORREO
-    // ─────────────────────────────────────────────────────────────
-    if (nuevoEstatus === "PENDIENTE_PAGO") {
-      try {
-        // Consultamos todos los campos reales de tus tablas unificados
-        const datosOrdenRes = await db.query(
-          `
-                     SELECT 
-        i.id,
-        i.folio,
-        i.motivo_retencion,
-        i.tipo_garantia,
-        i.no_oficio_fiscalia,
-        i.no_carpeta_investigacion,
-        i.marca,
-        i.modelo,
-        i.color,
-        i.placa,
-        i.anio_vehiculo,
-        i.tipo_vehiculo,
-        i.estado,
-        i.nombre_infractor,
-        i.apellido_paterno_infractor,
-        i.apellido_materno_infractor,
-        i.nombre_titular_liberacion,
-        i.appaterno_titular_liberacion,
-        i.apmaterno_titular_liberacion,
-        i.correo_titular_liberacion,
-        s.es_empresa,
-        s.nombre_empresa,
-        s.rfc_empresa,
-        s.nombre_resp_fiscal,
-        s.appaterno_resp_fiscal,
-        s.apmaterno_resp_fiscal,
-        g.nombre as nombre_grua
-      FROM v2_infracciones i
-      LEFT JOIN v2_solicitudes_liberacion s ON s.infraccion_id = i.id
-      left join v2_gruas g on g.id = i.grua_id 
-      WHERE i.id = $1
-      ORDER BY s.created_at DESC
-      LIMIT 1
-                    `,
-          [infraccionId],
-        );
-
-        if (datosOrdenRes.rows.length > 0) {
-          const dbData = datosOrdenRes.rows[0];
-
-          // Determinar si es empresa (combinando ambas banderas por seguridad)
-          const esEmpresa = dbData.es_persona_moral || dbData.es_empresa;
-
-          // Regla de negocio: Nombre de la Empresa vs Nombre del Titular
-
-          // Prioriza el titular de la liberación; si no existe, usa los datos del infractor original
-          const tNombre = !dbData.es_empresa
-            ? dbData.nombre_titular_liberacion
-            : dbData.nombre_resp_fiscal;
-          const tPaterno = !dbData.es_empresa
-            ? dbData.appaterno_titular_liberacion
-            : dbData.appaterno_resp_fiscal;
-
-          const tMaterno = !dbData.es_empresa
-            ? dbData.apmaterno_titular_liberacion
-            : dbData.apmaterno_resp_fiscal;
-
-          const nombreRecibe = `${tNombre} ${tPaterno} ${tMaterno}`;
-          ("");
-
-          console.log(nombreRecibe);
-
-          // Construir el objeto estructurado para el generador de PDF
-          const dataParaPDF = {
-            id: dbData.id,
-            motivoRetencion:
-              dbData.motivo_retencion || "SIN MOTIVO ESPECIFICADO",
-            estadoOrigen: dbData.estado || "QUERÉTARO",
-            noSerie: dbData.no_carpeta_investigacion || "—",
-            garantiaRetenida: dbData.tipo_garantia || "VEHICULO",
-            grua: dbData.nombre_grua,
-            noOficio: dbData.folio || "0000",
-            rfc: esEmpresa,
-            empresaFiscal: dbData.nombre_empresa,
-            nombreTitular: nombreRecibe,
-            marca: dbData.marca,
-            tipoVehiculo: dbData.tipo_vehiculo,
-            modelo: dbData.anio_vehiculo,
-            color: dbData.color,
-            placa: dbData.placa,
-            noExterno: dbData.folio,
-          };
-
-          // Enviar notificación por correo electrónico
-          try {
-            const correoDestino =
-              dbData.correo_titular_liberacion || "sin_correo@dominio.com";
-            const nombreNotificacion = esEmpresa
-              ? nombreRecibe
-              : `${dbData.nombre_infractor} ${dbData.apellido_paterno_infractor}`.trim();
-
-            console.log(correoDestino);
-            console.log(nombreNotificacion);
-            console.log(dataParaPDF);
-            const pdfBuffer = await generarOrdenSalidaVehiculo({
-              data: dataParaPDF,
-            });
-
-            console.log("Es buffer:", Buffer.isBuffer(pdfBuffer));
-            console.log("Tamaño:", pdfBuffer.length);
-            console.log(
-              "Primeros bytes:",
-              pdfBuffer.subarray(0, 20).toString(),
-            );
-
-            await enviarOrdenLiberacionCorreo({
-              idInfraccion: dataParaPDF.id,
-              correoInfractor: correoDestino,
-              nombreInfractor: nombreNotificacion || "Ciudadano",
-              folio: dbData.folio || "SIN FOLIO",
-              pdfBuffer,
-            });
-            console.log("[MAIL][OK] Correo enviado exitosamente.");
-          } catch (mailError) {
-            console.error(
-              "[MAIL][ERROR] No se pudo enviar el correo:",
-              mailError,
-            );
-            // No bloqueamos el flujo principal si el servidor de correo falla
-          }
-        }
-      } catch (pdfError) {
-        console.error(
-          "[ORDEN SALIDA][ERROR] Error en el proceso de generación de orden:",
-          pdfError,
-        );
-      }
-    }
 
     return NextResponse.json({
       message:

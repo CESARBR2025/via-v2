@@ -120,7 +120,8 @@ export async function GET(
               s.nombre_resp_fiscal,
               s.appaterno_resp_fiscal,
               s.apmaterno_resp_fiscal,
-              g.nombre as nombre_grua
+              g.nombre as nombre_grua,
+              i.no_serie_vehiculo
             FROM v2_infracciones i
             LEFT JOIN v2_solicitudes_liberacion s ON s.infraccion_id = i.id
             LEFT JOIN v2_gruas g ON g.id = i.grua_id
@@ -147,12 +148,14 @@ export async function GET(
             : dbData.apmaterno_resp_fiscal;
 
           const nombreRecibe = `${tNombre} ${tPaterno} ${tMaterno}`;
+          console.log(dbData.no_serie_vehicu1o);
 
           const dataParaPDF = {
             id: dbData.id,
-            motivoRetencion: dbData.motivo_retencion || "SIN MOTIVO ESPECIFICADO",
+            motivoRetencion:
+              dbData.motivo_retencion || "SIN MOTIVO ESPECIFICADO",
             estadoOrigen: dbData.estado || "QUERÉTARO",
-            noSerie: dbData.no_carpeta_investigacion || "—",
+            noSerie: dbData.no_serie_vehiculo || "—",
             garantiaRetenida: dbData.tipo_garantia || "VEHICULO",
             grua: dbData.nombre_grua,
             noOficio: dbData.folio || "0000",
@@ -167,12 +170,15 @@ export async function GET(
             noExterno: dbData.folio,
           };
 
-          const correoDestino = dbData.correo_titular_liberacion || "sin_correo@dominio.com";
+          const correoDestino =
+            dbData.correo_titular_liberacion || "sin_correo@dominio.com";
           const nombreNotificacion = esEmpresa
             ? nombreRecibe
             : `${dbData.nombre_infractor} ${dbData.apellido_paterno_infractor}`.trim();
 
-          const pdfBuffer = await generarOrdenSalidaVehiculo({ data: dataParaPDF });
+          const pdfBuffer = await generarOrdenSalidaVehiculo({
+            data: dataParaPDF,
+          });
 
           await enviarOrdenLiberacionCorreo({
             idInfraccion: dataParaPDF.id,
@@ -183,7 +189,10 @@ export async function GET(
           });
         }
       } catch (orderError) {
-        console.error("[ORDEN SALIDA][ERROR] No se pudo generar o enviar la orden:", orderError);
+        console.error(
+          "[ORDEN SALIDA][ERROR] No se pudo generar o enviar la orden:",
+          orderError,
+        );
       }
 
       // ─────────────────────────────────────────────────────────────
@@ -195,7 +204,10 @@ export async function GET(
           [infraccionId],
         );
       } catch (finalError) {
-        console.error("[FINAL][ERROR] No se pudo actualizar el estatus final:", finalError);
+        console.error(
+          "[FINAL][ERROR] No se pudo actualizar el estatus final:",
+          finalError,
+        );
       }
 
       return NextResponse.json({

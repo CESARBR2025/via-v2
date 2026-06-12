@@ -145,6 +145,7 @@ export const sanitizeCrearInfraccionPayload = (
     color: (body.otroColor || body.color)?.trim()?.toUpperCase() || null,
 
     placa: body.placa?.trim()?.toUpperCase(),
+    noSerieVehiculo: body.noSerie?.trim()?.toUpperCase() || null,
     tipoVehiculo: body.tipoVehiculo.trim().toUpperCase(),
     anioVehiculo: body.anio.trim().toUpperCase(),
 
