@@ -25,6 +25,7 @@ export default function RootLayout({
     >
       <body
         className={`${inter.className} min-h-full flex flex-col`}
+        suppressHydrationWarning
       >
         {children}
       </body>

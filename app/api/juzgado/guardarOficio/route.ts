@@ -163,6 +163,7 @@ export async function POST(req: NextRequest) {
         correo_titular_liberacion,
         nombreTitular:
           `${nombre_titular_liberacion} ${appaterno_titular_liberacion} ${apmaterno_titular_liberacion}`.trim(),
+        idInfraccion: folio,
         folio: folio,
         numero_oficio,
       });

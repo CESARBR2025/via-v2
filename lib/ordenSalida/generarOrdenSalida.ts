@@ -114,6 +114,7 @@ function parrafoMixtoConWrap(
 export async function generarOrdenSalidaVehiculo({ data }: any) {
   console.log("entro");
   console.log(data);
+  console.log(generarOrdenSalidaVehiculo);
   const no_externo = data.noExterno ?? " ";
 
   const motivo = data.motivoRetencion;
@@ -135,7 +136,7 @@ export async function generarOrdenSalidaVehiculo({ data }: any) {
   const nombreRecibe = `C. ${data.nombreTitular}`.toUpperCase();
   console.log(nombreRecibe);
 
-  const empresaFiscal = data.rfc ? data.empresaFiscal : "Titular";
+  const empresaFiscal = data.rfc ? data.empresaFiscal : "TITULAR";
 
   console.log(empresaFiscal);
 
@@ -243,7 +244,7 @@ export async function generarOrdenSalidaVehiculo({ data }: any) {
     [
       { text: "EL VEHÍCULO REMITIDO Y DEPOSITADO POR ", bold: false },
       { text: `${motivo} ${no_externo} `, bold: true },
-      { text: "LOCAL DE ENCIERRO GRUAS ", bold: false },
+      { text: " .LOCAL DE ENCIERRO GRUAS ", bold: false },
       { text: `${grua}`, bold: true },
     ],
     20,

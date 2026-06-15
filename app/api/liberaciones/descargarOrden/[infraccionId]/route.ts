@@ -117,6 +117,8 @@ export async function GET(
       data: dataParaPDF,
     });
 
+    console.log("entro aqui descargarOrden/InfraccionID");
+
     const folio = dbData.folio?.replace(/[^a-zA-Z0-9_-]/g, "_") || infraccionId;
 
     return new NextResponse(pdfBuffer, {

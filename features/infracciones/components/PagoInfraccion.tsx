@@ -56,6 +56,7 @@ export default function PagoInfraccion({
         console.log(estatusDependencia)
 
 
+
         // EVITAR REQUESTS DUPLICADOS
 
         if (loading) return;

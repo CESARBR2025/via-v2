@@ -263,11 +263,14 @@ export default function SeccionLiberacion({
                 }
             }
 
+            console.log(estatusDependencia)
+            console.log(estatusInfraccion)
+
 
             let endpoint = '/api/ciudadano/subirDocumentos'
 
             if (estatusInfraccion === 'REGISTRADA' && estatusDependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS') {
-              endpoint = '/api/ciudadano/subirDocumentosInfraccion'
+                endpoint = '/api/ciudadano/subirDocumentosInfraccion'
             }
 
             const res = await fetch(endpoint, {

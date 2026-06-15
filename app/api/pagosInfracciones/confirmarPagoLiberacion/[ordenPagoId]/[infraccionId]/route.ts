@@ -150,6 +150,17 @@ export async function GET(
           const nombreRecibe = `${tNombre} ${tPaterno} ${tMaterno}`;
           console.log(dbData.no_serie_vehicu1o);
 
+          let noExternoDinamico;
+          if (
+            dbData.motivo_retencion === "ACCIDENTE" ||
+            dbData.motivo_retencion === "DELITO"
+          ) {
+            noExternoDinamico = dbData.no_carpeta_investigacion;
+          } else if (dbData.motivo_retencion === "INFRACCION") {
+            noExternoDinamico = dbData.folio;
+          }
+
+          console.log(noExternoDinamico);
           const dataParaPDF = {
             id: dbData.id,
             motivoRetencion:
@@ -167,8 +178,10 @@ export async function GET(
             modelo: dbData.anio_vehiculo,
             color: dbData.color,
             placa: dbData.placa,
-            noExterno: dbData.folio,
+            noExterno: noExternoDinamico,
           };
+
+          console.log(dataParaPDF);
 
           const correoDestino =
             dbData.correo_titular_liberacion || "sin_correo@dominio.com";
@@ -176,6 +189,7 @@ export async function GET(
             ? nombreRecibe
             : `${dbData.nombre_infractor} ${dbData.apellido_paterno_infractor}`.trim();
 
+          console.log("EP: confirmarPagoLiberacion");
           const pdfBuffer = await generarOrdenSalidaVehiculo({
             data: dataParaPDF,
           });

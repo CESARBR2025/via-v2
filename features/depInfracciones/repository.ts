@@ -163,10 +163,10 @@ export class DepInfraccionesRepository {
           no_carpeta_investigacion
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-          AND estatus_dependencia IN ('RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO')
+          AND estatus_dependencia IN ( 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_REVISION')
           AND dependencia_receptora = $1
 
-          
+        
       `;
       values.push(dependencia);
     } else if (dependencia === "LIBERACIONES") {
