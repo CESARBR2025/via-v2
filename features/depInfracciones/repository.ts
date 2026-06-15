@@ -138,7 +138,8 @@ export class DepInfraccionesRepository {
           correo_infractor,
           nombre_infractor,
           estatus_dependencia,
-          estatus
+          estatus,
+          url_orden_salida_liberaciones
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
         AND estatus_dependencia IN ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO')
@@ -440,6 +441,7 @@ export class DepInfraccionesRepository {
     i.estatus_dependencia,
     i.no_carpeta_investigacion,
     i.url_oficio_pago_corralon,
+    i.url_orden_salida_liberaciones,
     o.estatus as estatus_orden_pago
 
   FROM v2_infracciones i

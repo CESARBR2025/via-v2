@@ -28,6 +28,7 @@ export type DetalleHeader = {
     no_carpeta_investigacion: string
     appaterno_infractor: string
     url_oficio_pago_corralon?: string
+    url_orden_salida_liberaciones?: string
     estatus_orden_pago?: string
     estatus: string
 };
@@ -159,6 +160,9 @@ export default function ModalDetalleGenerico({
         h?.url_inapam && h.url_inapam !== 'NO_DATA' ? { name: 'INAPAM', path: h.url_inapam } : null,
         h?.url_tarjeta_circulacion && h.url_tarjeta_circulacion !== 'NO_DATA' ? { name: 'Tarjeta de Circulación', path: h.url_tarjeta_circulacion } : null,
         h?.url_oficio_pago_corralon ? { name: 'Comprobante de Pago (Corralón)', path: h.url_oficio_pago_corralon } : null,
+        h?.url_orden_salida_liberaciones && h.url_orden_salida_liberaciones !== 'NO_DATA'
+            ? { name: 'Orden de Salida (Liberación)', path: h.url_orden_salida_liberaciones }
+            : null,
     ].filter(Boolean) as { name: string; path: string }[];
 
     const evidence = (h?.url_evidencias ?? []).map((p, i) => ({ name: `Evidencia ${i + 1}`, path: p, isEvidence: true }));

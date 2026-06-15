@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { POOL_PG as pool } from "@/lib/db";
+import { getExpedienteToken } from "@/lib/expediente-digital/expediente";
 import { generarOrdenSalidaVehiculo } from "@/lib/ordenSalida/generarOrdenSalida";
 import { enviarOrdenLiberacionCorreo } from "@/features/emails/server";
 
@@ -204,6 +205,48 @@ export async function GET(
             folio: dbData.folio || "SIN FOLIO",
             pdfBuffer,
           });
+
+          // ── Guardar orden de salida en expediente digital ──
+          try {
+            const token = await getExpedienteToken();
+            const ahora = new Date();
+            const anio = ahora.getFullYear().toString();
+            const mes = String(ahora.getMonth() + 1).padStart(2, "0");
+            const pdfFile = new File(
+              [new Uint8Array(pdfBuffer)],
+              `orden_salida_${dbData.folio || infraccionId}.pdf`,
+              { type: "application/pdf" },
+            );
+
+            const formData = new FormData();
+            formData.append("file", pdfFile);
+            formData.append("ruta_personalizada", `${anio}/${mes}/${infraccionId}`);
+            formData.append("sistema", process.env.EXPEDIENTE_SISTEMA ?? "sspm");
+
+            const uploadRes = await fetch(
+              `${process.env.EXPEDIENTE_HOST}/api/upload-custom`,
+              {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData,
+              },
+            );
+
+            if (uploadRes.ok) {
+              const uploadJson = await uploadRes.json();
+              const urlOrdenSalida = uploadJson.data?.ruta_relativa;
+
+              if (urlOrdenSalida) {
+                await client.query(
+                  `UPDATE v2_infracciones SET url_orden_salida_liberaciones = $2, updated_at = NOW() WHERE id = $1`,
+                  [infraccionId, urlOrdenSalida],
+                );
+                console.log("[ORDEN SALIDA] Guardada en expediente digital:", urlOrdenSalida);
+              }
+            }
+          } catch (expError) {
+            console.error("[ORDEN SALIDA][EXPEDIENTE] Error al guardar:", expError);
+          }
         }
       } catch (orderError) {
         console.error(

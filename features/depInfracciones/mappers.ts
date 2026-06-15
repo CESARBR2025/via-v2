@@ -23,6 +23,7 @@ export const mapInfraccionListItem = (row: any): InfraccionListItem => ({
   nombre_titular_liberacion: row.nombre_titular_liberacion,
   appaterno_titular_liberacion: row.appaterno_titular_liberacion,
   apmaterno_titular_liberacion: row.apmaterno_titular_liberacion,
+  url_orden_salida_liberaciones: row.url_orden_salida_liberaciones,
 });
 
 // MaperS
@@ -41,6 +42,7 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
     estatus_dependencia: safeRowMapper(row.estatus_dependencia),
     no_carpeta_investigacion: safeRowMapper(row.no_carpeta_investigacion),
     url_oficio_pago_corralon: row.url_oficio_pago_corralon,
+    url_orden_salida_liberaciones: row.url_orden_salida_liberaciones,
     estatus_orden_pago: row.estatus_orden_pago,
   },
 

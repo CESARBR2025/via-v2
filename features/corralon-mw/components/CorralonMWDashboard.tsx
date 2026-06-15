@@ -1,7 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Clock, CheckCircle2, AlertCircle, Search, User, Upload } from 'lucide-react'
+import { Clock, CheckCircle2, AlertCircle, Search, User, Upload, Eye } from 'lucide-react'
+import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento'
 
 const AVATAR_COLORS = [
     { bg: '#EFF6FF', text: '#2563EB' },
@@ -230,16 +231,28 @@ export default function CorralonMWDashboard({
                                                     ['LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO'].includes(row.estatus_dependencia)
                                                 return (
                                                     <td key={column.key} className="px-4 py-2.5">
-                                                        {onSubirComprobante && esPendiente && (
-                                                            <button
-                                                                onClick={() => onSubirComprobante(row.id)}
-                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
-                                                                style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0' }}
-                                                            >
-                                                                <Upload size={14} />
-                                                                Subir comprobante
-                                                            </button>
-                                                        )}
+                                                        <div className="flex items-center gap-2">
+                                                            {row.url_orden_salida_liberaciones && row.url_orden_salida_liberaciones !== 'NO_DATA' && (
+                                                                <button
+                                                                    onClick={() => abrirDocumento(row.url_orden_salida_liberaciones)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                    style={{ background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE' }}
+                                                                >
+                                                                    <Eye size={14} />
+                                                                    Ver orden
+                                                                </button>
+                                                            )}
+                                                            {onSubirComprobante && esPendiente && (
+                                                                <button
+                                                                    onClick={() => onSubirComprobante(row.id)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                    style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0' }}
+                                                                >
+                                                                    <Upload size={14} />
+                                                                    Subir comprobante
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 )
                                             }

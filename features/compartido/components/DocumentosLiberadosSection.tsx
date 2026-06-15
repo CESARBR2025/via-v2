@@ -118,17 +118,33 @@ export default function DocumentosLiberadosSection({ detalle }: { detalle: Detal
                     <h3 className="text-[15px] font-semibold text-[#0F172A] tracking-tight">Historial de Documentación</h3>
                     <p className="text-[12px] text-[#64748B]">Infracción liberada por liberaciones</p>
                 </div>
-                <button
-                    onClick={handleDownloadOrden}
-                    disabled={descargandoOrden}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold text-white transition-all duration-150 shrink-0 disabled:opacity-50"
-                    style={{ background: '#2563EB' }}
-                    onMouseEnter={(e) => { if (!descargandoOrden) e.currentTarget.style.background = '#1D4ED8'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = '#2563EB'; }}
-                >
-                    <Download size={14} />
-                    {descargandoOrden ? 'Generando...' : 'Descargar Orden de Salida'}
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                    {h?.url_orden_salida_liberaciones && h.url_orden_salida_liberaciones !== 'NO_DATA' && (
+                        <button
+                            onClick={() => abrirDocumento(h.url_orden_salida_liberaciones!)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold transition-all duration-150 border"
+                            style={{
+                                background: '#EFF6FF',
+                                borderColor: '#BFDBFE',
+                                color: '#2563EB',
+                            }}
+                        >
+                            <Eye size={14} />
+                            Ver
+                        </button>
+                    )}
+                    <button
+                        onClick={handleDownloadOrden}
+                        disabled={descargandoOrden}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold text-white transition-all duration-150 disabled:opacity-50"
+                        style={{ background: '#2563EB' }}
+                        onMouseEnter={(e) => { if (!descargandoOrden) e.currentTarget.style.background = '#1D4ED8'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = '#2563EB'; }}
+                    >
+                        <Download size={14} />
+                        {descargandoOrden ? 'Generando...' : 'Descargar'}
+                    </button>
+                </div>
             </div>
 
             <div className="p-5 space-y-6">
