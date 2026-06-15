@@ -39,6 +39,7 @@ const columns = [
 
 export default function JuzgadoTable({ respuestaServidor }: JuzgadoTableProps) {
     const router = useRouter()
+    console.log(respuestaServidor)
 
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
