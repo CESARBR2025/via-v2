@@ -128,7 +128,8 @@ export class DepInfraccionesRepository {
       // Query para MW (basada en grúa)
       query = `
 
-            SELECT
+
+      SELECT
           id,
           folio,
           estatus,
@@ -140,7 +141,7 @@ export class DepInfraccionesRepository {
           estatus
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'EN_REVISION_MW', 'CERRADA')
+        AND estatus_dependencia IN ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO')
           AND grua_id = $1
 
 
@@ -341,7 +342,7 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE tipo_garantia  = 'VEHICULO'
-      AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA', 'EN_REVISION_MW')
+      AND estatus_dependencia IN ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO')
         AND grua_id = $1
     `;
       values.push(idGruaDinamico);

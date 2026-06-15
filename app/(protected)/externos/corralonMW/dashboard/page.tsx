@@ -1,12 +1,6 @@
-import { getSession } from "@/features/auth/service";
-import TablaCompartida from "@/features/compartido/components/TablaCompartida";
+import CorralonMWTable from "@/features/corralon-mw/components/CorralonMWTable";
 
 export default async function MWPage() {
-    const session = await getSession();
-    console.log(session)
-    const roleString = session?.user?.roles?.[0];
-    console.log(roleString)
-
     const dependenciaClave = "MW";
 
     const baseUrl =
@@ -33,13 +27,8 @@ export default async function MWPage() {
 
     return (
         <div className="flex flex-col h-full">
-
-
             <div className="flex flex-col flex-1 min-h-0">
-                <TablaCompartida
-                    respuestaServidor={respuestaApi}
-                    userRole={roleString}
-                />
+                <CorralonMWTable respuestaServidor={respuestaApi} />
             </div>
         </div>
     );

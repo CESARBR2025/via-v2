@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { POOL_PG as db } from "@/lib/db";
-// Nota: Recuerda que generarOrdenSalidaVehiculo requerirá ser adaptada
+
 // o ejecutada mediante un servicio que soporte Node.js si usa jsPDF en backend.
-import { generarOrdenSalidaVehiculo } from "@/lib/ordenSalida/generarOrdenSalida";
-import { enviarOrdenLiberacionCorreo } from "@/features/emails/server";
 
 export async function PATCH(request: Request) {
   try {
