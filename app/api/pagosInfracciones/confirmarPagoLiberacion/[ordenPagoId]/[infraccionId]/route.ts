@@ -63,6 +63,7 @@ export async function GET(
       });
     }
 
+    let estatusDinamico;
     if (sa7Data.estatus === "P") {
       try {
         await client.query("BEGIN");
@@ -183,6 +184,8 @@ export async function GET(
 
           console.log(dataParaPDF);
 
+          estatusDinamico = `LIBERADA_POR_${dataParaPDF.motivoRetencion}`;
+          console.log(estatusDinamico);
           const correoDestino =
             dbData.correo_titular_liberacion || "sin_correo@dominio.com";
           const nombreNotificacion = esEmpresa
@@ -212,10 +215,11 @@ export async function GET(
       // ─────────────────────────────────────────────────────────────
       // ACTUALIZAR A CERRADA / LIBERADA_POR_INFRACCION
       // ─────────────────────────────────────────────────────────────
+
       try {
         await client.query(
-          `UPDATE v2_infracciones SET estatus = 'CERRADA', estatus_dependencia = 'LIBERADA_POR_INFRACCION', updated_at = NOW() WHERE id = $1`,
-          [infraccionId],
+          `UPDATE v2_infracciones SET estatus = 'CERRADA', estatus_dependencia = $2, updated_at = NOW() WHERE id = $1`,
+          [infraccionId, estatusDinamico],
         );
       } catch (finalError) {
         console.error(

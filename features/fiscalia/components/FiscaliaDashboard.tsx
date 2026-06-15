@@ -69,8 +69,12 @@ export default function FiscaliaDashboard({
         const pendientes = data.filter(
             x =>
                 x.estatus === 'REGISTRADA' &&
-                x.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO'
+                [
+                    'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO',
+                    'RETENIDO_POR_DELITO_PENDIENTE_OFICIO',
+                ].includes(x.estatus_dependencia)
         ).length
+
 
         const liberadas = data.filter(
             x =>
@@ -92,8 +96,10 @@ export default function FiscaliaDashboard({
                 return data.filter(
                     x =>
                         x.estatus === 'REGISTRADA' &&
-                        x.estatus_dependencia ===
-                        'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO'
+                        [
+                            'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO',
+                            'RETENIDO_POR_DELITO_PENDIENTE_OFICIO',
+                        ].includes(x.estatus_dependencia)
                 )
 
             case 'LIBERADO_POR_FISCALIA':
@@ -249,16 +255,22 @@ export default function FiscaliaDashboard({
                                                                 idInfraccion={row.id}
                                                                 onOpenDetalle={onOpenDetalle}
                                                             />
-                                                            {onCargarOficio && row.estatus === 'REGISTRADA' && row.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO' && (
-                                                                <button
-                                                                    onClick={() => onCargarOficio(row.id)}
-                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
-                                                                    style={{ background: '#FFF7ED', color: '#F97316', border: '1px solid #FED7AA' }}
-                                                                >
-                                                                    <FileText size={14} />
-                                                                    Cargar oficio
-                                                                </button>
-                                                            )}
+                                                            {onCargarOficio &&
+                                                                row.estatus === 'REGISTRADA' &&
+
+                                                                [
+                                                                    'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO',
+                                                                    'RETENIDO_POR_DELITO_PENDIENTE_OFICIO',
+                                                                ].includes(row.estatus_dependencia) && (
+                                                                    <button
+                                                                        onClick={() => onCargarOficio(row.id)}
+                                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                        style={{ background: '#FFF7ED', color: '#F97316', border: '1px solid #FED7AA' }}
+                                                                    >
+                                                                        <FileText size={14} />
+                                                                        Cargar oficio
+                                                                    </button>
+                                                                )}
                                                         </div>
                                                     </td>
                                                 )

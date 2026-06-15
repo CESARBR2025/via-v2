@@ -163,7 +163,7 @@ export class DepInfraccionesRepository {
           no_carpeta_investigacion
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-          AND estatus_dependencia IN ( 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS')
+          AND estatus_dependencia IN ( 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS')
           AND dependencia_receptora = $1
 
         
@@ -365,7 +365,7 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE tipo_garantia = 'VEHICULO'
-         AND estatus_dependencia IN ('RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS'  )
+         AND estatus_dependencia IN ('RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS'  )
         AND dependencia_receptora = $1
     `;
       values.push(dependencia);
