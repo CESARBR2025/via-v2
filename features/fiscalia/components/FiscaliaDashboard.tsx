@@ -2,7 +2,7 @@
 
 import { BotonVerDetalle } from '@/features/compartido/components/ButtonVerDetalles'
 import { useMemo, useState } from 'react'
-import { Clock, RefreshCw, CheckCircle2, AlertCircle, Search, User, FileText } from 'lucide-react'
+import { Clock, CheckCircle2, AlertCircle, Search, User, FileText } from 'lucide-react'
 
 const AVATAR_COLORS = [
     { bg: '#EFF6FF', text: '#2563EB' },
@@ -37,13 +37,11 @@ interface Props {
 
 type EstatusFiscalia =
     | 'REGISTRADA'
-    | 'EN_PROCESO_FISCALIA'
     | 'LIBERADO_POR_FISCALIA'
 
 const STATUS_TABS: { key: EstatusFiscalia; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
     { key: 'REGISTRADA', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
-    { key: 'EN_PROCESO_FISCALIA', label: 'En Proceso', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
-    { key: 'LIBERADO_POR_FISCALIA', label: 'Liberadas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
+    { key: 'LIBERADO_POR_FISCALIA', label: 'Liberados', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
@@ -54,6 +52,7 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; labe
 }
 
 function getBadge(status: string) {
+    console.log(status)
     return STATUS_BADGE[status] ?? { bg: '#F1F5F9', text: '#475569', dot: '#94A3B8', label: status }
 }
 
@@ -67,31 +66,49 @@ export default function FiscaliaDashboard({
     const [filtro, setFiltro] = useState<EstatusFiscalia>('REGISTRADA')
 
     const estadisticas = useMemo(() => {
-        const pendientes = data.filter(x => x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO').length
-        const revision = data.filter(x =>
-            (x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'MESA_DE_CONTROL_REVISION')
+        const pendientes = data.filter(
+            x =>
+                x.estatus === 'REGISTRADA' &&
+                x.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO'
         ).length
-        const liberadas = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_FISCALIA').length
-        return { pendientes, revision, liberadas }
+
+        const liberadas = data.filter(
+            x =>
+                x.estatus === 'REGISTRADA' &&
+                x.estatus_dependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS'
+        ).length
+
+        return {
+            pendientes,
+            liberadas,
+        }
     }, [data])
 
-    console.log(estadisticas.revision)
+    const total = estadisticas.pendientes + estadisticas.liberadas
 
-    const total = estadisticas.pendientes + estadisticas.revision + estadisticas.liberadas
+    const registrosFiltrados = useMemo(() => {
+        switch (filtro) {
+            case 'REGISTRADA':
+                return data.filter(
+                    x =>
+                        x.estatus === 'REGISTRADA' &&
+                        x.estatus_dependencia ===
+                        'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO'
+                )
 
-    const registrosFiltrados = useMemo(
-        () => data.filter(x => {
-            if (filtro === 'REGISTRADA') {
-                return x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO'
-            }
-            if (filtro === 'EN_PROCESO_FISCALIA') {
-                return x.estatus_dependencia === 'EN_PROCESO_FISCALIA' ||
-                    (x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'MESA_DE_CONTROL_REVISION')
-            }
-            return x.estatus_dependencia === filtro
-        }),
-        [data, filtro],
-    )
+            case 'LIBERADO_POR_FISCALIA':
+                return data.filter(
+                    x =>
+                        x.estatus === 'REGISTRADA' &&
+                        x.estatus_dependencia ===
+                        'MESA_DE_CONTROL_PENDIENTE_DOCS'
+                )
+
+            default:
+                return []
+        }
+    }, [data, filtro])
+
 
     console.log(registrosFiltrados)
     return (
@@ -113,7 +130,7 @@ export default function FiscaliaDashboard({
             {/* ─── STATS CARDS ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {STATUS_TABS.map(tab => {
-                    const count = estadisticas[tab.key === 'REGISTRADA' ? 'pendientes' : tab.key === 'EN_PROCESO_FISCALIA' ? 'revision' : 'liberadas']
+                    const count = estadisticas[tab.key === 'REGISTRADA' ? 'pendientes' : 'liberadas']
                     const activo = filtro === tab.key
                     const Icon = tab.icon
 
