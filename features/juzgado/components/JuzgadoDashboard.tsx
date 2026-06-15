@@ -2,7 +2,7 @@
 
 import { BotonVerDetalle } from '@/features/compartido/components/ButtonVerDetalles'
 import { useMemo, useState } from 'react'
-import { Clock, RefreshCw, CheckCircle2, AlertCircle, Search, User } from 'lucide-react'
+import { Clock, CheckCircle2, AlertCircle, Search, User, FileText } from 'lucide-react'
 
 const AVATAR_COLORS = [
     { bg: '#EFF6FF', text: '#2563EB' },
@@ -32,21 +32,21 @@ interface Props {
     data: any[]
     visibleColumns: any[]
     onOpenDetalle: (id: string) => void
+    onCargarOficio?: (id: string) => void
 }
 
 type EstatusJuzgado =
-    | 'PENDIENTE'
-    | 'EN_PROCESO_JUZGADO'
+    | 'REGISTRADA'
     | 'LIBERADO_POR_JUZGADO'
 
 const STATUS_TABS: { key: EstatusJuzgado; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
-    { key: 'PENDIENTE', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
-    { key: 'EN_PROCESO_JUZGADO', label: 'En Proceso', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
-    { key: 'LIBERADO_POR_JUZGADO', label: 'Liberadas', icon: CheckCircle2, color: '#8B5CF6', accent: '#5B21B6', bg: '#F5F3FF' },
+    { key: 'REGISTRADA', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
+    { key: 'LIBERADO_POR_JUZGADO', label: 'Liberados', icon: CheckCircle2, color: '#8B5CF6', accent: '#5B21B6', bg: '#F5F3FF' },
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
     PENDIENTE: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
+    RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
     EN_PROCESO_JUZGADO: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
     LIBERADO_POR_JUZGADO: { bg: '#F3E8FF', text: '#5B21B6', dot: '#8B5CF6', label: 'Liberada' },
 }
@@ -59,27 +59,43 @@ export default function JuzgadoDashboard({
     data,
     visibleColumns,
     onOpenDetalle,
+    onCargarOficio,
 }: Props) {
-    const [filtro, setFiltro] = useState<EstatusJuzgado>('PENDIENTE')
-    console.log(data)
+    const [filtro, setFiltro] = useState<EstatusJuzgado>('REGISTRADA')
 
     const estadisticas = useMemo(() => {
-        const pendientes = data.filter(x => x.estatus_dependencia === 'PENDIENTE').length
-        const revision = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_JUZGADO').length
-        const liberadas = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_JUZGADO').length
-        return { pendientes, revision, liberadas }
+        const pendientes = data.filter(x => x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO').length
+        const liberadas = data.filter(x => x.estatus_dependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS').length
+        return { pendientes, liberadas }
     }, [data])
 
+    const total = estadisticas.pendientes + estadisticas.liberadas
 
 
-    const total = estadisticas.pendientes + estadisticas.revision + estadisticas.liberadas
 
-    const registrosFiltrados = useMemo(
-        () => data.filter(x => x.estatus_dependencia === filtro),
-        [data, filtro],
-    )
-    console.log(registrosFiltrados)
 
+    const registrosFiltrados = useMemo(() => {
+        switch (filtro) {
+            case 'REGISTRADA':
+                return data.filter(
+                    x =>
+                        x.estatus === 'REGISTRADA' &&
+                        x.estatus_dependencia ===
+                        'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO'
+                )
+
+            case 'LIBERADO_POR_JUZGADO':
+                return data.filter(
+                    x =>
+                        x.estatus === 'REGISTRADA' &&
+                        x.estatus_dependencia ===
+                        'MESA_DE_CONTROL_PENDIENTE_DOCS'
+                )
+
+            default:
+                return []
+        }
+    }, [data, filtro])
 
 
     return (
@@ -87,7 +103,7 @@ export default function JuzgadoDashboard({
             {/* ─── HEADER ─── */}
             <div className="flex items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-[22px] font-bold text-[#0F172A] tracking-tight">Panel Juzgado</h2>
+                    <h2 className="text-[22px] font-bold text-[#0F172A] tracking-tight">Panel Juzgado Cívico</h2>
                     <p className="text-[14px] text-[#64748B] mt-0.5">
                         {total} infracción{total !== 1 ? 'es' : ''} asignada{total !== 1 ? 's' : ''}
                     </p>
@@ -101,7 +117,7 @@ export default function JuzgadoDashboard({
             {/* ─── STATS CARDS ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {STATUS_TABS.map(tab => {
-                    const count = estadisticas[tab.key === 'PENDIENTE' ? 'pendientes' : tab.key === 'EN_PROCESO_JUZGADO' ? 'revision' : 'liberadas']
+                    const count = estadisticas[tab.key === 'REGISTRADA' ? 'pendientes' : 'liberadas']
                     const activo = filtro === tab.key
                     const Icon = tab.icon
 
@@ -215,10 +231,22 @@ export default function JuzgadoDashboard({
                                             if (column.key === 'acciones') {
                                                 return (
                                                     <td key={column.key} className="px-4 py-2.5">
-                                                        <BotonVerDetalle
-                                                            idInfraccion={row.id}
-                                                            onOpenDetalle={onOpenDetalle}
-                                                        />
+                                                        <div className="flex items-center gap-2">
+                                                            <BotonVerDetalle
+                                                                idInfraccion={row.id}
+                                                                onOpenDetalle={onOpenDetalle}
+                                                            />
+                                                            {onCargarOficio && row.estatus === 'REGISTRADA' && row.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO' && (
+                                                                <button
+                                                                    onClick={() => onCargarOficio(row.id)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                    style={{ background: '#FFF7ED', color: '#F97316', border: '1px solid #FED7AA' }}
+                                                                >
+                                                                    <FileText size={14} />
+                                                                    Cargar oficio
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 )
                                             }

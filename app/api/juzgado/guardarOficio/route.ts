@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
         no_oficio_fiscalia = $2,
         url_oficio_fiscalia = COALESCE($3, url_oficio_fiscalia),
         no_carpeta_investigacion = COALESCE($4, no_carpeta_investigacion),
-        estatus_dependencia = 'LIBERADO_POR_JUZGADO',
+        estatus_dependencia = 'MESA_DE_CONTROL_PENDIENTE_DOCS',
         nombre_titular_liberacion = COALESCE($5, nombre_titular_liberacion),
         appaterno_titular_liberacion = COALESCE($6, appaterno_titular_liberacion),
         apmaterno_titular_liberacion = COALESCE($7, apmaterno_titular_liberacion),

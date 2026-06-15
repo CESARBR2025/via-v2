@@ -4,4 +4,5 @@ export type UserRole =
   | "fiscalia"
   | "liberaciones"
   | "corralon_mw"
-  | "corralon_mejia";
+  | "corralon_mejia"
+  | "juzgado_civico";

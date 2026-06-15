@@ -94,6 +94,20 @@ export const navigationByRole: Record<UserRole, any[]> = {
     },
   ],
 
+  juzgado_civico: [
+    {
+      title: "Infracciones",
+
+      items: [
+        {
+          label: "Asignadas",
+          href: "/externos/juzgadoCivico/dashboard",
+          icon: AtSign,
+        },
+      ],
+    },
+  ],
+
   corralon_mw: [
     // =====================================
     // SECCIÓN
