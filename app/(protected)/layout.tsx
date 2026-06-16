@@ -11,6 +11,7 @@ import Sidebar
 import MobileSidebar from "@/features/sidebar/components/MobileSideBar";
 import { UserRole } from "@/features/sidebar/config/types";
 import { getSession } from "@/features/auth/service";
+import OfflineBanner from "@/components/OfflineBanner";
 
 const ROLE_LABELS: Record<string, string> = {
     admin: "Administrador",
@@ -72,6 +73,8 @@ export default async function DashboardLayout({
             ">
 
                 <Header userName={userName} userRole={userRole} />
+
+                <OfflineBanner />
 
                 <main className="
                     flex-1 overflow-y-auto

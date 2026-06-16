@@ -254,8 +254,8 @@ export default function MiPerfilPage() {
       </div>
 
       {/* Patrol Assignment */}
-      <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
-        <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-[#E2E8F0] bg-[#F8FAFC]">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-[#E2E8F0] bg-[#F8FAFC] rounded-t-xl">
           <div className="flex items-center gap-2 min-w-0">
             <Shield size={16} className="text-[#2563EB] shrink-0" strokeWidth={2} />
             <h2 className="text-[14px] font-semibold text-[#0F172A]">

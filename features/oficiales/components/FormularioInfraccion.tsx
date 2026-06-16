@@ -1014,174 +1014,153 @@ export default function FormularioInfraccion() {
                 />
             )}
 
-            {/* ───────────────────────────────────────────────────────────────
-          BANNER SIN CONEXIÓN - Alerta si no hay internet
-          ─────────────────────────────────────────────────────────────── */}
-            {!isOnline && (
-                <div className="flex items-center gap-2.5 px-4 py-2.5 bg-[#EF4444] text-white text-xs font-semibold">
-                    <svg
-                        className="w-3.5 h-3.5 shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-                        />
-                    </svg>
-                    Sin conexión — tus datos están guardados, pero no podrás
-                    enviar hasta recuperar señal.
-                </div>
-            )}
+
 
             {/* ═══════════════════════════════════════════════════════════════
           HEADER - Información de navegación y progreso (oculto en resumen ausente)
           ════════════════════════════════════════════════════════════════ */}
             {!ausenteCompletado && (
-            <header className="bg-[#FFFFFF] border-b border-[#E2E8F0] shrink-0">
-                {/* Top bar: ícono + título + % completado */}
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shadow-lg shadow-[#2563EB]/20 shrink-0">
-                            <FileText
-                                className="w-3 h-3 sm:w-5 sm:h-5 text-white"
-                                strokeWidth={2}
-                            />
+                <header className="bg-[#FFFFFF] border-b border-[#E2E8F0] shrink-0">
+                    {/* Top bar: ícono + título + % completado */}
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shadow-lg shadow-[#2563EB]/20 shrink-0">
+                                <FileText
+                                    className="w-3 h-3 sm:w-5 sm:h-5 text-white"
+                                    strokeWidth={2}
+                                />
+                            </div>
+
+                            <div>
+                                <p className="text-[10px] sm:text-xs tracking-wide font-semibold uppercase text-[#2563EB]/50">
+                                    Módulo de Oficial
+                                </p>
+                                <h2 className="text-[16px] sm:text-xl font-bold text-[#0F172A] leading-none mt-1">
+                                    Registrar Nueva Infracción
+                                </h2>
+                                <p className="text-[10px] sm:text-xs text-[#94A3B8] mt-2">
+                                    Paso {currentStep + 1} de {steps.length} ·{' '}
+                                    {activeStepConfig.title}
+                                </p>
+                            </div>
                         </div>
 
-                        <div>
-                            <p className="text-[10px] sm:text-xs tracking-wide font-semibold uppercase text-[#2563EB]/50">
-                                Módulo de Oficial
-                            </p>
-                            <h2 className="text-[16px] sm:text-xl font-bold text-[#0F172A] leading-none mt-1">
-                                Registrar Nueva Infracción
-                            </h2>
-                            <p className="text-[10px] sm:text-xs text-[#94A3B8] mt-2">
-                                Paso {currentStep + 1} de {steps.length} ·{' '}
-                                {activeStepConfig.title}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* % completado — pill */}
-                    <span className="shrink-0 text-[10px] sm:text-sm font-semibold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-3 py-1 rounded-full">
-                        {progressPct}% completado
-                    </span>
-                </div>
-
-                {/* Barra de progreso continua */}
-                <div className="h-[3px] bg-[#F1F5F9]">
-                    <div
-                        className="h-full bg-gradient-to-r from-[#2563EB] to-[#60A5FA] transition-all duration-500 ease-out"
-                        style={{ width: `${progressPct}%` }}
-                    />
-                </div>
-
-                {/* Stepper con etiquetas — visible solo en desktop */}
-                <div className="max-w-6xl mx-auto px-4 sm:px-6">
-                    {/* Mobile indicator */}
-                    <div className="sm:hidden flex items-center gap-2 py-3">
-                        <div className="flex-1 h-[3px] bg-[#F1F5F9] rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-[#2563EB] transition-all duration-500"
-                                style={{ width: `${progressPct}%` }}
-                            />
-                        </div>
-                        <span className="text-[11px] font-semibold text-[#64748B] shrink-0">
-                            {currentStep + 1}/{steps.length}
+                        {/* % completado — pill */}
+                        <span className="shrink-0 text-[10px] sm:text-sm font-semibold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-3 py-1 rounded-full">
+                            {progressPct}% completado
                         </span>
                     </div>
-                    <div
-                        ref={stepScrollRef}
-                        className="hidden sm:flex items-start overflow-x-auto scrollbar-hide py-3"
-                    >
-                        {steps.map((step, idx) => {
-                            const isDone = idx < currentStep;
-                            const isActive = idx === currentStep;
-                            const isPending = idx > currentStep;
-                            const isLast = idx === steps.length - 1;
 
-                            return (
-                                <React.Fragment key={step.id}>
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            isDone && setCurrentStep(idx)
-                                        }
-                                        disabled={isPending}
-                                        className={`
+                    {/* Barra de progreso continua */}
+                    <div className="h-[3px] bg-[#F1F5F9]">
+                        <div
+                            className="h-full bg-gradient-to-r from-[#2563EB] to-[#60A5FA] transition-all duration-500 ease-out"
+                            style={{ width: `${progressPct}%` }}
+                        />
+                    </div>
+
+                    {/* Stepper con etiquetas — visible solo en desktop */}
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                        {/* Mobile indicator */}
+                        <div className="sm:hidden flex items-center gap-2 py-3">
+                            <div className="flex-1 h-[3px] bg-[#F1F5F9] rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-[#2563EB] transition-all duration-500"
+                                    style={{ width: `${progressPct}%` }}
+                                />
+                            </div>
+                            <span className="text-[11px] font-semibold text-[#64748B] shrink-0">
+                                {currentStep + 1}/{steps.length}
+                            </span>
+                        </div>
+                        <div
+                            ref={stepScrollRef}
+                            className="hidden sm:flex items-start overflow-x-auto scrollbar-hide py-3"
+                        >
+                            {steps.map((step, idx) => {
+                                const isDone = idx < currentStep;
+                                const isActive = idx === currentStep;
+                                const isPending = idx > currentStep;
+                                const isLast = idx === steps.length - 1;
+
+                                return (
+                                    <React.Fragment key={step.id}>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                isDone && setCurrentStep(idx)
+                                            }
+                                            disabled={isPending}
+                                            className={`
                       shrink-0 flex flex-col items-center gap-1.5 px-1
                       rounded-lg transition-all duration-200
                       ${isDone ? 'cursor-pointer hover:bg-[#F8FAFC]' : ''}
                       ${isActive || isPending ? 'cursor-default' : ''}
                     `}
-                                    >
-                                        <div
-                                            className={`
+                                        >
+                                            <div
+                                                className={`
                         w-7 h-7 rounded-full flex items-center justify-center
                         text-xs font-bold transition-all duration-300
                         ${isDone ? 'bg-[#22C55E] text-white' : ''}
                         ${isActive
-                                                    ? 'bg-[#2563EB] text-white ring-4 ring-[#2563EB]/20'
-                                                    : ''
-                                                }
+                                                        ? 'bg-[#2563EB] text-white ring-4 ring-[#2563EB]/20'
+                                                        : ''
+                                                    }
                         ${isPending
-                                                    ? 'bg-[#F1F5F9] text-[#94A3B8] border border-[#E2E8F0]'
-                                                    : ''
-                                                }
+                                                        ? 'bg-[#F1F5F9] text-[#94A3B8] border border-[#E2E8F0]'
+                                                        : ''
+                                                    }
                       `}
-                                        >
-                                            {isDone ? (
-                                                <svg
-                                                    className="w-3.5 h-3.5"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth="3"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        d="m4.5 12.75 6 6 9-13.5"
-                                                    />
-                                                </svg>
-                                            ) : (
-                                                idx + 1
-                                            )}
-                                        </div>
+                                            >
+                                                {isDone ? (
+                                                    <svg
+                                                        className="w-3.5 h-3.5"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="3"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="m4.5 12.75 6 6 9-13.5"
+                                                        />
+                                                    </svg>
+                                                ) : (
+                                                    idx + 1
+                                                )}
+                                            </div>
 
-                                        <span
-                                            className={`
+                                            <span
+                                                className={`
                         text-[10px] leading-tight text-center w-[52px] truncate block
                         transition-colors duration-200
                         ${isDone ? 'text-[#22C55E] font-medium' : ''}
                         ${isActive ? 'text-[#2563EB] font-semibold' : ''}
                         ${isPending ? 'text-[#94A3B8]' : ''}
                       `}
-                                        >
-                                            {step.title}
-                                        </span>
-                                    </button>
+                                            >
+                                                {step.title}
+                                            </span>
+                                        </button>
 
-                                    {!isLast && (
-                                        <div
-                                            className="flex-1 min-w-[12px] h-[2px] mt-[14px] mx-1 transition-all duration-300 shrink"
-                                            style={{
-                                                background: isDone
-                                                    ? '#60A5FA'
-                                                    : '#E2E8F0',
-                                            }}
-                                        />
-                                    )}
-                                </React.Fragment>
-                            );
-                        })}
+                                        {!isLast && (
+                                            <div
+                                                className="flex-1 min-w-[12px] h-[2px] mt-[14px] mx-1 transition-all duration-300 shrink"
+                                                style={{
+                                                    background: isDone
+                                                        ? '#60A5FA'
+                                                        : '#E2E8F0',
+                                                }}
+                                            />
+                                        )}
+                                    </React.Fragment>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
-            </header>
+                </header>
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
