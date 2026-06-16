@@ -1,23 +1,27 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getSession } from "@/features/auth/service";
 
-export default async function ProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const roleDashboard: Record<string, string> = {
+  admin: "/admin/dashboard",
+  oficial: "/oficiales/captura",
+  infracciones: "/depInfracciones/dashboard",
+  liberaciones: "/depLiberaciones/dashboard",
+  fiscalia: "/externos/fiscalia/dashboard",
+  juzgado_civico: "/externos/juzgadoCivico/dashboard",
+  corralon_mejia: "/externos/corralonMejia/dashboard",
+  corralon_mw: "/externos/corralonMW/dashboard",
+  ciudadano: "/consulta",
+};
+
+export default async function HomePage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
   const cookieStore = await cookies();
-  const token = cookieStore.get("session_token")?.value;
+  const lastRole = cookieStore.get("last_role")?.value as string | undefined;
+  const role = lastRole && session.user.roles.includes(lastRole) ? lastRole : session.user.roles[0];
 
-  if (!token) {
-    redirect("/login");
-  }
-
-  return (
-    <div className="flex h-screen w-screen overflow-hidden">
-      <main className="flex-1 overflow-y-auto p-6 bg-slate-50">
-        {children}
-      </main>
-    </div>
-  );
+  const dashboard = roleDashboard[role] || "/login";
+  redirect(dashboard);
 }

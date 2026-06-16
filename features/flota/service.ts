@@ -2,21 +2,25 @@ import { POOL_PG } from "@/lib/db";
 
 const FLOTA_API_URL = "http://proyecto-flota.vercel.app/api/publica";
 
-interface FlotaVehiculo {
-  id: string;
-  numero_unidad: string;
-  placas?: string;
-  descripcion?: string;
+interface FlotaVehiculoRaw {
+  placa_vehiculo: string;
+  num_serie: string;
+  marca: string;
+  modelo: string;
+  color: string;
+  tipo_vehiculo: string;
+  secretaria: string;
+  id_vehiculo: number;
 }
 
 type FlotaApiResponse =
-  | FlotaVehiculo[]
-  | { data: FlotaVehiculo[] }
-  | { vehicles?: FlotaVehiculo[] }
-  | { results?: FlotaVehiculo[] }
-  | { patrullas?: FlotaVehiculo[] };
+  | FlotaVehiculoRaw[]
+  | { data: FlotaVehiculoRaw[] }
+  | { vehicles?: FlotaVehiculoRaw[] }
+  | { results?: FlotaVehiculoRaw[] }
+  | { patrullas?: FlotaVehiculoRaw[] };
 
-function extraerVehiculos(raw: FlotaApiResponse): FlotaVehiculo[] {
+function extraerVehiculos(raw: FlotaApiResponse): FlotaVehiculoRaw[] {
   if (Array.isArray(raw)) return raw;
   if (raw && typeof raw === "object") {
     if (Array.isArray((raw as any).data)) return (raw as any).data;
@@ -27,8 +31,20 @@ function extraerVehiculos(raw: FlotaApiResponse): FlotaVehiculo[] {
   return [];
 }
 
+export interface PatrullaAsignacion {
+  id: string;
+  numero_unidad: string;
+  placas: string;
+  num_serie?: string;
+  marca?: string;
+  modelo?: string;
+  color?: string;
+  tipo_vehiculo?: string;
+  secretaria?: string;
+}
+
 export class FlotaService {
-  static async obtenerFlota(): Promise<FlotaVehiculo[]> {
+  static async obtenerFlota(): Promise<FlotaVehiculoRaw[]> {
     const apiKey = process.env.NEXT_PUBLIC_FLOTA_API_KEY;
 
     if (!apiKey) {
@@ -50,29 +66,29 @@ export class FlotaService {
     return extraerVehiculos(raw);
   }
 
-  static async listarPatrullasParaAsignacion(): Promise<
-    { id: string; numero_unidad: string; placas: string }[]
-  > {
+  static async listarPatrullasParaAsignacion(): Promise<PatrullaAsignacion[]> {
     const flota = await this.obtenerFlota();
     if (flota.length === 0) return [];
 
     for (const v of flota) {
       const existente = await POOL_PG.query(
         `SELECT id FROM v2_patrullas WHERE numero_unidad = $1`,
-        [v.numero_unidad],
+        [v.placa_vehiculo],
       );
 
       if (existente.rows.length === 0) {
-        await POOL_PG.query(
+        const result = await POOL_PG.query(
           `INSERT INTO v2_patrullas (numero_unidad, placas, descripcion, activo, sincronizado_en)
-           VALUES ($1, $2, $3, true, NOW())`,
-          [v.numero_unidad, v.placas ?? null, v.descripcion ?? null],
+           VALUES ($1, $2, $3, true, NOW())
+           RETURNING id`,
+          [v.placa_vehiculo, v.placa_vehiculo, `${v.marca} ${v.modelo} ${v.tipo_vehiculo}`.trim()],
         );
+        v.id_vehiculo = result.rows[0].id;
       } else {
         await POOL_PG.query(
           `UPDATE v2_patrullas SET placas = $1, descripcion = $2, sincronizado_en = NOW()
            WHERE numero_unidad = $3`,
-          [v.placas ?? null, v.descripcion ?? null, v.numero_unidad],
+          [v.placa_vehiculo, `${v.marca} ${v.modelo} ${v.tipo_vehiculo}`.trim(), v.placa_vehiculo],
         );
       }
     }
@@ -84,10 +100,19 @@ export class FlotaService {
       ORDER BY numero_unidad
     `);
 
-    return result.rows.map((r) => ({
-      id: r.id,
-      numero_unidad: r.numero_unidad,
-      placas: r.placas || "—",
-    }));
+    return result.rows.map((r) => {
+      const fleetData = flota.find((f) => f.placa_vehiculo === r.numero_unidad);
+      return {
+        id: r.id,
+        numero_unidad: r.numero_unidad,
+        placas: fleetData?.placa_vehiculo || r.placas || "—",
+        num_serie: fleetData?.num_serie,
+        marca: fleetData?.marca,
+        modelo: fleetData?.modelo,
+        color: fleetData?.color,
+        tipo_vehiculo: fleetData?.tipo_vehiculo,
+        secretaria: fleetData?.secretaria,
+      };
+    });
   }
 }

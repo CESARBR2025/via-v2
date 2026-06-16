@@ -16,6 +16,7 @@ import {
   UserCheck,
   RotateCcw,
 } from "lucide-react";
+import BuscadorPatrullas from "@/features/oficiales/components/BuscadorPatrullas";
 
 interface Oficial {
   id: string;
@@ -64,6 +65,8 @@ export default function AdminOficialesPage() {
 
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [editandoId, setEditandoId] = useState<string | null>(null);
+  const hoy = new Date().toISOString().split("T")[0];
+
   const [formData, setFormData] = useState({
     curp: "",
     numeroEmpleado: "",
@@ -72,7 +75,7 @@ export default function AdminOficialesPage() {
     rangoId: "",
     patrullaId: "",
     sectorId: "",
-    fechaIngreso: "",
+    fechaIngreso: hoy,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -148,6 +151,7 @@ export default function AdminOficialesPage() {
 
   const abrirCrear = () => {
     setEditandoId(null);
+    const hoy = new Date().toISOString().split("T")[0];
     setFormData({
       curp: "",
       numeroEmpleado: "",
@@ -156,7 +160,7 @@ export default function AdminOficialesPage() {
       rangoId: "",
       patrullaId: "",
       sectorId: "",
-      fechaIngreso: "",
+      fechaIngreso: hoy,
     });
     setError("");
     setCurpError("");
@@ -767,52 +771,17 @@ export default function AdminOficialesPage() {
                   <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
                     Patrulla Asignada
                   </label>
-                  {patrullas.length > 0 ? (
-                    <select
-                      value={formData.patrullaId}
-                      onChange={(e) => {
-                        setFormData({ ...formData, patrullaId: e.target.value });
-                        setPatrullaManual({ numeroUnidad: "", placas: "" });
-                      }}
-                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
-                    >
-                      <option value="">Sin asignar</option>
-                      {patrullas.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.numero_unidad} ({p.placas})
-                        </option>
-                      ))}
-                    </select>
-                  ) : patrullasLoaded ? (
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={patrullaManual.numeroUnidad}
-                        onChange={(e) =>
-                          setPatrullaManual((prev) => ({ ...prev, numeroUnidad: e.target.value }))
-                        }
-                        placeholder="N° de unidad"
-                        className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
-                      />
-                      <input
-                        type="text"
-                        value={patrullaManual.placas}
-                        onChange={(e) =>
-                          setPatrullaManual((prev) => ({ ...prev, placas: e.target.value }))
-                        }
-                        placeholder="Placas (opcional)"
-                        className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
-                      />
-                      <p className="text-[11px] text-[#94A3B8]">
-                        Servicio de flota no disponible. Ingresa los datos manualmente.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-sm text-[#94A3B8]">
-                      <Loader2 size={14} className="animate-spin" />
-                      Cargando patrullas...
-                    </div>
-                  )}
+                  <BuscadorPatrullas
+                    patrullas={patrullas}
+                    patrullasLoaded={patrullasLoaded}
+                    value={formData.patrullaId}
+                    onChange={(id) => {
+                      setFormData({ ...formData, patrullaId: id });
+                      setPatrullaManual({ numeroUnidad: "", placas: "" });
+                    }}
+                    onManualChange={(data) => setPatrullaManual(data)}
+                    manualData={patrullaManual}
+                  />
                 </div>
                 <div>
                   <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
