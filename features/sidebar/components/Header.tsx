@@ -22,7 +22,12 @@ const getPageTitle = (path: string): string => {
   return match ? match[1] : "Panel Principal";
 };
 
-export default function Header() {
+type Props = {
+  userName: string;
+  userRole: string;
+};
+
+export default function Header({ userName, userRole }: Props) {
   const pathname = usePathname();
   const toggleMobile = useSidebarStore((s) => s.toggleMobile);
 
@@ -66,7 +71,7 @@ export default function Header() {
 
       {/* RIGHT — user avatar + dropdown */}
 
-      <UserAvatarDropdown simulatedName="César Bárcenas" simulatedRole="Oficial de Tránsito" />
+      <UserAvatarDropdown userName={userName} userRole={userRole} />
 
     </header>
   );

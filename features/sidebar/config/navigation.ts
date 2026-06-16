@@ -1,4 +1,4 @@
-import { Home, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown } from "lucide-react";
+import { Home, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown, User } from "lucide-react";
 
 import { UserRole } from "./types";
 
@@ -73,6 +73,17 @@ export const navigationByRole: Record<UserRole, any[]> = {
           label: "Realizadas",
           href: "/oficiales/realizadas",
           icon: Home,
+        },
+      ],
+    },
+    {
+      title: "Mi Cuenta",
+
+      items: [
+        {
+          label: "Mi Perfil",
+          href: "/oficiales/perfil",
+          icon: User,
         },
       ],
     },

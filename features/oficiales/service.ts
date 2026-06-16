@@ -123,6 +123,25 @@ export class OficialesService {
     return OficialesRepository.listarPatrullasActivas();
   }
 
+  static async obtenerMiPerfil(usuarioId: string) {
+    const row = await OficialesRepository.obtenerPorUsuarioIdCompleto(usuarioId);
+    if (!row) {
+      throw new AppError("Oficial no encontrado", 404, "OFICIAL_NOT_FOUND");
+    }
+    return mapRowToDetalleDTO(row);
+  }
+
+  static async actualizarPatrulla(id: string, patrullaId: string | null) {
+    const existe = await OficialesRepository.obtenerPorId(id);
+    if (!existe) {
+      throw new AppError("Oficial no encontrado", 404, "OFICIAL_NOT_FOUND");
+    }
+
+    await OficialesRepository.actualizar(id, { patrullaId });
+
+    return this.obtenerPorId(id);
+  }
+
   static async listarSectores() {
     return OficialesRepository.listarSectoresActivos();
   }

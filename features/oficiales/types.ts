@@ -29,6 +29,7 @@ export interface OficialListaDTO {
   rangoNombre: string | null;
   patrullaId: string | null;
   patrullaUnidad: string | null;
+  patrullaPlacas: string | null;
   sectorId: string | null;
   sectorNombre: string | null;
   fechaIngreso: string | null;
@@ -52,6 +53,7 @@ export interface OficialDetalleDTO {
   rangoNombre: string | null;
   patrullaId: string | null;
   patrullaUnidad: string | null;
+  patrullaPlacas: string | null;
   sectorId: string | null;
   sectorNombre: string | null;
   fechaIngreso: string | null;

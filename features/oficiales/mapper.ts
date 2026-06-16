@@ -16,6 +16,7 @@ interface OficialRow {
   rango_nombre: string | null;
   patrulla_id: string | null;
   patrulla_unidad: string | null;
+  patrulla_placas: string | null;
   sector_id: string | null;
   sector_nombre: string | null;
   fecha_ingreso: string | null;
@@ -41,6 +42,7 @@ export function mapRowToListaDTO(row: OficialRow): OficialListaDTO {
     rangoNombre: row.rango_nombre,
     patrullaId: row.patrulla_id,
     patrullaUnidad: row.patrulla_unidad,
+    patrullaPlacas: row.patrulla_placas,
     sectorId: row.sector_id,
     sectorNombre: row.sector_nombre,
     fechaIngreso: row.fecha_ingreso,
@@ -66,6 +68,7 @@ export function mapRowToDetalleDTO(row: OficialRow): OficialDetalleDTO {
     rangoNombre: row.rango_nombre,
     patrullaId: row.patrulla_id,
     patrullaUnidad: row.patrulla_unidad,
+    patrullaPlacas: row.patrulla_placas,
     sectorId: row.sector_id,
     sectorNombre: row.sector_nombre,
     fechaIngreso: row.fecha_ingreso,

@@ -134,6 +134,43 @@ export class OficialesRepository {
     return result.rows[0] || null;
   }
 
+  static async obtenerPorUsuarioIdCompleto(usuarioId: string) {
+    const result = await POOL_PG.query(`
+      SELECT
+        o.id,
+        o.usuario_id,
+        o.numero_empleado,
+        u.nombres,
+        u.apellido_p,
+        u.apellido_m,
+        u.curp,
+        u.correo,
+        o.telefono,
+        o.departamento_id,
+        d.nombre AS departamento_nombre,
+        o.rango_id,
+        r.nombre AS rango_nombre,
+        o.patrulla_id,
+        p.numero_unidad AS patrulla_unidad,
+        p.placas AS patrulla_placas,
+        o.sector_id,
+        s.nombre AS sector_nombre,
+        o.fecha_ingreso,
+        o.activo,
+        o.created_at,
+        o.updated_at
+      FROM v2_oficiales o
+      INNER JOIN v2_usuarios u ON u.id = o.usuario_id
+      LEFT JOIN v2_patrullas p ON p.id = o.patrulla_id
+      LEFT JOIN v2_sectores s ON s.id = o.sector_id
+      LEFT JOIN v2_departamentos_oficiales d ON d.id = o.departamento_id
+      LEFT JOIN v2_rangos_oficiales r ON r.id = o.rango_id
+      WHERE o.usuario_id = $1
+    `, [usuarioId]);
+
+    return result.rows[0] || null;
+  }
+
   static async obtenerPorNumeroEmpleado(numeroEmpleado: string) {
     const result = await POOL_PG.query(`
       SELECT id FROM v2_oficiales WHERE numero_empleado = $1
