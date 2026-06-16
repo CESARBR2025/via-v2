@@ -50,7 +50,6 @@ export default function TablaDepInfracciones({ data }: Props) {
             setLoading(false);
         }
     }
-    console.log(detalle)
 
     async function handleOpenDetalle(id: string) {
         setOpen(true);
@@ -60,7 +59,6 @@ export default function TablaDepInfracciones({ data }: Props) {
 
     useEffect(() => {
         if (detalle) {
-            console.log('🔄 El estado detalle se actualizó con éxito:', detalle);
         }
     }, [detalle]);
 

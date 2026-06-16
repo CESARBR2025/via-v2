@@ -105,6 +105,7 @@ export function CustomSelect({
                 className={triggerClasses}
                 aria-haspopup="listbox"
                 aria-expanded={open}
+                aria-label={name ? `${name}: ${selectedLabel ?? placeholder}` : placeholder}
             >
                 <span
                     className={`flex-1 text-left truncate ${!selectedLabel ? 'text-gray-400' : 'text-gray-900'
@@ -132,6 +133,7 @@ export function CustomSelect({
             {open && (
                 <ul
                     role="listbox"
+                    aria-label={placeholder}
                     className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 rounded-lg border border-gray-200 bg-white shadow-lg overflow-y-auto max-h-[184px]"
                 >
                     <li>

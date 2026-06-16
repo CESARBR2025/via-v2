@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Loader2, Save, User } from 'lucide-react'
+import { useToastStore } from '@/stores/useToastStore'
 
 type Props = {
   infraccionId: string
@@ -16,17 +17,17 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
   const [esTitular, setEsTitular] = useState<boolean | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [errores, setErrores] = useState<Record<string, string>>({})
+  const addToast = useToastStore((s) => s.addToast)
 
   const handleSubmit = async () => {
+    const nuevos: Record<string, string> = {}
+    if (!nombre.trim()) nuevos.nombre = 'Requerido'
+    if (!appaterno.trim()) nuevos.appaterno = 'Requerido'
+    if (esTitular === null) nuevos.esTitular = 'Selecciona una opción'
+    setErrores(nuevos)
     setError('')
-    if (!nombre.trim() || !appaterno.trim()) {
-      setError('Nombre y apellido paterno son requeridos')
-      return
-    }
-    if (esTitular === null) {
-      setError('Indica si el infractor es el titular')
-      return
-    }
+    if (Object.keys(nuevos).length > 0) return
 
     setSaving(true)
     try {
@@ -43,6 +44,7 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
         }),
       })
       if (!res.ok) throw new Error('Error al guardar')
+      addToast('Datos del infractor guardados correctamente', 'success')
       onSuccess()
     } catch (err) {
       setError('Error al guardar los datos')
@@ -65,21 +67,23 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
           <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] block mb-1.5">Nombre(s) *</label>
           <input
             value={nombre}
-            onChange={e => setNombre(e.target.value)}
+            onChange={e => { setNombre(e.target.value); setErrores(p => ({...p, nombre: ''})) }}
             placeholder="Nombre(s)"
-            className="w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors"
-            style={{ borderColor: '#E2E8F0', color: '#0F172A' }}
+            className={`w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors ${errores.nombre ? 'border-[#EF4444]' : ''}`}
+            style={{ borderColor: errores.nombre ? '#EF4444' : '#E2E8F0', color: '#0F172A' }}
           />
+          {errores.nombre && <p className="text-[11px] text-[#EF4444] font-medium mt-0.5">{errores.nombre}</p>}
         </div>
         <div>
           <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] block mb-1.5">A. Paterno *</label>
           <input
             value={appaterno}
-            onChange={e => setAppaterno(e.target.value)}
+            onChange={e => { setAppaterno(e.target.value); setErrores(p => ({...p, appaterno: ''})) }}
             placeholder="Paterno"
-            className="w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors"
-            style={{ borderColor: '#E2E8F0', color: '#0F172A' }}
+            className={`w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors ${errores.appaterno ? 'border-[#EF4444]' : ''}`}
+            style={{ borderColor: errores.appaterno ? '#EF4444' : '#E2E8F0', color: '#0F172A' }}
           />
+          {errores.appaterno && <p className="text-[11px] text-[#EF4444] font-medium mt-0.5">{errores.appaterno}</p>}
         </div>
         <div>
           <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] block mb-1.5">A. Materno</label>
@@ -110,7 +114,7 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => setEsTitular(true)}
+            onClick={() => { setEsTitular(true); setErrores(p => ({...p, esTitular: ''})) }}
             className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${esTitular === true ? 'text-white' : 'text-[#64748B] border'}`}
             style={{
               background: esTitular === true ? '#2563EB' : '#FFFFFF',
@@ -119,7 +123,7 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
           >Sí</button>
           <button
             type="button"
-            onClick={() => setEsTitular(false)}
+            onClick={() => { setEsTitular(false); setErrores(p => ({...p, esTitular: ''})) }}
             className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${esTitular === false ? 'text-white' : 'text-[#64748B] border'}`}
             style={{
               background: esTitular === false ? '#EF4444' : '#FFFFFF',
@@ -127,6 +131,7 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
             }}
           >No</button>
         </div>
+        {errores.esTitular && <p className="text-[11px] text-[#EF4444] font-medium mt-1">{errores.esTitular}</p>}
       </div>
 
       {error && <p className="text-[12px] font-medium text-[#DC2626]">{error}</p>}

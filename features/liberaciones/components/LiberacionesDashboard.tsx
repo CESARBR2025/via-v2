@@ -46,9 +46,9 @@ const STATUS_TABS: { key: EstatusLiberaciones; label: string; icon: typeof Clock
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-    ESPERA_REVISION: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'En espera' },
-    VEHICULO_EN_CORRALON: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'En espera' },
-    MESA_DE_CONTROL_REVISION: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'En revisión' },
+    ESPERA_REVISION: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'En espera' },
+    VEHICULO_EN_CORRALON: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'En espera' },
+    MESA_DE_CONTROL_REVISION: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'En revisión' },
     EN_PROCESO_LIBERACIONES: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
     LIBERADO: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
     LIBERADA_POR_INFRACCION: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
@@ -64,7 +64,6 @@ export default function LiberacionesDashboard({
     onOpenDetalle,
 }: Props) {
     const [filtro, setFiltro] = useState<EstatusLiberaciones>('ESPERA_REVISION')
-    console.log(data)
     const estadisticas = useMemo(() => {
 
         const pendientes = data.filter(x => x.estatus_dependencia === 'ESPERA_REVISION' || x.estatus_dependencia === 'VEHICULO_EN_CORRALON').length
@@ -94,8 +93,6 @@ export default function LiberacionesDashboard({
         }),
         [data, filtro],
     )
-
-    console.log(registrosFiltrados)
 
     return (
         <div className="space-y-6">

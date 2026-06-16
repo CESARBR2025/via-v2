@@ -112,6 +112,7 @@ export default function Sidebar({
 
         <button
           onClick={toggleCollapsed}
+          aria-label="Colapsar menú lateral"
           className={`
             w-7 h-7 rounded-lg
             hover:bg-[#F8FAFC]
@@ -129,6 +130,7 @@ export default function Sidebar({
       {collapsed && (
         <button
           onClick={toggleCollapsed}
+          aria-label="Expandir menú lateral"
           className="
             mt-3 w-full h-7 rounded-lg
             hover:bg-[#F8FAFC]
@@ -143,7 +145,7 @@ export default function Sidebar({
 
       {/* ═══ NAV ═══ */}
 
-      <nav className="flex flex-col gap-6 mt-6 flex-1">
+      <nav className="flex flex-col gap-6 mt-6 flex-1" aria-label="Navegación principal">
         {sections.map((section) => (
           <div key={section.title} className="space-y-1">
 

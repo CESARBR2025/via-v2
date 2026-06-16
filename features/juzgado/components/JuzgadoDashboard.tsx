@@ -45,8 +45,8 @@ const STATUS_TABS: { key: EstatusJuzgado; label: string; icon: typeof Clock; col
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-    PENDIENTE: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
-    RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
+    PENDIENTE: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Pendiente' },
+    RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Pendiente' },
     EN_PROCESO_JUZGADO: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
     LIBERADO_POR_JUZGADO: { bg: '#F3E8FF', text: '#5B21B6', dot: '#8B5CF6', label: 'Liberada' },
 }

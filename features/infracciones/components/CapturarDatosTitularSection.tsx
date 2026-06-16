@@ -12,8 +12,6 @@ interface Props {
 export default function CapturarDatosTitularSection({ detalle, onSuccess }: Props) {
   const estatus = detalle.Header.estatus_dependencia
 
-  console.log(detalle)
-
   if (estatus === 'PENDIENTE_DATOS_INFRACTOR') {
     return <TitularForm detalle={detalle} onSuccess={onSuccess} />
   }

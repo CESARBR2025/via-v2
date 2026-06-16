@@ -86,7 +86,7 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string; 
     },
     PENDIENTE: {
         bg: 'bg-[#FEF3C7]',
-        text: 'text-[#92400E]',
+        text: 'text-[#78350F]',
         border: 'border-[#FCD34D]',
         dot: 'bg-[#F59E0B]',
         label: 'Pendiente de Pago',

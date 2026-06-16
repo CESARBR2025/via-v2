@@ -30,6 +30,7 @@ export default function SidebarItem({
         <Link
             href={href}
             title={collapsed ? label : ""}
+            aria-current={active ? "page" : undefined}
             className={`
                 group relative flex items-center
                 h-10 rounded-lg

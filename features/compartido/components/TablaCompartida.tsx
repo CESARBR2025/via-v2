@@ -41,8 +41,6 @@ const columns = [
 export default function TablaCompartida({ respuestaServidor, userRole }: TablaCompartidaProps) {
     const router = useRouter()
 
-    console.log(userRole)
-    console.log(respuestaServidor)
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [detalle, setDetalle] = useState<DetalleCompleto | null>(null)
@@ -70,8 +68,6 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
             setLoading(false)
         }
     }
-
-    console.log(detalle)
 
     async function handleOpenDetalle(id: string) {
         const row = listaDatos.find(r => r.id === id)

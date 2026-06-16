@@ -29,9 +29,6 @@ export default function PagoInfraccion({
     estatusDependencia,
     estatusInfraccion
 }: Props) {
-    console.log(estatus)
-
-    console.log(urlPago)
     const router = useRouter();
 
     const [open, setOpen] = useState(false);
@@ -52,8 +49,6 @@ export default function PagoInfraccion({
     const verificarPago = async () => {
 
         // Estados actuales
-        console.log(estatusInfraccion)
-        console.log(estatusDependencia)
 
 
 
@@ -79,7 +74,6 @@ export default function PagoInfraccion({
                 url = `/api/pagosInfracciones/confirmarPagoRetenida/${ordenPagoId}/${infraccionId}`
             } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_LIBERACION') {
                 // Caso 4: Pago de infraccion liberacion
-                console.log('entro aqui')
                 url = `/api/pagosInfracciones/confirmarPagoLiberacion/${ordenPagoId}/${infraccionId}`
             }
 
@@ -91,8 +85,6 @@ export default function PagoInfraccion({
             );
 
             const data = await res.json();
-
-            console.log('VERIFICAR PAGO:', data);
 
             // =============================================
             // PAGADO
@@ -153,11 +145,7 @@ export default function PagoInfraccion({
 
         if (!open || pagado) return;
 
-        console.log('INICIANDO POLLING');
-
         const interval = setInterval(() => {
-
-            console.log('POLLING: verificando pago');
 
             verificarPago();
 
@@ -166,8 +154,6 @@ export default function PagoInfraccion({
         // LIMPIAR INTERVALO
 
         return () => {
-
-            console.log('DETENIENDO POLLING');
 
             clearInterval(interval);
 

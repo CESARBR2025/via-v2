@@ -39,8 +39,6 @@ export default async function DashboardLayout({
         (cookieStore.get("last_role")?.value ||
             "oficial") as UserRole;
 
-    console.log(role)
-
     const userName = session
         ? `${session.user.nombres} ${session.user.apellido_p}`
         : "Usuario";

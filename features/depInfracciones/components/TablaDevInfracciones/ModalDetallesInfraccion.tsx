@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import CardTable from '@/features/sidebar/components/CardTable';
 import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento';
+import { useToastStore } from '@/stores/useToastStore';
 /* ─── INTERFACES ─── */
 
 export interface InfraccionHeader {
@@ -93,7 +94,7 @@ const STATUS_CONFIG: Record<string, {
     },
     PENDIENTE: {
         bg: 'bg-[#FEF3C7]',
-        text: 'text-[#92400E]',
+        text: 'text-[#78350F]',
         border: 'border-[#FCD34D]',
         dot: 'bg-[#F59E0B]',
         label: 'Pendiente de Pago',
@@ -157,7 +158,6 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
     detalle,
     onRefresh
 }) => {
-    console.log(detalle)
     const modalRef = useRef<HTMLDivElement>(null);
     const [nombreInfractor, setNombreInfractor] = useState('');
     const [apPaternoInfractor, setapPaternoInfractor] = useState('');
@@ -165,6 +165,8 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
     const [correoInfractor, setCorreoInfractor] = useState('');
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [registroExitoso, setRegistroExitoso] = useState(false);
+    const [erroresFormulario, setErroresFormulario] = useState<Record<string, string>>({});
+    const addToast = useToastStore((s) => s.addToast);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -185,38 +187,25 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
     const h = detalle?.Header;
     const cfg = getStatusConfig(h?.estatus_de_infraccion);
 
-    console.log(detalle?.datos_infractor)
     const tieneNombre = detalle?.datos_infractor?.nombre_infractor !== 'NO_DATA';
     const tieneCorreo = detalle?.datos_infractor?.correo_infractor !== 'NO_DATA';
     const ciudadanoPresente = tieneNombre && tieneCorreo;
 
-    console.log(ciudadanoPresente)
-
     const latMapa = Number(detalle?.ubicacion.latitud)
     const lngMapa = Number(detalle?.ubicacion.longitud)
 
-    console.log(detalle)
-
     const handleRegistrarInfractor = async () => {
+        const nuevosErrores: Record<string, string> = {};
+        if (!nombreInfractor.trim()) nuevosErrores.nombre = 'Requerido';
+        if (!apPaternoInfractor.trim()) nuevosErrores.paterno = 'Requerido';
+        if (!apMaternoInfractor.trim()) nuevosErrores.materno = 'Requerido';
+        if (!correoInfractor.trim()) nuevosErrores.correo = 'Requerido';
+
+        setErroresFormulario(nuevosErrores);
+        if (Object.keys(nuevosErrores).length > 0) return;
+
         try {
             setLoadingRegistro(true);
-
-            if (!nombreInfractor.trim()) {
-                alert('Nombre requerido');
-                return;
-            }
-            if (!apPaternoInfractor.trim()) {
-                alert('Apellido paterno requerido');
-                return;
-            }
-            if (!apMaternoInfractor.trim()) {
-                alert('Apellido materno requerido');
-                return;
-            }
-            if (!correoInfractor.trim()) {
-                alert('Correo requerido');
-                return;
-            }
 
             const response = await fetch(
                 '/api/buscadorGlobal/registrarInfractor',
@@ -237,16 +226,15 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                 throw new Error('Error registrando infractor');
             }
 
-            const data = await response.json();
-            console.log('[REGISTRO_INFRACCION]', data);
             setRegistroExitoso(true);
 
             if (onRefresh) {
                 await onRefresh();
             }
         } catch (error) {
+            const msg = error instanceof Error ? error.message : 'Error registrando información';
             console.error('[HANDLE_REGISTRAR_INFRACCION]', error);
-            alert('Error registrando información');
+            addToast(msg, 'error');
         } finally {
             setLoadingRegistro(false);
         }
@@ -292,7 +280,6 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
             })
         );
 
-    console.log(evidencias)
     const archivosAdjuntos: ArchivoAdjunto[] = [
         ...documentos,
         ...evidencias,
@@ -439,46 +426,35 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                                                 </div>
 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[13px] font-medium text-[#0F172A]">Nombre Completo</label>
-                                                        <input
-                                                            type="text"
-                                                            value={nombreInfractor}
-                                                            onChange={(e) => setNombreInfractor(e.target.value)}
-                                                            placeholder="Ingrese nombre completo"
-                                                            className="w-full rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-3 py-2 text-[14px] text-[#0F172A] placeholder-[#94A3B8] transition-all focus:outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-[#FEE2E2]"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[13px] font-medium text-[#0F172A]">Ap Paterno</label>
-                                                        <input
-                                                            type="text"
-                                                            value={apPaternoInfractor}
-                                                            onChange={(e) => setapPaternoInfractor(e.target.value)}
-                                                            placeholder="Ingrese apellido paterno"
-                                                            className="w-full rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-3 py-2 text-[14px] text-[#0F172A] placeholder-[#94A3B8] transition-all focus:outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-[#FEE2E2]"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[13px] font-medium text-[#0F172A]">Ap Materno</label>
-                                                        <input
-                                                            type="text"
-                                                            value={apMaternoInfractor}
-                                                            onChange={(e) => setapMaternoInfractor(e.target.value)}
-                                                            placeholder="Ingrese apellido materno"
-                                                            className="w-full rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-3 py-2 text-[14px] text-[#0F172A] placeholder-[#94A3B8] transition-all focus:outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-[#FEE2E2]"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[13px] font-medium text-[#0F172A]">Correo Electrónico</label>
-                                                        <input
-                                                            type="email"
-                                                            value={correoInfractor}
-                                                            onChange={(e) => setCorreoInfractor(e.target.value)}
-                                                            placeholder="correo@ejemplo.com"
-                                                            className="w-full rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-3 py-2 text-[14px] text-[#0F172A] placeholder-[#94A3B8] transition-all focus:outline-none focus:border-[#DC2626] focus:ring-4 focus:ring-[#FEE2E2]"
-                                                        />
-                                                    </div>
+                                                    <InputField
+                                                        label="Nombre Completo"
+                                                        value={nombreInfractor}
+                                                        onChange={setNombreInfractor}
+                                                        placeholder="Ingrese nombre completo"
+                                                        error={erroresFormulario.nombre}
+                                                    />
+                                                    <InputField
+                                                        label="Ap Paterno"
+                                                        value={apPaternoInfractor}
+                                                        onChange={setapPaternoInfractor}
+                                                        placeholder="Ingrese apellido paterno"
+                                                        error={erroresFormulario.paterno}
+                                                    />
+                                                    <InputField
+                                                        label="Ap Materno"
+                                                        value={apMaternoInfractor}
+                                                        onChange={setapMaternoInfractor}
+                                                        placeholder="Ingrese apellido materno"
+                                                        error={erroresFormulario.materno}
+                                                    />
+                                                    <InputField
+                                                        label="Correo Electrónico"
+                                                        value={correoInfractor}
+                                                        onChange={setCorreoInfractor}
+                                                        placeholder="correo@ejemplo.com"
+                                                        type="email"
+                                                        error={erroresFormulario.correo}
+                                                    />
                                                 </div>
 
                                                 <div className="space-y-3">
@@ -829,6 +805,39 @@ const EmptyState = () => (
             <p className="text-[15px] font-bold text-[#475569]">No se encontró información</p>
             <p className="text-[13px] text-[#94A3B8] mt-1">No se pudo obtener el detalle de esta infracción.</p>
         </div>
+    </div>
+);
+
+/* Input Field con error inline */
+const InputField = ({
+    label,
+    value,
+    onChange,
+    placeholder,
+    type = 'text',
+    error,
+}: {
+    label: string;
+    value: string;
+    onChange: (v: string) => void;
+    placeholder: string;
+    type?: string;
+    error?: string;
+}) => (
+    <div className="space-y-1.5">
+        <label className="text-[13px] font-medium text-[#0F172A]">{label}</label>
+        <input
+            type={type}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            className={`w-full rounded-lg border px-3 py-2 text-[14px] text-[#0F172A] placeholder-[#94A3B8] transition-all focus:outline-none focus:ring-4 bg-[#FFFFFF] ${
+                error
+                    ? 'border-[#EF4444] focus:border-[#EF4444] focus:ring-[#FEE2E2]'
+                    : 'border-[#E2E8F0] focus:border-[#DC2626] focus:ring-[#FEE2E2]'
+            }`}
+        />
+        {error && <p className="text-[11px] text-[#EF4444] font-medium mt-0.5">{error}</p>}
     </div>
 );
 

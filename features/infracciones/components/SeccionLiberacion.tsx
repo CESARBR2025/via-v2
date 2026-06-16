@@ -99,7 +99,7 @@ function getEstatusConfig(estatus: string) {
             icon: CheckCircle2,
             bg: '#DCFCE7',
             border: '#22C55E/30',
-            text: '#16A34A',
+            text: '#166534',
             label: estatus,
         };
     }
@@ -117,7 +117,7 @@ function getEstatusConfig(estatus: string) {
             icon: XCircle,
             bg: '#FEE2E2',
             border: '#EF4444/30',
-            text: '#DC2626',
+            text: '#991B1B',
             label: 'Documentos rechazados',
         };
     }
@@ -145,10 +145,6 @@ export default function SeccionLiberacion({
     documentosLiberacion,
 }: Props) {
 
-    console.log(estatusDependencia)
-    console.log(estatusInfraccion)
-
-
     const [selectedType, setSelectedType] = useState<'empresa' | 'titular' | null>(null);
     const [selectedFiles, setSelectedFiles] = useState<Record<string, File>>({});
     const [submitting, setSubmitting] = useState(false);
@@ -165,7 +161,6 @@ export default function SeccionLiberacion({
     const [reuploading, setReuploading] = useState(false);
 
     const tieneDocs = documentosLiberacion && Object.keys(documentosLiberacion).length > 0;
-    console.log(tieneDocs)
 
     useEffect(() => {
         if (!tieneDocs || !infraccionId) return;
@@ -186,8 +181,6 @@ export default function SeccionLiberacion({
     }, [tieneDocs, infraccionId]);
 
     const estatusConfig = getEstatusConfig(estatusDependencia);
-    console.log(estatusDependencia)
-    console.log(estatusConfig)
 
     const motivoSubtipo = motivoRetencion ? MOTIVO_TO_SUBTIPO[motivoRetencion] : undefined;
 
@@ -263,8 +256,6 @@ export default function SeccionLiberacion({
                 }
             }
 
-            console.log(estatusDependencia)
-            console.log(estatusInfraccion)
 
 
             let endpoint = '/api/ciudadano/subirDocumentos'

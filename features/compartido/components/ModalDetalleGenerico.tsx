@@ -99,7 +99,7 @@ interface ModalDetalleGenericoProps {
 
 const STATUS_MAP: Record<string, { dot: string; bg: string; text: string; label: string }> = {
     PAGADA: { dot: '#22C55E', bg: '#DCFCE7', text: '#166534', label: 'Pagada' },
-    PENDIENTE: { dot: '#F59E0B', bg: '#FEF3C7', text: '#92400E', label: 'Pendiente de Pago' },
+    PENDIENTE: { dot: '#F59E0B', bg: '#FEF3C7', text: '#78350F', label: 'Pendiente de Pago' },
     REGISTRADA: { dot: '#3B82F6', bg: '#DBEAFE', text: '#1E40AF', label: 'Registrada' },
     CANCELADA: { dot: '#EF4444', bg: '#FEE2E2', text: '#991B1B', label: 'Cancelada' },
 };
@@ -132,8 +132,6 @@ export default function ModalDetalleGenerico({
     antesContenido, sidebarExtra, mainExtra, fullWidthExtra,
 }: ModalDetalleGenericoProps) {
     const ref = useRef<HTMLDivElement>(null);
-    console.log(detalle)
-
 
 
     useEffect(() => {
@@ -559,8 +557,6 @@ export default function ModalDetalleGenerico({
 
 function DatosInfractorSection({ detalle, role }: { detalle: DetalleCompleto; role: string }) {
     const esTitular = !!detalle.datos_infractor.nombre_titular_liberacion;
-    console.log(detalle)
-    console.log(esTitular)
 
     if (role === 'fiscalia' && detalle.Header.estatus === 'REGISTRADA' && detalle.Header.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO') {
         return esTitular ? <TitularVerificado detalle={detalle} /> : <CapturaTitular />;

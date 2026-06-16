@@ -46,7 +46,7 @@ const STATUS_TABS: { key: EstatusInfracciones; label: string; icon: typeof Clock
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-    PENDIENTES_DATOS: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Sin datos' },
+    PENDIENTES_DATOS: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Sin datos' },
     PAGADAS: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Pagada' },
     LIBERADO_POR_INFRACCIONES: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'Liberada' },
 }
@@ -85,7 +85,6 @@ export default function InfraccionesDashboard({
 }: Props) {
     const [filtro, setFiltro] = useState<EstatusInfracciones>('PENDIENTES_DATOS')
 
-    console.log(data)
     const estadisticas = useMemo(() => {
         const pendientes = data.filter(x => !dataCompleta(x)).length
         const pagadas = data.filter(x => x.estatus === 'PAGADA' && (x.estatus_dependencia === 'PENDIENTE_ENTREGA_GARANTIA' || x.estatus_dependencia === 'PENDIENTE_DEVOLUCION_GARANTIA')).length
@@ -260,7 +259,7 @@ export default function InfraccionesDashboard({
                                                         : isPagada(row)
                                                             ? STATUS_BADGE.PAGADAS
                                                             : esPendientePago(row)
-                                                                ? { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente pago' }
+                                                                ? { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Pendiente pago' }
                                                                 : getBadge(row.estatus_dependencia)
                                                 return (
                                                     <td key={column.key} className="px-4 py-2.5">

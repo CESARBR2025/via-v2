@@ -62,7 +62,6 @@ function createMarkerElement(): HTMLElement {
 }
 
 export default function MapaSelector({ initialLat, initialLng, editable, onLocationChange, onAddressChange }: Props) {
-    console.log('entro')
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const markerRef = useRef<mapboxgl.Marker | null>(null);

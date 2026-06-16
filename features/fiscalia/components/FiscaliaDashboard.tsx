@@ -45,14 +45,13 @@ const STATUS_TABS: { key: EstatusFiscalia; label: string; icon: typeof Clock; co
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-    PENDIENTE: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
-    RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
+    PENDIENTE: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Pendiente' },
+    RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Pendiente' },
     EN_PROCESO_FISCALIA: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
     LIBERADO_POR_FISCALIA: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
 }
 
 function getBadge(status: string) {
-    console.log(status)
     return STATUS_BADGE[status] ?? { bg: '#F1F5F9', text: '#475569', dot: '#94A3B8', label: status }
 }
 
@@ -62,7 +61,6 @@ export default function FiscaliaDashboard({
     onOpenDetalle,
     onCargarOficio,
 }: Props) {
-    console.log(data)
     const [filtro, setFiltro] = useState<EstatusFiscalia>('REGISTRADA')
 
     const estadisticas = useMemo(() => {
@@ -116,7 +114,6 @@ export default function FiscaliaDashboard({
     }, [data, filtro])
 
 
-    console.log(registrosFiltrados)
     return (
         <div className="space-y-6">
             {/* ─── HEADER ─── */}

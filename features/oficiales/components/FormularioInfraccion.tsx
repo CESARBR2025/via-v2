@@ -261,7 +261,6 @@ export default function FormularioInfraccion() {
                     throw new Error('No se encontró orden_pago_id');
                 }
 
-                console.log('💳 ORDEN PAGO ID:', ordenPagoId);
             } catch (error) {
                 console.error('❌ ERROR EN BUSCAR ORDEN:', error);
                 return;
@@ -287,13 +286,10 @@ export default function FormularioInfraccion() {
                     );
                 }
 
-                console.log('📡 VERIFICAR PAGO:', data);
-
                 // ─────────────────────────────────────────────────────────────
                 // PASO 3: ACTUALIZAR ESTADO DE PAGO
                 // ─────────────────────────────────────────────────────────────
                 if (data.pagado) {
-                    console.log('✅ PAGO CONFIRMADO');
                     setPagado(true);
                     return;
                 }

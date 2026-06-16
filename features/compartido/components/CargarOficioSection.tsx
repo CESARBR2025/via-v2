@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react"
 import { CheckCircle2, FileText, Upload, User } from "lucide-react"
+import { useToastStore } from "@/stores/useToastStore"
 
 function InputField({ label, value, onChange, placeholder, mono, maxLength }: {
     label: string; value: string; onChange: (v: string) => void; placeholder?: string; mono?: boolean; maxLength?: number
@@ -58,6 +59,7 @@ export default function CargarOficioSection({
     const [saving, setSaving] = useState(false)
     const [success, setSuccess] = useState(false)
     const fileRef = useRef<HTMLInputElement>(null)
+    const addToast = useToastStore((s) => s.addToast)
 
     const [nombre, setNombre] = useState(esTitularBool ? (nombreInfractor ?? '') : '')
     const [appaterno, setAppaterno] = useState(esTitularBool ? (appaternoInfractor ?? '') : '')
@@ -88,9 +90,11 @@ export default function CargarOficioSection({
             if (!res.ok) throw new Error('Error al guardar')
 
             setSuccess(true)
+            addToast('Oficio registrado correctamente', 'success')
             onSuccess?.()
         } catch (error) {
-            console.error(error)
+            const msg = error instanceof Error ? error.message : 'Error al guardar el oficio'
+            addToast(msg, 'error')
         } finally {
             setSaving(false)
         }

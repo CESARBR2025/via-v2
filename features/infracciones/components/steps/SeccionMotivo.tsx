@@ -34,7 +34,6 @@ export const SeccionMotivo: React.FC<SeccionMotivoProps> = ({
     loading,
     fieldError,
 }) => {
-    console.log(articulos)
     // Obtener datos y función de actualización del store
     const datos = useInfraccionStore((s) => s.datos);
     const actualizarDatos = useInfraccionStore((s) => s.actualizarDatos);
@@ -43,9 +42,6 @@ export const SeccionMotivo: React.FC<SeccionMotivoProps> = ({
     const fraccionSeleccionada = articuloSeleccionado?.fracciones?.find(
         (f) => f.id === datos.fraccionId
     );
-
-    console.log('ARTICULO SELECTED ID:', datos.articuloId);
-    console.log('ARTICULOS:', articulos);
 
     return (
         <Card>

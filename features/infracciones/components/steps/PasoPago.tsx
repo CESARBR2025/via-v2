@@ -52,7 +52,7 @@ export const PasoPago: React.FC<PasoPagoProps> = ({
                         </div>
 
                         <div className="space-y-3">
-                            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#DCFCE7] text-[#16A34A] border border-[#22C55E]/30 text-sm font-bold">
+                            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#DCFCE7] text-[#166534] border border-[#22C55E]/30 text-sm font-bold">
                                 <span className="w-2 h-2 rounded-full bg-[#22C55E]" />
                                 Pago Confirmado
                             </span>
