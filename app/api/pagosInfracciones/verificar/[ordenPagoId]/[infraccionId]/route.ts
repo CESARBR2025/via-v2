@@ -18,8 +18,11 @@ export async function GET(
   try {
     console.log("ENTRO A VERIFICAR PAGO");
     const { ordenPagoId, infraccionId } = await context.params;
+    const url = new URL(req.url);
+    const finalizar = url.searchParams.get("finalizar") === "true";
     console.log("ORDEN PAGO ID:", ordenPagoId);
     console.log("INFRACCION ID:", infraccionId);
+    console.log("FINALIZAR:", finalizar);
 
     if (!ordenPagoId) {
       return NextResponse.json(
@@ -117,10 +120,15 @@ export async function GET(
         await client.query(
           `
                     UPDATE v2_infracciones
-                    SET estatus = 'PAGADA'
+                    SET estatus = $2,
+                        estatus_dependencia = $3
                     WHERE id = $1
                     `,
-          [infraccionId],
+          [
+            infraccionId,
+            finalizar ? 'CERRADA' : 'PAGADA',
+            finalizar ? 'LIBERADA_INFRACCIONES_INSTANTE' : 'PENDIENTE_DEVOLUCION_GARANTIA',
+          ],
         );
 
         await client.query("COMMIT");
@@ -128,8 +136,11 @@ export async function GET(
         return NextResponse.json({
           ok: true,
           pagado: true,
+          finalizado: finalizar,
           estatus: "P",
-          message: "Pago confirmado",
+          message: finalizar
+            ? "Pago confirmado e infracción finalizada"
+            : "Pago confirmado",
         });
       } catch (dbError) {
         await client.query("ROLLBACK");

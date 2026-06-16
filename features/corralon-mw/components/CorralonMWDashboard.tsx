@@ -1,8 +1,8 @@
 'use client'
 
-import { BotonVerDetalle } from '@/features/compartido/components/ButtonVerDetalles'
 import { useMemo, useState } from 'react'
-import { Clock, RefreshCw, CheckCircle2, AlertCircle, Search, User } from 'lucide-react'
+import { Clock, CheckCircle2, AlertCircle, Search, User, Upload, Eye } from 'lucide-react'
+import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento'
 
 const AVATAR_COLORS = [
     { bg: '#EFF6FF', text: '#2563EB' },
@@ -31,24 +31,27 @@ function hashColor(str: string, palette: typeof AVATAR_COLORS) {
 interface Props {
     data: any[]
     visibleColumns: any[]
-    onOpenDetalle: (id: string) => void
+    onSubirComprobante?: (id: string) => void
+    onOpenDetalle?: (id: string) => void
 }
 
 type EstatusMW =
-    | 'LIBERADO_POR_LIBERACIONES'
-    | 'EN_REVISION_MW'
-    | 'CERRADA'
+    | 'PENDIENTE'
+    | 'CERRADAS'
 
 const STATUS_TABS: { key: EstatusMW; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
-    { key: 'LIBERADO_POR_LIBERACIONES', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
-    { key: 'EN_REVISION_MW', label: 'En Revisión', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
-    { key: 'CERRADA', label: 'Finalizadas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
+    { key: 'PENDIENTE', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
+    { key: 'CERRADAS', label: 'Cerradas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-    LIBERADO_POR_LIBERACIONES: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
+    LIBERADA_POR_ACCIDENTE: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
+    LIBERADA_POR_INFRACCION: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
+    LIBERADA_POR_DELITO: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
     EN_REVISION_MW: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Revisión' },
-    CERRADA: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Finalizada' },
+    FINALIZADA_ACCIDENTE: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Cerrada' },
+    FINALIZADA_INFRACCION: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Cerrada' },
+    FINALIZADA_DELITO: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Cerrada' },
 }
 
 function getBadge(status: string) {
@@ -58,23 +61,62 @@ function getBadge(status: string) {
 export default function CorralonMWDashboard({
     data,
     visibleColumns,
-    onOpenDetalle,
+    onSubirComprobante,
 }: Props) {
-    const [filtro, setFiltro] = useState<EstatusMW>('LIBERADO_POR_LIBERACIONES')
+    const [filtro, setFiltro] = useState<EstatusMW>('PENDIENTE')
 
     const estadisticas = useMemo(() => {
-        const pendientes = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_LIBERACIONES').length
-        const proceso = data.filter(x => x.estatus_dependencia === 'EN_REVISION_MW').length
-        const finalizadas = data.filter(x => x.estatus_dependencia === 'CERRADA').length
-        return { pendientes, proceso, finalizadas }
+        const pendientes = data.filter(
+            x =>
+                x.estatus === 'CERRADA' &&
+                ['LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO'].includes(x.estatus_dependencia)
+        ).length
+
+        const cerradas = data.filter(
+            x =>
+                x.estatus === 'FINALIZADA' &&
+                ['FINALIZADA_ACCIDENTE', 'FINALIZADA_INFRACCION', 'FINALIZADA_DELITO'].includes(x.estatus_dependencia)
+        ).length
+
+        return { pendientes, cerradas }
     }, [data])
 
-    const total = estadisticas.pendientes + estadisticas.proceso + estadisticas.finalizadas
+    const total = estadisticas.pendientes + estadisticas.cerradas
 
-    const registrosFiltrados = useMemo(
-        () => data.filter(x => x.estatus_dependencia === filtro),
-        [data, filtro],
-    )
+
+    const registrosFiltrados = useMemo(() => {
+        switch (filtro) {
+            case 'PENDIENTE':
+                return data.filter(
+                    x =>
+                        x.estatus === 'CERRADA' &&
+                        [
+                            'LIBERADA_POR_ACCIDENTE',
+                            'LIBERADA_POR_INFRACCION',
+                            'LIBERADA_POR_DELITO'
+                        ].includes(x.estatus_dependencia)
+                )
+
+            case 'CERRADAS':
+                return data.filter(
+                    x =>
+                        x.estatus === 'FINALIZADA' &&
+                        [
+                            'FINALIZADA_ACCIDENTE',
+                            'FINALIZADA_INFRACCION',
+                            'FINALIZADA_DELITO'
+                        ].includes(x.estatus_dependencia)
+                )
+
+            default:
+                return []
+        }
+    }, [data, filtro])
+
+    console.log(registrosFiltrados)
+
+
+    console.log(data)
 
     return (
         <div className="space-y-6">
@@ -95,7 +137,7 @@ export default function CorralonMWDashboard({
             {/* ─── STATS CARDS ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {STATUS_TABS.map(tab => {
-                    const count = estadisticas[tab.key === 'LIBERADO_POR_LIBERACIONES' ? 'pendientes' : tab.key === 'EN_REVISION_MW' ? 'proceso' : 'finalizadas']
+                    const count = estadisticas[tab.key === 'PENDIENTE' ? 'pendientes' : 'cerradas']
                     const activo = filtro === tab.key
                     const Icon = tab.icon
 
@@ -207,12 +249,42 @@ export default function CorralonMWDashboard({
                                     >
                                         {visibleColumns.map(column => {
                                             if (column.key === 'acciones') {
+                                                const esPendiente = row.estatus === 'CERRADA' &&
+                                                    ['LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO'].includes(row.estatus_dependencia)
                                                 return (
                                                     <td key={column.key} className="px-4 py-2.5">
-                                                        <BotonVerDetalle
-                                                            idInfraccion={row.id}
-                                                            onOpenDetalle={onOpenDetalle}
-                                                        />
+                                                        <div className="flex items-center gap-2">
+                                                            {row.url_orden_salida_liberaciones && row.url_orden_salida_liberaciones !== 'NO_DATA' && (
+                                                                <button
+                                                                    onClick={() => abrirDocumento(row.url_orden_salida_liberaciones)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                    style={{ background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE' }}
+                                                                >
+                                                                    <Eye size={14} />
+                                                                    Ver orden
+                                                                </button>
+                                                            )}
+                                                            {row.urlOficioCorralon && row.urlOficioCorralon !== 'NO_DATA' && (
+                                                                <button
+                                                                    onClick={() => abrirDocumento(row.urlOficioCorralon)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                    style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0' }}
+                                                                >
+                                                                    <Eye size={14} />
+                                                                    Ver pago
+                                                                </button>
+                                                            )}
+                                                            {onSubirComprobante && esPendiente && (
+                                                                <button
+                                                                    onClick={() => onSubirComprobante(row.id)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                    style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0' }}
+                                                                >
+                                                                    <Upload size={14} />
+                                                                    Subir comprobante
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 )
                                             }

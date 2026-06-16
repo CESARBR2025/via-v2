@@ -89,6 +89,7 @@ export class DepInfraccionesRepository {
     );
 
     const { dependencia, from, to } = params;
+    console.log(dependencia);
 
     // 1. Validamos la clave por seguridad
     const dependenciasValidas = [
@@ -97,8 +98,10 @@ export class DepInfraccionesRepository {
       "MW",
       "MEJIA",
       "LIBERACIONES",
+      "INFRACCIONES",
     ];
     if (!dependenciasValidas.includes(dependencia)) {
+      console.log(dependencia);
       throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
     }
 
@@ -111,7 +114,7 @@ export class DepInfraccionesRepository {
 
       // Obtener el ID de la grúa
       const queryGrua = `SELECT id FROM v2_gruas WHERE nombre = $1 LIMIT 1`;
-      const resultGrua = await pool.query(queryGrua, ["MW"]);
+      const resultGrua = await pool.query(queryGrua, [dependencia]);
 
       if (resultGrua.rows.length === 0) {
         throw new Error(
@@ -125,7 +128,8 @@ export class DepInfraccionesRepository {
       // Query para MW (basada en grúa)
       query = `
 
-            SELECT
+
+      SELECT
           id,
           folio,
           estatus,
@@ -133,10 +137,13 @@ export class DepInfraccionesRepository {
           created_at,
           correo_infractor,
           nombre_infractor,
-          estatus_dependencia
+          estatus_dependencia,
+          estatus,
+          url_orden_salida_liberaciones,
+          url_oficio_pago_corralon
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-        AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'EN_REVISION_MW', 'CERRADA')
+        AND estatus_dependencia IN ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO', 'FINALIZADA_ACCIDENTE', 'FINALIZADA_INFRACCION', 'FINALIZADA_DELITO')
           AND grua_id = $1
 
 
@@ -147,7 +154,7 @@ export class DepInfraccionesRepository {
       console.log(`-> Buscando infracciones para: ${dependencia}`);
 
       query = `
-        SELECT
+       SELECT
           id,
           folio,
           estatus,
@@ -159,10 +166,10 @@ export class DepInfraccionesRepository {
           no_carpeta_investigacion
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-          AND estatus = 'REGISTRADA'
+          AND estatus_dependencia IN ( 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS')
           AND dependencia_receptora = $1
 
-          
+        
       `;
       values.push(dependencia);
     } else if (dependencia === "LIBERACIONES") {
@@ -180,8 +187,37 @@ export class DepInfraccionesRepository {
           estatus_dependencia,
           no_carpeta_investigacion
         FROM v2_infracciones
-        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADO_POR_LIBERACIONES') 
-      
+        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADA_POR_INFRACCION', 'VEHICULO_EN_CORRALON', 'LIBERADA_POR_DELITO', 'LIBERADA_POR_ACCIDENTE')
+           OR (estatus = 'REGISTRADA' AND estatus_dependencia = 'MESA_DE_CONTROL_REVISION')
+
+      `;
+    } else if (dependencia === "INFRACCIONES") {
+      console.log(`-> Buscando infracciones para: ${dependencia}`);
+
+      query = `
+     SELECT
+          i.id,
+          i.folio,
+          i.estatus,
+          i.placa,
+          i.created_at,
+          i.correo_infractor,
+          i.nombre_infractor,
+          i.estatus_dependencia,
+          i.no_carpeta_investigacion,
+          i.nombre_titular_liberacion,
+          i.appaterno_titular_liberacion,
+          i.apmaterno_titular_liberacion,
+          ops.estatus AS estatus_orden_pago
+        FROM v2_infracciones i
+        LEFT JOIN v2_ordenes_pago_sa7 ops ON ops.infraccion_id = i.id
+        WHERE (i.tipo_garantia != 'VEHICULO' OR i.estatus_dependencia = 'VEHICULO_EN_CORRALON')
+          AND (
+            i.estatus_dependencia IN ('PENDIENTE_DATOS_INFRACTOR', 'PENDIENTE_PAGO_INFRACCION', 'PENDIENTE_PAGO_INSTANTE', 'PLACA_RETENIDA_EN_TRANSITO', 'PENDIENTE_ENTREGA_GARANTIA', 'PENDIENTE_DEVOLUCION_GARANTIA', 'LIBERADO_POR_INFRACCIONES', 'VEHICULO_EN_CORRALON')
+            OR
+            (i.estatus_dependencia IS NULL AND i.estatus = 'PENDIENTE_DATOS_INFRACTOR')
+          )
+
       `;
     }
 
@@ -280,6 +316,7 @@ export class DepInfraccionesRepository {
       "MW",
       "MEJIA",
       "LIBERACIONES",
+      "INFRACCIONES",
     ];
     if (!dependenciasValidas.includes(dependencia)) {
       throw new Error(`Dependencia no autorizada o inválida: ${dependencia}`);
@@ -307,7 +344,7 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE tipo_garantia  = 'VEHICULO'
-      AND estatus_dependencia IN ('LIBERADO_POR_LIBERACIONES', 'CERRADA', 'EN_REVISION_MW')
+     AND estatus_dependencia IN ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO', 'FINALIZADA_ACCIDENTE', 'FINALIZADA_INFRACCION', 'FINALIZADA_DELITO')
         AND grua_id = $1
     `;
       values.push(idGruaDinamico);
@@ -315,7 +352,15 @@ export class DepInfraccionesRepository {
       query = `
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
-      WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES')
+      WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'VEHICULO_EN_CORRALON')
+    `;
+    } else if (dependencia === "INFRACCIONES") {
+      query = `
+      SELECT COUNT(*)::int AS total
+      FROM v2_infracciones
+      where estatus IN ('PENDIENTE_ORDEN_PAGO', 'REGISTRADA') 
+        and tipo_garantia != 'VEHICULO'
+       
     `;
     } else {
       // Query estándar para FISCALIA, JUZGADO, MEJIA
@@ -323,7 +368,7 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE tipo_garantia = 'VEHICULO'
-        AND estatus = 'REGISTRADA'
+         AND estatus_dependencia IN ('RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS'  )
         AND dependencia_receptora = $1
     `;
       values.push(dependencia);
@@ -396,7 +441,9 @@ export class DepInfraccionesRepository {
     i.url_oficio_fiscalia,
     i.estatus_dependencia,
     i.no_carpeta_investigacion,
-    i.url_oficio_pago_corralon
+    i.url_oficio_pago_corralon,
+    i.url_orden_salida_liberaciones,
+    o.estatus as estatus_orden_pago
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o

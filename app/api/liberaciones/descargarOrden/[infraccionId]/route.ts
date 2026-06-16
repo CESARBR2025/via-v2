@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { POOL_PG as db } from "@/lib/db";
+import { getExpedienteToken } from "@/lib/expediente-digital/expediente";
 import { generarOrdenSalidaVehiculo } from "@/lib/ordenSalida/generarOrdenSalida";
 
 export async function GET(
@@ -39,6 +40,7 @@ export async function GET(
         i.nombre_titular_liberacion,
         i.appaterno_titular_liberacion,
         i.apmaterno_titular_liberacion,
+        i.url_orden_salida_liberaciones,
 
         s.es_empresa,
         s.nombre_empresa,
@@ -67,6 +69,34 @@ export async function GET(
     }
 
     const dbData = datosOrdenRes.rows[0];
+
+    // ── Si ya existe la orden guardada en expediente digital, servirla desde ahí ──
+    const urlGuardada = dbData.url_orden_salida_liberaciones;
+    if (urlGuardada && urlGuardada !== 'NO_DATA') {
+      try {
+        const token = await getExpedienteToken();
+        const expRes = await fetch(
+          `${process.env.EXPEDIENTE_HOST}${urlGuardada}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        if (expRes.ok) {
+          const pdfBuffer = Buffer.from(await expRes.arrayBuffer());
+          const folio = dbData.folio?.replace(/[^a-zA-Z0-9_-]/g, "_") || infraccionId;
+          return new NextResponse(pdfBuffer, {
+            status: 200,
+            headers: {
+              "Content-Type": "application/pdf",
+              "Content-Disposition": `attachment; filename="orden_salida_${folio}.pdf"`,
+              "Content-Length": pdfBuffer.length.toString(),
+            },
+          });
+        }
+      } catch (expError) {
+        console.error("[DESCARGAR ORDEN] Error al obtener desde expediente, regenerando:", expError);
+      }
+    }
     const esEmpresa = dbData.es_persona_moral || dbData.es_empresa;
 
     let nombreRecibe = "";
@@ -117,7 +147,47 @@ export async function GET(
       data: dataParaPDF,
     });
 
+    console.log("entro aqui descargarOrden/InfraccionID");
+
     const folio = dbData.folio?.replace(/[^a-zA-Z0-9_-]/g, "_") || infraccionId;
+
+    // ── Guardar en expediente digital si no estaba guardada antes ──
+    try {
+      const token = await getExpedienteToken();
+      const ahora = new Date();
+      const anio = ahora.getFullYear().toString();
+      const mes = String(ahora.getMonth() + 1).padStart(2, "0");
+      const pdfFile = new File(
+        [new Uint8Array(pdfBuffer)],
+        `orden_salida_${folio}.pdf`,
+        { type: "application/pdf" },
+      );
+      const formData = new FormData();
+      formData.append("file", pdfFile);
+      formData.append("ruta_personalizada", `${anio}/${mes}/${infraccionId}`);
+      formData.append("sistema", process.env.EXPEDIENTE_SISTEMA ?? "sspm");
+      const uploadRes = await fetch(
+        `${process.env.EXPEDIENTE_HOST}/api/upload-custom`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        },
+      );
+      if (uploadRes.ok) {
+        const uploadJson = await uploadRes.json();
+        const urlOrdenSalida = uploadJson.data?.ruta_relativa;
+        if (urlOrdenSalida) {
+          await db.query(
+            `UPDATE v2_infracciones SET url_orden_salida_liberaciones = $2, updated_at = NOW() WHERE id = $1`,
+            [infraccionId, urlOrdenSalida],
+          );
+          console.log("[DESCARGAR ORDEN] Guardada en expediente digital:", urlOrdenSalida);
+        }
+      }
+    } catch (uploadError) {
+      console.error("[DESCARGAR ORDEN] Error al guardar en expediente:", uploadError);
+    }
 
     return new NextResponse(pdfBuffer, {
       status: 200,

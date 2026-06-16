@@ -148,11 +148,11 @@ export async function PATCH(request: Request) {
             [solicitudId],
         );
 
-        // Actualizar estatus_dependencia en infracción
+        // Actualizar estatus en infracción
         await client.query(
             `
             UPDATE v2_infracciones
-            SET estatus_dependencia = 'EN_PROCESO_LIBERACIONES', updated_at = CURRENT_TIMESTAMP
+            SET estatus = 'REGISTRADA', estatus_dependencia = 'MESA_DE_CONTROL_REVISION', updated_at = CURRENT_TIMESTAMP
             WHERE id = $1
             `,
             [infraccionId],

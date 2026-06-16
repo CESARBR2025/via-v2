@@ -9,12 +9,16 @@ import {
     Loader2,
     X,
 } from 'lucide-react';
+import { emitKeypressEvents } from 'readline';
 
 type Props = {
     infraccionId: string;
     ordenPagoId: string;
     urlPago: string;
     estatus: string;
+    estatusDependencia: string;
+    estatusInfraccion: string
+
 };
 
 export default function PagoInfraccion({
@@ -22,9 +26,12 @@ export default function PagoInfraccion({
     ordenPagoId,
     urlPago,
     estatus,
+    estatusDependencia,
+    estatusInfraccion
 }: Props) {
     console.log(estatus)
 
+    console.log(urlPago)
     const router = useRouter();
 
     const [open, setOpen] = useState(false);
@@ -44,6 +51,12 @@ export default function PagoInfraccion({
 
     const verificarPago = async () => {
 
+        // Estados actuales
+        console.log(estatusInfraccion)
+        console.log(estatusDependencia)
+
+
+
         // EVITAR REQUESTS DUPLICADOS
 
         if (loading) return;
@@ -52,8 +65,25 @@ export default function PagoInfraccion({
 
             setLoading(true);
 
-            const res = await fetch(
-                `/api/pagosInfracciones/verificar/${ordenPagoId}/${infraccionId}`,
+            let url = ''
+
+            // Caso 1: Ciudadano ausente
+            if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_INFRACCION') {
+                url = `/api/pagosInfracciones/confirmarPagoAusente/${ordenPagoId}/${infraccionId}`
+
+            } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_INSTANTE') {
+                // Caso 2: ciudaadno paga infraccion al instante y no se retiene la garantia
+                url = `/api/pagosInfracciones/confirmarPagoInstante/${ordenPagoId}/${infraccionId}`
+            } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PLACA_RETENIDA_EN_TRANSITO') {
+                // Caso 3: garantia retenida y pago despues
+                url = `/api/pagosInfracciones/confirmarPagoRetenida/${ordenPagoId}/${infraccionId}`
+            } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_LIBERACION') {
+                // Caso 4: Pago de infraccion liberacion
+                console.log('entro aqui')
+                url = `/api/pagosInfracciones/confirmarPagoLiberacion/${ordenPagoId}/${infraccionId}`
+            }
+
+            const res = await fetch(url,
                 {
                     method: 'GET',
                     cache: 'no-store',
@@ -273,6 +303,10 @@ export default function PagoInfraccion({
                                 <p className="text-xs text-slate-500">
                                     Plataforma segura
                                 </p>
+
+
+
+
 
                             </div>
 

@@ -179,8 +179,7 @@ export async function POST(req: NextRequest) {
     if (esEmpresa) {
       nombreEmpresa = (formData.get("nombreEmpresa") as string) || null;
       rfcEmpresa = (formData.get("rfcEmpresa") as string) || null;
-      nombreRespFiscal =
-        (formData.get("nombreRespFiscal") as string) || null;
+      nombreRespFiscal = (formData.get("nombreRespFiscal") as string) || null;
       apPaternoRespFiscal =
         (formData.get("apPaternoRespFiscal") as string) || null;
       apMaternoRespFiscal =

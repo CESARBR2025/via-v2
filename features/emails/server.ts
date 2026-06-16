@@ -4,6 +4,7 @@ import { sendMail } from "./mailer";
 import {
   templateAsignacionFiscalia,
   templateAsignacionJuzgado,
+  templateCapturaInfractor,
   templateInfraccion,
 } from "./templates/sendInfraccion";
 
@@ -25,6 +26,7 @@ type EnviarCorreoOrdenParams = {
 export interface EnviarCorreoAsignacionJuzgadoParams {
   correo_titular_liberacion: string;
   nombreTitular: string;
+  idInfraccion: string;
   folio: string;
   numero_oficio: string;
 }
@@ -72,6 +74,36 @@ export async function enviarCorreoInfraccion(data: EnviarCorreoParams) {
   });
 }
 
+export async function enviarCorreoCapturaInfractor(data: EnviarCorreoParams) {
+  const baseUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://via-v2.vercel.app"
+      : "http://localhost:3000";
+
+  const urlVistaCiudadano = `${baseUrl}/infracciones/${data.idInfraccion}`;
+
+  const qrBuffer = await QRCode.toBuffer(urlVistaCiudadano);
+
+  const { html, text } = templateCapturaInfractor({
+    ...data,
+    urlVistaCiudadano,
+  });
+
+  await sendMail({
+    to: data.correoInfractor,
+    subject: `SSPM - Documentación Requerida #${data.folio}`,
+    text,
+    html,
+    attachments: [
+      {
+        filename: "qr.png",
+        content: qrBuffer,
+        cid: "qr_infraccion",
+      },
+    ],
+  });
+}
+
 export async function enviarCorreoAsignacionJuzgado(
   data: EnviarCorreoAsignacionJuzgadoParams,
 ) {
@@ -88,16 +120,34 @@ export async function enviarCorreoAsignacionJuzgado(
 export async function enviarCorreoAsignacionFiscalia(
   data: EnviarCorreoAsignacionJuzgadoParams,
 ) {
-  const { html, text } = templateAsignacionFiscalia(data);
+  const baseUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://via-v2.vercel.app"
+      : "http://localhost:3000";
+
+  const urlVistaCiudadano = `${baseUrl}/infracciones/${data.idInfraccion}`;
+
+  const qrBuffer = await QRCode.toBuffer(urlVistaCiudadano);
+
+  const { html, text } = templateAsignacionFiscalia({
+    ...data,
+    urlVistaCiudadano,
+  });
 
   await sendMail({
     to: data.correo_titular_liberacion,
-    subject: `SSPM - Asignación de Infracción ${data.folio}`,
+    subject: `SSPM - Documentación Requerida #${data.folio}`,
     text,
     html,
+    attachments: [
+      {
+        filename: "qr.png",
+        content: qrBuffer,
+        cid: "qr_infraccion",
+      },
+    ],
   });
 }
-
 // ========================
 
 export async function enviarOrdenLiberacionCorreo(

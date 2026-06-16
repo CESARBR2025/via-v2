@@ -17,6 +17,7 @@ interface PasoPagoProps {
         [key: string]: any;
     };
     verificarPago: () => Promise<void> | void;
+    onFinalizarSinPago?: () => Promise<void> | void;
     loading: boolean;
 }
 
@@ -27,6 +28,7 @@ export const PasoPago: React.FC<PasoPagoProps> = ({
     setDeseaPagar,
     datos,
     verificarPago,
+    onFinalizarSinPago,
     loading,
 }) => {
     if (!infraccionCreada) return null;
@@ -131,7 +133,7 @@ export const PasoPago: React.FC<PasoPagoProps> = ({
 
                     <button
                         type="button"
-                        onClick={() => window.location.reload()}
+                        onClick={onFinalizarSinPago}
                         className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-sm py-3 px-4 rounded-lg transition-all active:scale-[0.98]"
                     >
                         Finalizar y Salir

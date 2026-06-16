@@ -55,11 +55,22 @@ interface InfraccionStore {
 
   setLoading: (value: boolean) => void;
 
+  curpLoading: boolean;
+
+  //========================
+  // PAGO AL MOMENTO
+  //========================
+  pagoAlMomento: boolean;
+
+  setPagoAlMomento: (value: boolean) => void;
+
   //========================
   // RESET GLOBAL
   //========================
   resetAll: () => void;
 }
+
+export type { InfraccionStore };
 
 export const useInfraccionStore = create<InfraccionStore>((set) => ({
   //? ============== IMPLEMENTACION ===================================
@@ -68,7 +79,7 @@ export const useInfraccionStore = create<InfraccionStore>((set) => ({
   //========================
   curpStatus: "idle",
   setCurpStatus: (status) => set({ curpStatus: status }),
-  setCurpLoading: (value) => set({ loading: value }), // o crea curpLoading si prefieres separado
+  setCurpLoading: (value) => set({ curpLoading: value }),
 
   //========================
   // FORMULARIO
@@ -135,6 +146,18 @@ export const useInfraccionStore = create<InfraccionStore>((set) => ({
       loading: value,
     }),
 
+  curpLoading: false,
+
+  //========================
+  // PAGO AL MOMENTO
+  //========================
+  pagoAlMomento: false,
+
+  setPagoAlMomento: (value) =>
+    set({
+      pagoAlMomento: value,
+    }),
+
   //========================
   // RESET GLOBAL
   //========================
@@ -145,5 +168,7 @@ export const useInfraccionStore = create<InfraccionStore>((set) => ({
       pagado: false,
       estatusPago: "PENDIENTE",
       loading: false,
+      curpLoading: false,
+      pagoAlMomento: false,
     }),
 }));

@@ -446,18 +446,18 @@ export default function RevisionDocumentosSection({
 
             {/* BOTÓN FINALIZAR */}
             <div className="border-t border-[#E2E8F0] px-6 py-4">
-                {finalizadoEstatus === 'PENDIENTE_REVISION' ? (
+                {finalizadoEstatus === 'REGISTRADA' ? (
                     <div className="flex items-center gap-3 px-4 py-3 rounded-lg" style={{ background: '#FEF3C7', border: '1px solid #FDE68A' }}>
                         <AlertTriangle size={18} className="text-[#D97706] shrink-0" />
                         <p className="text-[13px] font-medium text-[#92400E]">
                             Se requiere corrección del ciudadano titular, espera a que los suba nuevamente
                         </p>
                     </div>
-                ) : finalizadoEstatus === 'LIBERADO_POR_LIBERACIONES' ? (
+                ) : finalizadoEstatus === 'PENDIENTE_PAGO' ? (
                     <div className="flex items-center gap-3 px-4 py-3 rounded-lg" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
                         <CheckCircle2 size={18} className="text-[#16A34A] shrink-0" />
                         <p className="text-[13px] font-medium text-[#166534]">
-                            Infracción liberada correctamente
+                            Documentos aprobados, pendiente de pago
                         </p>
                     </div>
                 ) : (

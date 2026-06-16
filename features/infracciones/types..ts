@@ -30,6 +30,8 @@ export interface CrearInfraccionDTO {
 
   placa: string;
 
+  noSerieVehiculo?: string | null;
+
   tipoVehiculo: string;
   anioVehiculo: string;
 
@@ -61,6 +63,10 @@ export interface CrearInfraccionDTO {
   montoFinal: number;
 
   gruaId?: string | null;
+
+  estatus: string;
+
+  estatusDependencia?: string | null;
 }
 
 export interface InfraccionDB {
@@ -75,6 +81,8 @@ export interface InfraccionDB {
   seq_valor: number;
 
   estatus: string;
+
+  estatus_dependencia: string | null;
 
   oficial_id: string;
 
@@ -110,6 +118,7 @@ export interface InfraccionDB {
 
   anioVehiculo: string;
   tipoVehiculo: string;
+  no_serie_vehiculo: string;
 
   latitud: number | null;
 
@@ -155,11 +164,14 @@ export interface InfraccionDB {
 // Datos de infracción que se enviarán a la vista ciudadana
 
 export interface InfraccionDetalleDTO {
+  //
+  estatusPago: string;
   // Dependencias y titulares
   dependenciaReceptora: string;
   noOficio: string;
   urlOficio: string;
   estatusDependencia: string;
+  estatusInfraccion: string;
   nombreTitular: string;
   correoTitular: string;
   curpTitular: string;
@@ -192,8 +204,6 @@ export interface InfraccionDetalleDTO {
 
   id: string;
   folio: string;
-
-  estatus: string;
 
   fechaInfraccion: string;
 
@@ -308,6 +318,8 @@ export interface DatosInfraccion {
 
   //======== FASE 6 ========
   agregarEvidencia: boolean;
+
+  pagoAlMomento: boolean;
 }
 
 // Formulario de infraccion types

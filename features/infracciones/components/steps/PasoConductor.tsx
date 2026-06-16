@@ -29,8 +29,6 @@ export default function PasoConductor({
     //=========================================
     const datos = useInfraccionStore((s) => s.datos);
     const actualizarDatos = useInfraccionStore((s) => s.actualizarDatos);
-    console.log(datos)
-
     //=========================================
     // ESTADOS LOCALES DE CURP (Encapsulados)
     //=========================================

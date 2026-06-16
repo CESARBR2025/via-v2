@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { POOL_PG } from "@/lib/db";
 import { getExpedienteToken } from "@/lib/expediente-digital/expediente";
-import { enviarCorreoAsignacionJuzgado } from "@/features/emails/server";
+import { enviarCorreoAsignacionFiscalia } from "@/features/emails/server";
 
 async function subirArchivo(
   archivo: File,
@@ -74,6 +74,8 @@ export async function POST(req: NextRequest) {
     const nombre_titular_liberacion = formData.get(
       "nombre_titular_liberacion",
     ) as string;
+
+    console.log("nombre de titular de liberacion: ", nombre_titular_liberacion);
     const appaterno_titular_liberacion = formData.get(
       "appaterno_titular_liberacion",
     ) as string;
@@ -83,6 +85,7 @@ export async function POST(req: NextRequest) {
     const correo_titular_liberacion = formData.get(
       "correo_titular_liberacion",
     ) as string;
+    console.log("[FORM DATA] Correo recibido:", correo_titular_liberacion);
     const curp_titular_liberacion = formData.get(
       "curp_titular_liberacion",
     ) as string;
@@ -110,6 +113,7 @@ export async function POST(req: NextRequest) {
     validarArchivo(archivo_oficio);
 
     const token = await getExpedienteToken();
+    console.log("[EXPEDIENTE] Token obtenido");
 
     let url_oficio_fiscalia: string | null = null;
 
@@ -124,14 +128,15 @@ export async function POST(req: NextRequest) {
 
     await client.query("BEGIN");
 
-    await client.query(
+    const updateResult = await client.query(
       `
       UPDATE public.v2_infracciones
       SET
         no_oficio_fiscalia = $2,
         url_oficio_fiscalia = COALESCE($3, url_oficio_fiscalia),
         no_carpeta_investigacion = COALESCE($4, no_carpeta_investigacion),
-        estatus_dependencia = 'LIBERADO_POR_FISCALIA',
+        estatus = 'REGISTRADA',
+        estatus_dependencia = 'MESA_DE_CONTROL_PENDIENTE_DOCS',
         nombre_titular_liberacion = COALESCE($5, nombre_titular_liberacion),
         appaterno_titular_liberacion = COALESCE($6, appaterno_titular_liberacion),
         apmaterno_titular_liberacion = COALESCE($7, apmaterno_titular_liberacion),
@@ -139,6 +144,13 @@ export async function POST(req: NextRequest) {
         curp_titular_liberacion = COALESCE($9, curp_titular_liberacion),
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
+      RETURNING
+        id,
+        folio,
+        correo_titular_liberacion,
+        nombre_titular_liberacion,
+        appaterno_titular_liberacion,
+        apmaterno_titular_liberacion
       `,
       [
         folio,
@@ -153,25 +165,25 @@ export async function POST(req: NextRequest) {
       ],
     );
 
-    await client.query("COMMIT");
+    const updated = updateResult.rows[0];
+    console.log(updated);
 
-    // Enviando correo
-    // Envio de correo de alerta
-    // Intentar enviar correo
-    try {
-      console.log("entro aqui");
-      await enviarCorreoAsignacionJuzgado({
-        correo_titular_liberacion,
+    if (!updated.correo_titular_liberacion) {
+      console.warn("[MAIL] Sin correo del titular, saltando envío");
+    } else {
+      await enviarCorreoAsignacionFiscalia({
+        correo_titular_liberacion: updated.correo_titular_liberacion,
         nombreTitular:
-          `${nombre_titular_liberacion} ${appaterno_titular_liberacion} ${apmaterno_titular_liberacion}`.trim(),
-        folio: folio,
+          `${updated.nombre_titular_liberacion} ${updated.appaterno_titular_liberacion} ${updated.apmaterno_titular_liberacion}`.trim(),
+        idInfraccion: updated.id,
+        folio: updated.folio,
         numero_oficio,
       });
 
       console.log("[MAIL][OK]");
-    } catch (mailError) {
-      console.error("[MAIL][ERROR]", mailError);
     }
+
+    await client.query("COMMIT");
 
     return NextResponse.json(
       {
@@ -185,9 +197,16 @@ export async function POST(req: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    await client.query("ROLLBACK");
+    try {
+      await client.query("ROLLBACK");
+    } catch (rollbackError) {
+      console.error("[DB] Error en rollback:", rollbackError);
+    }
 
-    console.error("[GUARDADO DOCUMENTOS]", error);
+    console.error("[GUARDADO DOCUMENTOS] Error general:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
 
     return NextResponse.json(
       {

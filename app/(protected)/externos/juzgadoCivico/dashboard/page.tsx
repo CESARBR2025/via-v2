@@ -1,11 +1,6 @@
-import { getSession } from "@/features/auth/service";
-import TablaCompartida from "@/features/compartido/components/TablaCompartida";
+import JuzgadoTable from "@/features/juzgado/components/JuzgadoTable";
 
-export default async function FiscaliaPage() {
-    const session = await getSession();
-    const roleString = session?.user?.roles?.[0];
-
-    console.log(roleString)
+export default async function JuzgadoCivicoPage() {
     const dependenciaClave = 'JUZGADO';
 
     const baseUrl =
@@ -28,17 +23,10 @@ export default async function FiscaliaPage() {
         console.error("Error obteniendo datos:", error);
     }
 
-    console.log(respuestaApi)
-
     return (
         <div className="flex flex-col h-full">
-
-
             <div className="flex flex-col flex-1 min-h-0">
-                <TablaCompartida
-                    respuestaServidor={respuestaApi}
-                    userRole={roleString}
-                />
+                <JuzgadoTable respuestaServidor={respuestaApi} />
             </div>
         </div>
     );

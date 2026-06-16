@@ -1,9 +1,10 @@
-import { FileText, Receipt, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { FileText, Receipt, CheckCircle2, XCircle, Loader2, RefreshCw } from "lucide-react";
 import { ProcesoEstado } from "../../types.";
 
 interface ProcesoModalProps {
     estado: ProcesoEstado;
     mensaje?: string;
+    onRetry?: () => void;
 }
 
 const config: Record<ProcesoEstado, {
@@ -82,7 +83,7 @@ function getStepIndex(estado: ProcesoEstado): number {
     return -1;
 }
 
-export function ProcesoModal({ estado, mensaje }: ProcesoModalProps) {
+export function ProcesoModal({ estado, mensaje, onRetry }: ProcesoModalProps) {
     if (estado === "inicio") return null;
 
     const { icon: Icon, color, bgColor, ringColor, label } = config[estado];
@@ -91,8 +92,31 @@ export function ProcesoModal({ estado, mensaje }: ProcesoModalProps) {
     const currentStep = getStepIndex(estado);
 
     return (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#FFFFFF] rounded-2xl w-full max-w-sm overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.08)]">
+        <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-live="polite"
+            aria-label={mensaje || label}
+            onKeyDown={(e) => {
+                if (e.key === 'Escape' && isError) {
+                    // Cerrar sólo si es error (no en medio de proceso)
+                }
+            }}
+        >
+            {/* Focus trap: mantiene el foco dentro del modal */}
+            <div
+                tabIndex={0}
+                onFocus={(e) => {
+                    const container = e.currentTarget.parentElement?.querySelector('[data-focus-trap]');
+                    if (container) (container as HTMLElement).focus();
+                }}
+            />
+            <div
+                data-focus-trap
+                className="bg-[#FFFFFF] rounded-2xl w-full max-w-sm overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.08)]"
+                tabIndex={-1}
+            >
 
                 {/* Visual area */}
                 <div className="flex flex-col items-center px-8 pt-10 pb-6">
@@ -136,6 +160,26 @@ export function ProcesoModal({ estado, mensaje }: ProcesoModalProps) {
                         </p>
                     )}
                 </div>
+
+                {/* Actions */}
+                {isError && (
+                    <div className="px-8 pb-8 flex flex-col gap-2" data-focus-trap-inner>
+                        {onRetry && (
+                            <button
+                                type="button"
+                                onClick={onRetry}
+                                className="w-full h-11 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 transition-colors"
+                                style={{ background: '#2563EB' }}
+                            >
+                                <RefreshCw size={15} />
+                                Reintentar
+                            </button>
+                        )}
+                        <p className="text-[10px] text-[#94A3B8] text-center">
+                            Si el problema persiste, cierra el formulario y vuelve a intentarlo
+                        </p>
+                    </div>
+                )}
 
                 {/* Progress stepper */}
                 {currentStep >= 0 && (

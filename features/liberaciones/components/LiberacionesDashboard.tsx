@@ -47,8 +47,11 @@ const STATUS_TABS: { key: EstatusLiberaciones; label: string; icon: typeof Clock
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
     ESPERA_REVISION: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'En espera' },
+    VEHICULO_EN_CORRALON: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'En espera' },
+    MESA_DE_CONTROL_REVISION: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'En revisión' },
     EN_PROCESO_LIBERACIONES: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
     LIBERADO: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
+    LIBERADA_POR_INFRACCION: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
 }
 
 function getBadge(status: string) {
@@ -64,16 +67,31 @@ export default function LiberacionesDashboard({
     console.log(data)
     const estadisticas = useMemo(() => {
 
-        const pendientes = data.filter(x => x.estatus_dependencia === 'ESPERA_REVISION').length
-        const revision = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_LIBERACIONES').length
-        const liberadas = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_LIBERACIONES').length
+        const pendientes = data.filter(x => x.estatus_dependencia === 'ESPERA_REVISION' || x.estatus_dependencia === 'VEHICULO_EN_CORRALON').length
+        const revision = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_LIBERACIONES' || (x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'MESA_DE_CONTROL_REVISION')).length
+        const liberadas = data.filter(x => x.estatus === 'CERRADA' && x.estatus_dependencia === 'LIBERADA_POR_INFRACCION').length
         return { pendientes, revision, liberadas }
     }, [data])
 
     const total = estadisticas.pendientes + estadisticas.revision + estadisticas.liberadas
 
     const registrosFiltrados = useMemo(
-        () => data.filter(x => x.estatus_dependencia === filtro),
+        () => data.filter(x => {
+            if (filtro === 'ESPERA_REVISION') {
+                return x.estatus_dependencia === 'ESPERA_REVISION' || x.estatus_dependencia === 'VEHICULO_EN_CORRALON'
+            }
+            if (filtro === 'EN_PROCESO_LIBERACIONES') {
+                return x.estatus_dependencia === 'EN_PROCESO_LIBERACIONES' || (x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'MESA_DE_CONTROL_REVISION')
+            }
+            return (
+                x.estatus === 'CERRADA' &&
+                (
+                    x.estatus_dependencia === 'LIBERADA_POR_INFRACCION' ||
+                    x.estatus_dependencia === 'LIBERADA_POR_ACCIDENTE' ||
+                    x.estatus_dependencia === 'LIBERADA_POR_DELITO'
+                )
+            );
+        }),
         [data, filtro],
     )
 

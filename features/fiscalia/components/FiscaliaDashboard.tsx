@@ -2,7 +2,7 @@
 
 import { BotonVerDetalle } from '@/features/compartido/components/ButtonVerDetalles'
 import { useMemo, useState } from 'react'
-import { Clock, RefreshCw, CheckCircle2, AlertCircle, Search, User } from 'lucide-react'
+import { Clock, CheckCircle2, AlertCircle, Search, User, FileText } from 'lucide-react'
 
 const AVATAR_COLORS = [
     { bg: '#EFF6FF', text: '#2563EB' },
@@ -32,26 +32,27 @@ interface Props {
     data: any[]
     visibleColumns: any[]
     onOpenDetalle: (id: string) => void
+    onCargarOficio?: (id: string) => void
 }
 
 type EstatusFiscalia =
-    | 'PENDIENTE'
-    | 'EN_PROCESO_FISCALIA'
+    | 'REGISTRADA'
     | 'LIBERADO_POR_FISCALIA'
 
 const STATUS_TABS: { key: EstatusFiscalia; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
-    { key: 'PENDIENTE', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
-    { key: 'EN_PROCESO_FISCALIA', label: 'En Proceso', icon: RefreshCw, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
-    { key: 'LIBERADO_POR_FISCALIA', label: 'Liberadas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
+    { key: 'REGISTRADA', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
+    { key: 'LIBERADO_POR_FISCALIA', label: 'Liberados', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
     PENDIENTE: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
+    RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
     EN_PROCESO_FISCALIA: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
     LIBERADO_POR_FISCALIA: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Liberada' },
 }
 
 function getBadge(status: string) {
+    console.log(status)
     return STATUS_BADGE[status] ?? { bg: '#F1F5F9', text: '#475569', dot: '#94A3B8', label: status }
 }
 
@@ -59,23 +60,63 @@ export default function FiscaliaDashboard({
     data,
     visibleColumns,
     onOpenDetalle,
+    onCargarOficio,
 }: Props) {
-    const [filtro, setFiltro] = useState<EstatusFiscalia>('PENDIENTE')
+    console.log(data)
+    const [filtro, setFiltro] = useState<EstatusFiscalia>('REGISTRADA')
 
     const estadisticas = useMemo(() => {
-        const pendientes = data.filter(x => x.estatus_dependencia === 'PENDIENTE').length
-        const revision = data.filter(x => x.estatus_dependencia === 'EN_PROCESO_FISCALIA').length
-        const liberadas = data.filter(x => x.estatus_dependencia === 'LIBERADO_POR_FISCALIA').length
-        return { pendientes, revision, liberadas }
+        const pendientes = data.filter(
+            x =>
+                x.estatus === 'REGISTRADA' &&
+                [
+                    'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO',
+                    'RETENIDO_POR_DELITO_PENDIENTE_OFICIO',
+                ].includes(x.estatus_dependencia)
+        ).length
+
+
+        const liberadas = data.filter(
+            x =>
+                x.estatus === 'REGISTRADA' &&
+                x.estatus_dependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS'
+        ).length
+
+        return {
+            pendientes,
+            liberadas,
+        }
     }, [data])
 
-    const total = estadisticas.pendientes + estadisticas.revision + estadisticas.liberadas
+    const total = estadisticas.pendientes + estadisticas.liberadas
 
-    const registrosFiltrados = useMemo(
-        () => data.filter(x => x.estatus_dependencia === filtro),
-        [data, filtro],
-    )
+    const registrosFiltrados = useMemo(() => {
+        switch (filtro) {
+            case 'REGISTRADA':
+                return data.filter(
+                    x =>
+                        x.estatus === 'REGISTRADA' &&
+                        [
+                            'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO',
+                            'RETENIDO_POR_DELITO_PENDIENTE_OFICIO',
+                        ].includes(x.estatus_dependencia)
+                )
 
+            case 'LIBERADO_POR_FISCALIA':
+                return data.filter(
+                    x =>
+                        x.estatus === 'REGISTRADA' &&
+                        x.estatus_dependencia ===
+                        'MESA_DE_CONTROL_PENDIENTE_DOCS'
+                )
+
+            default:
+                return []
+        }
+    }, [data, filtro])
+
+
+    console.log(registrosFiltrados)
     return (
         <div className="space-y-6">
             {/* ─── HEADER ─── */}
@@ -95,7 +136,7 @@ export default function FiscaliaDashboard({
             {/* ─── STATS CARDS ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {STATUS_TABS.map(tab => {
-                    const count = estadisticas[tab.key === 'PENDIENTE' ? 'pendientes' : tab.key === 'EN_PROCESO_FISCALIA' ? 'revision' : 'liberadas']
+                    const count = estadisticas[tab.key === 'REGISTRADA' ? 'pendientes' : 'liberadas']
                     const activo = filtro === tab.key
                     const Icon = tab.icon
 
@@ -209,10 +250,28 @@ export default function FiscaliaDashboard({
                                             if (column.key === 'acciones') {
                                                 return (
                                                     <td key={column.key} className="px-4 py-2.5">
-                                                        <BotonVerDetalle
-                                                            idInfraccion={row.id}
-                                                            onOpenDetalle={onOpenDetalle}
-                                                        />
+                                                        <div className="flex items-center gap-2">
+                                                            <BotonVerDetalle
+                                                                idInfraccion={row.id}
+                                                                onOpenDetalle={onOpenDetalle}
+                                                            />
+                                                            {onCargarOficio &&
+                                                                row.estatus === 'REGISTRADA' &&
+
+                                                                [
+                                                                    'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO',
+                                                                    'RETENIDO_POR_DELITO_PENDIENTE_OFICIO',
+                                                                ].includes(row.estatus_dependencia) && (
+                                                                    <button
+                                                                        onClick={() => onCargarOficio(row.id)}
+                                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                        style={{ background: '#FFF7ED', color: '#F97316', border: '1px solid #FED7AA' }}
+                                                                    >
+                                                                        <FileText size={14} />
+                                                                        Cargar oficio
+                                                                    </button>
+                                                                )}
+                                                        </div>
                                                     </td>
                                                 )
                                             }

@@ -16,8 +16,6 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
 }) => {
     const datos =
         useInfraccionStore((s) => s.datos);
-    console.log(datos)
-
     const actualizarDatos =
         useInfraccionStore((s) => s.actualizarDatos);
 
@@ -42,7 +40,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                 className={`
                     flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 w-fit
                     ${agregarEvidencia
-                        ? 'border-[#3071E7] bg-blue-50'
+                        ? 'border-[#2563EB] bg-blue-50'
                         : 'border-slate-200 hover:border-slate-300'
                     }
                 `}
@@ -51,7 +49,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                     className={`
                         w-10 h-6 rounded-full relative transition-all duration-300
                         ${agregarEvidencia
-                            ? 'bg-[#3071E7]'
+                            ? 'bg-[#2563EB]'
                             : 'bg-slate-300'
                         }
                     `}
@@ -100,13 +98,13 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                         className="
                             flex flex-col items-center justify-center gap-3 p-8
                             border-2 border-dashed border-slate-300 rounded-xl
-                            hover:border-[#0076aa] hover:bg-blue-50/30
+                            hover:border-[#2563EB] hover:bg-blue-50/30
                             cursor-pointer transition-all duration-200
                         "
                     >
                         <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
                             <svg
-                                className="w-6 h-6 text-[#0076aa]"
+                                className="w-6 h-6 text-[#2563EB]"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="1.5"
@@ -121,7 +119,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                         </div>
 
                         <div className="text-center">
-                            <p className="text-sm font-semibold text-[#0076aa]">
+                            <p className="text-sm font-semibold text-[#2563EB]">
                                 Seleccionar fotografías
                             </p>
 
@@ -139,11 +137,16 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                                 if (!e.target.files)
                                     return;
 
+                                const nuevosArchivos =
+                                    Array.from(
+                                        e.target.files
+                                    );
+
                                 actualizarDatos({
-                                    evidencias:
-                                        Array.from(
-                                            e.target.files
-                                        ),
+                                    evidencias: [
+                                        ...evidencias,
+                                        ...nuevosArchivos,
+                                    ],
                                 });
                             }}
                             className="sr-only"
@@ -174,7 +177,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                                                 gap-2
                                                 text-xs
                                                 bg-blue-50
-                                                text-[#0076aa]
+                                                text-[#2563EB]
                                                 border
                                                 border-blue-200
                                                 px-3

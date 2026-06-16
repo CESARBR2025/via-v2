@@ -71,6 +71,7 @@ type Props = {
     noOficio: string;
     urlOficio: string;
     estatusDependencia: string;
+    estatusInfraccion: string
     nombreTitular: string;
     correoTitular: string;
     curpTitular: string;
@@ -111,13 +112,13 @@ function getEstatusConfig(estatus: string) {
             label: estatus,
         };
     }
-    if (s === 'rechazado' || s === 'cancelado') {
+    if (s === 'rechazado' || s === 'cancelado' || s === 'mesa_de_control_rechazada') {
         return {
             icon: XCircle,
             bg: '#FEE2E2',
             border: '#EF4444/30',
             text: '#DC2626',
-            label: estatus,
+            label: 'Documentos rechazados',
         };
     }
     return {
@@ -134,6 +135,7 @@ export default function SeccionLiberacion({
     noOficio,
     urlOficio,
     estatusDependencia,
+    estatusInfraccion,
     nombreTitular,
     correoTitular,
     curpTitular,
@@ -142,6 +144,11 @@ export default function SeccionLiberacion({
     infraccionId,
     documentosLiberacion,
 }: Props) {
+
+    console.log(estatusDependencia)
+    console.log(estatusInfraccion)
+
+
     const [selectedType, setSelectedType] = useState<'empresa' | 'titular' | null>(null);
     const [selectedFiles, setSelectedFiles] = useState<Record<string, File>>({});
     const [submitting, setSubmitting] = useState(false);
@@ -256,7 +263,17 @@ export default function SeccionLiberacion({
                 }
             }
 
-            const res = await fetch('/api/ciudadano/subirDocumentos', {
+            console.log(estatusDependencia)
+            console.log(estatusInfraccion)
+
+
+            let endpoint = '/api/ciudadano/subirDocumentos'
+
+            if (estatusInfraccion === 'REGISTRADA' && estatusDependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS') {
+                endpoint = '/api/ciudadano/subirDocumentosInfraccion'
+            }
+
+            const res = await fetch(endpoint, {
                 method: 'POST',
                 body: formData,
             });
@@ -580,7 +597,7 @@ export default function SeccionLiberacion({
                 )}
 
                 {/* DOCUMENTOS SUBIDOS */}
-                {(tieneDocs || submitted || estatusDependencia === 'ESPERA_REVISION') && (
+                {(tieneDocs || submitted || estatusDependencia === 'ESPERA_REVISION' || estatusDependencia === 'MESA_DE_CONTROL_RECHAZADA') && (
                     <div className="space-y-4">
                         {estatusDependencia === 'ESPERA_REVISION' && (
                             <div className="rounded-xl border border-[#22C55E]/30 bg-[#DCFCE7] p-6 text-center space-y-3">
@@ -595,6 +612,23 @@ export default function SeccionLiberacion({
                                         Todos los documentos fueron subidos correctamente.
                                         La autoridad revisará la información y emitirá la
                                         orden de liberación.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {estatusDependencia === 'MESA_DE_CONTROL_RECHAZADA' && (
+                            <div className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] p-6 text-center space-y-3">
+                                <div className="w-16 h-16 rounded-full bg-[#FEE2E2]/10 border border-[#FECACA] flex items-center justify-center mx-auto">
+                                    <XCircle size={32} className="text-[#DC2626]" />
+                                </div>
+                                <div>
+                                    <h4 className="text-lg font-bold text-[#0F172A]">
+                                        Documentos rechazados
+                                    </h4>
+                                    <p className="text-sm text-[#64748B] mt-1">
+                                        Algunos documentos fueron rechazados. Revisa el motivo
+                                        y vuelve a subir los documentos corregidos.
                                     </p>
                                 </div>
                             </div>

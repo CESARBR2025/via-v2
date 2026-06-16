@@ -1,6 +1,9 @@
 // types/infraccion.types.ts
 
 export type InfraccionListItem = {
+  urlOficioCorralon: string;
+  estatusInfraccion: string;
+
   //extras fiscalia
   estatus_dependencia: string;
   no_carpeta_investigacion: string;
@@ -12,6 +15,12 @@ export type InfraccionListItem = {
   estatus: string;
   placa: string | null;
   created_at: string;
+
+  estatus_orden_pago?: string;
+  nombre_titular_liberacion?: string;
+  appaterno_titular_liberacion?: string;
+  apmaterno_titular_liberacion?: string;
+  url_orden_salida_liberaciones?: string;
 };
 
 export type InfraccionListResponse = {
@@ -37,6 +46,8 @@ export type InfraccionDetail = {
     estatus_dependencia: string;
     no_carpeta_investigacion: string;
     url_oficio_pago_corralon?: string;
+    url_orden_salida_liberaciones?: string;
+    estatus_orden_pago?: string;
   };
 
   Infraccion: {

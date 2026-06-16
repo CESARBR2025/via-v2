@@ -117,6 +117,109 @@ export function templateInfraccion(data: TemplateParams) {
   };
 }
 
+export function templateCapturaInfractor(data: TemplateParams) {
+  const html = `
+    <div style="
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        padding: 40px;
+    ">
+        <div style="
+            max-width: 620px;
+            margin: auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            border: 1px solid #e5e7eb;
+        ">
+            <h1 style="
+                color: #1e3a8a;
+                margin-bottom: 10px;
+            ">
+                Documentación Requerida
+            </h1>
+
+            <p>
+                Hola <b>${data.nombreInfractor}</b>,
+            </p>
+
+            <p>
+                Tus datos han sido registrados correctamente. Tu vehículo se
+                encuentra en el corralón y necesitas subir la documentación
+                requerida para continuar con el proceso de liberación.
+            </p>
+
+            <div style="
+                background: #eff6ff;
+                padding: 16px;
+                border-radius: 12px;
+                margin: 24px 0;
+            ">
+                <p style="margin:0;">
+                    <b>Folio:</b> ${data.folio}
+                </p>
+            </div>
+
+            <p>
+                Ingresa al siguiente enlace para subir tus documentos:
+            </p>
+
+            <div style="
+                text-align:center;
+                margin: 30px 0;
+            ">
+                <img
+                    src="cid:qr_infraccion"
+                    width="220"
+                    height="220"
+                />
+            </div>
+
+            <a
+                href="${data.urlVistaCiudadano}"
+                style="
+                    color:#2563eb;
+                    word-break: break-all;
+                    display:block;
+                    text-align:center;
+                    margin-top:16px;
+                "
+            >
+                ${data.urlVistaCiudadano}
+            </a>
+
+            <hr style="
+                margin: 32px 0;
+                border:none;
+                border-top:1px solid #e5e7eb;
+            " />
+
+            <p style="
+                font-size: 12px;
+                color:#6b7280;
+            ">
+                SSPM - Sistema de Gestión de Infracciones
+            </p>
+        </div>
+    </div>
+  `;
+
+  const text = `
+    Hola ${data.nombreInfractor}
+
+    Tus datos han sido registrados correctamente. Tu vehículo se
+    encuentra en el corralón y necesitas subir la documentación
+    requerida para continuar con el proceso de liberación.
+
+    Folio: ${data.folio}
+
+    Ingresa al siguiente enlace para subir tus documentos:
+    ${data.urlVistaCiudadano}
+  `;
+
+  return { html, text };
+}
+
 export function templateAsignacionJuzgado(
   data: EnviarCorreoAsignacionJuzgadoParams,
 ) {
@@ -414,43 +517,44 @@ Juzgado Cívico
   };
 }
 export function templateAsignacionFiscalia(
-  data: EnviarCorreoAsignacionJuzgadoParams,
+  data: EnviarCorreoAsignacionJuzgadoParams & { urlVistaCiudadano?: string },
 ) {
   const baseUrl =
     process.env.NODE_ENV === "production"
       ? "https://via-v2.vercel.app"
       : "http://localhost:3000";
 
-  /**
-   * URL pública del ciudadano
-   */
-  const urlVistaCiudadano = `${baseUrl}/infracciones/${data.numero_oficio}`;
+  const urlVistaCiudadano = data.urlVistaCiudadano || `${baseUrl}/infracciones/${data.idInfraccion}`;
 
   const text = `
 SECRETARÍA DE SEGURIDAD PÚBLICA MUNICIPAL
-OFICINA DE PROCESOS ADMINISTRATIVOS
+FISCALÍA DE SJR
 
 Estimado(a) ${data.nombreTitular},
 
-Por este medio se comunica a usted que su expediente ha sido registrado en Fiscalia SJR, conforme a los procedimientos administrativos establecidos en la ley.
+Por este medio se le notifica que su expediente ha sido registrado en Fiscalía de SJR. A partir de este momento, puede subir la documentación requerida para continuar con el proceso de liberación.
 
 DATOS DEL EXPEDIENTE:
 ─────────────────────────────────────────
 Folio:                ${data.folio}
 Número de Oficio:     ${data.numero_oficio}
-Estado:               SUBIR DOCUMENTACION REQUERIDA PARA EMITIR LIBERACION
+Estado:               PENDIENTE DE DOCUMENTACIÓN
 
-REQUISITOS A CUMPLIR:
+DOCUMENTACIÓN REQUERIDA:
+─────────────────────────────────────────
+- Factura original del vehículo
+- INE del titular (vigente)
+- Comprobante de domicilio (reciente)
+- Tarjeta de circulación
+- Poder notarial (si aplica)
 
-Conforme a lo establecido en los procesos administrativos, se le requiere cargar la documentación solicitada dentro del plazo legal establecido. El incumplimiento de esta obligación puede resultar en la aplicación de sanciones según corresponda.
-
-Para acceder al portal de documentación:
+Para acceder al portal de documentación y subir sus archivos, escanee el código QR incluido en este correo o ingrese al siguiente enlace:
 ${urlVistaCiudadano}
 
 Atentamente,
 
 Secretaría de Seguridad Pública Municipal
-Fiscalia de SJR
+Fiscalía de SJR
 `;
 
   const html = `
@@ -624,7 +728,7 @@ Fiscalia de SJR
   <div class="container">
     <div class="header">
       <h1>Secretaría de Seguridad Pública Municipal</h1>
-      <p>Juzgado Cívico - Oficina de Procesos Administrativos</p>
+      <p>Fiscalía de SJR</p>
     </div>
 
     <div class="content">
@@ -633,7 +737,7 @@ Fiscalia de SJR
       </p>
 
       <p class="text-content">
-        Por este medio se comunica a usted que su expediente ha sido registrado y asignado al <strong>Juzgado Cívico</strong> de esta dependencia, conforme a los procedimientos administrativos establecidos en la ley.
+        Por este medio se le notifica que su expediente ha sido registrado en <strong>Fiscalía de SJR</strong>. A partir de este momento, puede subir la documentación requerida para continuar con el proceso de liberación de su vehículo.
       </p>
 
       <div class="section-title">Datos del Expediente</div>
@@ -650,27 +754,43 @@ Fiscalia de SJR
       
       <div class="data-row">
         <div class="data-label">Estado del Expediente:</div>
-        <div class="data-value">ASIGNADO A JUZGADO CÍVICO</div>
+        <div class="data-value">PENDIENTE DE DOCUMENTACIÓN</div>
       </div>
 
       <hr class="divider-line" />
 
-      <div class="section-title">Requisitos a Cumplir</div>
+      <div class="section-title">Documentación Requerida</div>
 
       <p class="text-content">
-        Conforme a lo establecido en los procedimientos administrativos vigentes, se le requiere cargar la documentación solicitada dentro del plazo legal establecido. El incumplimiento de esta obligación puede resultar en la aplicación de sanciones administrativas según corresponda a derecho.
+        Para continuar con el proceso de liberación, es necesario que cargue la siguiente documentación a través del portal ciudadano:
       </p>
 
+      <ul style="font-size:13px; line-height:2; color:#1a1a1a; padding-left:20px;">
+        <li>Factura original del vehículo</li>
+        <li>INE del titular (vigente)</li>
+        <li>Comprobante de domicilio (reciente)</li>
+        <li>Tarjeta de circulación</li>
+        <li>Poder notarial (si aplica)</li>
+      </ul>
+
       <div class="highlight">
-        <strong>⚠ ATENCIÓN:</strong> Es obligatorio subir toda la documentación requerida dentro del plazo establecido. La no presentación de documentos puede afectar la resolución de su expediente.
+        <strong>⚠ ATENCIÓN:</strong> Es obligatorio subir toda la documentación requerida dentro del plazo establecido. La no presentación de documentos puede retrasar el proceso de liberación.
       </div>
 
-      <p style="text-align: center; margin: 35px 0 20px 0; font-weight: bold; font-family: Arial, sans-serif; color: #2c3e50; font-size: 13px;">
+      <div style="text-align:center; margin:30px 0;">
+        <img
+          src="cid:qr_infraccion"
+          alt="Código QR"
+          width="180"
+        />
+      </div>
+
+      <p style="text-align: center; margin: 15px 0 20px 0; font-weight: bold; font-family: Arial, sans-serif; color: #2c3e50; font-size: 13px;">
         ACCEDA AL PORTAL DE DOCUMENTACIÓN
       </p>
 
       <a href="${urlVistaCiudadano}" class="cta-button">
-        INGRESAR AL SISTEMA
+        SUBIR DOCUMENTACIÓN
       </a>
 
       <p class="text-content" style="text-align: center; margin-top: 25px; font-size: 12px;">
@@ -688,7 +808,7 @@ Fiscalia de SJR
         
         <div class="signature-name">
           Secretaría de Seguridad Pública Municipal<br/>
-          Juzgado Cívico
+          Fiscalía de SJR
         </div>
       </div>
     </div>

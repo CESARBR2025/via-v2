@@ -26,13 +26,13 @@ export interface MailOptions {
   attachments?: MailAttachment[];
 }
 
-export async function sendMail(options: MailOptions): Promise<void> {
+export async function sendMail(options: MailOptions) {
   if (!options.to) {
     console.warn("[mailer] Correo no proporcionado, omitiendo envío.");
-    return;
+    return null;
   }
 
-  await transporter.sendMail({
+  const info = await transporter.sendMail({
     from: `"SSPM - San Juan del Río" <${process.env.SMTP_USER}>`,
     to: options.to,
     subject: options.subject,
@@ -46,4 +46,6 @@ export async function sendMail(options: MailOptions): Promise<void> {
       ...(options.attachments ?? []),
     ],
   });
+
+  return info;
 }

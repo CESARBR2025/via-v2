@@ -112,7 +112,7 @@ export const sanitizeCrearInfraccionPayload = (
   body: any,
   oficialId: string,
 ): CrearInfraccionDTO => {
-  return {
+  const payload: CrearInfraccionDTO = {
     dependenciaRemisora: body.dependenciaRemisora,
 
     correoInfractor: body.correoInfractor,
@@ -145,6 +145,7 @@ export const sanitizeCrearInfraccionPayload = (
     color: (body.otroColor || body.color)?.trim()?.toUpperCase() || null,
 
     placa: body.placa?.trim()?.toUpperCase(),
+    noSerieVehiculo: body.noSerie?.trim()?.toUpperCase() || null,
     tipoVehiculo: body.tipoVehiculo.trim().toUpperCase(),
     anioVehiculo: body.anio.trim().toUpperCase(),
 
@@ -178,7 +179,22 @@ export const sanitizeCrearInfraccionPayload = (
 
     fechaLimiteDescuento: body.fechaLimiteDescuento,
 
-    montoFinal: Number(body.fraccionMonto || 0),
+    pagoAlMomento: body.pagoAlMomento ?? false,
+
+    montoFinal:
+      Math.round(
+        Number(body.fraccionMonto || 0) *
+          (1 - Number(body.descuentoAplicado || 0) / 100) *
+          100,
+      ) / 100,
+
+    estatus:
+      body.estaCiudadanoPresente === false ? "REGISTRADA" : "PENDIENTE_PAGO",
+
+    estatusDependencia:
+      body.estaCiudadanoPresente === false
+        ? "PENDIENTE_DATOS_INFRACTOR"
+        : "PENDIENTE_PAGO_INSTANTE",
 
     gruaId: body.gruaInvolucrada || null,
 
@@ -186,4 +202,11 @@ export const sanitizeCrearInfraccionPayload = (
 
     placaPatrulla: null,
   };
+
+  if (body.garantiaSeleccionada === "VEHICULO") {
+    payload.estatus = "REGISTRADA";
+    payload.estatusDependencia = "VEHICULO_EN_CORRALON";
+  }
+
+  return payload;
 };

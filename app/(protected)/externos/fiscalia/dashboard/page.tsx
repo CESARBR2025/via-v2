@@ -1,10 +1,6 @@
-import { getSession } from "@/features/auth/service";
-import TablaCompartida from "@/features/compartido/components/TablaCompartida";
+import FiscaliaTable from "@/features/fiscalia/components/FiscaliaTable";
 
 export default async function FiscaliaPage() {
-    const session = await getSession();
-    const roleString = session?.user?.roles?.[0];
-
     const dependenciaClave = "FISCALIA";
 
     const baseUrl =
@@ -31,12 +27,9 @@ export default async function FiscaliaPage() {
 
     return (
         <div className="flex flex-col h-full">
-
-
             <div className="flex flex-col flex-1 min-h-0">
-                <TablaCompartida
+                <FiscaliaTable
                     respuestaServidor={respuestaApi}
-                    userRole={roleString}
                 />
             </div>
         </div>

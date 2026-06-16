@@ -1,9 +1,4 @@
-import {
-  Home,
-  FileExclamationPoint,
-  FileClockIcon,
-  AtSign,
-} from "lucide-react";
+import { Home, FileClockIcon, AtSign } from "lucide-react";
 
 import { UserRole } from "./types";
 
@@ -27,10 +22,6 @@ export const navigationByRole: Record<UserRole, any[]> = {
   ],
 
   oficial: [
-    // =====================================
-    // SECCIÓN
-    // =====================================
-
     {
       title: "Infracciones",
 
@@ -43,11 +34,6 @@ export const navigationByRole: Record<UserRole, any[]> = {
         {
           label: "Realizadas",
           href: "/oficiales/realizadas",
-          icon: Home,
-        },
-        {
-          label: "Fiscalia",
-          href: "/externos/fiscalia/dashboard",
           icon: Home,
         },
       ],
@@ -84,6 +70,56 @@ export const navigationByRole: Record<UserRole, any[]> = {
         {
           label: "Liberaciones",
           href: "/depLiberaciones/dashboard",
+          icon: FileClockIcon,
+        },
+      ],
+    },
+  ],
+
+  corralon_mejia: [
+    // =====================================
+    // SECCIÓN
+    // =====================================
+
+    {
+      title: "Vehiculos retenidos",
+
+      items: [
+        {
+          label: "Vehiculos",
+          href: "/externos/corralonMejia/dashboard",
+          icon: FileClockIcon,
+        },
+      ],
+    },
+  ],
+
+  juzgado_civico: [
+    {
+      title: "Infracciones",
+
+      items: [
+        {
+          label: "Asignadas",
+          href: "/externos/juzgadoCivico/dashboard",
+          icon: AtSign,
+        },
+      ],
+    },
+  ],
+
+  corralon_mw: [
+    // =====================================
+    // SECCIÓN
+    // =====================================
+
+    {
+      title: "Vehiculos retenidos",
+
+      items: [
+        {
+          label: "Vehiculos",
+          href: "/externos/corralonMW/dashboard",
           icon: FileClockIcon,
         },
       ],

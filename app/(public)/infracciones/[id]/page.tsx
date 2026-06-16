@@ -17,7 +17,9 @@ export default async function InfraccionCiudadanoPage({
     params: Promise<{ id: string }>;
 }) {
 
+
     const { id } = await params;
+    console.log(id)
 
     const baseUrl =
         process.env.NODE_ENV === 'production'
@@ -84,6 +86,7 @@ export default async function InfraccionCiudadanoPage({
                     noOficio={infraccion.noOficio}
                     urlOficio={infraccion.urlOficio}
                     estatusDependencia={infraccion.estatusDependencia}
+                    estatusInfraccion={infraccion.estatusInfraccion}
                     nombreTitular={infraccion.nombreTitular}
                     correoTitular={infraccion.correoTitular}
                     curpTitular={infraccion.curpTitular}
@@ -186,6 +189,7 @@ export default async function InfraccionCiudadanoPage({
                         </section>
 
                         {/* PAGO */}
+                        {infraccion.estatusInfraccion === 'PENDIENTE_PAGO' && (
                         <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
                             <div className="px-6 py-[18px] border-b border-[#E2E8F0] flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-[#DCFCE7] flex items-center justify-center">
@@ -205,8 +209,11 @@ export default async function InfraccionCiudadanoPage({
                                 ordenPagoId={infraccion.orden_pago_id}
                                 urlPago={infraccion.url_pago}
                                 estatus={infraccion.estatus}
+                                estatusDependencia={infraccion.estatusDependencia}
+                                estatusInfraccion={infraccion.estatusInfraccion}
                             />
                         </section>
+                        )}
                     </div>
 
                     {/* SIDEBAR */}

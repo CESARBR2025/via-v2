@@ -62,7 +62,6 @@ export default function FormularioInfraccion() {
     // ───────────────────────────────────────────────────────────────────
     const [mounted, setMounted] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
-    console.log(files)
 
     const [success, setSuccess] = useState<string | null | boolean>(null);
     const [error, setError] = useState<string | null>(null);
@@ -70,6 +69,7 @@ export default function FormularioInfraccion() {
     const [lngInicial, setLngInicial] = useState<number | null>(null);
     const [, setPrecision] = useState(0);
     const [intentoAvanzar, setIntentoAvanzar] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
     const stepScrollRef = useRef<HTMLDivElement>(null);
 
     // ───────────────────────────────────────────────────────────────────
@@ -115,7 +115,13 @@ export default function FormularioInfraccion() {
     // ───────────────────────────────────────────────────────────────────
     // ESTADO DESEO DE PAGO - Se mantiene local porque es decisión UI
     // ───────────────────────────────────────────────────────────────────
-    const [deseaPagar, setDeseaPagar] = useState<boolean | null>(null);
+    const [deseaPagar, setDeseaPagarLocal] = useState<boolean | null>(null);
+    const setDeseaPagar = useCallback((value: boolean | null) => {
+        setDeseaPagarLocal(value);
+        if (value !== null) {
+            useInfraccionStore.getState().setPagoAlMomento(value);
+        }
+    }, [setDeseaPagarLocal]);
 
     // ───────────────────────────────────────────────────────────────────
     // CONEXIÓN A INTERNET
@@ -128,7 +134,6 @@ export default function FormularioInfraccion() {
     // Los selectores evitan re-renders innecesarios cuando otras partes
     // del store cambian. Solo re-renders cuando estas propiedades específicas cambien.
     const datos = useInfraccionStore((state) => state.datos);
-    console.log(datos)
     const actualizarDatos = useInfraccionStore(
         (state) => state.actualizarDatos
     );
@@ -143,6 +148,7 @@ export default function FormularioInfraccion() {
     const setPagado = useInfraccionStore((state) => state.setPagado);
     const loading = useInfraccionStore((state) => state.loading);
     const setLoading = useInfraccionStore((state) => state.setLoading);
+    const setPagoAlMomento = useInfraccionStore((state) => state.setPagoAlMomento);
 
 
 
@@ -156,6 +162,12 @@ export default function FormularioInfraccion() {
     const [infraccionCreada, setInfraccionCreada] = useState<{
         id: number;
         folio: string;
+    } | null>(null);
+
+    const [ausenteCompletado, setAusenteCompletado] = useState<{
+        id: number;
+        folio: string;
+        data: Record<string, any>;
     } | null>(null);
 
     // ═══════════════════════════════════════════════════════════════════
@@ -187,6 +199,23 @@ export default function FormularioInfraccion() {
     // FUNCIONES BÚSQUEDA - CURP y Pago
     // ═══════════════════════════════════════════════════════════════════
 
+
+    /**
+     * Finaliza el proceso sin pago: actualiza estatus a PLACA_RETENIDA_EN_TRANSITO
+     */
+    const handleFinalizarSinPago = useCallback(async () => {
+        if (!infraccionCreada?.id) return;
+        try {
+            await fetch('/api/infracciones/retencionPlaca', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: infraccionCreada.id }),
+            });
+        } catch (err) {
+            console.error('Error al actualizar retención de placa:', err);
+        }
+        window.location.reload();
+    }, [infraccionCreada]);
 
     /**
      * Verifica el estado del pago de una infracción
@@ -243,7 +272,7 @@ export default function FormularioInfraccion() {
             // ─────────────────────────────────────────────────────────────
             try {
                 const res = await fetch(
-                    `/api/pagosInfracciones/verificar/${ordenPagoId}/${infraccionCreada.id}`,
+                    `/api/pagosInfracciones/finalizarPagoInstante/${ordenPagoId}/${infraccionCreada.id}`,
                     {
                         method: 'GET',
                         cache: 'no-store',
@@ -295,10 +324,8 @@ export default function FormularioInfraccion() {
                 return;
             }
 
-            console.log('paso')
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    console.log('Ubicación obtenida:', pos);
 
                     setLatInicial(pos.coords.latitude);
                     setLngInicial(pos.coords.longitude);
@@ -526,6 +553,7 @@ export default function FormularioInfraccion() {
                         setDeseaPagar={setDeseaPagar}
                         datos={datos}
                         verificarPago={verificarPago}
+                        onFinalizarSinPago={handleFinalizarSinPago}
                         loading={loading}
                     />
                 ),
@@ -568,6 +596,59 @@ export default function FormularioInfraccion() {
     ]);
 
     // ═══════════════════════════════════════════════════════════════════
+    // VALIDACIÓN POR PASO
+    // ═══════════════════════════════════════════════════════════════════
+
+    const stepIds = useMemo(() => steps.map(s => s.id), [steps]);
+
+    const validateStep = useCallback((stepId: string): boolean => {
+        const d = datos;
+        switch (stepId) {
+            case 'ciudadano':
+                return d.estaCiudadanoPresente === true || d.estaCiudadanoPresente === false;
+
+            case 'ubicacion':
+                return d.latitud !== null && d.longitud !== null;
+
+            case 'conductor':
+                if (d.presentaIne === null || d.presentaIne === undefined) return false;
+                if (d.presentaIne) {
+                    return d.curpInfractor.trim().length > 0;
+                }
+                return d.nombreInfractor.trim().length > 0 &&
+                    d.apPaternoInfractor.trim().length > 0;
+
+            case 'descuentos':
+                return true;
+
+            case 'vehiculo': {
+                const anio = parseInt(d.anio, 10);
+                const anioValido = d.anio.trim().length > 0 && !isNaN(anio) && anio >= 1980 && anio <= 2026;
+                return d.placa.trim().length > 0 &&
+                    d.marca.trim().length > 0 &&
+                    d.modelo.trim().length > 0 &&
+                    anioValido &&
+                    d.color.trim().length > 0 &&
+                    d.tipoVehiculo.trim().length > 0;
+            }
+
+            case 'infraccion':
+                return d.articuloId.trim().length > 0 &&
+                    d.fraccionId.trim().length > 0 &&
+                    d.garantiaSeleccionada.trim().length > 0;
+
+            case 'evidencias':
+                return true;
+
+            case 'confirmacion':
+                return true;
+
+            default:
+                return true;
+        }
+    }, [datos]);
+
+    // ═══════════════════════════════════════════════════════════════════
     // FUNCIONES HANDLER - Registro e Interacción
     // ═══════════════════════════════════════════════════════════════════
 
@@ -578,21 +659,36 @@ export default function FormularioInfraccion() {
      * 2. Generar orden de pago en sistema de pagos
      */
     const handleRegistrarNuevaInfraccion = useCallback(async () => {
-        const storeData = datos;
-
         const logError = (fase: string, error: unknown) => {
             console.error(`❌ ERROR EN: ${fase}`, error);
         };
 
         try {
             // ─────────────────────────────────────────────────────────────
+            // AUTO-DESCUENTO: si ciudadano ausente, aplicar 50% por defecto
+            // ─────────────────────────────────────────────────────────────
+            if (datos.estaCiudadanoPresente === false) {
+                const fechaLimite = new Date();
+                fechaLimite.setDate(fechaLimite.getDate() + 10);
+                actualizarDatos({
+                    descuentoAplicado: 50,
+                    fechaLimiteDescuento: fechaLimite.toISOString(),
+                });
+            }
+
+            // Meter datos de estatus a
+
+
+
+            // Leer datos frescos del store (después del auto-descuento)
+            const storeData = useInfraccionStore.getState().datos;
+
+            // ─────────────────────────────────────────────────────────────
             // VALIDACIÓN INICIAL
             // ─────────────────────────────────────────────────────────────
             if (!storeData) {
                 throw new Error('No hay datos en el store');
             }
-
-            console.log('📦 Datos a registrar:', storeData);
 
             // ─────────────────────────────────────────────────────────────
             // FASE 1: CREAR INFRACCIÓN
@@ -601,9 +697,6 @@ export default function FormularioInfraccion() {
             setProcesoMensaje('Creando infracción...');
 
             let nuevaInfraccion;
-
-            console.log(storeData)
-            console.log('llego')
 
             try {
                 const res = await fetch(
@@ -614,10 +707,7 @@ export default function FormularioInfraccion() {
                         body: JSON.stringify(storeData),
                     }
                 );
-                console.log(res)
-
                 const data = await res.json();
-                console.log(data)
 
                 if (!res.ok) {
                     throw new Error(
@@ -625,17 +715,14 @@ export default function FormularioInfraccion() {
                     );
                 }
 
-                console.log('paso')
                 nuevaInfraccion = data;
-
-                console.log('✅ Infracción creada:', nuevaInfraccion);
                 setInfraccionCreada(nuevaInfraccion.data);
             } catch (error) {
+                const msg = error instanceof Error ? error.message : 'Error desconocido';
                 logError('CREACIÓN DE INFRACCIÓN', error);
                 setModalState('error');
-                setProcesoMensaje('Error al crear infracción');
-                throw new Error('Fallo en creación de infracción');
-                return
+                setProcesoMensaje(`Error al crear infracción: ${msg}`);
+                throw new Error(`Fallo en creación de infracción — ${msg}`);
 
             }
 
@@ -698,10 +785,7 @@ export default function FormularioInfraccion() {
                         );
                     }
 
-                    console.log(
-                        '📁 Documentos guardados:',
-                        data
-                    );
+
                 }
             } catch (error) {
                 logError(
@@ -727,7 +811,6 @@ export default function FormularioInfraccion() {
             setProcesoMensaje('Guardando evidencias digitales...');
 
             try {
-                console.log(nuevaInfraccion)
                 const evidencias =
                     storeData.evidencias ?? [];
 
@@ -766,10 +849,7 @@ export default function FormularioInfraccion() {
                         );
                     }
 
-                    console.log(
-                        '📸 Evidencias guardadas:',
-                        data
-                    );
+
                 }
             } catch (error) {
                 logError(
@@ -789,13 +869,43 @@ export default function FormularioInfraccion() {
             }
 
             // ─────────────────────────────────────────────────────────────
+            // CIUDADANO AUSENTE o GARANTÍA VEHICULAR — saltar orden de pago, mostrar resumen
+            // ─────────────────────────────────────────────────────────────
+            if (datos.estaCiudadanoPresente === false || datos.garantiaSeleccionada === 'VEHICULO') {
+                setModalState('inicio');
+                setAusenteCompletado({
+                    id: nuevaInfraccion.data.id,
+                    folio: nuevaInfraccion.data.folio,
+                    data: {
+                        placa: storeData.placa,
+                        marca: storeData.marca,
+                        modelo: storeData.modelo,
+                        anio: storeData.anio,
+                        color: storeData.color,
+                        tipoVehiculo: storeData.tipoVehiculo,
+                        lugar: `${storeData.calle || ''} ${storeData.numero || ''}, ${storeData.colonia || ''}`.trim(),
+                        municipio: storeData.municipio,
+                        estado: storeData.estado,
+                        fraccion: storeData.fraccionDescripcion,
+                        articulo: storeData.articuloNumero,
+                        monto: storeData.fraccionMonto,
+                        descuento: storeData.descuentoAplicado,
+                        fechaLimite: storeData.fechaLimiteDescuento,
+                        garantia: storeData.garantiaSeleccionada,
+                        dependenciaRemisora: storeData.dependenciaRemisora,
+                        fecha: new Date().toISOString(),
+                    },
+                });
+                return;
+            }
+
+            // ─────────────────────────────────────────────────────────────
             // FASE 2: GENERAR ORDEN DE PAGO
             // ─────────────────────────────────────────────────────────────
             setModalState('orden');
             setProcesoMensaje('Generando orden de pago...');
 
             let orden;
-            console.log(nuevaInfraccion.data)
             try {
 
                 orden = await generarOrdenPago({
@@ -811,11 +921,11 @@ export default function FormularioInfraccion() {
 
 
 
-                console.log('💰 Orden creada:', orden);
+
             } catch (error) {
                 logError('GENERACIÓN ORDEN DE PAGO', error);
                 setModalState('error');
-                setProcesoMensaje('Error aml generar orden de pago');
+                setProcesoMensaje('Error al generar orden de pago');
                 throw new Error('Fallo en orden de pago');
             }
 
@@ -826,8 +936,6 @@ export default function FormularioInfraccion() {
             // ─────────────────────────────────────────────────────────────
             setModalState('completado');
             setProcesoMensaje('Infracción generada correctamente');
-
-            console.log('🎉 Flujo completo OK');
 
             // Esperar 3 segundos y luego navegar al paso de pago
             setTimeout(() => {
@@ -870,17 +978,21 @@ export default function FormularioInfraccion() {
      * Valida campos requeridos en el paso actual antes de permitir el avance
      */
     const handleNextStep = useCallback(() => {
-        // Si hay errores de validación, marcar intento y no avanzar
         setIntentoAvanzar(true);
+        setValidationError(null);
 
-        // En un escenario real, aquí validarías los campos del paso actual
-        // Ejemplo:
-        // const stepValidation = validateCurrentStep(activeStepConfig.id);
-        // if (!stepValidation.isValid) return;
+        const stepId = stepIds[currentStep];
+        if (!stepId) return;
+
+        const isValid = validateStep(stepId);
+        if (!isValid) {
+            setValidationError('Completa todos los campos requeridos antes de continuar.');
+            return;
+        }
 
         setIntentoAvanzar(false);
         nextStep();
-    }, [nextStep]);
+    }, [nextStep, currentStep, stepIds, validateStep]);
 
     // ═══════════════════════════════════════════════════════════════════
     // RENDER
@@ -895,7 +1007,11 @@ export default function FormularioInfraccion() {
           MODAL DE PROCESO - Feedback visual durante registro
           ─────────────────────────────────────────────────────────────── */}
             {procesoModal !== 'inicio' && (
-                <ProcesoModal estado={procesoModal} mensaje={procesoMensaje} />
+                <ProcesoModal
+                    estado={procesoModal}
+                    mensaje={procesoMensaje}
+                    onRetry={procesoModal === 'error' ? handleRegistrarNuevaInfraccion : undefined}
+                />
             )}
 
             {/* ───────────────────────────────────────────────────────────────
@@ -922,8 +1038,9 @@ export default function FormularioInfraccion() {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-          HEADER - Información de navegación y progreso
+          HEADER - Información de navegación y progreso (oculto en resumen ausente)
           ════════════════════════════════════════════════════════════════ */}
+            {!ausenteCompletado && (
             <header className="bg-[#FFFFFF] border-b border-[#E2E8F0] shrink-0">
                 {/* Top bar: ícono + título + % completado */}
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
@@ -963,11 +1080,23 @@ export default function FormularioInfraccion() {
                     />
                 </div>
 
-                {/* Stepper con etiquetas — scrollable en móvil */}
+                {/* Stepper con etiquetas — visible solo en desktop */}
                 <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                    {/* Mobile indicator */}
+                    <div className="sm:hidden flex items-center gap-2 py-3">
+                        <div className="flex-1 h-[3px] bg-[#F1F5F9] rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-[#2563EB] transition-all duration-500"
+                                style={{ width: `${progressPct}%` }}
+                            />
+                        </div>
+                        <span className="text-[11px] font-semibold text-[#64748B] shrink-0">
+                            {currentStep + 1}/{steps.length}
+                        </span>
+                    </div>
                     <div
                         ref={stepScrollRef}
-                        className="flex items-start overflow-x-auto scrollbar-hide py-3"
+                        className="hidden sm:flex items-start overflow-x-auto scrollbar-hide py-3"
                     >
                         {steps.map((step, idx) => {
                             const isDone = idx < currentStep;
@@ -1053,29 +1182,138 @@ export default function FormularioInfraccion() {
                     </div>
                 </div>
             </header>
+            )}
 
             {/* ═══════════════════════════════════════════════════════════════
-          MAIN CONTENT - Renderizar paso actual
+          MAIN CONTENT - Renderizar paso actual o resumen ausente
           ════════════════════════════════════════════════════════════════ */}
             <main className="flex-1 min-h-0 overflow-y-auto">
-                <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-5">
-                    <div>
-                        <h2 className="text-[22px] font-bold text-[#0F172A] leading-tight">
-                            {activeStepConfig.title}
-                        </h2>
-                        <p className="text-sm text-[#64748B] mt-1">
-                            {activeStepConfig.description}
-                        </p>
-                    </div>
+                {ausenteCompletado ? (
+                    <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-8">
+                        <div className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+                            <div className="h-1.5 bg-gradient-to-r from-[#2563EB] to-[#60A5FA]" />
 
-                    {activeStepConfig.component}
-                </div>
+                            <div className="p-6 sm:p-8 space-y-6">
+                                {/* Header */}
+                                <div className="text-center space-y-2">
+                                    <div className="w-16 h-16 rounded-2xl bg-[#EFF6FF] flex items-center justify-center mx-auto shadow-[0_0_0_4px_rgba(37,99,235,0.15)]">
+                                        <svg className="w-8 h-8 text-[#2563EB]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                                        </svg>
+                                    </div>
+                                    <h2 className="text-[22px] font-bold text-[#0F172A]">
+                                        Infracción Registrada
+                                    </h2>
+                                    <p className="text-sm text-[#64748B]">
+                                        Ciudadano ausente — transcripción manual requerida
+                                    </p>
+                                </div>
+
+                                {/* Folio destacado */}
+                                <div className="bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] p-5 text-center space-y-2">
+                                    <p className="text-[11px] font-semibold uppercase tracking-wide text-[#64748B]">
+                                        Folio de infracción
+                                    </p>
+                                    <p className="text-[28px] font-bold text-[#0F172A] font-mono tracking-tight">
+                                        {ausenteCompletado.folio}
+                                    </p>
+                                    <p className="text-xs text-[#64748B] font-mono">
+                                        ID: {ausenteCompletado.id}
+                                    </p>
+                                </div>
+
+                                {/* Datos del vehículo / infracción */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                        { label: 'Placa', value: ausenteCompletado.data.placa },
+                                        { label: 'Marca', value: ausenteCompletado.data.marca },
+                                        { label: 'Modelo', value: ausenteCompletado.data.modelo },
+                                        { label: 'Año', value: ausenteCompletado.data.anio },
+                                        { label: 'Color', value: ausenteCompletado.data.color },
+                                        { label: 'Tipo', value: ausenteCompletado.data.tipoVehiculo },
+                                        { label: 'Artículo', value: ausenteCompletado.data.articulo },
+                                        { label: 'Monto', value: ausenteCompletado.data.monto ? `$${Number(ausenteCompletado.data.monto).toLocaleString('es-MX')}` : '--' },
+                                        { label: 'Descuento', value: ausenteCompletado.data.descuento ? `${ausenteCompletado.data.descuento}%` : '--' },
+                                        { label: 'Garantía', value: ausenteCompletado.data.garantia },
+                                    ].map((item) => (
+                                        <div key={item.label} className="bg-[#F8FAFC] rounded-lg px-3 py-2.5">
+                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">
+                                                {item.label}
+                                            </p>
+                                            <p className="text-sm font-semibold text-[#0F172A] mt-0.5 break-all">
+                                                {item.value || '--'}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Lugar */}
+                                {ausenteCompletado.data.lugar && (
+                                    <div className="bg-[#F8FAFC] rounded-lg px-4 py-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">
+                                            Lugar
+                                        </p>
+                                        <p className="text-sm font-medium text-[#0F172A] mt-0.5">
+                                            {ausenteCompletado.data.lugar}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Nota informativa */}
+                                <div className="flex items-start gap-3 bg-[#FEF3C7] border border-[#F59E0B]/30 rounded-lg p-4">
+                                    <svg className="w-5 h-5 shrink-0 text-[#D97706] mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                    </svg>
+                                    <div>
+                                        <p className="text-xs font-semibold text-[#92400E]">
+                                            Transcripción a boleta física
+                                        </p>
+                                        <p className="text-xs text-[#92400E]/80 mt-1 leading-relaxed">
+                                            Transcribe el folio y los datos de la infracción a la boleta física. El ciudadano deberá liquidar en ventanilla o portales autorizados usando el folio proporcionado.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Botón Terminar */}
+                                <button
+                                    type="button"
+                                    onClick={() => window.location.reload()}
+                                    className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-sm py-3.5 px-4 rounded-lg transition-all active:scale-[0.98]"
+                                >
+                                    Terminar y Salir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-5">
+                        <div>
+                            <h2 className="text-[22px] font-bold text-[#0F172A] leading-tight">
+                                {activeStepConfig.title}
+                            </h2>
+                            <p className="text-sm text-[#64748B] mt-1">
+                                {activeStepConfig.description}
+                            </p>
+                            {validationError && (
+                                <div className="mt-3 flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[13px] font-medium"
+                                    style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
+                                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                    </svg>
+                                    {validationError}
+                                </div>
+                            )}
+                        </div>
+
+                        {activeStepConfig.component}
+                    </div>
+                )}
             </main>
 
             {/* ═══════════════════════════════════════════════════════════════
-          FOOTER - Botones de navegación
+          FOOTER - Botones de navegación (oculto en resumen ausente)
           ════════════════════════════════════════════════════════════════ */}
-            {activeStepConfig.id !== 'pago' && (
+            {!ausenteCompletado && activeStepConfig.id !== 'pago' && (
                 <footer className="bg-[#FFFFFF] border-t border-[#E2E8F0] px-4 sm:px-6 py-4 flex items-center justify-between shrink-0">
                     <button
                         type="button"
