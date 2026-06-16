@@ -1,8 +1,46 @@
-import { Home, FileClockIcon, AtSign } from "lucide-react";
+import { Home, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown } from "lucide-react";
 
 import { UserRole } from "./types";
 
 export const navigationByRole: Record<UserRole, any[]> = {
+  admin: [
+    {
+      title: "Gestión",
+      items: [
+        {
+          label: "Oficiales",
+          href: "/admin/oficiales",
+          icon: Users,
+        },
+        {
+          label: "Sectores",
+          href: "/admin/sectores",
+          icon: MapPin,
+        },
+        {
+          label: "Departamentos",
+          href: "/admin/departamentos",
+          icon: Building2,
+        },
+        {
+          label: "Rangos",
+          href: "/admin/rangos",
+          icon: ArrowUpDown,
+        },
+      ],
+    },
+    {
+      title: "Sistema",
+      items: [
+        {
+          label: "Configuración",
+          href: "/admin/dashboard",
+          icon: Settings,
+        },
+      ],
+    },
+  ],
+
   fiscalia: [
     // =====================================
     // SECCIÓN

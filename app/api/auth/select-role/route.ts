@@ -99,13 +99,13 @@ export async function POST(req: Request) {
     } else if (rol === "infracciones") {
       redirectTo = "/depInfracciones/dashboard";
     } else if (rol === "fiscalia") {
-      redirectTo = "externos/fiscalia/dashboard";
+      redirectTo = "/externos/fiscalia/dashboard";
     } else if (rol === "juzgado_civico") {
-      redirectTo = "externos/juzgadoCivico/dashboard";
+      redirectTo = "/externos/juzgadoCivico/dashboard";
     } else if (rol === "corralon_mejia") {
-      redirectTo = "externos/corralonMejia/dashboard";
+      redirectTo = "/externos/corralonMejia/dashboard";
     } else if (rol === "corralon_mw") {
-      redirectTo = "externos/corralonMW/dashboard";
+      redirectTo = "/externos/corralonMW/dashboard";
     }
     // 8. Crear respuesta
     const res = NextResponse.json({

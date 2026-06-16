@@ -1,0 +1,49 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "@/features/auth/service";
+import { SectoresService } from "@/features/sectores/service";
+
+export async function GET() {
+  try {
+    const session = await getSession();
+    if (!session || !session.user.roles.includes("admin")) {
+      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
+    }
+
+    const sectores = await SectoresService.listar();
+
+    return NextResponse.json({ ok: true, data: sectores });
+  } catch (error: any) {
+    console.error("[API][ADMIN][SECTORES][GET]", error);
+    return NextResponse.json(
+      { ok: false, message: error.message || "Error al listar sectores" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session || !session.user.roles.includes("admin")) {
+      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
+    }
+
+    const body = await req.json();
+    if (!body.nombre?.trim()) {
+      return NextResponse.json(
+        { ok: false, message: "El nombre del sector es obligatorio" },
+        { status: 400 },
+      );
+    }
+
+    const sector = await SectoresService.crear(body.nombre);
+
+    return NextResponse.json({ ok: true, data: sector }, { status: 201 });
+  } catch (error: any) {
+    console.error("[API][ADMIN][SECTORES][POST]", error);
+    return NextResponse.json(
+      { ok: false, message: error.message || "Error al crear sector" },
+      { status: error.status || 500 },
+    );
+  }
+}

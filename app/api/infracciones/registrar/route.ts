@@ -4,9 +4,37 @@ import {
   InfraccionesService,
   sanitizeCrearInfraccionPayload,
 } from "@/features/infracciones/service";
+import { getSession } from "@/features/auth/service";
+import { POOL_PG } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { ok: false, message: "No autorizado" },
+        { status: 401 },
+      );
+    }
+
+    const oficial = await POOL_PG.query(
+      `SELECT id FROM v2_oficiales WHERE usuario_id = $1 AND activo = true`,
+      [session.user.id],
+    );
+
+    if (oficial.rows.length === 0) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "El usuario no está registrado como oficial activo",
+        },
+        { status: 403 },
+      );
+    }
+
+    const oficialId = oficial.rows[0].id;
+    console.log(oficialId);
+
     console.log("========== NUEVA INFRACCION ==========");
 
     let body;
@@ -27,8 +55,6 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-
-    const oficialId = "901eecf4-8e8d-489c-8595-deec458b16bf";
 
     console.log("[SANITIZANDO PAYLOAD]");
 
