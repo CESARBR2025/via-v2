@@ -68,23 +68,37 @@ export async function POST(req: NextRequest) {
     }
 
     const token = await getExpedienteToken();
-    const url = await subirArchivo(archivo, "comprobante_pago", infraccionId, token);
+    const url = await subirArchivo(
+      archivo,
+      "comprobante_pago",
+      infraccionId,
+      token,
+    );
 
     const client = await POOL_PG.connect();
     try {
       await client.query("BEGIN");
 
+      const { rows } = await client.query(
+        `SELECT estatus_dependencia FROM v2_infracciones WHERE id = $1`,
+        [infraccionId],
+      );
+      const estatusActual = rows[0]?.estatus_dependencia ?? "";
+      const sufijo = estatusActual.replace("LIBERADA_POR_", "");
+      const estatusFinal = `FINALIZADA_${sufijo}`;
+      console.log(estatusFinal);
+
       await client.query(
         `
         UPDATE v2_infracciones
         SET
-          estatus_dependencia = 'CERRADA',
+          estatus_dependencia = $3,
           estatus = 'FINALIZADA',
           url_oficio_pago_corralon = $2,
           updated_at = NOW()
         WHERE id = $1
         `,
-        [infraccionId, url],
+        [infraccionId, url, estatusFinal],
       );
 
       await client.query("COMMIT");

@@ -185,7 +185,7 @@ export async function GET(
 
           console.log(dataParaPDF);
 
-          estatusDinamico = `LIBERADA_POR_${dataParaPDF.motivoRetencion}`;
+          estatusDinamico = `${dataParaPDF.motivoRetencion}`;
           console.log(estatusDinamico);
           const correoDestino =
             dbData.correo_titular_liberacion || "sin_correo@dominio.com";
@@ -220,8 +220,14 @@ export async function GET(
 
             const formData = new FormData();
             formData.append("file", pdfFile);
-            formData.append("ruta_personalizada", `${anio}/${mes}/${infraccionId}`);
-            formData.append("sistema", process.env.EXPEDIENTE_SISTEMA ?? "sspm");
+            formData.append(
+              "ruta_personalizada",
+              `${anio}/${mes}/${infraccionId}`,
+            );
+            formData.append(
+              "sistema",
+              process.env.EXPEDIENTE_SISTEMA ?? "sspm",
+            );
 
             const uploadRes = await fetch(
               `${process.env.EXPEDIENTE_HOST}/api/upload-custom`,
@@ -241,11 +247,17 @@ export async function GET(
                   `UPDATE v2_infracciones SET url_orden_salida_liberaciones = $2, updated_at = NOW() WHERE id = $1`,
                   [infraccionId, urlOrdenSalida],
                 );
-                console.log("[ORDEN SALIDA] Guardada en expediente digital:", urlOrdenSalida);
+                console.log(
+                  "[ORDEN SALIDA] Guardada en expediente digital:",
+                  urlOrdenSalida,
+                );
               }
             }
           } catch (expError) {
-            console.error("[ORDEN SALIDA][EXPEDIENTE] Error al guardar:", expError);
+            console.error(
+              "[ORDEN SALIDA][EXPEDIENTE] Error al guardar:",
+              expError,
+            );
           }
         }
       } catch (orderError) {

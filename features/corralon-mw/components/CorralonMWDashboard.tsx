@@ -36,12 +36,12 @@ interface Props {
 }
 
 type EstatusMW =
-    | 'CERRADA'
-    | 'LIBERADO_POR_CORRALON_MW'
+    | 'PENDIENTE'
+    | 'CERRADAS'
 
 const STATUS_TABS: { key: EstatusMW; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
-    { key: 'CERRADA', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
-    { key: 'LIBERADO_POR_CORRALON_MW', label: 'Finalizadas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
+    { key: 'PENDIENTE', label: 'Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
+    { key: 'CERRADAS', label: 'Cerradas', icon: CheckCircle2, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
@@ -49,9 +49,9 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; labe
     LIBERADA_POR_INFRACCION: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
     LIBERADA_POR_DELITO: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B', label: 'Pendiente' },
     EN_REVISION_MW: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Revisión' },
-    FINALIZADA_POR_ACCIDENTE: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Finalizada' },
-    FINALIZADA_POR_INFRACCION: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Finalizada' },
-    FINALIZADA_POR_DELITO: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Finalizada' },
+    FINALIZADA_ACCIDENTE: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Cerrada' },
+    FINALIZADA_INFRACCION: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Cerrada' },
+    FINALIZADA_DELITO: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Cerrada' },
 }
 
 function getBadge(status: string) {
@@ -63,7 +63,7 @@ export default function CorralonMWDashboard({
     visibleColumns,
     onSubirComprobante,
 }: Props) {
-    const [filtro, setFiltro] = useState<EstatusMW>('CERRADA')
+    const [filtro, setFiltro] = useState<EstatusMW>('PENDIENTE')
 
     const estadisticas = useMemo(() => {
         const pendientes = data.filter(
@@ -72,29 +72,51 @@ export default function CorralonMWDashboard({
                 ['LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO'].includes(x.estatus_dependencia)
         ).length
 
-        const finalizadas = data.filter(
+        const cerradas = data.filter(
             x =>
                 x.estatus === 'FINALIZADA' &&
-                ['FINALIZADA_POR_ACCIDENTE', 'FINALIZADA_POR_INFRACCION', 'FINALIZADA_POR_DELITO'].includes(x.estatus_dependencia)
+                ['FINALIZADA_ACCIDENTE', 'FINALIZADA_INFRACCION', 'FINALIZADA_DELITO'].includes(x.estatus_dependencia)
         ).length
 
-        return { pendientes, finalizadas }
+        return { pendientes, cerradas }
     }, [data])
 
-    const total = estadisticas.pendientes + estadisticas.finalizadas
+    const total = estadisticas.pendientes + estadisticas.cerradas
 
-    const registrosFiltrados = useMemo(
-        () => data.filter(x => {
-            if (filtro === 'CERRADA') {
-                return x.estatus === 'CERRADA' &&
-                    ['LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO'].includes(x.estatus_dependencia)
-            }
-            return x.estatus === 'FINALIZADA' &&
-                ['FINALIZADA_POR_ACCIDENTE', 'FINALIZADA_POR_INFRACCION', 'FINALIZADA_POR_DELITO'].includes(x.estatus_dependencia)
-        }),
-        [data, filtro],
-    )
 
+    const registrosFiltrados = useMemo(() => {
+        switch (filtro) {
+            case 'PENDIENTE':
+                return data.filter(
+                    x =>
+                        x.estatus === 'CERRADA' &&
+                        [
+                            'LIBERADA_POR_ACCIDENTE',
+                            'LIBERADA_POR_INFRACCION',
+                            'LIBERADA_POR_DELITO'
+                        ].includes(x.estatus_dependencia)
+                )
+
+            case 'CERRADAS':
+                return data.filter(
+                    x =>
+                        x.estatus === 'FINALIZADA' &&
+                        [
+                            'FINALIZADA_ACCIDENTE',
+                            'FINALIZADA_INFRACCION',
+                            'FINALIZADA_DELITO'
+                        ].includes(x.estatus_dependencia)
+                )
+
+            default:
+                return []
+        }
+    }, [data, filtro])
+
+    console.log(registrosFiltrados)
+
+
+    console.log(data)
 
     return (
         <div className="space-y-6">
@@ -115,7 +137,7 @@ export default function CorralonMWDashboard({
             {/* ─── STATS CARDS ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {STATUS_TABS.map(tab => {
-                    const count = estadisticas[tab.key === 'CERRADA' ? 'pendientes' : 'finalizadas']
+                    const count = estadisticas[tab.key === 'PENDIENTE' ? 'pendientes' : 'cerradas']
                     const activo = filtro === tab.key
                     const Icon = tab.icon
 
@@ -240,6 +262,16 @@ export default function CorralonMWDashboard({
                                                                 >
                                                                     <Eye size={14} />
                                                                     Ver orden
+                                                                </button>
+                                                            )}
+                                                            {row.urlOficioCorralon && row.urlOficioCorralon !== 'NO_DATA' && (
+                                                                <button
+                                                                    onClick={() => abrirDocumento(row.urlOficioCorralon)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                    style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0' }}
+                                                                >
+                                                                    <Eye size={14} />
+                                                                    Ver pago
                                                                 </button>
                                                             )}
                                                             {onSubirComprobante && esPendiente && (

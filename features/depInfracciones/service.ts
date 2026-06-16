@@ -122,6 +122,7 @@ export class DepInfraccionesService {
     try {
       // 2. Rango de fechas (hoy + ayer)
       const { from, to } = getHoyYAyerRange();
+      console.log(dependencia);
 
       console.log("[SERVICE][INFRACCIONES][LISTAR] Rango fechas:", {
         from,

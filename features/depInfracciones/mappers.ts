@@ -4,6 +4,9 @@ import { safeRowMapper } from "./components/TablaDevInfracciones/utils/safeRow";
 import { InfraccionDetail, InfraccionListItem } from "./types";
 
 export const mapInfraccionListItem = (row: any): InfraccionListItem => ({
+  //url oficio de corralon
+  urlOficioCorralon: row.url_oficio_pago_corralon,
+
   // Estatus importantes
   estatusInfraccion: row.estatus,
 

@@ -114,7 +114,7 @@ export class DepInfraccionesRepository {
 
       // Obtener el ID de la grúa
       const queryGrua = `SELECT id FROM v2_gruas WHERE nombre = $1 LIMIT 1`;
-      const resultGrua = await pool.query(queryGrua, ["MW"]);
+      const resultGrua = await pool.query(queryGrua, [dependencia]);
 
       if (resultGrua.rows.length === 0) {
         throw new Error(
@@ -139,10 +139,11 @@ export class DepInfraccionesRepository {
           nombre_infractor,
           estatus_dependencia,
           estatus,
-          url_orden_salida_liberaciones
+          url_orden_salida_liberaciones,
+          url_oficio_pago_corralon
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-        AND estatus_dependencia IN ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO')
+        AND estatus_dependencia IN ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO', 'FINALIZADA_ACCIDENTE', 'FINALIZADA_INFRACCION', 'FINALIZADA_DELITO')
           AND grua_id = $1
 
 
@@ -186,7 +187,7 @@ export class DepInfraccionesRepository {
           estatus_dependencia,
           no_carpeta_investigacion
         FROM v2_infracciones
-        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADA_POR_INFRACCION', 'VEHICULO_EN_CORRALON')
+        WHERE estatus_dependencia IN ('ESPERA_REVISION', 'EN_PROCESO_LIBERACIONES', 'LIBERADA_POR_INFRACCION', 'VEHICULO_EN_CORRALON', 'LIBERADA_POR_DELITO', 'LIBERADA_POR_ACCIDENTE')
            OR (estatus = 'REGISTRADA' AND estatus_dependencia = 'MESA_DE_CONTROL_REVISION')
 
       `;
@@ -343,7 +344,7 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE tipo_garantia  = 'VEHICULO'
-      AND estatus_dependencia IN ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO')
+     AND estatus_dependencia IN ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO', 'FINALIZADA_ACCIDENTE', 'FINALIZADA_INFRACCION', 'FINALIZADA_DELITO')
         AND grua_id = $1
     `;
       values.push(idGruaDinamico);

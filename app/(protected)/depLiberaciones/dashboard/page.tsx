@@ -22,6 +22,7 @@ export default async function LiberacionesPage() {
     } catch (error) {
         console.error("Error obteniendo datos:", error);
     }
+    console.log(respuestaApi)
 
     return (
         <div className="flex flex-col h-full">

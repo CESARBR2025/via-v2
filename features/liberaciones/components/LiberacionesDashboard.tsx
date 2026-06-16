@@ -83,7 +83,14 @@ export default function LiberacionesDashboard({
             if (filtro === 'EN_PROCESO_LIBERACIONES') {
                 return x.estatus_dependencia === 'EN_PROCESO_LIBERACIONES' || (x.estatus === 'REGISTRADA' && x.estatus_dependencia === 'MESA_DE_CONTROL_REVISION')
             }
-            return x.estatus === 'CERRADA' && x.estatus_dependencia === 'LIBERADA_POR_INFRACCION'
+            return (
+                x.estatus === 'CERRADA' &&
+                (
+                    x.estatus_dependencia === 'LIBERADA_POR_INFRACCION' ||
+                    x.estatus_dependencia === 'LIBERADA_POR_ACCIDENTE' ||
+                    x.estatus_dependencia === 'LIBERADA_POR_DELITO'
+                )
+            );
         }),
         [data, filtro],
     )

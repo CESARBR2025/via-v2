@@ -1,6 +1,7 @@
 // types/infraccion.types.ts
 
 export type InfraccionListItem = {
+  urlOficioCorralon: string;
   estatusInfraccion: string;
 
   //extras fiscalia

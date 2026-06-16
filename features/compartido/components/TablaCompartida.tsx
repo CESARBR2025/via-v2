@@ -7,7 +7,6 @@ import CargarOficioSection from "@/features/compartido/components/CargarOficioSe
 import OficioLiberacionSection from "@/features/compartido/components/OficioLiberacionSection"
 import DocumentosLiberadosSection from "@/features/compartido/components/DocumentosLiberadosSection"
 import CorralonMWDashboard from "@/features/corralon-mw/components/CorralonMWDashboard"
-import CorralonMejiaDashboard from "@/features/corralon-mejia/components/CorralonMejiaDashboard"
 import ModalDetalleGenerico, { DetalleCompleto } from "@/features/compartido/components/ModalDetalleGenerico"
 import ConfirmacionModal from "@/features/compartido/components/ConfirmacionModal"
 
@@ -212,92 +211,6 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                 <ConfirmacionModal
                     isOpen={confirmOpen}
                     onConfirmar={() => iniciarRevision('/api/corralon-mw/iniciarProceso')}
-                    onCancelar={() => setConfirmOpen(false)}
-                    loading={confirmLoading}
-                    titulo="Asignar caso"
-                    mensaje="¿Deseas tomar este caso? El estatus cambiará a «En Revisión» y se te asignará la atención."
-                    labelConfirmar="Sí, tomar caso"
-                    labelCancelar="Cancelar"
-                    variant="success"
-                />
-            </>
-        )
-    }
-
-    if (userRole === 'corralon_mejia') {
-        const estatus = detalle?.Header?.estatus_dependencia
-        const pendiente = estatus === 'LIBERADO_POR_LIBERACIONES'
-        const enRevision = estatus === 'EN_REVISION_MW'
-        const finalizada = estatus === 'CERRADA'
-        const [finalizando, setFinalizando] = useState(false)
-
-        return (
-            <>
-                <CorralonMejiaDashboard
-                    data={listaDatos}
-                    visibleColumns={visibleColumns}
-                    onOpenDetalle={handleOpenDetalle}
-                />
-
-                <ModalDetalleGenerico
-                    isOpen={open}
-                    onClose={handleCloseDetalle}
-                    loading={loading}
-                    detalle={detalle}
-                    role="corralon_mejia"
-                    onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
-                    antesContenido={
-                        pendiente ? (
-                            <button
-                                onClick={() => setConfirmOpen(true)}
-                                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-colors"
-                                style={{ background: '#F59E0B', boxShadow: '0 4px 12px rgba(245,158,11,0.3)' }}
-                            >
-                                <Play size={14} strokeWidth={2.5} fill="white" />
-                                Tomar caso
-                            </button>
-                        ) : enRevision ? (
-                            <button
-                                onClick={async () => {
-                                    if (!detalle?.Header?.id_infraccion) return
-                                    setFinalizando(true)
-                                    try {
-                                        const res = await fetch('/api/corralon-mejia/finalizarProceso', {
-                                            method: 'PATCH',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ id: detalle.Header.id_infraccion }),
-                                        })
-                                        if (res.ok) refetchDetalle(detalle.Header.id_infraccion)
-                                    } finally {
-                                        setFinalizando(false)
-                                    }
-                                }}
-                                disabled={finalizando}
-                                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-colors disabled:opacity-50"
-                                style={{ background: '#22C55E', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}
-                            >
-                                {finalizando ? (
-                                    <Loader2 size={14} className="animate-spin" />
-                                ) : (
-                                    <CheckCircle2 size={14} />
-                                )}
-                                {finalizando ? 'Finalizando...' : 'Finalizar proceso'}
-                            </button>
-                        ) : undefined
-                    }
-                    fullWidthExtra={
-                        detalle?.Header && (enRevision || finalizada || pendiente) ? [
-                            <DocumentosLiberadosSection
-                                key="docs-liberados"
-                                detalle={detalle}
-                            />,
-                        ] : undefined
-                    }
-                />
-
-                <ConfirmacionModal
-                    isOpen={confirmOpen}
-                    onConfirmar={() => iniciarRevision('/api/corralon-mejia/iniciarProceso')}
                     onCancelar={() => setConfirmOpen(false)}
                     loading={confirmLoading}
                     titulo="Asignar caso"
