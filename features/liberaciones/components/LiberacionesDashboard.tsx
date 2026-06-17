@@ -77,7 +77,7 @@ export default function LiberacionesDashboard({
     const estadisticas = useMemo(() => {
         const capturarDatos = data.filter(x => x.estatusInfraccion === 'REGISTRADA' && x.estatusDependencia === 'VEHICULO_EN_CORRALON').length
         const revision = data.filter(x => x.estatusInfraccion === 'REGISTRADA' && x.estatusDependencia === 'MESA_DE_CONTROL_REVISION').length
-        const liberadas = data.filter(x => x.estatusInfraccion === 'CERRADA' && x.estatusDependencia === 'LIBERADA_POR_INFRACCION').length
+        const liberadas = data.filter(x => x.estatusInfraccion === 'CERRADA' && ['LIBERADA_POR_INFRACCION', 'LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_DELITO'].includes(x.estatusDependencia)).length
         return { capturarDatos, revision, liberadas }
     }, [data])
 
@@ -93,7 +93,7 @@ export default function LiberacionesDashboard({
                 case 'MESA_DE_CONTROL_REVISION':
                     return x.estatusInfraccion === 'REGISTRADA' && x.estatusDependencia === 'MESA_DE_CONTROL_REVISION'
                 case 'LIBERADA_POR_INFRACCION':
-                    return x.estatusInfraccion === 'CERRADA' && x.estatusDependencia === 'LIBERADA_POR_INFRACCION'
+                    return x.estatusInfraccion === 'CERRADA' && ['LIBERADA_POR_INFRACCION', 'LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_DELITO'].includes(x.estatusDependencia)
                 default:
                     return false
             }

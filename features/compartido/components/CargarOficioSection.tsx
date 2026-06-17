@@ -37,6 +37,8 @@ interface CargarOficioSectionProps {
     curpInfractor?: string
     guardarOficioEndpoint?: string
     onSuccess?: () => void
+
+    onClose?: () => void;   // 👈 nueva
 }
 
 export default function CargarOficioSection({
@@ -51,6 +53,7 @@ export default function CargarOficioSection({
     curpInfractor,
     guardarOficioEndpoint = '/api/fiscalia/guardarOficio',
     onSuccess,
+    onClose
 }: CargarOficioSectionProps) {
     const esTitularBool = esTitular === true
     const [numeroOficio, setNumeroOficio] = useState(noOficioActual && noOficioActual !== 'NO_DATA' ? noOficioActual : '')
@@ -87,11 +90,19 @@ export default function CargarOficioSection({
                 method: 'POST',
                 body: fd,
             })
-            if (!res.ok) throw new Error('Error al guardar')
+            if (!res.ok) {
+                const body = await res.json().catch(() => ({}))
+                throw new Error(body.message || 'Error al guardar')
+            }
 
             setSuccess(true)
             addToast('Oficio registrado correctamente', 'success')
             onSuccess?.()
+
+
+            // Después (cierra directo sin mostrar el estado success dentro del modal)
+            addToast('Oficio registrado correctamente', 'success')
+            onSuccess?.()   // onSuccess ya llama a handleCloseOficioForm en el padre
         } catch (error) {
             const msg = error instanceof Error ? error.message : 'Error al guardar el oficio'
             addToast(msg, 'error')
@@ -209,6 +220,14 @@ export default function CargarOficioSection({
                                 onChange={e => setArchivo(e.target.files?.[0] ?? null)}
                             />
                         </div>
+                        <button
+                            onClick={onClose}
+                            disabled={saving}
+                            className="w-full rounded-lg py-2.5 text-[13px] font-semibold transition-colors"
+                            style={{ background: '#F1F5F9', color: '#64748B' }}
+                        >
+                            Cancelar
+                        </button>
 
                         <button
                             onClick={handleSubmit}
@@ -220,6 +239,8 @@ export default function CargarOficioSection({
                         >
                             {saving ? 'Guardando…' : 'Guardar Documentos'}
                         </button>
+
+
                     </>
                 )}
             </div>

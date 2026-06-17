@@ -1,8 +1,12 @@
 'use client'
 
 import { BotonVerDetalle } from '@/features/compartido/components/ButtonVerDetalles'
+import CargarOficioSection from '@/features/compartido/components/CargarOficioSection'
+import ConfirmacionModal from '@/features/compartido/components/ConfirmacionModal'
 import { useMemo, useState } from 'react'
-import { Clock, CheckCircle2, AlertCircle, Search, User, FileText } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Clock, CheckCircle2, AlertCircle, Search, User, FileText, Play, X, Loader2 } from 'lucide-react'
+import type { DetalleCompleto } from '@/features/compartido/types/detalleInfraccion'
 
 const AVATAR_COLORS = [
     { bg: '#EFF6FF', text: '#2563EB' },
@@ -32,7 +36,6 @@ interface Props {
     data: any[]
     visibleColumns: any[]
     onOpenDetalle: (id: string) => void
-    onCargarOficio?: (id: string) => void
 }
 
 type EstatusJuzgado =
@@ -47,8 +50,10 @@ const STATUS_TABS: { key: EstatusJuzgado; label: string; icon: typeof Clock; col
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
     PENDIENTE: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Pendiente' },
     RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Pendiente' },
+    RETENIDO_POR_DELITO_PENDIENTE_OFICIO: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Pendiente' },
     EN_PROCESO_JUZGADO: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'En Proceso' },
     LIBERADO_POR_JUZGADO: { bg: '#F3E8FF', text: '#5B21B6', dot: '#8B5CF6', label: 'Liberada' },
+    MESA_DE_CONTROL_PENDIENTE_DOCS: { bg: '#F3E8FF', text: '#5B21B6', dot: '#8B5CF6', label: 'Liberada' },
 }
 
 function getBadge(status: string) {
@@ -59,56 +64,57 @@ export default function JuzgadoDashboard({
     data,
     visibleColumns,
     onOpenDetalle,
-    onCargarOficio,
 }: Props) {
+    const router = useRouter()
     const [filtro, setFiltro] = useState<EstatusJuzgado>('REGISTRADA')
 
+    // ─── Modal detalle oficio ───
+    const [oficioFormId, setOficioFormId] = useState<string | null>(null)
+    const [oficioFormData, setOficioFormData] = useState<DetalleCompleto | null>(null)
+    const [loadingOficioForm, setLoadingOficioForm] = useState(false)
+
+    // ─── Confirmacion Tomar caso ───
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [confirmTargetId, setConfirmTargetId] = useState<string | null>(null)
+    const [confirmLoading, setConfirmLoading] = useState(false)
+
+    // ─── Finalizar proceso ───
+    const [finalizandoId, setFinalizandoId] = useState<string | null>(null)
+
+    // ─── Stats ───
     const estadisticas = useMemo(() => {
         const pendientes = data.filter(
             x =>
-                x.estatus === 'REGISTRADA' &&
-                [
-                    'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO',
-                    'RETENIDO_POR_DELITO_PENDIENTE_OFICIO',
-                ].includes(x.estatus_dependencia)
+                x.estatusInfraccion === 'REGISTRADA' &&
+                x.estatusDependencia !== 'MESA_DE_CONTROL_PENDIENTE_DOCS'
         ).length
-
 
         const liberadas = data.filter(
             x =>
-                x.estatus === 'REGISTRADA' &&
-                x.estatus_dependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS'
+                x.estatusInfraccion === 'REGISTRADA' &&
+                x.estatusDependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS'
         ).length
 
-        return {
-            pendientes,
-            liberadas,
-        }
+        return { pendientes, liberadas }
     }, [data])
 
     const total = estadisticas.pendientes + estadisticas.liberadas
 
-
-
-
+    // ─── Filtro ───
     const registrosFiltrados = useMemo(() => {
         switch (filtro) {
             case 'REGISTRADA':
                 return data.filter(
                     x =>
-                        x.estatus === 'REGISTRADA' &&
-                        [
-                            'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO',
-                            'RETENIDO_POR_DELITO_PENDIENTE_OFICIO',
-                        ].includes(x.estatus_dependencia)
+                        x.estatusInfraccion === 'REGISTRADA' &&
+                        x.estatusDependencia !== 'MESA_DE_CONTROL_PENDIENTE_DOCS'
                 )
 
             case 'LIBERADO_POR_JUZGADO':
                 return data.filter(
                     x =>
-                        x.estatus === 'REGISTRADA' &&
-                        x.estatus_dependencia ===
-                        'MESA_DE_CONTROL_PENDIENTE_DOCS'
+                        x.estatusInfraccion === 'REGISTRADA' &&
+                        x.estatusDependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS'
                 )
 
             default:
@@ -116,6 +122,67 @@ export default function JuzgadoDashboard({
         }
     }, [data, filtro])
 
+    // ─── Handlers ───
+    async function handleOpenOficioForm(id: string) {
+        setLoadingOficioForm(true)
+        try {
+            const res = await fetch(`/api/depInfracciones/detalleInfraccion/${id}`)
+            if (!res.ok) throw new Error('Error al obtener el detalle')
+            const json = await res.json()
+            setOficioFormData(json.data)
+            setOficioFormId(id)
+        } catch (error) {
+            console.error('Error cargando oficio:', error)
+        } finally {
+            setLoadingOficioForm(false)
+        }
+    }
+
+    function handleCloseOficioForm() {
+        setOficioFormId(null)
+        setOficioFormData(null)
+        router.refresh()
+    }
+
+    function handleTomarCaso(id: string) {
+        setConfirmTargetId(id)
+        setConfirmOpen(true)
+    }
+
+    async function iniciarRevision() {
+        if (!confirmTargetId) return
+        setConfirmLoading(true)
+        try {
+            const response = await fetch('/api/juzgado/iniciarProceso', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: confirmTargetId }),
+            })
+            const data = await response.json()
+            if (!response.ok) throw new Error(data.error || 'Algo salió mal')
+            setConfirmOpen(false)
+            setConfirmTargetId(null)
+            router.refresh()
+        } catch (error) {
+            console.error('Error en la petición:', error)
+        } finally {
+            setConfirmLoading(false)
+        }
+    }
+
+    async function handleFinalizarProceso(id: string) {
+        setFinalizandoId(id)
+        try {
+            const res = await fetch('/api/juzgado/finalizarProceso', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id }),
+            })
+            if (res.ok) router.refresh()
+        } finally {
+            setFinalizandoId(null)
+        }
+    }
 
     return (
         <div className="space-y-6">
@@ -248,6 +315,7 @@ export default function JuzgadoDashboard({
                                     >
                                         {visibleColumns.map(column => {
                                             if (column.key === 'acciones') {
+                                                const estatusDep = row.estatusDependencia ?? ''
                                                 return (
                                                     <td key={column.key} className="px-4 py-2.5">
                                                         <div className="flex items-center gap-2">
@@ -255,30 +323,51 @@ export default function JuzgadoDashboard({
                                                                 idInfraccion={row.id}
                                                                 onOpenDetalle={onOpenDetalle}
                                                             />
-                                                            {onCargarOficio &&
-                                                                row.estatus === 'REGISTRADA' &&
 
-                                                                [
-                                                                    'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO',
-                                                                    'RETENIDO_POR_DELITO_PENDIENTE_OFICIO',
-                                                                ].includes(row.estatus_dependencia) && (
+                                                            {['RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO', 'EN_PROCESO_JUZGADO'].includes(estatusDep) && (
+                                                                <button
+                                                                    onClick={() => handleOpenOficioForm(row.id)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                    style={{ background: '#FFF7ED', color: '#F97316', border: '1px solid #FED7AA' }}
+                                                                >
+                                                                    <FileText size={14} />
+                                                                    Cargar oficio
+                                                                </button>
+                                                            )}
 
-                                                                    <button
-                                                                        onClick={() => onCargarOficio(row.id)}
-                                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
-                                                                        style={{ background: '#FFF7ED', color: '#F97316', border: '1px solid #FED7AA' }}
-                                                                    >
-                                                                        <FileText size={14} />
-                                                                        Cargar oficio
-                                                                    </button>
-                                                                )}
+                                                            {estatusDep === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO' && (
+                                                                <button
+                                                                    onClick={() => handleTomarCaso(row.id)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm"
+                                                                    style={{ background: '#F5F3FF', color: '#8B5CF6', border: '1px solid #DDD6FE' }}
+                                                                >
+                                                                    <Play size={14} />
+                                                                    Tomar caso
+                                                                </button>
+                                                            )}
+
+                                                            {estatusDep === 'EN_PROCESO_JUZGADO' && (
+                                                                <button
+                                                                    onClick={() => handleFinalizarProceso(row.id)}
+                                                                    disabled={finalizandoId === row.id}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors shadow-sm disabled:opacity-50"
+                                                                    style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0' }}
+                                                                >
+                                                                    {finalizandoId === row.id ? (
+                                                                        <Loader2 size={14} className="animate-spin" />
+                                                                    ) : (
+                                                                        <CheckCircle2 size={14} />
+                                                                    )}
+                                                                    {finalizandoId === row.id ? 'Finalizando...' : 'Finalizar proceso'}
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 )
                                             }
 
                                             if (column.key === 'estatus') {
-                                                const badge = getBadge(row.estatus_dependencia ?? row.estatus)
+                                                const badge = getBadge(row.estatusDependencia ?? row.estatusInfraccion)
                                                 return (
                                                     <td key={column.key} className="px-4 py-2.5">
                                                         <span
@@ -326,6 +415,51 @@ export default function JuzgadoDashboard({
                     </table>
                 </div>
             </div>
+
+            {/* ─── MODAL: Confirmacion Tomar caso ─── */}
+            <ConfirmacionModal
+                isOpen={confirmOpen}
+                onConfirmar={iniciarRevision}
+                onCancelar={() => { setConfirmOpen(false); setConfirmTargetId(null) }}
+                loading={confirmLoading}
+                titulo="Asignar caso"
+                mensaje="¿Deseas tomar este caso? El estatus cambiará a «En Proceso» y se te asignará la atención."
+                labelConfirmar="Sí, tomar caso"
+                labelCancelar="Cancelar"
+                variant="success"
+            />
+
+            {/* ─── MODAL: Cargar oficio ─── */}
+            {oficioFormId && oficioFormData && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+                        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-[#E2E8F0] rounded-t-2xl">
+                            <h2 className="text-[15px] font-semibold text-[#0F172A]">Cargar oficio</h2>
+                            <button
+                                onClick={handleCloseOficioForm}
+                                className="p-2 rounded-lg hover:bg-[#F8FAFC] transition-colors"
+                            >
+                                <X size={16} className="text-[#64748B]" />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <CargarOficioSection
+                                idInfraccion={oficioFormId}
+                                noOficioActual={oficioFormData.Header.no_oficio_fiscalia}
+                                noCarpetaActual={oficioFormData.Header.no_carpeta_investigacion}
+                                esTitular={oficioFormData.datos_infractor?.es_titular}
+                                nombreInfractor={oficioFormData.datos_infractor?.nombre_infractor}
+                                appaternoInfractor={oficioFormData.datos_infractor?.appaterno_infractor}
+                                apmaternoInfractor={oficioFormData.datos_infractor?.apmaterno_infractor}
+                                correoInfractor={oficioFormData.datos_infractor?.correo_infractor}
+                                curpInfractor={oficioFormData.datos_infractor?.curp_infractor}
+                                guardarOficioEndpoint="/api/juzgado/guardarOficio"
+                                onSuccess={handleCloseOficioForm}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

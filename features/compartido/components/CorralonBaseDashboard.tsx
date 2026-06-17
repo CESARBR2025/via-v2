@@ -59,6 +59,7 @@ export default function CorralonBaseDashboard({
   onSubirComprobante,
   loading,
 }: Props) {
+  console.log(data)
   const [filtro, setFiltro] = useState<'PENDIENTE' | 'CERRADAS'>('PENDIENTE')
 
   const STATUS_TABS = [

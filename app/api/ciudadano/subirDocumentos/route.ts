@@ -61,11 +61,7 @@ function validarArchivo(file: File | null, nombre: string) {
 // TIPOS VÁLIDOS
 // =====================================================
 
-const TIPOS_LIBERACION = [
-  "LIBERADA_POR_INFRACCION",
-  "LIBERADA_POR_DELITO",
-  "LIBERADA_POR_ACCIDENTE",
-] as const;
+const TIPOS_LIBERACION = ["INFRACCION", "DELITO", "ACCIDENTE"] as const;
 
 type TipoLiberacion = (typeof TIPOS_LIBERACION)[number];
 
@@ -80,7 +76,7 @@ type ArchivoConfig = {
 };
 
 const REQUIRED_FILES: Record<TipoLiberacion, ArchivoConfig[]> = {
-  LIBERADA_POR_INFRACCION: [
+  INFRACCION: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
     {
       campo: "ine_titular",
@@ -98,7 +94,7 @@ const REQUIRED_FILES: Record<TipoLiberacion, ArchivoConfig[]> = {
       label: "Tarjeta de circulación",
     },
   ],
-  LIBERADA_POR_DELITO: [
+  DELITO: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
     {
       campo: "ine_titular",
@@ -106,7 +102,7 @@ const REQUIRED_FILES: Record<TipoLiberacion, ArchivoConfig[]> = {
       label: "INE del titular",
     },
   ],
-  LIBERADA_POR_ACCIDENTE: [
+  ACCIDENTE: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
     {
       campo: "ine_titular",
