@@ -60,6 +60,7 @@ export default function CorralonBaseDashboard({
   loading,
 }: Props) {
   console.log(data)
+  console.log(config)
   const [filtro, setFiltro] = useState<'PENDIENTE' | 'CERRADAS'>('PENDIENTE')
 
   const STATUS_TABS = [
@@ -69,10 +70,10 @@ export default function CorralonBaseDashboard({
 
   const estadisticas = useMemo(() => {
     const pendientes = data.filter(
-      x => x.estatus === config.pendientesEstatus && config.pendientesStatus.includes(x.estatus_dependencia)
+      x => x.estatusInfraccion === config.pendientesEstatus && config.pendientesStatus.includes(x.estatusDependencia)
     ).length
     const cerradas = data.filter(
-      x => x.estatus === config.cerradasEstatus && config.cerradasStatus.includes(x.estatus_dependencia)
+      x => x.estatusInfraccion === config.cerradasEstatus && config.cerradasStatus.includes(x.estatusDependencia)
     ).length
     return { pendientes, cerradas }
   }, [data, config])
@@ -83,11 +84,11 @@ export default function CorralonBaseDashboard({
     switch (filtro) {
       case 'PENDIENTE':
         return data.filter(
-          x => x.estatus === config.pendientesEstatus && config.pendientesStatus.includes(x.estatus_dependencia)
+          x => x.estatusInfraccion === config.pendientesEstatus && config.pendientesStatus.includes(x.estatusDependencia)
         )
       case 'CERRADAS':
         return data.filter(
-          x => x.estatus === config.cerradasEstatus && config.cerradasStatus.includes(x.estatus_dependencia)
+          x => x.estatusInfraccion === config.cerradasEstatus && config.cerradasStatus.includes(x.estatusDependencia)
         )
       default:
         return []
@@ -264,7 +265,7 @@ export default function CorralonBaseDashboard({
                         }
 
                         if (column.key === 'estatus') {
-                          const badge = getBadge(row.estatus_dependencia ?? row.estatus, config.badgeMap)
+                          const badge = getBadge(row.estatusDependencia ?? row.estatusInfraccion, config.badgeMap)
                           return (
                             <td key={column.key} className="px-4 py-2.5">
                               <span

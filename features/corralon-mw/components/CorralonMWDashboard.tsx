@@ -20,8 +20,8 @@ const config: CorralonConfig = {
   pendientesEstatus: 'CERRADA',
   cerradasEstatus: 'FINALIZADA',
   isPendienteAction: (row) =>
-    row.estatus === 'CERRADA' &&
-    ['LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO'].includes(row.estatus_dependencia),
+    row.estatusInfraccion === 'CERRADA' &&
+    ['LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO'].includes(row.estatusDependencia),
 }
 
 interface Props {
