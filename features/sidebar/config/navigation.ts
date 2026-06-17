@@ -1,9 +1,29 @@
-import { Home, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown, User } from "lucide-react";
+import { Home, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown, User, LayoutDashboard } from "lucide-react";
 
 import { UserRole } from "./types";
 
 export const navigationByRole: Record<UserRole, any[]> = {
   admin: [
+    {
+      title: "Dashboard",
+      items: [
+        {
+          label: "Inicio",
+          href: "/admin/dashboard",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      title: "Indicadores",
+      items: [
+        {
+          label: "KPIs",
+          href: "/admin/kpis",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
     {
       title: "Gestión",
       items: [
@@ -12,29 +32,14 @@ export const navigationByRole: Record<UserRole, any[]> = {
           href: "/admin/oficiales",
           icon: Users,
         },
-        {
-          label: "Sectores",
-          href: "/admin/sectores",
-          icon: MapPin,
-        },
-        {
-          label: "Departamentos",
-          href: "/admin/departamentos",
-          icon: Building2,
-        },
-        {
-          label: "Rangos",
-          href: "/admin/rangos",
-          icon: ArrowUpDown,
-        },
       ],
     },
     {
-      title: "Sistema",
+      title: "Configuración",
       items: [
         {
-          label: "Configuración",
-          href: "/admin/dashboard",
+          label: "Catálogos",
+          href: "/admin/configuracion",
           icon: Settings,
         },
       ],

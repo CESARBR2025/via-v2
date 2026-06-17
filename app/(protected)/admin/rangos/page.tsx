@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   Pencil,
@@ -11,6 +12,7 @@ import {
   Loader2,
   ArrowUpDown,
   RotateCcw,
+  ArrowLeft,
 } from "lucide-react";
 
 interface Rango {
@@ -20,6 +22,7 @@ interface Rango {
 }
 
 export default function AdminRangosPage() {
+  const router = useRouter();
   const [rangos, setRangos] = useState<Rango[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -114,6 +117,14 @@ export default function AdminRangosPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      <button
+        onClick={() => router.back()}
+        className="inline-flex items-center gap-1.5 text-sm text-[#64748B] hover:text-[#0F172A] transition-colors"
+      >
+        <ArrowLeft size={16} strokeWidth={1.5} />
+        Regresar
+      </button>
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[22px] font-bold text-[#0F172A] tracking-tight">
