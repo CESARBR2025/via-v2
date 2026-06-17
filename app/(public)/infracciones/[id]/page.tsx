@@ -54,6 +54,7 @@ export default async function InfraccionCiudadanoPage({
 
             <div className="max-w-5xl mx-auto px-6 py-7 space-y-5">
 
+
                 {/* FOLIO + STATUS */}
                 <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -66,7 +67,7 @@ export default async function InfraccionCiudadanoPage({
                             </h2>
                         </div>
 
-                        {infraccion.estatus === 'P' ? (
+                        {infraccion.estatusInfraccion === 'PAGADA' ? (
                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#DCFCE7] border border-[#22C55E]/30 text-[#16A34A] text-sm font-semibold shrink-0">
                                 <CheckCircle2 size={16} />
                                 Infracción pagada y liberada
@@ -79,6 +80,37 @@ export default async function InfraccionCiudadanoPage({
                         )}
                     </div>
                 </section>
+
+                {/* ACCIONES EN BASE A ESTATUS A RENDERIZAR EN DOM */}
+
+                {/* PAGO */}
+                {infraccion.estatusInfraccion === 'PENDIENTE_PAGO' && (
+                    <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+                        <div className="px-6 py-[18px] border-b border-[#E2E8F0] flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-[#DCFCE7] flex items-center justify-center">
+                                <CreditCard size={18} className="text-[#22C55E]" />
+                            </div>
+                            <div>
+                                <h3 className="text-[15px] font-semibold text-[#0F172A]">
+                                    Pago Digital
+                                </h3>
+                                <p className="text-xs text-[#64748B]">
+                                    Plataforma segura
+                                </p>
+                            </div>
+                        </div>
+                        <PagoInfraccion
+                            infraccionId={infraccion.id}
+                            ordenPagoId={infraccion.orden_pago_id}
+                            urlPago={infraccion.url_pago}
+                            estatus={infraccion.estatus}
+                            estatusDependencia={infraccion.estatusDependencia}
+                            estatusInfraccion={infraccion.estatusInfraccion}
+                        />
+                    </section>
+                )}
+
+                {/* INFORMACION GENERAL DE INFRACCION */}
 
                 {/* LIBERACIÓN */}
                 <SeccionLiberacion
@@ -188,32 +220,7 @@ export default async function InfraccionCiudadanoPage({
                             </div>
                         </section>
 
-                        {/* PAGO */}
-                        {infraccion.estatusInfraccion === 'PENDIENTE_PAGO' && (
-                        <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
-                            <div className="px-6 py-[18px] border-b border-[#E2E8F0] flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-[#DCFCE7] flex items-center justify-center">
-                                    <CreditCard size={18} className="text-[#22C55E]" />
-                                </div>
-                                <div>
-                                    <h3 className="text-[15px] font-semibold text-[#0F172A]">
-                                        Pago Digital
-                                    </h3>
-                                    <p className="text-xs text-[#64748B]">
-                                        Plataforma segura
-                                    </p>
-                                </div>
-                            </div>
-                            <PagoInfraccion
-                                infraccionId={infraccion.id}
-                                ordenPagoId={infraccion.orden_pago_id}
-                                urlPago={infraccion.url_pago}
-                                estatus={infraccion.estatus}
-                                estatusDependencia={infraccion.estatusDependencia}
-                                estatusInfraccion={infraccion.estatusInfraccion}
-                            />
-                        </section>
-                        )}
+
                     </div>
 
                     {/* SIDEBAR */}

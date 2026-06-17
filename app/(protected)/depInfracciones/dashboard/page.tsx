@@ -21,6 +21,7 @@ export default async function DepInfraccionesPage() {
     } catch (error) {
         console.error("Error obteniendo datos:", error);
     }
+    console.log(respuestaApi)
 
     return (
         <div className="flex flex-col h-full">

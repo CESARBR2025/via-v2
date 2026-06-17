@@ -11,14 +11,13 @@ export const mapInfraccionListItem = (row: any): InfraccionListItem => ({
   estatusInfraccion: row.estatus,
 
   // Extras para fiscalia
-  estatus_dependencia: row.estatus_dependencia,
+  estatusDependencia: row.estatus_dependencia,
   no_carpeta_investigacion: row.no_carpeta_investigacion,
 
   nombre_infractor: row.nombre_infractor,
   correo_infractor: row.correo_infractor,
   id: row.id,
   folio: row.folio,
-  estatus: row.estatus,
   placa: row.placa,
   created_at: row.created_at,
 
