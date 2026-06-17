@@ -3,10 +3,11 @@
 import { BotonVerDetalle } from '@/features/compartido/components/ButtonVerDetalles'
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Clock, RefreshCw, CheckCircle2, AlertCircle, Search, User, DollarSign, Shield, Loader2 } from 'lucide-react'
+import { Clock, RefreshCw, CheckCircle2, AlertCircle, Search, User, DollarSign, Shield, Loader2, Zap } from 'lucide-react'
 import type { DetalleCompleto } from '@/features/compartido/types/detalleInfraccion'
 import CapturarDatosTitularSection from './CapturarDatosTitularSection'
 import ModalEntregarGarantia from './ModalEntregarGarantia'
+import { stat } from 'fs'
 
 const AVATAR_COLORS = [
     { bg: '#EFF6FF', text: '#2563EB' },
@@ -40,26 +41,30 @@ interface Props {
 }
 
 type EstatusInfracciones =
-    | 'PENDIENTES_DATOS'
-    | 'PENDIENTE_PAGO_CIUDADANO'
-    | 'PAGADAS'
+    | 'PENDIENTE_DATOS_INFRACTOR'
+    | 'PENDIENTE_PAGO_INFRACCION'
+    | 'PENDIENTE_DEVOLUCION_GARANTIA'
     | 'LIBERADO_POR_INFRACCIONES'
+    | 'LIBERADA_INFRACCIONES_INSTANTE'
 
 const STATUS_TABS: { key: EstatusInfracciones; label: string; icon: typeof Clock; color: string; accent: string; bg: string }[] = [
-    { key: 'PENDIENTES_DATOS', label: 'Capturar datos Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
-    { key: 'PENDIENTE_PAGO_CIUDADANO', label: 'Pago de Ciudadano Pendiente', icon: DollarSign, color: '#F97316', accent: '#9A3412', bg: '#FFF7ED' },
-    { key: 'PAGADAS', label: 'Devolucion de Garantia Pendiente', icon: RefreshCw, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
+    { key: 'PENDIENTE_DATOS_INFRACTOR', label: 'Capturar datos Pendientes', icon: Clock, color: '#F59E0B', accent: '#92400E', bg: '#FFFBEB' },
+    { key: 'PENDIENTE_PAGO_INFRACCION', label: 'Pago de Ciudadano Pendiente', icon: DollarSign, color: '#F97316', accent: '#9A3412', bg: '#FFF7ED' },
+    { key: 'PENDIENTE_DEVOLUCION_GARANTIA', label: 'Devolucion de Garantia Pendiente', icon: RefreshCw, color: '#22C55E', accent: '#166534', bg: '#F0FDF4' },
     { key: 'LIBERADO_POR_INFRACCIONES', label: 'Infracciones cerradas', icon: CheckCircle2, color: '#3B82F6', accent: '#1E40AF', bg: '#EFF6FF' },
+    { key: 'LIBERADA_INFRACCIONES_INSTANTE', label: 'Pagadas al instante', icon: Zap, color: '#06B6D4', accent: '#155E75', bg: '#ECFEFF' },
 ]
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-    PENDIENTES_DATOS: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Sin datos' },
-    PENDIENTE_PAGO_CIUDADANO: { bg: '#FFF7ED', text: '#9A3412', dot: '#F97316', label: 'Pendiente pago' },
-    PAGADAS: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Pagada' },
+    PENDIENTE_DATOS_INFRACTOR: { bg: '#FEF3C7', text: '#78350F', dot: '#F59E0B', label: 'Sin datos' },
+    PENDIENTE_PAGO_INFRACCION: { bg: '#FFF7ED', text: '#9A3412', dot: '#F97316', label: 'Pendiente pago' },
+    PENDIENTE_DEVOLUCION_GARANTIA: { bg: '#DCFCE7', text: '#166534', dot: '#22C55E', label: 'Pagada' },
     LIBERADO_POR_INFRACCIONES: { bg: '#DBEAFE', text: '#1E40AF', dot: '#3B82F6', label: 'Liberada' },
+    LIBERADA_INFRACCIONES_INSTANTE: { bg: '#CFFAFE', text: '#155E75', dot: '#06B6D4', label: 'Pagada instante' },
 }
 
 function getBadge(status: string) {
+
     return STATUS_BADGE[status] ?? { bg: '#F1F5F9', text: '#475569', dot: '#94A3B8', label: status }
 }
 
@@ -68,7 +73,9 @@ function isNoData(v: string | null | undefined): boolean {
 }
 
 function dataCompleta(row: any): boolean {
-    if (row.estatusInfraccion === 'PENDIENTE_PAGO' && row.estatusDependencia === 'PENDIENTE_PAGO_INSTANTE') return true
+    if (row.estatusInfraccion === 'CERRADA' && row.estatusDependencia === 'LIBERADA_INFRACCIONES_INSTANTE') {
+        return !isNoData(row.nombre_infractor)
+    }
     const nombre = row.nombre_infractor ?? ''
     const titular = row.nombre_titular_liberacion ?? ''
     return !isNoData(nombre) && !isNoData(titular)
@@ -80,6 +87,10 @@ function isPagada(row: any): boolean {
 
 function esLiberada(row: any): boolean {
     return row.estatusInfraccion === 'CERRADA' && row.estatusDependencia === 'LIBERADO_POR_INFRACCIONES'
+}
+
+function esPagadaInstante(row: any): boolean {
+    return row.estatusInfraccion === 'CERRADA' && row.estatusDependencia === 'LIBERADA_INFRACCIONES_INSTANTE'
 }
 
 function esPendientePago(row: any): boolean {
@@ -101,7 +112,7 @@ export default function InfraccionesDashboard({
     onRefresh,
 }: Props) {
     const router = useRouter()
-    const [filtro, setFiltro] = useState<EstatusInfracciones>('PENDIENTES_DATOS')
+    const [filtro, setFiltro] = useState<EstatusInfracciones>('PENDIENTE_DATOS_INFRACTOR')
 
     const [capturarDatosDetalle, setCapturarDatosDetalle] = useState<DetalleCompleto | null>(null)
     const [capturarDatosLoading, setCapturarDatosLoading] = useState(false)
@@ -152,29 +163,54 @@ export default function InfraccionesDashboard({
         const pendientesCapturarDatos = data.filter(x => x.estatusInfraccion === 'REGISTRADA' && x.estatusDependencia === 'PENDIENTE_DATOS_INFRACTOR').length
         const pendientePagoCiudadano = data.filter(x => x.estatusInfraccion === 'PENDIENTE_PAGO' && x.estatusDependencia === 'PENDIENTE_PAGO_INFRACCION').length
         const pendienteDevolucionGarantia = data.filter(x => x.estatusInfraccion === 'PAGADA' && x.estatusDependencia === 'PENDIENTE_DEVOLUCION_GARANTIA').length
-        const infraccionesCerradas = data.filter(x => x.estatusInfraccion === 'CERRADA' && x.estatusDependencia === 'LIBERADO_POR_INFRACCIONES').length
-        return { pendientes: pendientesCapturarDatos, pendientePagoCiudadano, pagadas: pendienteDevolucionGarantia, liberadas: infraccionesCerradas }
+        const infraccionesCerradas = data.filter(
+            x =>
+                x.estatusInfraccion === 'CERRADA' &&
+                (
+                    x.estatusDependencia === 'LIBERADO_POR_INFRACCIONES'
+
+                )
+        ).length;
+
+        const infraccionesPagadasInstante = data.filter(
+            x =>
+                x.estatusInfraccion === 'CERRADA' &&
+                (
+                    x.estatusDependencia === 'LIBERADA_INFRACCIONES_INSTANTE'
+
+                )
+        ).length;
+
+        return { pendientes: pendientesCapturarDatos, pendientePagoCiudadano, pagadas: pendienteDevolucionGarantia, liberadas: infraccionesCerradas, infraccionesPagadasInstante }
     }, [data])
 
-    const total = estadisticas.pendientes + estadisticas.pendientePagoCiudadano + estadisticas.pagadas + estadisticas.liberadas
+    const total = estadisticas.pendientes + estadisticas.pendientePagoCiudadano + estadisticas.pagadas + estadisticas.liberadas + estadisticas.infraccionesPagadasInstante
 
     const registrosFiltrados = useMemo(() => {
         switch (filtro) {
-            case 'PENDIENTES_DATOS':
+            case 'PENDIENTE_DATOS_INFRACTOR':
                 return data.filter(x => x.estatusInfraccion === 'REGISTRADA' && x.estatusDependencia === 'PENDIENTE_DATOS_INFRACTOR')
-            case 'PENDIENTE_PAGO_CIUDADANO':
+            case 'PENDIENTE_PAGO_INFRACCION':
                 return data.filter(x => x.estatusInfraccion === 'PENDIENTE_PAGO' && x.estatusDependencia === 'PENDIENTE_PAGO_INFRACCION')
-            case 'PAGADAS':
+            case 'PENDIENTE_DEVOLUCION_GARANTIA':
                 return data.filter(x => x.estatusInfraccion === 'PAGADA' && x.estatusDependencia === 'PENDIENTE_DEVOLUCION_GARANTIA')
             case 'LIBERADO_POR_INFRACCIONES':
                 return data.filter(x => x.estatusInfraccion === 'CERRADA' && x.estatusDependencia === 'LIBERADO_POR_INFRACCIONES')
+            case 'LIBERADA_INFRACCIONES_INSTANTE':
+                return data.filter(x => x.estatusInfraccion === 'CERRADA' && x.estatusDependencia === 'LIBERADA_INFRACCIONES_INSTANTE')
             default:
                 return []
         }
 
     }, [data, filtro])
 
-    console.log(registrosFiltrados)
+    const STATS_KEY: Record<EstatusInfracciones, keyof typeof estadisticas> = {
+        PENDIENTE_DATOS_INFRACTOR: 'pendientes',
+        PENDIENTE_PAGO_INFRACCION: 'pendientePagoCiudadano',
+        PENDIENTE_DEVOLUCION_GARANTIA: 'pagadas',
+        LIBERADO_POR_INFRACCIONES: 'liberadas',
+        LIBERADA_INFRACCIONES_INSTANTE: 'infraccionesPagadasInstante',
+    }
 
     return (
         <>
@@ -192,9 +228,9 @@ export default function InfraccionesDashboard({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     {STATUS_TABS.map(tab => {
-                        const count = estadisticas[tab.key === 'PENDIENTES_DATOS' ? 'pendientes' : tab.key === 'PENDIENTE_PAGO_CIUDADANO' ? 'pendientePagoCiudadano' : tab.key === 'PAGADAS' ? 'pagadas' : 'liberadas']
+                        const count = estadisticas[STATS_KEY[tab.key]]
                         const activo = filtro === tab.key
                         const Icon = tab.icon
 
@@ -342,15 +378,18 @@ export default function InfraccionesDashboard({
                                                 }
 
                                                 if (column.key === 'estatus') {
+
                                                     const badgeData = !dataCompleta(row)
-                                                        ? STATUS_BADGE.PENDIENTES_DATOS
-                                                        : esLiberada(row)
-                                                            ? STATUS_BADGE.LIBERADO_POR_INFRACCIONES
-                                                            : isPagada(row)
-                                                                ? STATUS_BADGE.PAGADAS
-                                                                : esPendientePago(row)
-                                                                    ? STATUS_BADGE.PENDIENTE_PAGO_CIUDADANO
-                                                                    : getBadge(row.estatusDependencia)
+                                                        ? STATUS_BADGE.PENDIENTE_DATOS_INFRACTOR
+                                                        : esPagadaInstante(row)
+                                                            ? STATUS_BADGE.LIBERADA_INFRACCIONES_INSTANTE
+                                                            : esLiberada(row)
+                                                                ? STATUS_BADGE.LIBERADO_POR_INFRACCIONES
+                                                                : isPagada(row)
+                                                                    ? STATUS_BADGE.PENDIENTE_DEVOLUCION_GARANTIA
+                                                                    : esPendientePago(row)
+                                                                        ? STATUS_BADGE.PENDIENTE_PAGO_INFRACCION
+                                                                        : getBadge(row.estatusDependencia)
                                                     return (
                                                         <td key={column.key} className="px-4 py-2.5">
                                                             <span
