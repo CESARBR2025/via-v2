@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Clock, RefreshCw, CheckCircle2, AlertCircle, Search, User, DollarSign, Shield, Loader2 } from 'lucide-react'
 import type { DetalleCompleto } from '@/features/compartido/types/detalleInfraccion'
 import CapturarDatosTitularSection from './CapturarDatosTitularSection'
-import EntregarGarantiaButton from './EntregarGarantiaButton'
+import ModalEntregarGarantia from './ModalEntregarGarantia'
 
 const AVATAR_COLORS = [
     { bg: '#EFF6FF', text: '#2563EB' },
@@ -83,7 +83,7 @@ function esLiberada(row: any): boolean {
 }
 
 function esPendientePago(row: any): boolean {
-    return row.estatusDependencia === 'PENDIENTE_PAGO_INFRACCION'
+    return row.estatusInfraccion === 'PENDIENTE_PAGO' && row.estatusDependencia === 'PENDIENTE_PAGO_INFRACCION'
 }
 
 function necesitaCapturaDatos(row: any): boolean {
@@ -436,29 +436,13 @@ export default function InfraccionesDashboard({
                 <div
                     className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6"
                     style={{ background: 'rgba(15, 23, 42, 0.72)', backdropFilter: 'blur(6px)' }}
-                    onClick={() => setDevolucionGarantiaDetalle(null)}
+                    onClick={() => setDevolucionGarantiaDetalle(null)} // ✅ click en backdrop cierra
                 >
-                    <div
-                        className="w-full max-w-lg rounded-2xl border overflow-hidden"
-                        style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 25px 60px rgba(15,23,42,0.25), 0 0 0 1px rgba(226,232,240,0.5)' }}
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <div className="flex items-center justify-end px-4 pt-4">
-                            <button
-                                onClick={() => setDevolucionGarantiaDetalle(null)}
-                                className="w-7 h-7 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#64748B] transition-colors"
-                                style={{ background: '#F1F5F9' }}
-                            >
-                                ✕
-                            </button>
-                        </div>
-                        <div className="px-4 pb-4">
-                            <EntregarGarantiaButton
-                                detalle={devolucionGarantiaDetalle}
-                                onSuccess={handleDevolucionGarantiaSuccess}
-                            />
-                        </div>
-                    </div>
+                    <ModalEntregarGarantia
+                        detalle={devolucionGarantiaDetalle}
+                        onSuccess={handleDevolucionGarantiaSuccess}
+                        onClose={() => setDevolucionGarantiaDetalle(null)} // ✅ X y Cancelar cierran
+                    />
                 </div>
             )}
 
