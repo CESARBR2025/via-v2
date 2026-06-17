@@ -10,6 +10,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/oficiales/captura": "Capturar Infracción",
   "/oficiales/capturar": "Capturar Infracción",
   "/oficiales/realizadas": "Infracciones Realizadas",
+  "/oficiales/perfil": "Mi Perfil",
   "/depInfracciones/dashboard": "Consultar Infracciones",
   "/dashboard": "Dashboard",
 };

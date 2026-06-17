@@ -1,11 +1,12 @@
 'use client';
 
-import { useInfraccionStore } from '@/stores/useInfraccionStore';
+import { UserCheck, UserX, BadgeCheck, UserMinus } from 'lucide-react';
 
+import { useInfraccionStore } from '@/stores/useInfraccionStore';
 
 import { Card } from '../ui/Card';
 import { CardTitle } from '../ui/CardTitle';
-import { RadioOption } from '../ui/RadioInput';
+import { SegmentedControl } from '../ui/SegmentedControl';
 
 
 interface Props {
@@ -18,140 +19,101 @@ export default function PasoCiudadano({
     boolError,
 }: Props) {
 
-    //========================
-    // STORE
-    //========================
     const datos =
         useInfraccionStore((s) => s.datos);
 
     const actualizarDatos =
         useInfraccionStore((s) => s.actualizarDatos);
 
+    const presente = datos.estaCiudadanoPresente;
+    const titular = datos.esCiudadanoTitular;
+
     return (
-        <div className="space-y-5">
+        <div className="space-y-6">
 
             {/* ======================== */}
             {/* PRESENCIA */}
             {/* ======================== */}
             <Card>
-
-                <CardTitle>
-                    Presencia del ciudadano
-                </CardTitle>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                    <RadioOption
-                        name="ciudadanoPresente"
-                        value="true"
-                        checked={
-                            datos.estaCiudadanoPresente === true
-                        }
-                        onChange={() => {
-
-                            actualizarDatos({
-                                estaCiudadanoPresente: true,
-                                esCiudadanoTitular: null,
-                            });
-
-                        }}
-                        label="Ciudadano presente"
-                        description="El infractor se encuentra en el lugar"
-                        disabled={loading}
-                        error={boolError(
-                            datos.estaCiudadanoPresente
-                        )}
-                    />
-
-                    <RadioOption
-                        name="ciudadanoPresente"
-                        value="false"
-                        checked={
-                            datos.estaCiudadanoPresente === false
-                        }
-                        onChange={() => {
-
-                            actualizarDatos({
-                                estaCiudadanoPresente: false,
-                                esCiudadanoTitular: null,
-                            });
-
-                        }}
-                        label="Ciudadano ausente"
-                        description="El infractor no está disponible"
-                        disabled={loading}
-                        error={boolError(
-                            datos.estaCiudadanoPresente
-                        )}
-                    />
-
+                <div className="flex items-center justify-between mb-4">
+                    <CardTitle>
+                        Presencia del ciudadano
+                    </CardTitle>
                 </div>
 
+                <SegmentedControl
+                    options={[
+                        { value: 'true', label: 'Presente', icon: UserCheck },
+                        { value: 'false', label: 'Ausente', icon: UserX },
+                    ]}
+                    value={presente === null ? null : String(presente)}
+                    onChange={(val) => {
+                        actualizarDatos({
+                            estaCiudadanoPresente: val === 'true',
+                            esCiudadanoTitular: val === 'true' ? titular : null,
+                        });
+                    }}
+                    disabled={loading}
+                    error={boolError(presente)}
+                />
+
+                {presente !== null && (
+                    <p className={`text-xs mt-3 pl-0.5 ${presente ? 'text-[#16A34A]' : 'text-[#64748B]'}`}>
+                        {presente
+                            ? 'El conductor se encuentra en el lugar de la infracción'
+                            : 'La infracción se registrará sin la presencia del conductor'
+                        }
+                    </p>
+                )}
+
+                {boolError(presente) && (
+                    <p className="text-xs text-[#EF4444] mt-2">
+                        Selecciona si el ciudadano está presente o ausente
+                    </p>
+                )}
             </Card>
 
             {/* ======================== */}
             {/* TITULARIDAD */}
             {/* ======================== */}
-            {datos.estaCiudadanoPresente && (
+            {presente && (
 
                 <Card>
-
-                    <CardTitle>
-                        Titularidad del vehículo
-                    </CardTitle>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                        <RadioOption
-                            error={boolError(
-                                datos.esCiudadanoTitular
-                            )}
-                            name="esCiudadanoTitular"
-                            value="true"
-                            checked={
-                                datos.esCiudadanoTitular === true
-                            }
-                            onChange={() =>
-                                actualizarDatos({
-                                    esCiudadanoTitular: true,
-                                })
-                            }
-                            label="Es el titular"
-                            description="El ciudadano es dueño registrado del vehículo"
-                            disabled={loading}
-                        />
-
-                        <RadioOption
-                            name="esCiudadanoTitular"
-                            value="false"
-                            error={boolError(
-                                datos.esCiudadanoTitular
-                            )}
-                            checked={
-                                datos.esCiudadanoTitular === false
-                            }
-                            onChange={() =>
-                                actualizarDatos({
-                                    esCiudadanoTitular: false,
-                                })
-                            }
-                            label="No es el titular"
-                            description="El ciudadano conduce un vehículo ajeno"
-                            disabled={loading}
-                        />
-
+                    <div className="flex items-center justify-between mb-4">
+                        <CardTitle>
+                            Titularidad del vehículo
+                        </CardTitle>
                     </div>
 
-                    {boolError(
-                        datos.esCiudadanoTitular
-                    ) && (
-                            <p className="text-xs text-[#EF4444] mt-3">
+                    <SegmentedControl
+                        options={[
+                            { value: 'true', label: 'Es titular', icon: BadgeCheck },
+                            { value: 'false', label: 'No es titular', icon: UserMinus },
+                        ]}
+                        value={titular === null ? null : String(titular)}
+                        onChange={(val) =>
+                            actualizarDatos({
+                                esCiudadanoTitular: val === 'true',
+                            })
+                        }
+                        disabled={loading}
+                        error={boolError(titular)}
+                    />
 
-                                Indica si el ciudadano es titular del vehículo
+                    {titular !== null && (
+                        <p className={`text-xs mt-3 pl-0.5 ${titular ? 'text-[#16A34A]' : 'text-[#64748B]'}`}>
+                            {titular
+                                ? 'El ciudadano es el propietario registrado del vehículo'
+                                : 'El ciudadano conduce un vehículo que no está a su nombre'
+                            }
+                        </p>
+                    )}
 
-                            </p>
-                        )}
-
+                    {boolError(titular) && (
+                        <p className="text-xs text-[#EF4444] mt-2">
+                            Indica si el ciudadano es titular del vehículo
+                        </p>
+                    )}
                 </Card>
 
             )}

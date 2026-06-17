@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 
-import { X } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { X, LogOut, ChevronUp } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 
 import SidebarItem from "./SideBarItem";
 
@@ -15,14 +15,27 @@ import { useSidebarStore }
     from "@/stores/sideBarStore";
 
 import { UserRole } from "../config/types";
+import { useAuthStore } from "@/stores/useAuthStore";
+import LoaderOverlay from "@/features/auth/components/LoaderOverlay";
 
 type Props = {
     role: UserRole;
+    userName?: string;
+    userRole?: string;
 };
 
 export default function MobileSidebar({
     role,
+    userName,
+    userRole,
 }: Props) {
+    const router = useRouter();
+    const logout = useAuthStore((s) => s.logout);
+    const [loggingOut, setLoggingOut] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const userMenuRef = useRef<HTMLDivElement>(null);
+
+    const firstName = userName?.split(" ")[0] || userName || "";
 
     const pathname = usePathname();
 
@@ -34,9 +47,32 @@ export default function MobileSidebar({
     const navigation =
         navigationByRole[role] || [];
 
+    const handleLogout = async () => {
+        setLoggingOut(true);
+        try {
+            await fetch("/api/auth/logout", { method: "POST" });
+        } finally {
+            logout();
+            router.replace("/login");
+        }
+    };
+
     useEffect(() => {
         closeMobile();
+        setUserMenuOpen(false);
     }, [pathname]);
+
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+                setUserMenuOpen(false);
+            }
+        }
+        if (userMenuOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [userMenuOpen]);
 
     useEffect(() => {
         if (mobileOpen) {
@@ -124,7 +160,7 @@ export default function MobileSidebar({
                             <p className="
                                 px-3 mb-2
                                 text-[10px] font-semibold tracking-[0.12em] uppercase
-                                text-[#64748B]
+                                text-[#94A3B8]
                             ">
                                 {section.title}
                             </p>
@@ -137,6 +173,74 @@ export default function MobileSidebar({
                         </div>
                     ))}
                 </nav>
+
+                {/* FOOTER */}
+
+                <div className="pt-4 mt-auto border-t border-[#E2E8F0]">
+                    {userName && (
+                        <div className="relative" ref={userMenuRef}>
+                            <button
+                                onClick={() => setUserMenuOpen((prev) => !prev)}
+                                className={`
+                                    w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 text-left
+                                    ${userMenuOpen ? "bg-[#EFF6FF]" : "hover:bg-[#F8FAFC]"}
+                                `}
+                            >
+                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shrink-0">
+                                    <span className="text-[10px] font-bold text-white">
+                                        {userName.charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-[12px] font-semibold text-[#0F172A] truncate leading-tight">
+                                        {firstName}
+                                    </p>
+                                    {userRole && (
+                                        <span className="text-[9px] font-medium text-[#2563EB] bg-[#EFF6FF] px-1.5 py-0.5 rounded-full inline-block mt-0.5 leading-tight">
+                                            {userRole}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <ChevronUp
+                                    size={14}
+                                    strokeWidth={2}
+                                    className={`shrink-0 text-[#94A3B8] transition-transform duration-200 ${userMenuOpen ? "rotate-0" : "rotate-180"}`}
+                                />
+                            </button>
+
+                            {userMenuOpen && (
+                                <div className="absolute bottom-full mb-2 left-0 right-0 bg-[#FFFFFF] border border-[#E2E8F0] shadow-[0_4px_12px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)] rounded-xl p-2 z-50 animate-fadeIn">
+                                    <button
+                                        onClick={handleLogout}
+                                        className="
+                                            w-full flex items-center gap-3
+                                            h-10 px-3.5 rounded-xl
+                                            bg-[#FEF2F2] text-[#DC2626]
+                                            hover:bg-[#FEE2E2] active:bg-[#FECACA]
+                                            transition-all duration-200
+                                            font-semibold text-[13px]
+                                            group
+                                        "
+                                    >
+                                        <div className="w-7 h-7 rounded-lg bg-[#FEE2E2] flex items-center justify-center shrink-0 transition-colors group-hover:bg-white">
+                                            <LogOut size={14} strokeWidth={2} className="text-[#DC2626]" />
+                                        </div>
+                                        <div className="flex-1 text-left">
+                                            <span className="block leading-tight">Cerrar sesión</span>
+                                            <span className="block text-[10px] font-normal text-[#94A3B8] leading-tight mt-0.5">
+                                                Salir del sistema
+                                            </span>
+                                        </div>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <LoaderOverlay show={loggingOut} text="Saliendo del sistema..." />
 
             </aside>
         </>

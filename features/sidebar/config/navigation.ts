@@ -1,4 +1,4 @@
-import { Home, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown, User, LayoutDashboard } from "lucide-react";
+import { FilePlus, ClipboardCheck, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown, User, LayoutDashboard } from "lucide-react";
 
 import { UserRole } from "./types";
 
@@ -72,12 +72,12 @@ export const navigationByRole: Record<UserRole, any[]> = {
         {
           label: "Capturar",
           href: "/oficiales/captura",
-          icon: Home,
+          icon: FilePlus,
         },
         {
           label: "Realizadas",
           href: "/oficiales/realizadas",
-          icon: Home,
+          icon: ClipboardCheck,
         },
       ],
     },

@@ -1,5 +1,5 @@
-export function getBadgeStyles(estatus: string) {
-  switch (estatus.toUpperCase()) {
+export function getBadgeStyles(estatus?: string | null) {
+  switch ((estatus ?? "").toUpperCase()) {
     case "PAGADA":
       return { bg: "bg-[#DCFCE7]", text: "text-[#166534]" };
     case "PENDIENTE":

@@ -11,7 +11,7 @@ const LIBRARIES: ("places")[] = ["places"];
 
 const containerStyle = {
     width: "100%",
-    height: "280px",
+    height: "100%",
     borderRadius: "12px",
 };
 
@@ -247,14 +247,14 @@ export function MapaDireccionRegistro({ onAddressChange }: MapaDireccionRegistro
 
     if (!isLoaded) {
         return (
-            <div className="w-full h-[280px] rounded-xl bg-[#F1F5F9] animate-pulse flex items-center justify-center">
+            <div className="w-full h-full rounded-xl bg-[#F1F5F9] animate-pulse flex items-center justify-center">
                 <span className="text-[11px] font-medium text-[#94A3B8]">Cargando mapa…</span>
             </div>
         );
     }
 
     return (
-        <div className="relative w-full h-[280px] overflow-hidden rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
+        <div className="relative w-full h-full overflow-hidden rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
             <GoogleMap
                 mapContainerStyle={containerStyle}
                 center={center}
