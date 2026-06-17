@@ -73,12 +73,10 @@ function isNoData(v: string | null | undefined): boolean {
 }
 
 function dataCompleta(row: any): boolean {
-    if (row.estatusInfraccion === 'CERRADA' && row.estatusDependencia === 'LIBERADA_INFRACCIONES_INSTANTE') {
+    if (row.estatusInfraccion === 'REGISTRADA' && row.estatusDependencia === 'PENDIENTE_DATOS_INFRACTOR') {
         return !isNoData(row.nombre_infractor)
     }
-    const nombre = row.nombre_infractor ?? ''
-    const titular = row.nombre_titular_liberacion ?? ''
-    return !isNoData(nombre) && !isNoData(titular)
+    return true
 }
 
 function isPagada(row: any): boolean {
@@ -118,6 +116,7 @@ export default function InfraccionesDashboard({
     const [capturarDatosLoading, setCapturarDatosLoading] = useState(false)
     const [devolucionGarantiaDetalle, setDevolucionGarantiaDetalle] = useState<DetalleCompleto | null>(null)
     const [devolucionGarantiaLoading, setDevolucionGarantiaLoading] = useState(false)
+    const [busqueda, setBusqueda] = useState('')
 
     async function handleCapturarDatos(id: string) {
         setCapturarDatosDetalle(null)
@@ -203,6 +202,14 @@ export default function InfraccionesDashboard({
         }
 
     }, [data, filtro])
+
+    const busquedaLower = busqueda.toLowerCase().trim()
+    const registrosVisibles = busqueda
+        ? registrosFiltrados.filter(row => {
+            const folio = String(row.folio ?? '').toLowerCase()
+            return folio.includes(busquedaLower)
+        })
+        : registrosFiltrados
 
     const STATS_KEY: Record<EstatusInfracciones, keyof typeof estadisticas> = {
         PENDIENTE_DATOS_INFRACTOR: 'pendientes',
@@ -308,8 +315,28 @@ export default function InfraccionesDashboard({
                             </h3>
                         </div>
                         <span className="text-[12px] font-medium" style={{ color: '#94A3B8' }}>
-                            {registrosFiltrados.length} registro{registrosFiltrados.length !== 1 ? 's' : ''}
+                            {registrosVisibles.length} registro{registrosVisibles.length !== 1 ? 's' : ''}
                         </span>
+                    </div>
+
+                    {/* Search */}
+                    <div className="px-5 py-2.5 border-b flex items-center gap-2" style={{ borderColor: '#F1F5F9', background: '#FFFFFF' }}>
+                        <Search size={13} strokeWidth={1.8} className="text-[#94A3B8] shrink-0" />
+                        <input
+                            type="text"
+                            value={busqueda}
+                            onChange={e => setBusqueda(e.target.value)}
+                            placeholder="Buscar por folio..."
+                            className="w-full border-none bg-transparent text-[13px] text-[#0F172A] outline-none placeholder:text-[#94A3B8]"
+                        />
+                        {busqueda && (
+                            <button
+                                onClick={() => setBusqueda('')}
+                                className="text-[10px] font-semibold uppercase tracking-wider text-[#2563EB] hover:text-[#1D4ED8] transition-colors"
+                            >
+                                Limpiar
+                            </button>
+                        )}
                     </div>
 
                     <div key={filtro} className="overflow-x-auto">
@@ -328,7 +355,7 @@ export default function InfraccionesDashboard({
                                 </tr>
                             </thead>
                             <tbody>
-                                {registrosFiltrados.length === 0 ? (
+                                {registrosVisibles.length === 0 ? (
                                     <tr>
                                         <td colSpan={visibleColumns.length} className="py-12 text-center">
                                             <div className="flex flex-col items-center gap-2">
@@ -339,7 +366,7 @@ export default function InfraccionesDashboard({
                                         </td>
                                     </tr>
                                 ) : (
-                                    registrosFiltrados.map((row) => (
+                                    registrosVisibles.map((row) => (
                                         <tr
                                             key={row.id}
                                             className="transition-colors hover:bg-[#F8FAFC]"
