@@ -61,7 +61,11 @@ function validarArchivo(file: File | null, nombre: string) {
 // TIPOS VÁLIDOS
 // =====================================================
 
-const TIPOS_LIBERACION = ["INFRACCION", "DELITO", "ACCIDENTE"] as const;
+const TIPOS_LIBERACION = [
+  "LIBERADA_POR_INFRACCION",
+  "LIBERADA_POR_DELITO",
+  "LIBERADA_POR_ACCIDENTE",
+] as const;
 
 type TipoLiberacion = (typeof TIPOS_LIBERACION)[number];
 
@@ -76,7 +80,7 @@ type ArchivoConfig = {
 };
 
 const REQUIRED_FILES: Record<TipoLiberacion, ArchivoConfig[]> = {
-  INFRACCION: [
+  LIBERADA_POR_INFRACCION: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
     {
       campo: "ine_titular",
@@ -94,7 +98,7 @@ const REQUIRED_FILES: Record<TipoLiberacion, ArchivoConfig[]> = {
       label: "Tarjeta de circulación",
     },
   ],
-  DELITO: [
+  LIBERADA_POR_DELITO: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
     {
       campo: "ine_titular",
@@ -102,7 +106,7 @@ const REQUIRED_FILES: Record<TipoLiberacion, ArchivoConfig[]> = {
       label: "INE del titular",
     },
   ],
-  ACCIDENTE: [
+  LIBERADA_POR_ACCIDENTE: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
     {
       campo: "ine_titular",
@@ -187,6 +191,18 @@ export async function POST(req: NextRequest) {
     }
 
     // =====================================================
+    // DATOS DEL TITULAR (cuando no es empresa y no es titular)
+    // =====================================================
+
+    const nombreTitular = (formData.get("nombreTitular") as string) || null;
+    const appaternoTitular =
+      (formData.get("appaternoTitular") as string) || null;
+    const apmaternoTitular =
+      (formData.get("apmaternoTitular") as string) || null;
+    const curpTitular = (formData.get("curpTitular") as string) || null;
+    const correoTitular = (formData.get("correoTitular") as string) || null;
+
+    // =====================================================
     // COLECTAR ARCHIVOS
     // =====================================================
 
@@ -205,6 +221,17 @@ export async function POST(req: NextRequest) {
         const file = formData.get(f.formKey) as File | null;
         archivos.push({ ...f, file });
       }
+    }
+
+    // Carta poder (cuando el infractor no es el titular)
+    const cartaPoderFile = formData.get("archivoCartaPoder") as File | null;
+    if (cartaPoderFile) {
+      archivos.push({
+        campo: "carta_poder",
+        formKey: "archivoCartaPoder",
+        label: "Carta poder",
+        file: cartaPoderFile,
+      });
     }
 
     // =====================================================
@@ -321,14 +348,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Actualizar estatus de la infracción
+    // Actualizar estatus de la infracción y datos del titular
     await client.query(
       `
       UPDATE v2_infracciones
-      SET estatus_dependencia = 'ESPERA_REVISION', updated_at = CURRENT_TIMESTAMP
+      SET estatus_dependencia = 'ESPERA_REVISION',
+          nombre_titular_liberacion = COALESCE($2, nombre_titular_liberacion),
+          appaterno_titular_liberacion = COALESCE($3, appaterno_titular_liberacion),
+          apmaterno_titular_liberacion = COALESCE($4, apmaterno_titular_liberacion),
+          curp_titular_liberacion = COALESCE($5, curp_titular_liberacion),
+          correo_titular_liberacion = COALESCE($6, correo_titular_liberacion),
+          updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       `,
-      [idInfraccion],
+      [
+        idInfraccion,
+        nombreTitular,
+        appaternoTitular,
+        apmaternoTitular,
+        curpTitular,
+        correoTitular,
+      ],
     );
 
     await client.query("COMMIT");

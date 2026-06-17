@@ -126,6 +126,7 @@ export default async function InfraccionCiudadanoPage({
                     motivoRetencion={infraccion.motivoRetencion}
                     infraccionId={infraccion.id}
                     documentosLiberacion={infraccion.documentosLiberacion || {}}
+                    esTitular={infraccion.esTitular}
                 />
 
                 {/* GRID */}

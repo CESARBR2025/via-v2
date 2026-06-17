@@ -79,6 +79,7 @@ type Props = {
     motivoRetencion: string | null;
     infraccionId: string;
     documentosLiberacion: Record<string, { url: string; label: string }>;
+    esTitular: boolean | null;
 };
 
 function getEstatusConfig(estatus: string) {
@@ -143,6 +144,7 @@ export default function SeccionLiberacion({
     motivoRetencion,
     infraccionId,
     documentosLiberacion,
+    esTitular,
 }: Props) {
 
     const [selectedType, setSelectedType] = useState<'empresa' | 'titular' | null>(null);
@@ -155,6 +157,11 @@ export default function SeccionLiberacion({
     const [nombreRespFiscal, setNombreRespFiscal] = useState('');
     const [apPaternoRespFiscal, setApPaternoRespFiscal] = useState('');
     const [apMaternoRespFiscal, setApMaternoRespFiscal] = useState('');
+    const [titularNombre, setTitularNombre] = useState('');
+    const [titularAppaterno, setTitularAppaterno] = useState('');
+    const [titularApmaterno, setTitularApmaterno] = useState('');
+    const [titularCurp, setTitularCurp] = useState('');
+    const [titularCorreo, setTitularCorreo] = useState('');
     const [revisionStatuses, setRevisionStatuses] = useState<Record<string, { estatus: string | null; observaciones: string | null }>>({});
     const [loadingStatus, setLoadingStatus] = useState(false);
     const [reuploadFiles, setReuploadFiles] = useState<Record<string, File>>({});
@@ -184,10 +191,16 @@ export default function SeccionLiberacion({
 
     const motivoSubtipo = motivoRetencion ? MOTIVO_TO_SUBTIPO[motivoRetencion] : undefined;
 
+    const CARTA_PODER: DocConfig = { id: 'carta_poder', label: 'Carta poder', formKey: 'archivoCartaPoder' };
+
     const currentDocs: DocConfig[] = (() => {
         if (selectedType === 'empresa') return DOCS_EMPRESA;
         if (selectedType === 'titular' && motivoSubtipo) {
-            return SUBTIPOS_TITULAR[motivoSubtipo].docs;
+            const docs = [...SUBTIPOS_TITULAR[motivoSubtipo].docs];
+            if (esTitular === false) {
+                docs.push(CARTA_PODER);
+            }
+            return docs;
         }
         return [];
     })();
@@ -232,6 +245,21 @@ export default function SeccionLiberacion({
             return;
         }
 
+        if (selectedType === 'titular' && esTitular === false) {
+            if (!titularNombre.trim()) {
+                setError('El nombre del titular es requerido');
+                return;
+            }
+            if (!titularAppaterno.trim()) {
+                setError('El apellido paterno del titular es requerido');
+                return;
+            }
+            if (!titularCurp.trim()) {
+                setError('La CURP del titular es requerida');
+                return;
+            }
+        }
+
         setSubmitting(true);
         setError(null);
 
@@ -247,6 +275,14 @@ export default function SeccionLiberacion({
                 formData.append('nombreRespFiscal', nombreRespFiscal.trim());
                 formData.append('apPaternoRespFiscal', apPaternoRespFiscal.trim());
                 formData.append('apMaternoRespFiscal', apMaternoRespFiscal.trim());
+            }
+
+            if (selectedType === 'titular' && esTitular === false) {
+                formData.append('nombreTitular', titularNombre.trim());
+                formData.append('appaternoTitular', titularAppaterno.trim());
+                formData.append('apmaternoTitular', titularApmaterno.trim());
+                formData.append('curpTitular', titularCurp.trim());
+                formData.append('correoTitular', titularCorreo.trim());
             }
 
             for (const doc of currentDocs) {
@@ -420,6 +456,11 @@ export default function SeccionLiberacion({
                                     onClick={() => {
                                         setSelectedType('empresa');
                                         setSelectedFiles({});
+                                        setTitularNombre('');
+                                        setTitularAppaterno('');
+                                        setTitularApmaterno('');
+                                        setTitularCurp('');
+                                        setTitularCorreo('');
                                         setError(null);
                                     }}
                                     label="Empresa"
@@ -431,6 +472,11 @@ export default function SeccionLiberacion({
                                     onClick={() => {
                                         setSelectedType('titular');
                                         setSelectedFiles({});
+                                        setTitularNombre('');
+                                        setTitularAppaterno('');
+                                        setTitularApmaterno('');
+                                        setTitularCurp('');
+                                        setTitularCorreo('');
                                         setError(null);
                                     }}
                                     label="Titular"
@@ -450,6 +496,83 @@ export default function SeccionLiberacion({
                                     <p className="text-sm font-semibold text-[#0F172A]">
                                         {subtipoLabel || 'No determinado'}
                                     </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* DATOS DEL TITULAR (cuando no es el mismo infractor) */}
+                        {selectedType === 'titular' && esTitular === false && (
+                            <div className="space-y-4">
+                                <div className="border-t border-[#E2E8F0] pt-4">
+                                    <p className="text-sm font-semibold text-[#0F172A] mb-3">
+                                        Datos del titular
+                                    </p>
+                                    <p className="text-xs text-[#64748B] mb-4">
+                                        El infractor no es el titular del vehículo. Capture los datos del propietario.
+                                    </p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                                Nombre(s) <span className="text-red-400">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={titularNombre}
+                                                onChange={e => setTitularNombre(e.target.value)}
+                                                placeholder="Nombre(s)"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                                A. Paterno <span className="text-red-400">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={titularAppaterno}
+                                                onChange={e => setTitularAppaterno(e.target.value)}
+                                                placeholder="Apellido paterno"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                                A. Materno
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={titularApmaterno}
+                                                onChange={e => setTitularApmaterno(e.target.value)}
+                                                placeholder="Apellido materno"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="mt-4">
+                                        <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            CURP <span className="text-red-400">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={titularCurp}
+                                            onChange={e => setTitularCurp(e.target.value)}
+                                            placeholder="CURP del titular"
+                                            maxLength={18}
+                                            className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                        />
+                                    </div>
+                                    <div className="mt-4">
+                                        <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            Correo electrónico
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={titularCorreo}
+                                            onChange={e => setTitularCorreo(e.target.value)}
+                                            placeholder="correo@ejemplo.com"
+                                            className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         )}

@@ -4,7 +4,14 @@ import { POOL_PG as db } from "@/lib/db";
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, nombre_infractor, apellido_paterno_infractor, apellido_materno_infractor, correo_infractor, es_titular } = body;
+    const {
+      id,
+      nombre_infractor,
+      apellido_paterno_infractor,
+      apellido_materno_infractor,
+      correo_infractor,
+      es_titular,
+    } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -20,10 +27,10 @@ export async function PATCH(request: Request) {
           apellido_materno_infractor = COALESCE($4, apellido_materno_infractor),
           correo_infractor = COALESCE($5, correo_infractor),
           es_titular = $6,
-          nombre_titular_liberacion = CASE WHEN $6 = true THEN $2 ELSE 'dato no proporcionado' END,
-          appaterno_titular_liberacion = CASE WHEN $6 = true THEN $3 ELSE 'dato no proporcionado' END,
-          apmaterno_titular_liberacion = CASE WHEN $6 = true THEN $4 ELSE 'dato no proporcionado' END,
-          correo_titular_liberacion = CASE WHEN $6 = true THEN $5 ELSE 'dato no proporcionado' END,
+          nombre_titular_liberacion = CASE WHEN $6 = true THEN $2 ELSE 'NO_DATA' END,
+          appaterno_titular_liberacion = CASE WHEN $6 = true THEN $3 ELSE 'NO_DATA' END,
+          apmaterno_titular_liberacion = CASE WHEN $6 = true THEN $4 ELSE 'NO_DATA' END,
+          correo_titular_liberacion = CASE WHEN $6 = true THEN $5 ELSE 'NO_DATA' END,
           estatus = 'REGISTRADA',
           estatus_dependencia = 'MESA_DE_CONTROL_PENDIENTE_DOCS',
           updated_at = NOW()
@@ -48,17 +55,21 @@ export async function PATCH(request: Request) {
     }
 
     const infraccion = resultado.rows[0];
-    const nombreUsuario = `${nombre_infractor || ''} ${apellido_paterno_infractor || ''}`.trim();
-    const correoDestino = correo_infractor || '';
+    const nombreUsuario =
+      `${nombre_infractor || ""} ${apellido_paterno_infractor || ""}`.trim();
+    const correoDestino = correo_infractor || "";
 
     if (correoDestino) {
-      const { enviarCorreoCapturaInfractor } = await import("@/features/emails/server");
+      const { enviarCorreoCapturaInfractor } =
+        await import("@/features/emails/server");
       enviarCorreoCapturaInfractor({
         idInfraccion: infraccion.id,
         correoInfractor: correoDestino,
         nombreInfractor: nombreUsuario,
         folio: infraccion.folio,
-      }).catch(e => console.error("Error enviando correo captura infractor:", e));
+      }).catch((e) =>
+        console.error("Error enviando correo captura infractor:", e),
+      );
     }
 
     return NextResponse.json(
