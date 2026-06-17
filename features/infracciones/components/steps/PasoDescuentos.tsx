@@ -6,7 +6,7 @@ import { useInfraccionStore } from '@/stores/useInfraccionStore';
 
 import { Card } from '../ui/Card';
 import { CardTitle } from '../ui/CardTitle';
-import { RadioOption } from '../ui/RadioInput';
+import { SegmentedControl } from '../ui/SegmentedControl';
 import {
     Upload,
     FileText,
@@ -17,6 +17,10 @@ import {
     Percent,
     Calendar,
     Clock,
+    UserCheck,
+    UserX,
+    BadgeCheck,
+    Ban,
 } from 'lucide-react';
 
 interface Props {
@@ -72,68 +76,65 @@ export default function PasoDecuentos({ loading, boolError }: Props) {
         <div className="space-y-5">
             <Card>
                 <CardTitle>¿El ciudadano es adulto mayor?</CardTitle>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <RadioOption
-                        name="esCiudadanoAdultoMayor"
-                        value="true"
-                        checked={datos.esCiudadanoAdultoMayor === true}
-                        onChange={() =>
-                            actualizarDatos({ esCiudadanoAdultoMayor: true })
-                        }
-                        label="Sí es adulto mayor"
-                        description="El ciudadano aplica para validación INAPAM"
-                        disabled={loading}
-                        error={boolError(datos.esCiudadanoAdultoMayor)}
-                    />
-                    <RadioOption
-                        name="esCiudadanoAdultoMayor"
-                        value="false"
-                        checked={datos.esCiudadanoAdultoMayor === false}
-                        onChange={() =>
+                <SegmentedControl
+                    options={[
+                        { value: 'true', label: 'Sí, es adulto mayor', icon: UserCheck },
+                        { value: 'false', label: 'No, no es adulto mayor', icon: UserX },
+                    ]}
+                    value={datos.esCiudadanoAdultoMayor === null ? null : String(datos.esCiudadanoAdultoMayor)}
+                    onChange={(val) => {
+                        if (val === 'true') {
+                            actualizarDatos({ esCiudadanoAdultoMayor: true });
+                        } else {
                             actualizarDatos({
                                 esCiudadanoAdultoMayor: false,
                                 presentaInapam: false,
-                            })
+                            });
                         }
-                        label="No es adulto mayor"
-                        description="Se aplicará descuento regular"
-                        disabled={loading}
-                        error={boolError(datos.esCiudadanoAdultoMayor)}
-                    />
-                </div>
+                    }}
+                    disabled={loading}
+                    error={boolError(datos.esCiudadanoAdultoMayor)}
+                />
+                {datos.esCiudadanoAdultoMayor !== null && (
+                    <p className={`text-xs mt-3 pl-0.5 ${datos.esCiudadanoAdultoMayor ? 'text-[#16A34A]' : 'text-[#64748B]'}`}>
+                        {datos.esCiudadanoAdultoMayor
+                            ? 'El ciudadano aplica para validación INAPAM y descuento del 70%'
+                            : 'Se aplicará descuento regular del 50%'
+                        }
+                    </p>
+                )}
+                {boolError(datos.esCiudadanoAdultoMayor) && (
+                    <p className="text-xs text-[#EF4444] mt-2">
+                        Indica si el ciudadano es adulto mayor
+                    </p>
+                )}
             </Card>
 
             {datos.esCiudadanoAdultoMayor && (
                 <Card>
                     <CardTitle>¿Presenta credencial INAPAM?</CardTitle>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <RadioOption
-                            error={boolError(datos.presentaInapam)}
-                            name="presentaInapam"
-                            value="true"
-                            checked={datos.presentaInapam === true}
-                            onChange={() =>
-                                actualizarDatos({ presentaInapam: true })
+                    <SegmentedControl
+                        options={[
+                            { value: 'true', label: 'Sí presenta', icon: BadgeCheck },
+                            { value: 'false', label: 'No presenta', icon: Ban },
+                        ]}
+                        value={datos.presentaInapam === null ? null : String(datos.presentaInapam)}
+                        onChange={(val) =>
+                            actualizarDatos({ presentaInapam: val === 'true' })
+                        }
+                        disabled={loading}
+                        error={boolError(datos.presentaInapam)}
+                    />
+                    {datos.presentaInapam !== null && (
+                        <p className={`text-xs mt-3 pl-0.5 ${datos.presentaInapam ? 'text-[#16A34A]' : 'text-[#64748B]'}`}>
+                            {datos.presentaInapam
+                                ? 'Se solicitarán fotografías del INE y de la credencial INAPAM'
+                                : 'Solo se solicitará fotografía del INE como identificación'
                             }
-                            label="Sí presenta"
-                            description="Se solicitará INE e INAPAM"
-                            disabled={loading}
-                        />
-                        <RadioOption
-                            name="presentaInapam"
-                            value="false"
-                            error={boolError(datos.presentaInapam)}
-                            checked={datos.presentaInapam === false}
-                            onChange={() =>
-                                actualizarDatos({ presentaInapam: false })
-                            }
-                            label="No presenta"
-                            description="Solo se solicitará INE"
-                            disabled={loading}
-                        />
-                    </div>
+                        </p>
+                    )}
                     {boolError(datos.presentaInapam) && (
-                        <p className="text-xs text-red-500 mt-3">
+                        <p className="text-xs text-[#EF4444] mt-2">
                             Indica si el ciudadano presenta credencial INAPAM
                         </p>
                     )}

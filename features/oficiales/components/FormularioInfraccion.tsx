@@ -171,6 +171,11 @@ export default function FormularioInfraccion() {
         folio: string;
     } | null>(null);
 
+    const [ordenPago, setOrdenPago] = useState<{
+        totalPesos: string;
+        totalUmas: string;
+    } | null>(null);
+
     const [ausenteCompletado, setAusenteCompletado] = useState<{
         id: number;
         folio: string;
@@ -525,6 +530,7 @@ export default function FormularioInfraccion() {
                         verificarPago={verificarPago}
                         onFinalizarSinPago={handleFinalizarSinPago}
                         loading={loading}
+                        ordenPago={ordenPago}
                     />
                 ),
             },
@@ -890,6 +896,10 @@ export default function FormularioInfraccion() {
 
 
 
+                setOrdenPago({
+                    totalPesos: orden.data.total_pesos,
+                    totalUmas: orden.data.total_umas,
+                });
             } catch (error) {
                 logError('GENERACIÓN ORDEN DE PAGO', error);
                 setModalState('error');
