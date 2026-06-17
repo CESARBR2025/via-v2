@@ -1,9 +1,20 @@
 'use client';
 
 import { FileText } from 'lucide-react';
-import { AddressData } from './MapaSelector';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useOnlineStatus } from '@/lib/online';
+
+interface AddressData {
+    latitud?: number;
+    longitud?: number;
+    calle?: string;
+    numero?: string;
+    colonia?: string;
+    codigoPostal?: string;
+    municipio?: string;
+    estado?: string;
+    direccionCompleta?: string;
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // IMPORTS - Pasos del Formulario
@@ -65,9 +76,6 @@ export default function FormularioInfraccion() {
 
     const [success, setSuccess] = useState<string | null | boolean>(null);
     const [error, setError] = useState<string | null>(null);
-    const [latInicial, setLatInicial] = useState<number | null>(null);
-    const [lngInicial, setLngInicial] = useState<number | null>(null);
-    const [, setPrecision] = useState(0);
     const [intentoAvanzar, setIntentoAvanzar] = useState(false);
     const [validationError, setValidationError] = useState<string | null>(null);
     const stepScrollRef = useRef<HTMLDivElement>(null);
@@ -89,7 +97,6 @@ export default function FormularioInfraccion() {
         codigoPostal: '',
         municipio: '',
         estado: '',
-        pais: '',
         direccionCompleta: '',
     });
 
@@ -313,37 +320,6 @@ export default function FormularioInfraccion() {
         setMounted(true);
     }, []);
 
-    useEffect(() => {
-        try {
-            if (!navigator.geolocation) {
-                console.error('Geolocalización no soportada');
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-
-                    setLatInicial(pos.coords.latitude);
-                    setLngInicial(pos.coords.longitude);
-                    setPrecision(pos.coords.accuracy);
-                },
-                (err) => {
-                    console.error('Error geolocalización', {
-                        code: err.code,
-                        message: err.message,
-                    });
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0,
-                }
-            );
-        } catch (error) {
-            console.error('Error inesperado:', error);
-        }
-    }, []);
-
     // Cargar catálogo de artículos/infracciones desde API
     useEffect(() => {
         fetch('/api/legalidad/articulos')
@@ -420,8 +396,6 @@ export default function FormularioInfraccion() {
                 component: (
                     <PasoUbicacion
                         key="ubicacion"
-                        latInicial={latInicial}
-                        lngInicial={lngInicial}
                         setDireccion={setDireccion}
                     />
                 ),
@@ -559,8 +533,6 @@ export default function FormularioInfraccion() {
         datos,
         loading,
         boolError,
-        latInicial,
-        lngInicial,
         fieldError,
         busquedaMarca,
         setBusquedaMarca,

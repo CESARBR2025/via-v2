@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import CardTable from '@/features/sidebar/components/CardTable';
-import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento';
 import { useToastStore } from '@/stores/useToastStore';
 /* ─── INTERFACES ─── */
@@ -574,13 +573,6 @@ export const ModalDetalleInfraccionDtoInfracciones: React.FC<ModalDetalleInfracc
                                                 </svg>
                                             </a>
 
-                                            <div className="rounded-lg overflow-hidden border border-[#A7F3D0]">
-                                                <MapboxLocationPreview
-                                                    lat={latMapa}
-                                                    lng={lngMapa}
-                                                    height="260px"
-                                                />
-                                            </div>
                                         </div>
                                     </Section>
 

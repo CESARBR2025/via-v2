@@ -1,3 +1,9 @@
+// 1. CARGAR VARIABLES DE ENTORNO MANUALMENTE ANTES DE QUE SE INICIALICE EL POOL
+import * as dotenv from "dotenv";
+import * as path from "path";
+
+// Esto busca tu archivo .env.local en la raíz y carga las variables en process.env
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 import { Pool } from "pg";
 
 declare global {

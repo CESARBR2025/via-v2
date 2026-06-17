@@ -13,7 +13,6 @@ import {
     Loader2,
     SearchX,
 } from 'lucide-react';
-import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 
 /* ─── INTERFACES ─── */
 
@@ -396,14 +395,6 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
                                                     </div>
                                                 </div>
                                             )}
-
-                                            <div className="overflow-hidden rounded-xl border border-[#A7F3D0]">
-                                                <MapboxLocationPreview
-                                                    lat={latMapa}
-                                                    lng={lngMapa}
-                                                    height="260px"
-                                                />
-                                            </div>
                                         </div>
                                     </Section>
 

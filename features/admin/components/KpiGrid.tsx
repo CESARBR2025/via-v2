@@ -8,6 +8,9 @@ import {
   Zap,
   Truck,
   DollarSign,
+  CreditCard,
+  TrendingUp,
+  Heart,
 } from "lucide-react"
 
 import { KpiCard } from "./KpiCard"
@@ -36,59 +39,91 @@ const kpiConfig: {
   formatter: (v: unknown) => string
   suffix?: string
 }[] = [
-    {
-      key: "totalInfracciones",
-      title: "Infracciones Generadas",
-      icon: FileText,
-      iconBgColor: "#EFF6FF",
-      iconColor: "#2563EB",
-      formatter: formatNumber,
+  {
+    key: "totalInfracciones",
+    title: "Infracciones Generadas",
+    icon: FileText,
+    iconBgColor: "#EFF6FF",
+    iconColor: "#2563EB",
+    formatter: formatNumber,
+  },
+  {
+    key: "infraccionesPagadas",
+    title: "Infracciones Pagadas",
+    icon: CheckCircle2,
+    iconBgColor: "#DCFCE7",
+    iconColor: "#22C55E",
+    formatter: formatNumber,
+  },
+  {
+    key: "infraccionesPendientes",
+    title: "Pendientes de Pago",
+    icon: Clock,
+    iconBgColor: "#FEF3C7",
+    iconColor: "#F59E0B",
+    formatter: formatNumber,
+  },
+  {
+    key: "pagadasAlInstante",
+    title: "Pagadas al Instante",
+    icon: Zap,
+    iconBgColor: "#EFF6FF",
+    iconColor: "#60A5FA",
+    formatter: formatNumber,
+  },
+  {
+    key: "vehiculosRetenidos",
+    title: "Vehículos Retenidos",
+    icon: Truck,
+    iconBgColor: "#FEE2E2",
+    iconColor: "#EF4444",
+    formatter: formatNumber,
+  },
+  {
+    key: "recaudacionTotal",
+    title: "Recaudación Total",
+    icon: DollarSign,
+    iconBgColor: "#DCFCE7",
+    iconColor: "#16A34A",
+    suffix: "MXN",
+    formatter: (v: unknown) => {
+      if (typeof v !== "number") return "—"
+      return formatCurrency(v)
     },
-    {
-      key: "infraccionesPagadas",
-      title: "Infracciones Pagadas",
-      icon: CheckCircle2,
-      iconBgColor: "#DCFCE7",
-      iconColor: "#22C55E",
-      formatter: formatNumber,
+  },
+  {
+    key: "deudaPendiente",
+    title: "Deuda Pendiente",
+    icon: CreditCard,
+    iconBgColor: "#FEE2E2",
+    iconColor: "#DC2626",
+    suffix: "MXN",
+    formatter: (v: unknown) => {
+      if (typeof v !== "number") return "—"
+      return formatCurrency(v)
     },
-    {
-      key: "infraccionesPendientes",
-      title: "Pendientes de Pago",
-      icon: Clock,
-      iconBgColor: "#FEF3C7",
-      iconColor: "#F59E0B",
-      formatter: formatNumber,
+  },
+  {
+    key: "montoPromedio",
+    title: "Monto Promedio",
+    icon: TrendingUp,
+    iconBgColor: "#EFF6FF",
+    iconColor: "#2563EB",
+    suffix: "MXN",
+    formatter: (v: unknown) => {
+      if (typeof v !== "number") return "—"
+      return formatCurrency(v)
     },
-    {
-      key: "pagadasAlInstante",
-      title: "Pagadas al Instante",
-      icon: Zap,
-      iconBgColor: "#EFF6FF",
-      iconColor: "#60A5FA",
-      formatter: formatNumber,
-    },
-    {
-      key: "vehiculosRetenidos",
-      title: "Vehículos Retenidos",
-      icon: Truck,
-      iconBgColor: "#FEE2E2",
-      iconColor: "#EF4444",
-      formatter: formatNumber,
-    },
-    {
-      key: "recaudacionTotal",
-      title: "Recaudación Total",
-      icon: DollarSign,
-      iconBgColor: "#DCFCE7",
-      iconColor: "#16A34A",
-      suffix: "MXN",
-      formatter: (v: unknown) => {
-        if (typeof v !== "number") return "—"
-        return formatCurrency(v)
-      },
-    },
-  ]
+  },
+  {
+    key: "descuentosInapam",
+    title: "Desc. INAPAM",
+    icon: Heart,
+    iconBgColor: "#FFF7ED",
+    iconColor: "#C2410C",
+    formatter: formatNumber,
+  },
+]
 
 const KPI_KEYS: (keyof KpiData)[] = [
   "totalInfracciones",
@@ -97,6 +132,9 @@ const KPI_KEYS: (keyof KpiData)[] = [
   "pagadasAlInstante",
   "vehiculosRetenidos",
   "recaudacionTotal",
+  "deudaPendiente",
+  "montoPromedio",
+  "descuentosInapam",
 ]
 
 function isValidKpiData(obj: unknown): obj is KpiData {
@@ -128,9 +166,7 @@ export function KpiGrid() {
     fetchKpi()
   }, [])
 
-  console.log(data)
-
-  if (loading) return <SkeletonCard count={6} />
+  if (loading) return <SkeletonCard count={9} />
 
   if (!data) {
     return (

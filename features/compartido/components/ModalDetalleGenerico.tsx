@@ -7,7 +7,6 @@ import {
     Scale, Hash, FileSpreadsheet, CalendarDays, Image, Receipt,
     ScrollText, Eye, Upload, Loader2
 } from 'lucide-react';
-import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento';
 
 
@@ -245,11 +244,6 @@ export default function ModalDetalleGenerico({
                                             </div>
                                             <ExternalLink size={14} className="text-[#0F766E]/50 group-hover:text-[#0F766E] transition-colors shrink-0" />
                                         </a>
-                                        {latOk && lngOk && (
-                                            <div className="rounded-xl overflow-hidden border border-[#CCFBF1]">
-                                                <MapboxLocationPreview lat={Number(detalle.ubicacion.latitud)} lng={Number(detalle.ubicacion.longitud)} height="240px" />
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
 

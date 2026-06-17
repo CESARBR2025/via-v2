@@ -1,4 +1,6 @@
 import { KpiGrid } from "@/features/admin/components/KpiGrid"
+import { FinancialSection } from "@/features/admin/components/FinancialSection"
+import { GeographicSection } from "@/features/admin/components/GeographicSection"
 
 export default function AdminKpisPage() {
   return (
@@ -13,6 +15,14 @@ export default function AdminKpisPage() {
       </div>
 
       <KpiGrid />
+
+      <hr className="border-[#E2E8F0]" />
+
+      <FinancialSection />
+
+      <hr className="border-[#E2E8F0]" />
+
+      <GeographicSection />
     </div>
   )
 }
