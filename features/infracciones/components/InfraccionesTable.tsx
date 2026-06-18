@@ -3,8 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import InfraccionesDashboard from "./InfraccionesDashboard"
-import ModalDetalleInfraccion from "@/features/compartido/components/ModalDetalleInfraccion"
-import type { DetalleCompleto } from "@/features/compartido/types/detalleInfraccion"
+import { DetalleInfraccionModal, type InfraccionDetalle } from "@/features/depInfracciones/components/TablaDevInfracciones/DetalleInfraccionModal"
 
 interface DataRow {
     id: string
@@ -39,7 +38,7 @@ export default function InfraccionesTable({ respuestaServidor }: InfraccionesTab
 
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [detalle, setDetalle] = useState<DetalleCompleto | null>(null)
+    const [detalle, setDetalle] = useState<InfraccionDetalle | null>(null)
 
     async function fetchDetalle(id: string) {
         setLoading(true)
@@ -75,7 +74,7 @@ export default function InfraccionesTable({ respuestaServidor }: InfraccionesTab
                 onOpenDetalle={handleOpenDetalle}
             />
 
-            <ModalDetalleInfraccion
+            <DetalleInfraccionModal
                 isOpen={open}
                 onClose={handleCloseDetalle}
                 loading={loading}
