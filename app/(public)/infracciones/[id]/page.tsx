@@ -18,6 +18,8 @@ import {
     ShieldCheck,
     CreditCard,
     Gavel,
+    BookOpen,
+    List,
 } from 'lucide-react';
 
 // ─── UTILS ───
@@ -314,27 +316,37 @@ export default async function InfraccionCiudadanoPage({
                         <Section icon={Gavel} iconBg="bg-slate-50" iconColor="text-slate-700" title="Fundamento Legal">
                             <div className="space-y-3">
                                 {infraccion.articulo_numero && (
-                                    <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
-                                        <span className="shrink-0 px-2 py-1 rounded-md bg-blue-700 text-white text-[11px] font-medium font-mono leading-none">
-                                            Art. {infraccion.articulo_numero}
-                                        </span>
-                                        {infraccion.articulo_descripcion && (
-                                            <p className="text-sm text-slate-700 leading-snug pt-0.5">
-                                                {infraccion.articulo_descripcion}
-                                            </p>
-                                        )}
+                                    <div className="flex gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                                        <div className="w-9 h-9 rounded-md bg-blue-700/10 flex items-center justify-center shrink-0 self-center">
+                                            <BookOpen size={18} className="text-blue-700" strokeWidth={1.5} />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <span className="inline-block px-2 py-1 rounded-md bg-blue-700 text-white text-[11px] font-medium font-mono leading-none mb-1.5">
+                                                Art. {infraccion.articulo_numero}
+                                            </span>
+                                            {infraccion.articulo_descripcion && (
+                                                <p className="text-sm text-slate-700 leading-snug">
+                                                    {infraccion.articulo_descripcion}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                                 {infraccion.fraccion_numero && (
-                                    <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
-                                        <span className="shrink-0 px-2 py-1 rounded-md bg-slate-600 text-white text-[11px] font-medium font-mono leading-none">
-                                            Frac. {infraccion.fraccion_numero}
-                                        </span>
-                                        {infraccion.fraccion_descripcion && (
-                                            <p className="text-sm text-slate-700 leading-snug pt-0.5">
-                                                {infraccion.fraccion_descripcion}
-                                            </p>
-                                        )}
+                                    <div className="flex gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                                        <div className="w-9 h-9 rounded-md bg-slate-600/10 flex items-center justify-center shrink-0 self-center">
+                                            <List size={18} className="text-slate-600" strokeWidth={1.5} />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <span className="inline-block px-2 py-1 rounded-md bg-slate-600 text-white text-[11px] font-medium font-mono leading-none mb-1.5">
+                                                Frac. {infraccion.fraccion_numero}
+                                            </span>
+                                            {infraccion.fraccion_descripcion && (
+                                                <p className="text-sm text-slate-700 leading-snug">
+                                                    {infraccion.fraccion_descripcion}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -401,6 +413,25 @@ export default async function InfraccionCiudadanoPage({
                             <FieldWithIcon icon={Car} label="Tipo" value={sanitize(infraccion.tipoVehiculo)} />
                             <FieldWithIcon icon={Barcode} label="VIN (Número de serie)" value={sanitize(infraccion.noSerieVehiculo)} />
                         </div>
+
+                        {infraccion.tipoGarantia && (
+                            <>
+                                <div className="h-px bg-slate-200 my-4" />
+                                <div className="flex items-center gap-3 p-3.5 rounded-lg bg-amber-50 border border-amber-200">
+                                    <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center shrink-0">
+                                        <ShieldCheck size={16} className="text-white" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-amber-900">
+                                            {infraccion.garantiaEntregada ? 'Entregada' : 'No entregada'} — {infraccion.tipoGarantia}
+                                        </p>
+                                        <p className="text-xs text-amber-700/70 mt-0.5">
+                                            {infraccion.garantiaEntregada ? 'Documento resguardado en delegación' : 'No se retuvo garantía'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </Section>
                 </Card>
 
@@ -425,27 +456,6 @@ export default async function InfraccionCiudadanoPage({
                         </div>
                     )}
                 </Card>
-
-                {/* ▸ GARANTÍA */}
-                {infraccion.tipoGarantia && (
-                    <Card>
-                        <Section icon={ShieldCheck} iconBg="bg-amber-50" iconColor="text-amber-700" title="Garantía">
-                            <div className="flex items-center gap-3 p-3.5 rounded-lg bg-amber-50 border border-amber-200">
-                                <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center shrink-0">
-                                    <ShieldCheck size={16} className="text-white" strokeWidth={1.5} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-amber-900">
-                                        {infraccion.garantiaEntregada ? 'Entregada' : 'No entregada'} — {infraccion.tipoGarantia}
-                                    </p>
-                                    <p className="text-xs text-amber-700/70 mt-0.5">
-                                        {infraccion.garantiaEntregada ? 'Documento resguardado en delegación' : 'No se retuvo garantía'}
-                                    </p>
-                                </div>
-                            </div>
-                        </Section>
-                    </Card>
-                )}
 
             </div>
         </main>
