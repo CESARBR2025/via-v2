@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, Plus } from "lucide-react";
 
 import { useSidebarStore } from "@/stores/sideBarStore";
 import UserAvatarDropdown from "./UserAvatarDropdown";
@@ -9,6 +9,7 @@ import Breadcrumbs from "./Breadcrumbs";
 import GlobalSearch from "./GlobalSearch";
 
 const PAGE_TITLES: Record<string, string> = {
+  "/oficiales/dashboard": "Dashboard",
   "/oficiales/captura": "Capturar Infracción",
   "/oficiales/capturar": "Capturar Infracción",
   "/oficiales/realizadas": "Infracciones Realizadas",
@@ -28,13 +29,29 @@ const getPageTitle = (path: string): string => {
 type Props = {
   userName: string;
   userRole: string;
+  roleKey: string;
 };
 
-export default function Header({ userName, userRole }: Props) {
+type ContextualAction = {
+  label: string;
+  href: string;
+  icon: typeof Plus;
+};
+
+function getContextualAction(role: string, path: string): ContextualAction | null {
+  if (role === "oficial" && !path.startsWith("/oficiales/captura")) {
+    return { label: "Nueva Infracción", href: "/oficiales/captura", icon: Plus };
+  }
+  return null;
+}
+
+export default function Header({ userName, userRole, roleKey }: Props) {
   const pathname = usePathname();
+  const router = useRouter();
   const toggleMobile = useSidebarStore((s) => s.toggleMobile);
 
   const title = getPageTitle(pathname);
+  const action = getContextualAction(roleKey, pathname);
 
   return (
     <header className="
@@ -81,9 +98,30 @@ export default function Header({ userName, userRole }: Props) {
         <GlobalSearch />
       </div>
 
-      {/* RIGHT — user avatar + dropdown */}
+      {/* RIGHT — contextual action + user avatar */}
 
-      <UserAvatarDropdown userName={userName} userRole={userRole} />
+      <div className="flex items-center gap-2">
+        {action && (
+          <button
+            type="button"
+            onClick={() => router.push(action.href)}
+            className="
+              hidden sm:inline-flex items-center gap-1.5
+              h-9 px-3
+              rounded-lg
+              bg-[#2563EB]
+              text-white text-sm font-semibold
+              hover:bg-[#1D4ED8] active:bg-[#1E40AF]
+              transition-colors duration-150
+            "
+          >
+            <action.icon size={16} strokeWidth={2} />
+            <span className="hidden lg:inline">{action.label}</span>
+          </button>
+        )}
+
+        <UserAvatarDropdown userName={userName} userRole={userRole} />
+      </div>
 
     </header>
   );

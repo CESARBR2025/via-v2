@@ -66,6 +66,16 @@ export const navigationByRole: Record<UserRole, any[]> = {
 
   oficial: [
     {
+      title: "Dashboard",
+      items: [
+        {
+          label: "Inicio",
+          href: "/oficiales/dashboard",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
       title: "Infracciones",
 
       items: [

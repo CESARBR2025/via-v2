@@ -67,7 +67,11 @@ export default async function DashboardLayout({
                 overflow-hidden
             ">
 
-                <Header userName={userName} userRole={userRole} />
+                <Header
+                    userName={userName}
+                    userRole={userRole}
+                    roleKey={role}
+                />
 
                 <OfflineBanner />
 
