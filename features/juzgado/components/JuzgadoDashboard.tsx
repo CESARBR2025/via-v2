@@ -445,9 +445,9 @@ export default function JuzgadoDashboard({
                         <div className="p-6">
                             <CargarOficioSection
                                 idInfraccion={oficioFormId}
+                                folio={oficioFormData.Header.folio_de_infraccion}
                                 noOficioActual={oficioFormData.Header.no_oficio_fiscalia}
                                 noCarpetaActual={oficioFormData.Header.no_carpeta_investigacion}
-                                esTitular={oficioFormData.datos_infractor?.es_titular}
                                 nombreInfractor={oficioFormData.datos_infractor?.nombre_infractor}
                                 appaternoInfractor={oficioFormData.datos_infractor?.appaterno_infractor}
                                 apmaternoInfractor={oficioFormData.datos_infractor?.apmaterno_infractor}

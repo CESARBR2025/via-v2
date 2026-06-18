@@ -20,6 +20,8 @@ export interface InfraccionHeader {
   url_tarjeta_circulacion: string
   url_inapam: string
   url_evidencias: string[]
+  no_oficio_fiscalia?: string
+  url_oficio_fiscalia?: string
 }
 
 export interface InfraccionLegal {
@@ -658,7 +660,11 @@ function DocumentosSection({ detalle }: { detalle: InfraccionDetalle }) {
     ruta,
   }))
 
-  const todos = [...documentos, ...evidencias]
+  const fiscaliaDoc = detalle.Header.url_oficio_fiscalia && detalle.Header.url_oficio_fiscalia !== 'NO_DATA'
+    ? { nombre: 'Oficio Fiscalía', ruta: detalle.Header.url_oficio_fiscalia }
+    : null
+
+  const todos = [...documentos, ...evidencias, ...(fiscaliaDoc ? [fiscaliaDoc] : [])]
 
   return (
     <div>
@@ -686,7 +692,7 @@ function DocumentosSection({ detalle }: { detalle: InfraccionDetalle }) {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-slate-500">
-                    {doc.nombre.includes('Evidencia') ? 'Evidencia' : 'Documento'}
+                    {doc.nombre === 'Oficio Fiscalía' ? 'Fiscalía' : doc.nombre.includes('Evidencia') ? 'Evidencia' : 'Documento'}
                   </p>
                   <p className="text-sm font-medium text-slate-900 truncate max-w-[140px]">
                     {doc.nombre}
