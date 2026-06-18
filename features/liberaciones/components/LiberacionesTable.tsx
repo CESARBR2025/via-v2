@@ -3,10 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import LiberacionesDashboard from "./LiberacionesDashboard"
-import ModalDetalleInfraccion from "@/features/compartido/components/ModalDetalleInfraccion"
-import type { DetalleCompleto } from "@/features/compartido/types/detalleInfraccion"
-import RevisionDocumentosSection from "@/features/liberaciones/components/RevisionDocumentosSection"
-
+import { DetalleInfraccionModal, type InfraccionDetalle } from "@/features/depInfracciones/components/TablaDevInfracciones/DetalleInfraccionModal"
 interface DataRow {
     id: string
     nombre_infractor?: string
@@ -28,7 +25,6 @@ interface LiberacionesTableProps {
 const columns = [
     { key: "folio", label: "Folio" },
     { key: "nombre_infractor", label: "Nombre Infractor" },
-    { key: "correo_infractor", label: "Correo" },
     { key: "placa", label: "Placa" },
     { key: "estatus", label: "Estatus" },
     { key: "acciones", label: "Acciones" },
@@ -40,8 +36,7 @@ export default function LiberacionesTable({ respuestaServidor }: LiberacionesTab
 
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [detalle, setDetalle] = useState<DetalleCompleto | null>(null)
-    const [revisionModalId, setRevisionModalId] = useState<string | null>(null)
+    const [detalle, setDetalle] = useState<InfraccionDetalle | null>(null)
 
     async function refetchDetalle(id: string) {
         setLoading(true)
@@ -58,20 +53,14 @@ export default function LiberacionesTable({ respuestaServidor }: LiberacionesTab
     }
 
     function handleOpenDetalle(id: string) {
-        const row = listaDatos.find(r => r.id === id)
-        if (row?.estatus === 'REGISTRADA' && row?.estatus_dependencia === 'MESA_DE_CONTROL_REVISION') {
-            setRevisionModalId(id)
-        } else {
-            setOpen(true)
-            setDetalle(null)
-            refetchDetalle(id)
-        }
+        setOpen(true)
+        setDetalle(null)
+        refetchDetalle(id)
     }
 
     function handleCloseDetalle() {
         setOpen(false)
         setDetalle(null)
-        setRevisionModalId(null)
         router.refresh()
     }
 
@@ -85,7 +74,7 @@ export default function LiberacionesTable({ respuestaServidor }: LiberacionesTab
 
 
 
-            <ModalDetalleInfraccion
+            <DetalleInfraccionModal
                 isOpen={open}
                 onClose={handleCloseDetalle}
                 loading={loading}

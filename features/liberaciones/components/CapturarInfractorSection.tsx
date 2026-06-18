@@ -1,12 +1,41 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2, Save, User } from 'lucide-react'
+import { Loader2, Save, AlertCircle } from 'lucide-react'
 import { useToastStore } from '@/stores/useToastStore'
 
 type Props = {
   infraccionId: string
   onSuccess: () => void
+}
+
+const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400 hover:border-slate-300 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10"
+
+function Field({ label, value, onChange, placeholder, error, required, type }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string
+  error?: string; required?: boolean; type?: string
+}) {
+  const fieldId = `field-${label.toLowerCase().replace(/\s+/g, '-')}`
+  return (
+    <div className="space-y-1">
+      <label htmlFor={fieldId} className="text-xs font-medium tracking-wider uppercase text-slate-500">
+        {label}
+        {required && <span className="text-red-600 ml-0.5" aria-hidden="true">*</span>}
+      </label>
+      <input
+        id={fieldId}
+        type={type ?? 'text'}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        aria-invalid={!!error}
+        aria-required={required}
+        className={`${inputClass} ${error ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50' : ''}`}
+      />
+      {error && <p className="text-xs font-medium text-red-600" role="alert">{error}</p>}
+    </div>
+  )
 }
 
 export default function CapturarInfractorSection({ infraccionId, onSuccess }: Props) {
@@ -46,104 +75,101 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
       if (!res.ok) throw new Error('Error al guardar')
       addToast('Datos del infractor guardados correctamente', 'success')
       onSuccess()
-    } catch (err) {
-      setError('Error al guardar los datos')
+    } catch {
+      const msg = 'Error al guardar los datos del infractor'
+      setError(msg)
+      addToast(msg, 'error')
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="rounded-xl border p-5 space-y-4" style={{ background: '#FFFBEB', borderColor: '#FDE68A' }}>
-      <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#F59E0B' }}>
-          <User size={14} strokeWidth={2.2} className="text-white" />
-        </div>
-        <p className="text-[13px] font-semibold text-[#92400E]">Capturar datos del infractor</p>
-      </div>
+    <div className="space-y-4">
+      <span className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-700 text-[11px] font-medium px-2.5 py-1 rounded-full">
+        <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+        Liberación por infracción
+      </span>
 
+      {/* Nombre + Apellidos */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div>
-          <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] block mb-1.5">Nombre(s) *</label>
-          <input
-            value={nombre}
-            onChange={e => { setNombre(e.target.value); setErrores(p => ({...p, nombre: ''})) }}
-            placeholder="Nombre(s)"
-            className={`w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors ${errores.nombre ? 'border-[#EF4444]' : ''}`}
-            style={{ borderColor: errores.nombre ? '#EF4444' : '#E2E8F0', color: '#0F172A' }}
-          />
-          {errores.nombre && <p className="text-[11px] text-[#EF4444] font-medium mt-0.5">{errores.nombre}</p>}
-        </div>
-        <div>
-          <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] block mb-1.5">A. Paterno *</label>
-          <input
-            value={appaterno}
-            onChange={e => { setAppaterno(e.target.value); setErrores(p => ({...p, appaterno: ''})) }}
-            placeholder="Paterno"
-            className={`w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors ${errores.appaterno ? 'border-[#EF4444]' : ''}`}
-            style={{ borderColor: errores.appaterno ? '#EF4444' : '#E2E8F0', color: '#0F172A' }}
-          />
-          {errores.appaterno && <p className="text-[11px] text-[#EF4444] font-medium mt-0.5">{errores.appaterno}</p>}
-        </div>
-        <div>
-          <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] block mb-1.5">A. Materno</label>
-          <input
-            value={apmaterno}
-            onChange={e => setApmaterno(e.target.value)}
-            placeholder="Materno"
-            className="w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors"
-            style={{ borderColor: '#E2E8F0', color: '#0F172A' }}
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] block mb-1.5">Correo electrónico</label>
-        <input
-          value={correo}
-          onChange={e => setCorreo(e.target.value)}
-          placeholder="correo@ejemplo.com"
-          type="email"
-          className="w-full rounded-lg border px-3 py-2 text-[13px] outline-none transition-colors"
-          style={{ borderColor: '#E2E8F0', color: '#0F172A' }}
+        <Field
+          label="Nombre(s)"
+          value={nombre}
+          onChange={v => { setNombre(v); setErrores(p => ({ ...p, nombre: '' })) }}
+          placeholder="Nombre(s)"
+          error={errores.nombre}
+          required
+        />
+        <Field
+          label="A. Paterno"
+          value={appaterno}
+          onChange={v => { setAppaterno(v); setErrores(p => ({ ...p, appaterno: '' })) }}
+          placeholder="Paterno"
+          error={errores.appaterno}
+          required
+        />
+        <Field
+          label="A. Materno"
+          value={apmaterno}
+          onChange={v => setApmaterno(v)}
+          placeholder="Materno"
         />
       </div>
 
-      <div>
-        <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] block mb-2">¿Es el titular? *</label>
-        <div className="flex items-center gap-3">
+      {/* Correo */}
+      <Field
+        label="Correo electrónico"
+        value={correo}
+        onChange={v => setCorreo(v)}
+        placeholder="correo@ejemplo.com"
+        type="email"
+      />
+
+      {/* ¿Es el titular? */}
+      <div className="space-y-2">
+        <p className="text-xs font-medium tracking-wider uppercase text-slate-500">
+          ¿Es el titular? <span className="text-red-600 ml-0.5" aria-hidden="true">*</span>
+        </p>
+        <div className="inline-flex items-center rounded-md p-0.5 bg-white border border-slate-200">
           <button
             type="button"
-            onClick={() => { setEsTitular(true); setErrores(p => ({...p, esTitular: ''})) }}
-            className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${esTitular === true ? 'text-white' : 'text-[#64748B] border'}`}
-            style={{
-              background: esTitular === true ? '#2563EB' : '#FFFFFF',
-              borderColor: esTitular === true ? '#2563EB' : '#E2E8F0',
-            }}
-          >Sí</button>
+            onClick={() => { setEsTitular(true); setErrores(p => ({ ...p, esTitular: '' })) }}
+            className={`px-4 py-1.5 rounded text-[13px] font-medium transition-all duration-150 ${esTitular === true ? 'bg-blue-700 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          >
+            Sí
+          </button>
           <button
             type="button"
-            onClick={() => { setEsTitular(false); setErrores(p => ({...p, esTitular: ''})) }}
-            className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${esTitular === false ? 'text-white' : 'text-[#64748B] border'}`}
-            style={{
-              background: esTitular === false ? '#EF4444' : '#FFFFFF',
-              borderColor: esTitular === false ? '#EF4444' : '#E2E8F0',
-            }}
-          >No</button>
+            onClick={() => { setEsTitular(false); setErrores(p => ({ ...p, esTitular: '' })) }}
+            className={`px-4 py-1.5 rounded text-[13px] font-medium transition-all duration-150 ${esTitular === false ? 'bg-red-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          >
+            No
+          </button>
         </div>
-        {errores.esTitular && <p className="text-[11px] text-[#EF4444] font-medium mt-1">{errores.esTitular}</p>}
+        {errores.esTitular && <p className="text-xs font-medium text-red-600">{errores.esTitular}</p>}
       </div>
 
-      {error && <p className="text-[12px] font-medium text-[#DC2626]">{error}</p>}
+      {/* Error */}
+      {error && (
+        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200" role="alert">
+          <AlertCircle size={12} className="text-red-600 shrink-0 mt-0.5" />
+          <p className="text-xs font-medium text-red-600">{error}</p>
+        </div>
+      )}
 
+      {/* Submit */}
       <button
         onClick={handleSubmit}
         disabled={saving}
-        className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-[13px] font-semibold text-white transition-all disabled:opacity-50"
-        style={{ background: saving ? '#94A3B8' : '#F59E0B', boxShadow: saving ? 'none' : '0 4px 12px rgba(245,158,11,0.3)' }}
+        aria-busy={saving}
+        className="w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-medium text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 active:scale-[0.99] shadow-sm transition-all duration-150 disabled:bg-blue-200 disabled:text-blue-300 disabled:cursor-not-allowed"
       >
-        {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} strokeWidth={2.5} />}
-        {saving ? 'Guardando…' : 'Guardar datos del infractor'}
+        {saving ? (
+          <><Loader2 size={14} className="animate-spin" /><span>Guardando…</span></>
+        ) : (
+          <><Save size={14} strokeWidth={2.5} /><span>Guardar datos del infractor</span></>
+        )}
       </button>
     </div>
   )

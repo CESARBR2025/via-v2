@@ -126,7 +126,6 @@ export default function InfraccionesDashboard({
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
     const [fechaInicio, setFechaInicio] = useState('')
     const [fechaFin, setFechaFin] = useState('')
-
     function handleFiltroChange(key: EstatusInfracciones) {
         setFiltro(key)
         setPagina(1)
@@ -313,7 +312,6 @@ export default function InfraccionesDashboard({
                             {total} infracción{total !== 1 ? 'es' : ''} registradas
                         </p>
                     </div>
-
                 </div>
 
                 {loading ? (

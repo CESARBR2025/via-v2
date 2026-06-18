@@ -9,6 +9,7 @@ import MobileSidebar from "@/features/sidebar/components/MobileSideBar";
 import { UserRole } from "@/features/sidebar/config/types";
 import { getSession } from "@/features/auth/service";
 import OfflineBanner from "@/components/OfflineBanner";
+import GlobalDetailModal from "@/components/GlobalDetailModal";
 
 const ROLE_LABELS: Record<string, string> = {
     admin: "Administrador",
@@ -81,6 +82,8 @@ export default async function DashboardLayout({
                 ">
                     {children}
                 </main>
+
+                <GlobalDetailModal />
 
             </div>
 
