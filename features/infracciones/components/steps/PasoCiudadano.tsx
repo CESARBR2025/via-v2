@@ -58,7 +58,7 @@ export default function PasoCiudadano({
                 />
 
                 {presente !== null && (
-                    <p className={`text-xs mt-3 pl-0.5 ${presente ? 'text-[#16A34A]' : 'text-[#64748B]'}`}>
+                    <p className={`text-xs mt-3 pl-0.5 ${presente ? 'text-green-600' : 'text-slate-600'}`}>
                         {presente
                             ? 'El conductor se encuentra en el lugar de la infracción'
                             : 'La infracción se registrará sin la presencia del conductor'
@@ -67,7 +67,7 @@ export default function PasoCiudadano({
                 )}
 
                 {boolError(presente) && (
-                    <p className="text-xs text-[#EF4444] mt-2">
+                        <p className="text-xs text-red-500 mt-2">
                         Selecciona si el ciudadano está presente o ausente
                     </p>
                 )}
@@ -101,7 +101,7 @@ export default function PasoCiudadano({
                     />
 
                     {titular !== null && (
-                        <p className={`text-xs mt-3 pl-0.5 ${titular ? 'text-[#16A34A]' : 'text-[#64748B]'}`}>
+                        <p className={`text-xs mt-3 pl-0.5 ${titular ? 'text-green-600' : 'text-slate-600'}`}>
                             {titular
                                 ? 'El ciudadano es el propietario registrado del vehículo'
                                 : 'El ciudadano conduce un vehículo que no está a su nombre'
@@ -110,7 +110,7 @@ export default function PasoCiudadano({
                     )}
 
                     {boolError(titular) && (
-                        <p className="text-xs text-[#EF4444] mt-2">
+                    <p className="text-xs text-red-500 mt-2">
                             Indica si el ciudadano es titular del vehículo
                         </p>
                     )}

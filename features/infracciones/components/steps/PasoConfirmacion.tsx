@@ -135,11 +135,11 @@ export const PasoConfirmacion: React.FC<PasoConfirmacionProps> = ({
     return (
         <div className="space-y-5 pb-8">
             {/* Banner aviso */}
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#DCFCE7] border border-[#22C55E]/30 animate-fadeIn">
-                <CheckCircle size={20} className="text-[#22C55E] shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-green-50 border border-green-500/30 animate-fadeIn">
+                <CheckCircle size={20} className="text-green-500 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                    <p className="text-sm text-[#22C55E] font-bold">Confirmación de Registro</p>
-                    <p className="text-xs text-[#16A34A]/80 leading-relaxed">
+                    <p className="text-sm text-green-500 font-medium">Confirmación de Registro</p>
+                    <p className="text-xs text-green-600/80 leading-relaxed">
                         Por favor, valida cuidadosamente los datos capturados. Una vez confirmada e inyectada en el sistema, la boleta de infracción no admitirá correcciones posteriores.
                     </p>
                 </div>
@@ -149,26 +149,26 @@ export const PasoConfirmacion: React.FC<PasoConfirmacionProps> = ({
             {secciones.map(({ step, title, Icon, rows }) => (
                 <div
                     key={title}
-                    className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden"
+                    className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden"
                 >
-                    <div className="flex items-center justify-between px-5 py-4 bg-[#F8FAFC] border-b border-[#F1F5F9]">
+                    <div className="flex items-center justify-between px-5 py-4 bg-slate-50 border-b border-slate-100">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-[#2563EB]/10 flex items-center justify-center">
-                                <Icon size={16} className="text-[#2563EB]" />
+                            <div className="w-8 h-8 rounded-lg bg-blue-700/10 flex items-center justify-center">
+                                <Icon size={16} className="text-blue-700" />
                             </div>
-                            <h3 className="text-sm font-bold text-[#0F172A] tracking-wide">{title}</h3>
+                            <h3 className="text-sm font-medium text-slate-900 tracking-wide">{title}</h3>
                         </div>
                         <button
                             type="button"
                             onClick={() => onNavigateToStep(step)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-[#2563EB] hover:bg-[#EFF6FF] font-bold transition-all active:scale-95"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-blue-700 hover:bg-blue-50 font-medium transition-all active:scale-95"
                         >
                             <Pencil size={13} />
                             Modificar
                         </button>
                     </div>
 
-                    <div className="px-5 py-2 divide-y divide-[#F1F5F9]">
+                    <div className="px-5 py-2 divide-y divide-slate-100">
                         {rows.map(([label, value]) => {
                             const isLongText = String(value).length > 55;
 
@@ -180,16 +180,16 @@ export const PasoConfirmacion: React.FC<PasoConfirmacionProps> = ({
                                         : 'flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1'
                                         }`}
                                 >
-                                    <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider block shrink-0">
+                                    <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block shrink-0">
                                         {label}
                                     </span>
 
                                     <span
                                         className={`text-sm font-medium leading-relaxed ${isLongText
-                                            ? 'text-[#64748B] bg-[#F8FAFC] p-3 rounded-lg border border-[#F1F5F9] text-justify text-xs'
+                                            ? 'text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 text-justify text-xs'
                                             : label.includes('Monto')
-                                                ? 'text-[#22C55E] font-bold bg-[#DCFCE7] px-2.5 py-0.5 rounded-lg border border-[#22C55E]/30'
-                                                : 'text-[#0F172A] sm:text-right break-words'
+                                                ? 'text-green-500 font-medium bg-green-50 px-2.5 py-0.5 rounded-lg border border-green-500/30'
+                                                : 'text-slate-900 sm:text-right break-words'
                                             }`}
                                     >
                                         {value}
@@ -203,14 +203,14 @@ export const PasoConfirmacion: React.FC<PasoConfirmacionProps> = ({
 
             {/* Tarjeta de Evidencias */}
             {files && files.length > 0 && (
-                <div className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] p-5 flex items-center justify-between transition-all">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-card p-5 flex items-center justify-between transition-all">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/10 flex items-center justify-center">
-                            <Camera size={16} className="text-[#F59E0B]" />
+                        <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                            <Camera size={16} className="text-amber-500" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-bold text-[#0F172A]">Material de Evidencia</h3>
-                            <p className="text-xs text-[#94A3B8] mt-0.5">
+                            <h3 className="text-sm font-medium text-slate-900">Material de Evidencia</h3>
+                            <p className="text-xs text-slate-400 mt-0.5">
                                 {files.length} fotografía{files.length > 1 ? 's' : ''} vinculada{files.length > 1 ? 's' : ''} a la boleta.
                             </p>
                         </div>
@@ -218,7 +218,7 @@ export const PasoConfirmacion: React.FC<PasoConfirmacionProps> = ({
                     <button
                         type="button"
                         onClick={() => onNavigateToStep('evidencias')}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-[#F59E0B] hover:bg-[#FEF3C7] font-bold transition-all active:scale-95"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-amber-500 hover:bg-amber-50 font-medium transition-all active:scale-95"
                     >
                         <Pencil size={13} />
                         Modificar

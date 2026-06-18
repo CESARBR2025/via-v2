@@ -80,20 +80,20 @@ export default async function OficialDashboardPage() {
   const dateStr = formatDate();
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-6">
       {/* GREETING */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[28px] font-bold text-[#0F172A] leading-tight">
+          <h1 className="text-[28px] font-medium text-slate-900 leading-tight">
             {greeting}, {firstName}
           </h1>
-          <p className="text-[14px] text-[#64748B] mt-1.5 capitalize">
+          <p className="text-[14px] text-slate-600 mt-1.5 capitalize">
             {dateStr}
           </p>
         </div>
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE]">
-          <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-          <span className="text-[13px] font-medium text-[#2563EB]">
+        <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+          <span className="text-[11px] font-medium text-blue-800">
             En servicio
           </span>
         </div>
@@ -129,7 +129,7 @@ export default async function OficialDashboardPage() {
 
       {/* QUICK ACTIONS */}
       <div>
-        <h2 className="text-[16px] font-semibold text-[#0F172A] mb-3">
+        <h2 className="text-[17px] font-medium leading-snug text-slate-900 mb-3">
           Acciones rápidas
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -138,21 +138,18 @@ export default async function OficialDashboardPage() {
             icon={FilePlus}
             title="Capturar Infracción"
             description="Registra una nueva infracción en campo con datos del vehículo, infractor y ubicación"
-            color="primary"
           />
           <ActionCard
             href="/oficiales/realizadas"
             icon={ClipboardCheck}
             title="Infracciones Realizadas"
             description="Consulta el historial de infracciones que has registrado y su estado actual"
-            color="accent"
           />
           <ActionCard
             href="/oficiales/perfil"
             icon={User}
             title="Mi Perfil"
             description="Revisa y actualiza tu información personal, patrulla asignada y datos de contacto"
-            color="secondary"
           />
         </div>
       </div>
@@ -172,22 +169,22 @@ function StatCard({
   color: "primary" | "accent";
 }) {
   const colorMap = {
-    primary: { bg: "bg-[#EFF6FF]", text: "text-[#2563EB]" },
-    accent: { bg: "bg-[#EFF6FF]", text: "text-[#2563EB]" },
+    primary: { bg: "bg-blue-50", text: "text-blue-700" },
+    accent: { bg: "bg-blue-50", text: "text-blue-700" },
   };
   const c = colorMap[color];
 
   return (
-    <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 md:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-5 shadow-card">
       <div
         className={`w-10 h-10 rounded-lg ${c.bg} flex items-center justify-center mb-3`}
       >
         <Icon size={18} className={c.text} strokeWidth={1.5} />
       </div>
-      <p className="text-[12px] font-medium uppercase tracking-wide text-[#64748B]">
+      <p className="text-xs font-medium leading-snug text-slate-600">
         {label}
       </p>
-      <p className="text-[22px] font-bold text-[#0F172A] mt-0.5">{value}</p>
+      <p className="text-[22px] font-medium text-slate-900 mt-0.5">{value}</p>
     </div>
   );
 }
@@ -197,39 +194,28 @@ function ActionCard({
   icon: Icon,
   title,
   description,
-  color,
 }: {
   href: string;
   icon: typeof FilePlus;
   title: string;
   description: string;
-  color: "primary" | "accent" | "secondary";
 }) {
-  const colorMap = {
-    primary: { bg: "bg-[#EFF6FF]", iconText: "text-[#2563EB]", hoverBg: "group-hover:bg-[#2563EB]" },
-    accent: { bg: "bg-[#EFF6FF]", iconText: "text-[#60A5FA]", hoverBg: "group-hover:bg-[#60A5FA]" },
-    secondary: { bg: "bg-[#EFF6FF]", iconText: "text-[#1E3A8A]", hoverBg: "group-hover:bg-[#1E3A8A]" },
-  };
-  const c = colorMap[color];
-
   return (
     <Link
       href={href}
-      className="bg-white border border-[#E2E8F0] rounded-xl p-5 md:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.15),0_1px_3px_rgba(0,0,0,0.04)] hover:border-[#2563EB] transition-all group block"
+      className="bg-white border border-slate-200 rounded-xl p-5 md:p-6 shadow-card hover:shadow-md hover:border-blue-700 transition-all group block"
     >
-      <div
-        className={`w-10 h-10 rounded-lg ${c.bg} flex items-center justify-center mb-4 ${c.hoverBg} transition-colors`}
-      >
+      <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-700 transition-colors">
         <Icon
           size={20}
-          className={`${c.iconText} group-hover:text-white transition-colors`}
+          className="text-blue-700 group-hover:text-white transition-colors"
           strokeWidth={1.5}
         />
       </div>
-      <h3 className="text-[16px] font-semibold text-[#0F172A] mb-1">
+      <h3 className="text-[16px] font-medium text-slate-900 mb-1">
         {title}
       </h3>
-      <p className="text-[13px] text-[#64748B] leading-relaxed">
+      <p className="text-sm text-slate-600 leading-relaxed">
         {description}
       </p>
     </Link>

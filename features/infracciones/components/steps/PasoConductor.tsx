@@ -123,7 +123,7 @@ export default function PasoConductor({
                     />
 
                     {datos.presentaIne !== null && (
-                        <p className={`text-xs mt-3 pl-0.5 ${datos.presentaIne ? 'text-[#16A34A]' : 'text-[#64748B]'}`}>
+                        <p className={`text-xs mt-3 pl-0.5 ${datos.presentaIne ? 'text-green-600' : 'text-slate-600'}`}>
                             {datos.presentaIne
                                 ? 'Se verificará CURP y datos del documento oficial'
                                 : 'Los datos del conductor se capturarán manualmente'
@@ -132,7 +132,7 @@ export default function PasoConductor({
                     )}
 
                     {boolError(datos.presentaIne) && (
-                        <p className="text-xs text-[#EF4444] mt-2">
+                        <p className="text-xs text-red-500 mt-2">
                             Indica si el conductor presenta identificación oficial
                         </p>
                     )}

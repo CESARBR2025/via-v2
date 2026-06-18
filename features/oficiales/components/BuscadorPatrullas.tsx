@@ -68,7 +68,7 @@ export default function BuscadorPatrullas({
 
   if (!patrullasLoaded) {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-sm text-[#94A3B8]">
+      <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-400">
         <Loader2 size={14} className="animate-spin" />
         Cargando patrullas...
       </div>
@@ -84,7 +84,7 @@ export default function BuscadorPatrullas({
           disabled={disabled}
           onChange={(e) => onManualChange({ ...manualData, numeroUnidad: e.target.value })}
           placeholder="N° de unidad"
-          className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
         />
         <input
           type="text"
@@ -92,9 +92,9 @@ export default function BuscadorPatrullas({
           disabled={disabled}
           onChange={(e) => onManualChange({ ...manualData, placas: e.target.value })}
           placeholder="Placas (opcional)"
-          className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
         />
-        <p className="text-[11px] text-[#94A3B8]">
+        <p className="text-[11px] text-slate-400">
           Servicio de flota no disponible. Ingresa los datos manualmente.
         </p>
       </div>
@@ -105,13 +105,13 @@ export default function BuscadorPatrullas({
     <div ref={wrapperRef} className="relative">
       {seleccionada ? (
         <div>
-          <div className="flex items-center gap-2 px-3 py-2 bg-[#F0FDF4] border border-[#22C55E]/40 rounded-lg">
-            <Shield size={14} className="text-[#16A34A] shrink-0" />
+          <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-400/40 rounded-lg">
+            <Shield size={14} className="text-green-700 shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#0F172A] truncate">
+              <p className="text-sm font-medium text-slate-900 truncate">
                 {seleccionada.numero_unidad}
               </p>
-              <p className="text-[11px] text-[#64748B]">
+              <p className="text-[11px] text-slate-600">
                 {[seleccionada.marca, seleccionada.modelo, seleccionada.tipo_vehiculo]
                   .filter(Boolean)
                   .join(" · ") || seleccionada.placas}
@@ -120,7 +120,7 @@ export default function BuscadorPatrullas({
             <button
               type="button"
               onClick={limpiar}
-              className="p-1 rounded hover:bg-[#DCFCE7] text-[#94A3B8] hover:text-[#DC2626] transition-colors"
+              className="p-1 rounded hover:bg-green-50 text-slate-400 hover:text-red-600 transition-colors"
             >
               <X size={14} />
             </button>
@@ -132,14 +132,14 @@ export default function BuscadorPatrullas({
         <div className="relative">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
           />
           <input
             type="text"
             value={busqueda}
             disabled={disabled}
             placeholder="Buscar por placa, unidad, marca o serie..."
-            className="w-full pl-9 pr-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
             onFocus={() => setMostrar(true)}
             onKeyDown={(e) => {
               if (e.key === "ArrowDown") {
@@ -172,7 +172,7 @@ export default function BuscadorPatrullas({
           />
 
           {mostrar && filtradas.length > 0 && (
-            <div className="absolute z-50 mt-1 w-full max-h-60 overflow-y-auto rounded-lg border border-[#E2E8F0] bg-white shadow-lg">
+            <div className="absolute z-50 mt-1 w-full max-h-60 overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg">
               {filtradas.map((p, i) => (
                 <button
                   key={p.id}
@@ -183,7 +183,7 @@ export default function BuscadorPatrullas({
                       : undefined
                   }
                   onMouseEnter={() => setActiveIdx(i)}
-                  className={`w-full flex items-start gap-3 px-3 py-2.5 text-left transition-colors ${i === activeIdx ? "bg-[#EFF6FF]" : "hover:bg-[#F8FAFC]"
+                  className={`w-full flex items-start gap-3 px-3 py-2.5 text-left transition-colors ${i === activeIdx ? "bg-blue-50" : "hover:bg-slate-50"
                     }`}
                   onClick={() => {
                     onChange(p.id);
@@ -193,25 +193,25 @@ export default function BuscadorPatrullas({
                 >
                   <Shield
                     size={14}
-                    className="mt-0.5 shrink-0 text-[#94A3B8]"
+                    className="mt-0.5 shrink-0 text-slate-400"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-semibold text-[#0F172A] truncate">
+                    <p className="text-[13px] font-medium text-slate-900 truncate">
                       {p.numero_unidad}
                     </p>
-                    <p className="text-[11px] text-[#64748B] truncate">
+                    <p className="text-[11px] text-slate-600 truncate">
                       {[p.marca, p.modelo, p.tipo_vehiculo, p.color]
                         .filter(Boolean)
                         .join(" · ")}{" "}
                       {p.placas !== "—" && (
-                        <span className="font-mono text-[#2563EB]">
+                        <span className="font-mono text-blue-700">
                           ({p.placas})
                         </span>
                       )}
                     </p>
                   </div>
                   {i === activeIdx && (
-                    <span className="text-[10px] font-medium text-[#2563EB] shrink-0 mt-0.5">
+                    <span className="text-[10px] font-medium text-blue-700 shrink-0 mt-0.5">
                       ↵
                     </span>
                   )}
@@ -221,8 +221,8 @@ export default function BuscadorPatrullas({
           )}
 
           {mostrar && busqueda.trim() && filtradas.length === 0 && (
-            <div className="absolute z-50 mt-1 w-full rounded-lg border border-[#E2E8F0] bg-white shadow-lg">
-              <div className="px-3 py-4 text-center text-sm text-[#94A3B8]">
+            <div className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg">
+              <div className="px-3 py-4 text-center text-sm text-slate-400">
                 No se encontraron patrullas con "{busqueda}"
               </div>
             </div>

@@ -48,17 +48,17 @@ import PasoDecuentos from '@/features/infracciones/components/steps/PasoDescuent
 // CLASES TAILWIND - Reutilización de estilos
 // ═══════════════════════════════════════════════════════════════════
 const inputBase = `
-  w-full rounded-lg border border-[#E2E8F0] bg-white px-4 py-3
-  text-sm text-[#0F172A] placeholder:text-[#94A3B8]
-  focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 focus:outline-none
+  w-full rounded-lg border border-slate-200 bg-white px-3 py-2
+  text-sm text-slate-900 placeholder:text-slate-400
+  focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10
   transition-all duration-200
-  disabled:bg-[#F8FAFC] disabled:text-[#94A3B8] disabled:cursor-not-allowed
+  disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed
 `;
 
 const inputError = `
-  w-full rounded-lg border border-[#FECACA] bg-[#FEE2E2]/30 px-4 py-3
-  text-sm text-[#0F172A] placeholder:text-[#94A3B8]
-  focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/15 focus:outline-none
+  w-full rounded-lg border border-red-300 bg-red-50 px-3 py-2
+  text-sm text-slate-900 placeholder:text-slate-400
+  focus:border-red-500 focus:ring-2 focus:ring-red-200/50 focus:outline-none
   transition-all duration-200
 `;
 
@@ -979,7 +979,7 @@ export default function FormularioInfraccion() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="h-full flex flex-col bg-[#FFFFFF] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden"
+            className="h-full flex flex-col bg-transparent overflow-hidden"
         >
             {/* ───────────────────────────────────────────────────────────────
           MODAL DE PROCESO - Feedback visual durante registro
@@ -995,186 +995,39 @@ export default function FormularioInfraccion() {
 
 
             {/* ═══════════════════════════════════════════════════════════════
-          HEADER - Información de navegación y progreso (oculto en resumen ausente)
-          ════════════════════════════════════════════════════════════════ */}
-            {!ausenteCompletado && (
-                <header className="bg-[#FFFFFF] border-b border-[#E2E8F0] shrink-0">
-                    {/* Top bar: ícono + título + % completado */}
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shadow-lg shadow-[#2563EB]/20 shrink-0">
-                                <FileText
-                                    className="w-3 h-3 sm:w-5 sm:h-5 text-white"
-                                    strokeWidth={2}
-                                />
-                            </div>
-
-                            <div>
-                                <p className="text-[10px] sm:text-xs tracking-wide font-semibold uppercase text-[#2563EB]/50">
-                                    Módulo de Oficial
-                                </p>
-                                <h2 className="text-[16px] sm:text-xl font-bold text-[#0F172A] leading-none mt-1">
-                                    Registrar Nueva Infracción
-                                </h2>
-                                <p className="text-[10px] sm:text-xs text-[#94A3B8] mt-2">
-                                    Paso {currentStep + 1} de {steps.length} ·{' '}
-                                    {activeStepConfig.title}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* % completado — pill */}
-                        <span className="shrink-0 text-[10px] sm:text-sm font-semibold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-3 py-1 rounded-full">
-                            {progressPct}% completado
-                        </span>
-                    </div>
-
-                    {/* Barra de progreso continua */}
-                    <div className="h-[3px] bg-[#F1F5F9]">
-                        <div
-                            className="h-full bg-gradient-to-r from-[#2563EB] to-[#60A5FA] transition-all duration-500 ease-out"
-                            style={{ width: `${progressPct}%` }}
-                        />
-                    </div>
-
-                    {/* Stepper con etiquetas — visible solo en desktop */}
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6">
-                        {/* Mobile indicator */}
-                        <div className="sm:hidden flex items-center gap-2 py-3">
-                            <div className="flex-1 h-[3px] bg-[#F1F5F9] rounded-full overflow-hidden">
-                                <div
-                                    className="h-full bg-[#2563EB] transition-all duration-500"
-                                    style={{ width: `${progressPct}%` }}
-                                />
-                            </div>
-                            <span className="text-[11px] font-semibold text-[#64748B] shrink-0">
-                                {currentStep + 1}/{steps.length}
-                            </span>
-                        </div>
-                        <div
-                            ref={stepScrollRef}
-                            className="hidden sm:flex items-start overflow-x-auto scrollbar-hide py-3"
-                        >
-                            {steps.map((step, idx) => {
-                                const isDone = idx < currentStep;
-                                const isActive = idx === currentStep;
-                                const isPending = idx > currentStep;
-                                const isLast = idx === steps.length - 1;
-
-                                return (
-                                    <React.Fragment key={step.id}>
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                isDone && setCurrentStep(idx)
-                                            }
-                                            disabled={isPending}
-                                            className={`
-                      shrink-0 flex flex-col items-center gap-1.5 px-1
-                      rounded-lg transition-all duration-200
-                      ${isDone ? 'cursor-pointer hover:bg-[#F8FAFC]' : ''}
-                      ${isActive || isPending ? 'cursor-default' : ''}
-                    `}
-                                        >
-                                            <div
-                                                className={`
-                        w-7 h-7 rounded-full flex items-center justify-center
-                        text-xs font-bold transition-all duration-300
-                        ${isDone ? 'bg-[#22C55E] text-white' : ''}
-                        ${isActive
-                                                        ? 'bg-[#2563EB] text-white ring-4 ring-[#2563EB]/20'
-                                                        : ''
-                                                    }
-                        ${isPending
-                                                        ? 'bg-[#F1F5F9] text-[#94A3B8] border border-[#E2E8F0]'
-                                                        : ''
-                                                    }
-                      `}
-                                            >
-                                                {isDone ? (
-                                                    <svg
-                                                        className="w-3.5 h-3.5"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="3"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            d="m4.5 12.75 6 6 9-13.5"
-                                                        />
-                                                    </svg>
-                                                ) : (
-                                                    idx + 1
-                                                )}
-                                            </div>
-
-                                            <span
-                                                className={`
-                        text-[10px] leading-tight text-center w-[52px] truncate block
-                        transition-colors duration-200
-                        ${isDone ? 'text-[#22C55E] font-medium' : ''}
-                        ${isActive ? 'text-[#2563EB] font-semibold' : ''}
-                        ${isPending ? 'text-[#94A3B8]' : ''}
-                      `}
-                                            >
-                                                {step.title}
-                                            </span>
-                                        </button>
-
-                                        {!isLast && (
-                                            <div
-                                                className="flex-1 min-w-[12px] h-[2px] mt-[14px] mx-1 transition-all duration-300 shrink"
-                                                style={{
-                                                    background: isDone
-                                                        ? '#60A5FA'
-                                                        : '#E2E8F0',
-                                                }}
-                                            />
-                                        )}
-                                    </React.Fragment>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </header>
-            )}
-
-            {/* ═══════════════════════════════════════════════════════════════
           MAIN CONTENT - Renderizar paso actual o resumen ausente
           ════════════════════════════════════════════════════════════════ */}
             <main className="flex-1 min-h-0 overflow-y-auto">
                 {ausenteCompletado ? (
                     <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-8">
-                        <div className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
-                            <div className="h-1.5 bg-gradient-to-r from-[#2563EB] to-[#60A5FA]" />
+                        <div className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
+                            <div className="h-1.5 bg-gradient-to-r from-blue-700 to-blue-400" />
 
                             <div className="p-6 sm:p-8 space-y-6">
                                 {/* Header */}
                                 <div className="text-center space-y-2">
-                                    <div className="w-16 h-16 rounded-2xl bg-[#EFF6FF] flex items-center justify-center mx-auto shadow-[0_0_0_4px_rgba(37,99,235,0.15)]">
-                                        <svg className="w-8 h-8 text-[#2563EB]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                    <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto ring-4 ring-blue-700/15">
+                                        <svg className="w-8 h-8 text-blue-700" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                                         </svg>
                                     </div>
-                                    <h2 className="text-[22px] font-bold text-[#0F172A]">
+                                    <h2 className="text-[22px] font-medium text-slate-900">
                                         Infracción Registrada
                                     </h2>
-                                    <p className="text-sm text-[#64748B]">
+                                    <p className="text-sm text-slate-600">
                                         Ciudadano ausente — transcripción manual requerida
                                     </p>
                                 </div>
 
                                 {/* Folio destacado */}
-                                <div className="bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] p-5 text-center space-y-2">
-                                    <p className="text-[11px] font-semibold uppercase tracking-wide text-[#64748B]">
+                                <div className="bg-slate-50 rounded-xl border border-slate-200 p-5 text-center space-y-2">
+                                    <p className="text-[11px] font-medium uppercase tracking-wide text-slate-600">
                                         Folio de infracción
                                     </p>
-                                    <p className="text-[28px] font-bold text-[#0F172A] font-mono tracking-tight">
+                                    <p className="text-[28px] font-medium text-slate-900 font-mono tracking-tight">
                                         {ausenteCompletado.folio}
                                     </p>
-                                    <p className="text-xs text-[#64748B] font-mono">
+                                    <p className="text-xs text-slate-600 font-mono">
                                         ID: {ausenteCompletado.id}
                                     </p>
                                 </div>
@@ -1193,11 +1046,11 @@ export default function FormularioInfraccion() {
                                         { label: 'Descuento', value: ausenteCompletado.data.descuento ? `${ausenteCompletado.data.descuento}%` : '--' },
                                         { label: 'Garantía', value: ausenteCompletado.data.garantia },
                                     ].map((item) => (
-                                        <div key={item.label} className="bg-[#F8FAFC] rounded-lg px-3 py-2.5">
-                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">
+                                        <div key={item.label} className="bg-slate-50 rounded-lg px-3 py-2.5">
+                                            <p className="text-[10px] font-medium uppercase tracking-wide text-slate-600">
                                                 {item.label}
                                             </p>
-                                            <p className="text-sm font-semibold text-[#0F172A] mt-0.5 break-all">
+                                            <p className="text-sm font-medium text-slate-900 mt-0.5 break-all">
                                                 {item.value || '--'}
                                             </p>
                                         </div>
@@ -1206,26 +1059,26 @@ export default function FormularioInfraccion() {
 
                                 {/* Lugar */}
                                 {ausenteCompletado.data.lugar && (
-                                    <div className="bg-[#F8FAFC] rounded-lg px-4 py-3">
-                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">
+                                    <div className="bg-slate-50 rounded-lg px-4 py-3">
+                                        <p className="text-[10px] font-medium uppercase tracking-wide text-slate-600">
                                             Lugar
                                         </p>
-                                        <p className="text-sm font-medium text-[#0F172A] mt-0.5">
+                                        <p className="text-sm font-medium text-slate-900 mt-0.5">
                                             {ausenteCompletado.data.lugar}
                                         </p>
                                     </div>
                                 )}
 
                                 {/* Nota informativa */}
-                                <div className="flex items-start gap-3 bg-[#FEF3C7] border border-[#F59E0B]/30 rounded-lg p-4">
-                                    <svg className="w-5 h-5 shrink-0 text-[#D97706] mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <div className="flex items-start gap-3 bg-amber-50 border border-amber-500/30 rounded-lg p-4">
+                                    <svg className="w-5 h-5 shrink-0 text-amber-600 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                                     </svg>
                                     <div>
-                                        <p className="text-xs font-semibold text-[#92400E]">
+                                        <p className="text-xs font-medium text-amber-800">
                                             Transcripción a boleta física
                                         </p>
-                                        <p className="text-xs text-[#92400E]/80 mt-1 leading-relaxed">
+                                        <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                                             Transcribe el folio y los datos de la infracción a la boleta física. El ciudadano deberá liquidar en ventanilla o portales autorizados usando el folio proporcionado.
                                         </p>
                                     </div>
@@ -1235,7 +1088,7 @@ export default function FormularioInfraccion() {
                                 <button
                                     type="button"
                                     onClick={() => window.location.reload()}
-                                    className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-sm py-3.5 px-4 rounded-lg transition-all active:scale-[0.98]"
+                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-3.5 px-4 rounded-lg transition-all active:scale-[0.98]"
                                 >
                                     Terminar y Salir
                                 </button>
@@ -1243,17 +1096,77 @@ export default function FormularioInfraccion() {
                         </div>
                     </div>
                 ) : (
-                    <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-5">
+                    <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-5">
+                        {/* Thin progress bar */}
+                        <div className="h-1 rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                                className="h-full rounded-full bg-blue-700 transition-all duration-500 ease-out"
+                                style={{ width: `${progressPct}%` }}
+                            />
+                        </div>
+
+                        {/* Step header with dots */}
+                        <div className="flex items-start justify-between gap-6">
+                            <div className="min-w-0">
+                                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-600">
+                                    Paso {currentStep + 1} de {steps.length}
+                                </p>
+                                <h2 className="text-[22px] font-medium text-slate-900 leading-tight mt-0.5">
+                                    {activeStepConfig.title}
+                                </h2>
+                            </div>
+
+                            {/* Desktop compact dots */}
+                            <div className="hidden sm:flex items-center gap-1.5 mt-2 shrink-0">
+                                {steps.map((step, idx) => {
+                                    const isDone = idx < currentStep;
+                                    const isActive = idx === currentStep;
+                                    return (
+                                        <button
+                                            key={step.id}
+                                            type="button"
+                                            onClick={() => idx < currentStep && setCurrentStep(idx)}
+                                            disabled={idx > currentStep}
+                                            title={step.title}
+                                            className={`
+                                                rounded-full transition-all duration-300 shrink-0
+                                                ${isDone ? 'w-2.5 h-2.5 bg-green-500 cursor-pointer hover:scale-125' : ''}
+                                                ${isActive ? 'w-3 h-3 bg-blue-700 ring-4 ring-blue-700/15' : ''}
+                                                ${idx > currentStep ? 'w-2 h-2 bg-slate-200 cursor-default' : ''}
+                                            `}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Mobile progress dots */}
+                        <div className="sm:hidden flex items-center gap-1.5">
+                            {steps.map((step, idx) => {
+                                const isDone = idx < currentStep;
+                                const isActive = idx === currentStep;
+                                return (
+                                    <div
+                                        key={step.id}
+                                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                                                isDone
+                                                    ? 'bg-green-500'
+                                                    : isActive
+                                                    ? 'bg-blue-700'
+                                                    : 'bg-slate-200'
+                                        }`}
+                                    />
+                                );
+                            })}
+                        </div>
+
+                        {/* Description & validation */}
                         <div>
-                            <h2 className="text-[22px] font-bold text-[#0F172A] leading-tight">
-                                {activeStepConfig.title}
-                            </h2>
-                            <p className="text-sm text-[#64748B] mt-1">
+                            <p className="text-[14px] text-slate-600 leading-relaxed">
                                 {activeStepConfig.description}
                             </p>
                             {validationError && (
-                                <div className="mt-3 flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[13px] font-medium"
-                                    style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
+                                <div className="mt-3 flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[13px] font-medium bg-red-50 text-red-600 border border-red-200">
                                     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                                     </svg>
@@ -1271,12 +1184,12 @@ export default function FormularioInfraccion() {
           FOOTER - Botones de navegación (oculto en resumen ausente)
           ════════════════════════════════════════════════════════════════ */}
             {!ausenteCompletado && activeStepConfig.id !== 'pago' && (
-                <footer className="bg-[#FFFFFF] border-t border-[#E2E8F0] px-4 sm:px-6 py-4 flex items-center justify-between shrink-0">
+                <footer className="bg-white border-t border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between shrink-0">
                     <button
                         type="button"
                         disabled={currentStep === 0 || loading}
                         onClick={() => prevStep()}
-                        className="px-5 py-2.5 rounded-lg border border-[#E2E8F0] text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-5 py-2.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Atrás
                     </button>
@@ -1286,7 +1199,7 @@ export default function FormularioInfraccion() {
                             type="button"
                             disabled={loading}
                             onClick={handleNextStep}
-                            className="px-6 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-sm font-semibold rounded-lg shadow-[0_4px_12px_rgba(37,99,235,0.25)] transition-colors disabled:opacity-50"
+                            className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-[13px] font-medium rounded-lg shadow-[0_4px_12px_rgba(29,78,216,0.25)] transition-colors disabled:opacity-50"
                         >
                             Siguiente
                         </button>
@@ -1295,7 +1208,7 @@ export default function FormularioInfraccion() {
                             type="submit"
                             disabled={loading}
                             onClick={handleRegistrarNuevaInfraccion}
-                            className="px-6 py-2.5 bg-[#22C55E] hover:bg-[#16A34A] text-white text-sm font-bold rounded-lg shadow-[0_4px_12px_rgba(34,197,94,0.25)] transition-colors flex items-center gap-2 disabled:opacity-50"
+                            className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white text-[13px] font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
                         >
                             {loading ? (
                                 <>

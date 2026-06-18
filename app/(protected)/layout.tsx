@@ -49,7 +49,7 @@ export default async function DashboardLayout({
         <div className="
             flex h-screen
             overflow-hidden
-            bg-[#F1F5F9]
+            bg-slate-100
         ">
 
             {/* DESKTOP */}

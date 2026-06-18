@@ -2,12 +2,11 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Plus } from "lucide-react";
-
 import { useSidebarStore } from "@/stores/sideBarStore";
 import UserAvatarDropdown from "./UserAvatarDropdown";
 import Breadcrumbs from "./Breadcrumbs";
 import DateDisplay from "./DateDisplay";
-import NotificationBell from "./NotificationBell";
+
 
 const PAGE_TITLES: Record<string, string> = {
   "/oficiales/dashboard": "Dashboard",
@@ -56,8 +55,8 @@ export default function Header({ userName, userRole, roleKey }: Props) {
 
   return (
     <header className="
-      h-16 border-b border-[#E2E8F0]
-      bg-[#FFFFFF]
+      h-16 border-b border-slate-200
+      bg-white
       px-4 md:px-6
       flex items-center justify-between
       gap-4
@@ -71,20 +70,20 @@ export default function Header({ userName, userRole, roleKey }: Props) {
           className="
             md:hidden
             w-9 h-9 rounded-lg
-            hover:bg-[#F8FAFC]
+            hover:bg-slate-50
             flex items-center justify-center
-            text-[#64748B] hover:text-[#0F172A]
+            text-slate-600 hover:text-slate-900
             transition-colors duration-200
           "
         >
           <Menu size={20} strokeWidth={2} />
         </button>
 
-        <div className="md:hidden h-6 w-px bg-[#E2E8F0]" />
+        <div className="md:hidden h-6 w-px bg-slate-200" />
 
         <h1 className="
           md:hidden
-          text-[22px] font-bold text-[#0F172A]
+          text-[22px] font-medium leading-tight text-slate-900
           truncate
         ">
           {title}
@@ -105,12 +104,12 @@ export default function Header({ userName, userRole, roleKey }: Props) {
             type="button"
             onClick={() => router.push(action.href)}
             className="
-              hidden sm:inline-flex items-center gap-1.5
-              h-9 px-3
-              rounded-lg
-              bg-[#2563EB]
-              text-white text-sm font-semibold
-              hover:bg-[#1D4ED8] active:bg-[#1E40AF]
+              hidden sm:inline-flex items-center gap-2
+              px-4 py-2
+              rounded-lg border-none
+              bg-blue-700
+              text-white text-[13px] font-medium
+              hover:bg-blue-800 active:bg-blue-900 active:scale-[0.99]
               transition-colors duration-150
             "
           >
@@ -119,7 +118,6 @@ export default function Header({ userName, userRole, roleKey }: Props) {
           </button>
         )}
 
-        <NotificationBell />
         <UserAvatarDropdown userName={userName} userRole={userRole} />
       </div>
 

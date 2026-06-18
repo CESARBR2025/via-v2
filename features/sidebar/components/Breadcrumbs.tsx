@@ -89,7 +89,7 @@ export default function Breadcrumbs() {
     <nav className="hidden md:flex items-center gap-1.5 text-sm min-w-0" aria-label="Breadcrumb">
       <Link
         href={getHomeHref(segments)}
-        className="flex-shrink-0 text-[#64748B] hover:text-[#2563EB] transition-colors"
+        className="flex-shrink-0 text-slate-600 hover:text-blue-700 transition-colors"
         aria-label="Inicio"
       >
         <Home size={16} strokeWidth={1.5} />
@@ -102,18 +102,18 @@ export default function Breadcrumbs() {
 
         return (
           <span key={href} className="flex items-center gap-1.5 min-w-0">
-            <ChevronRight size={14} className="text-[#94A3B8] flex-shrink-0" strokeWidth={1.5} />
+            <ChevronRight size={14} className="text-slate-400 flex-shrink-0" strokeWidth={1.5} />
             {isLast || !isClickable(href) ? (
               <span className={`
                 truncate
-                ${isLast ? "font-semibold text-[#0F172A]" : "text-[#64748B]"}
+                ${isLast ? "font-medium text-slate-900" : "text-slate-600"}
               `}>
                 {label}
               </span>
             ) : (
               <Link
                 href={href}
-                className="text-[#64748B] hover:text-[#2563EB] transition-colors truncate whitespace-nowrap"
+                className="text-slate-600 hover:text-blue-700 transition-colors truncate whitespace-nowrap"
               >
                 {label}
               </Link>

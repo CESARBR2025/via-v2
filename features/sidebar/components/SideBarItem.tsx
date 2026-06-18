@@ -43,8 +43,8 @@ export default function SidebarItem({
                 }
 
                 ${active
-                    ? "bg-[#EFF6FF] text-[#2563EB]"
-                    : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+                    ? "bg-blue-700/20 text-blue-300"
+                    : "text-white/55 hover:bg-slate-800 hover:text-white/75"
                 }
             `}
         >
@@ -54,8 +54,8 @@ export default function SidebarItem({
                 className={`
                     shrink-0 transition-colors duration-200
                     ${active
-                        ? "text-[#2563EB]"
-                        : "text-[#94A3B8] group-hover:text-[#64748B]"
+                        ? "text-blue-300"
+                        : "text-white/40 group-hover:text-white/55"
                     }
                 `}
             />

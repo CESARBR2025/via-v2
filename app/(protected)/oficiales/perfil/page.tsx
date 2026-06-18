@@ -128,8 +128,8 @@ export default function MiPerfilPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 size={28} className="animate-spin text-[#2563EB]" />
-          <p className="text-sm text-[#64748B]">Cargando perfil...</p>
+          <Loader2 size={28} className="animate-spin text-blue-700" />
+          <p className="text-sm text-slate-600">Cargando perfil...</p>
         </div>
       </div>
     );
@@ -138,8 +138,8 @@ export default function MiPerfilPage() {
   if (!perfil) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <BadgeInfo size={32} className="text-[#94A3B8]" />
-        <p className="text-sm text-[#94A3B8]">No se pudo cargar el perfil</p>
+        <BadgeInfo size={32} className="text-slate-400" />
+        <p className="text-sm text-slate-400">No se pudo cargar el perfil</p>
       </div>
     );
   }
@@ -148,19 +148,19 @@ export default function MiPerfilPage() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shadow-lg shadow-[#2563EB]/20 shrink-0">
+        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center shadow-lg shadow-blue-700/20 shrink-0">
           <User size={24} className="text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-[22px] font-bold text-[#0F172A] tracking-tight">
+          <h1 className="text-[22px] font-medium text-slate-900 tracking-tight">
             {perfil.nombres} {perfil.apellidoP} {perfil.apellidoM}
           </h1>
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-flex items-center gap-1 bg-[#EFF6FF] text-[#2563EB] text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-[#BFDBFE]">
+            <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-blue-200">
               <BadgeCheck size={11} strokeWidth={2.5} />
               Oficial
             </span>
-            <span className="text-[12px] text-[#64748B]">
+            <span className="text-[12px] text-slate-600">
               {perfil.numeroEmpleado}
             </span>
           </div>
@@ -169,23 +169,23 @@ export default function MiPerfilPage() {
 
       {/* Messages */}
       {success && (
-        <div className="flex items-center gap-2.5 bg-[#DCFCE7] text-[#16A34A] text-sm px-4 py-3 rounded-lg border border-[#22C55E]/20">
+        <div className="flex items-center gap-2.5 bg-green-50 text-green-700 text-sm px-4 py-3 rounded-lg border border-green-200">
           <BadgeCheck size={16} strokeWidth={2} />
           {success}
         </div>
       )}
       {error && (
-        <div className="flex items-center gap-2.5 bg-[#FEE2E2] text-[#DC2626] text-sm px-4 py-3 rounded-lg border border-[#EF4444]/20">
+        <div className="flex items-center gap-2.5 bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg border border-red-200">
           <BadgeInfo size={16} />
           {error}
         </div>
       )}
 
       {/* Personal Data */}
-      <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
-        <div className="flex items-center gap-2 px-6 py-4 border-b border-[#E2E8F0] bg-[#F8FAFC]">
-          <FileText size={16} className="text-[#2563EB]" strokeWidth={2} />
-          <h2 className="text-[14px] font-semibold text-[#0F172A]">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
+        <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-200 bg-slate-50">
+          <FileText size={16} className="text-blue-700" strokeWidth={2} />
+          <h2 className="text-[14px] font-medium text-slate-900">
             Datos Personales
           </h2>
         </div>
@@ -232,17 +232,17 @@ export default function MiPerfilPage() {
               return (
                 <div key={field.key} className="min-w-0">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Icon size={12} className="text-[#94A3B8]" strokeWidth={2} />
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
+                    <Icon size={12} className="text-slate-400" strokeWidth={2} />
+                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-600">
                       {field.label}
                     </p>
                   </div>
                   {field.key === "curp" ? (
-                    <p className="text-[13px] font-medium text-[#0F172A] font-mono tracking-wide truncate">
+                    <p className="text-[13px] font-medium text-slate-900 font-mono tracking-wide truncate">
                       {value}
                     </p>
                   ) : (
-                    <p className="text-[13px] font-medium text-[#0F172A] truncate">
+                    <p className="text-[13px] font-medium text-slate-900 truncate">
                       {value}
                     </p>
                   )}
@@ -254,11 +254,11 @@ export default function MiPerfilPage() {
       </div>
 
       {/* Patrol Assignment */}
-      <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
-        <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-[#E2E8F0] bg-[#F8FAFC] rounded-t-xl">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card">
+        <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-slate-200 bg-slate-50 rounded-t-xl">
           <div className="flex items-center gap-2 min-w-0">
-            <Shield size={16} className="text-[#2563EB] shrink-0" strokeWidth={2} />
-            <h2 className="text-[14px] font-semibold text-[#0F172A]">
+            <Shield size={16} className="text-blue-700 shrink-0" strokeWidth={2} />
+            <h2 className="text-[14px] font-medium text-slate-900">
               Patrulla Asignada
             </h2>
           </div>
@@ -266,7 +266,7 @@ export default function MiPerfilPage() {
             <button
               onClick={guardarPatrulla}
               disabled={saving}
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-sm font-semibold hover:bg-[#1D4ED8] active:bg-[#1E40AF] disabled:bg-[#93C5FD] disabled:opacity-60 transition-colors shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 bg-blue-700 text-white text-[13px] font-medium rounded-lg hover:bg-blue-800 active:bg-blue-900 disabled:bg-blue-200 disabled:text-blue-300 disabled:cursor-not-allowed transition-colors shrink-0"
             >
               {saving ? (
                 <Loader2 size={14} className="animate-spin" />

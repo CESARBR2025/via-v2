@@ -343,16 +343,16 @@ export default function AdminOficialesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-[#0F172A] tracking-tight">
+          <h1 className="text-[22px] font-medium text-slate-900 tracking-tight">
             Gestión de Oficiales
           </h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             {total} oficiales registrados
           </p>
         </div>
         <button
           onClick={abrirCrear}
-          className="flex items-center gap-2 bg-[#2563EB] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#1D4ED8] active:bg-[#1E40AF] transition-colors"
+          className="flex items-center gap-2 bg-blue-700 text-white text-[13px] font-medium px-4 py-2 rounded-lg hover:bg-blue-800 active:bg-blue-900 transition-colors"
         >
           <Plus size={16} strokeWidth={2} />
           Nuevo Oficial
@@ -361,13 +361,13 @@ export default function AdminOficialesPage() {
 
       {/* Success/Error messages */}
       {successMsg && (
-        <div className="flex items-center gap-2 bg-[#DCFCE7] text-[#16A34A] text-sm px-4 py-3 rounded-lg">
+        <div className="flex items-center gap-2 bg-green-50 text-green-700 text-sm px-4 py-3 rounded-lg">
           <Check size={16} />
           {successMsg}
         </div>
       )}
       {error && (
-        <div className="flex items-center gap-2 bg-[#FEE2E2] text-[#DC2626] text-sm px-4 py-3 rounded-lg">
+        <div className="flex items-center gap-2 bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg">
           <AlertCircle size={16} />
           {error}
         </div>
@@ -378,7 +378,7 @@ export default function AdminOficialesPage() {
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search
             size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             strokeWidth={2}
           />
           <input
@@ -389,7 +389,7 @@ export default function AdminOficialesPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full pl-9 pr-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
           />
         </div>
         <select
@@ -398,7 +398,7 @@ export default function AdminOficialesPage() {
             setFiltroActivo(e.target.value);
             setPage(1);
           }}
-          className="px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none"
+          className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10"
         >
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
@@ -407,30 +407,30 @@ export default function AdminOficialesPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider text-[#64748B] px-4 py-3.5">Oficial</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider text-[#64748B] px-4 py-3.5">Departamento</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider text-[#64748B] px-4 py-3.5">Rango</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider text-[#64748B] px-4 py-3.5">Sector</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider text-[#64748B] px-4 py-3.5">Patrulla</th>
-                <th className="text-center text-[11px] font-semibold uppercase tracking-wider text-[#64748B] px-4 py-3.5 w-[88px]">Estatus</th>
-                <th className="text-center text-[11px] font-semibold uppercase tracking-wider text-[#64748B] px-4 py-3.5 w-[80px]">Acciones</th>
+              <tr className="bg-slate-50 border-b border-slate-200">
+                <th className="text-left text-[11px] font-medium uppercase tracking-wider text-slate-600 px-4 py-3.5">Oficial</th>
+                <th className="text-left text-[11px] font-medium uppercase tracking-wider text-slate-600 px-4 py-3.5">Departamento</th>
+                <th className="text-left text-[11px] font-medium uppercase tracking-wider text-slate-600 px-4 py-3.5">Rango</th>
+                <th className="text-left text-[11px] font-medium uppercase tracking-wider text-slate-600 px-4 py-3.5">Sector</th>
+                <th className="text-left text-[11px] font-medium uppercase tracking-wider text-slate-600 px-4 py-3.5">Patrulla</th>
+                <th className="text-center text-[11px] font-medium uppercase tracking-wider text-slate-600 px-4 py-3.5 w-[88px]">Estatus</th>
+                <th className="text-center text-[11px] font-medium uppercase tracking-wider text-slate-600 px-4 py-3.5 w-[80px]">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
                   <td colSpan={7} className="text-center py-16">
-                    <Loader2 size={24} className="animate-spin mx-auto text-[#94A3B8]" />
+                    <Loader2 size={24} className="animate-spin mx-auto text-slate-400" />
                   </td>
                 </tr>
               ) : oficiales.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-16 text-sm text-[#94A3B8]">
+                  <td colSpan={7} className="text-center py-16 text-sm text-slate-400">
                     No se encontraron oficiales
                   </td>
                 </tr>
@@ -442,24 +442,24 @@ export default function AdminOficialesPage() {
                   return (
                     <tr
                       key={oficial.id}
-                      className="border-b border-[#F1F5F9] hover:bg-[#FAFBFC] transition-colors"
+                      className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0 ${
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-medium shrink-0 ${
                             oficial.activo
-                              ? "bg-[#EFF6FF] text-[#2563EB]"
-                              : "bg-[#F1F5F9] text-[#94A3B8]"
+                              ? "bg-blue-50 text-blue-700"
+                              : "bg-slate-100 text-slate-400"
                           }`}>
                             {iniciales || "?"}
                           </div>
                           <div className="min-w-0">
-                            <div className="text-[13px] font-semibold text-[#0F172A] leading-tight truncate max-w-[200px]">
+                            <div className="text-[13px] font-medium text-slate-900 leading-tight truncate max-w-[200px]">
                               {oficial.nombres} {oficial.apellidoP} {oficial.apellidoM}
                             </div>
-                            <div className="flex items-center gap-2 text-[11px] text-[#94A3B8] mt-0.5">
+                            <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
                               <span className="font-mono">{oficial.curp}</span>
-                              <span className="w-1 h-1 rounded-full bg-[#CBD5E1]" />
+                              <span className="w-1 h-1 rounded-full bg-slate-300" />
                               <span>{oficial.numeroEmpleado}</span>
                             </div>
                           </div>
@@ -467,49 +467,49 @@ export default function AdminOficialesPage() {
                       </td>
                       <td className="px-4 py-3">
                         {oficial.departamentoNombre ? (
-                          <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] text-[#475569] text-[12px] font-medium px-2.5 py-1 rounded-md border border-[#E2E8F0]">
+                          <span className="inline-flex items-center gap-1.5 bg-slate-50 text-slate-600 text-[12px] font-medium px-2.5 py-1 rounded-md border border-slate-200">
                             {oficial.departamentoNombre}
                           </span>
                         ) : (
-                          <span className="text-[#CBD5E1]">—</span>
+                          <span className="text-slate-300">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
                         {oficial.rangoNombre ? (
-                          <span className="inline-flex items-center gap-1 bg-[#FFF7ED] text-[#C2410C] text-[12px] font-medium px-2.5 py-1 rounded-md border border-[#FFEDD5]">
+                          <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 text-[12px] font-medium px-2.5 py-1 rounded-md border border-amber-200">
                             {oficial.rangoNombre}
                           </span>
                         ) : (
-                          <span className="text-[#CBD5E1]">—</span>
+                          <span className="text-slate-300">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
                         {oficial.sectorNombre ? (
-                          <span className="inline-flex items-center gap-1 bg-[#EFF6FF] text-[#2563EB] text-[12px] font-medium px-2.5 py-1 rounded-md border border-[#DBEAFE]">
+                          <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[12px] font-medium px-2.5 py-1 rounded-md border border-blue-200">
                             {oficial.sectorNombre}
                           </span>
                         ) : (
-                          <span className="text-[#CBD5E1]">—</span>
+                          <span className="text-slate-300">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
                         {oficial.patrullaUnidad ? (
-                          <span className="inline-flex items-center gap-1.5 bg-[#F0FDF4] text-[#16A34A] text-[12px] font-medium px-2.5 py-1 rounded-md border border-[#DCFCE7]">
+                          <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-[12px] font-medium px-2.5 py-1 rounded-md border border-green-200">
                             <Shield size={11} strokeWidth={2.5} />
                             {oficial.patrullaUnidad}
                           </span>
                         ) : (
-                          <span className="text-[#CBD5E1]">—</span>
+                          <span className="text-slate-300">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full ${
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
                           oficial.activo
-                            ? "bg-[#DCFCE7] text-[#16A34A]"
-                            : "bg-[#FEE2E2] text-[#DC2626]"
+                            ? "bg-green-50 text-green-800"
+                            : "bg-red-50 text-red-800"
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${
-                            oficial.activo ? "bg-[#16A34A]" : "bg-[#DC2626]"
+                            oficial.activo ? "bg-green-500" : "bg-red-500"
                           }`} />
                           {oficial.activo ? "Activo" : "Inactivo"}
                         </span>
@@ -518,7 +518,7 @@ export default function AdminOficialesPage() {
                         <div className="flex items-center justify-center gap-0.5">
                           <button
                             onClick={() => abrirEditar(oficial)}
-                            className="p-1.5 rounded-lg hover:bg-[#EFF6FF] text-[#94A3B8] hover:text-[#2563EB] transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-700 transition-colors"
                             title="Editar oficial"
                           >
                             <Pencil size={14} strokeWidth={1.5} />
@@ -527,8 +527,8 @@ export default function AdminOficialesPage() {
                             onClick={() => toggleActivo(oficial)}
                             className={`p-1.5 rounded-lg transition-colors ${
                               oficial.activo
-                                ? "hover:bg-[#FEE2E2] text-[#94A3B8] hover:text-[#DC2626]"
-                                : "hover:bg-[#DCFCE7] text-[#94A3B8] hover:text-[#16A34A]"
+                                ? "hover:bg-red-50 text-slate-400 hover:text-red-600"
+                                : "hover:bg-green-50 text-slate-400 hover:text-green-600"
                             }`}
                             title={oficial.activo ? "Desactivar oficial" : "Activar oficial"}
                           >
@@ -550,15 +550,15 @@ export default function AdminOficialesPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-[#E2E8F0] bg-[#F8FAFC]">
-            <span className="text-[12px] text-[#64748B] font-medium">
+          <div className="flex items-center justify-between px-5 py-3 border-t border-slate-200 bg-slate-50">
+            <span className="text-[12px] text-slate-600 font-medium">
               Página {page} de {totalPages} &middot; {total} registros
             </span>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-medium text-[#64748B] hover:bg-white hover:border hover:border-[#E2E8F0] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-medium text-slate-600 hover:bg-white hover:border hover:border-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 <ChevronLeft size={13} strokeWidth={2} />
                 Anterior
@@ -572,10 +572,10 @@ export default function AdminOficialesPage() {
                     <button
                       key={num}
                       onClick={() => setPage(num)}
-                      className={`w-7 h-7 rounded-lg text-[12px] font-semibold transition-all ${
+                      className={`w-7 h-7 rounded-lg text-[12px] font-medium transition-all ${
                         num === page
-                          ? "bg-[#2563EB] text-white shadow-sm"
-                          : "text-[#64748B] hover:bg-white hover:border hover:border-[#E2E8F0]"
+                          ? "bg-blue-700 text-white shadow-sm"
+                          : "text-slate-600 hover:bg-white hover:border hover:border-slate-200"
                       }`}
                     >
                       {num}
@@ -586,7 +586,7 @@ export default function AdminOficialesPage() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-medium text-[#64748B] hover:bg-white hover:border hover:border-[#E2E8F0] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-medium text-slate-600 hover:bg-white hover:border hover:border-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 Siguiente
                 <ChevronRight size={13} strokeWidth={2} />
@@ -599,14 +599,14 @@ export default function AdminOficialesPage() {
       {/* Create/Edit Modal */}
       {modalMode && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.08)] w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[#E2E8F0]">
-              <h2 className="text-[16px] font-semibold text-[#0F172A]">
+          <div className="bg-white rounded-2xl shadow-modal w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-200">
+              <h2 className="text-[16px] font-medium text-slate-900">
                 {modalMode === "create" ? "Nuevo Oficial" : "Editar Oficial"}
               </h2>
               <button
                 onClick={() => setModalMode(null)}
-                className="p-1.5 rounded-lg hover:bg-[#F1F5F9] text-[#94A3B8] transition-colors"
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
               >
                 <X size={16} strokeWidth={2} />
               </button>
@@ -615,8 +615,8 @@ export default function AdminOficialesPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {modalMode === "create" && (
                 <div>
-                  <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
-                    CURP <span className="text-[#EF4444]">*</span>
+                  <label className="block text-[12px] font-medium text-slate-600 mb-1.5">
+                    CURP <span className="text-red-500">*</span>
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -630,12 +630,12 @@ export default function AdminOficialesPage() {
                       }}
                       onKeyDown={handleBuscarKeyDown}
                       placeholder="CURP del oficial"
-                      className={`flex-1 px-3 py-2 bg-white border rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] transition-all ${
+                      className={`flex-1 px-3 py-2 bg-white border rounded-lg text-sm text-slate-900 placeholder:text-slate-400 transition-all ${
                         usuarioVerificado
-                          ? "border-[#22C55E] bg-[#F0FDF4] cursor-not-allowed"
+                          ? "border-green-500 bg-green-50 cursor-not-allowed"
                           : curpError
-                            ? "border-[#EF4444] shadow-[0_0_0_3px_rgba(239,68,68,0.12)]"
-                            : "border-[#E2E8F0] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)]"
+                            ? "border-red-500 ring-2 ring-red-500/10"
+                            : "border-slate-200 focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10"
                       } focus:outline-none`}
                     />
                     {!usuarioVerificado ? (
@@ -643,7 +643,7 @@ export default function AdminOficialesPage() {
                         type="button"
                         onClick={buscarUsuario}
                         disabled={buscandoUsuario || !formData.curp.trim()}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-sm font-semibold hover:bg-[#1D4ED8] disabled:bg-[#93C5FD] disabled:opacity-60 transition-colors shrink-0"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-blue-700 text-white text-[13px] font-medium rounded-lg hover:bg-blue-800 disabled:bg-blue-200 disabled:text-blue-300 disabled:cursor-not-allowed transition-colors shrink-0"
                       >
                         {buscandoUsuario ? (
                           <Loader2 size={14} className="animate-spin" />
@@ -656,7 +656,7 @@ export default function AdminOficialesPage() {
                       <button
                         type="button"
                         onClick={resetBusqueda}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-white border border-[#E2E8F0] text-[#64748B] rounded-lg text-sm font-medium hover:bg-[#F8FAFC] transition-colors shrink-0"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-transparent text-slate-600 text-[13px] font-normal rounded-lg border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors shrink-0"
                       >
                         <RotateCcw size={14} strokeWidth={2} />
                         Cambiar
@@ -667,8 +667,8 @@ export default function AdminOficialesPage() {
                   {curpError && (
                     <div className={`flex items-start gap-2 text-sm mt-2 px-3 py-2 rounded-lg ${
                       yaEsOficial
-                        ? "bg-[#FEF3C7] text-[#D97706]"
-                        : "bg-[#FEE2E2] text-[#DC2626]"
+                        ? "bg-amber-50 text-amber-800"
+                        : "bg-red-50 text-red-800"
                     }`}>
                       <AlertCircle size={14} className="mt-0.5 shrink-0" />
                       <span>{curpError}</span>
@@ -676,15 +676,15 @@ export default function AdminOficialesPage() {
                   )}
 
                   {usuarioEncontrado && usuarioVerificado && (
-                    <div className="flex items-start gap-3 bg-[#F0FDF4] border border-[#22C55E]/30 rounded-lg p-3 mt-2">
-                      <div className="w-8 h-8 rounded-full bg-[#DCFCE7] flex items-center justify-center shrink-0">
-                        <UserCheck size={16} className="text-[#16A34A]" strokeWidth={2} />
+                    <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-lg p-3 mt-2">
+                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                        <UserCheck size={16} className="text-green-600" strokeWidth={2} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-[#0F172A]">
+                        <p className="text-sm font-medium text-slate-900">
                           {usuarioEncontrado.nombreCompleto}
                         </p>
-                        <p className="text-[12px] text-[#64748B]">
+                        <p className="text-[12px] text-slate-600">
                           {usuarioEncontrado.correo}
                         </p>
                       </div>
@@ -695,8 +695,8 @@ export default function AdminOficialesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
-                    N° Empleado <span className="text-[#EF4444]">*</span>
+                  <label className="block text-[12px] font-medium text-slate-600 mb-1.5">
+                    N° Empleado <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -706,11 +706,11 @@ export default function AdminOficialesPage() {
                       setFormData({ ...formData, numeroEmpleado: e.target.value })
                     }
                     placeholder="Número de empleado"
-                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
+                  <label className="block text-[12px] font-medium text-slate-600 mb-1.5">
                     Teléfono
                   </label>
                   <input
@@ -720,14 +720,14 @@ export default function AdminOficialesPage() {
                       setFormData({ ...formData, telefono: e.target.value })
                     }
                     placeholder="Teléfono"
-                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
+                  <label className="block text-[12px] font-medium text-slate-600 mb-1.5">
                     Departamento
                   </label>
                   <select
@@ -735,7 +735,7 @@ export default function AdminOficialesPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, departamentoId: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
                   >
                     <option value="">Seleccionar departamento</option>
                     {departamentos.map((d) => (
@@ -746,7 +746,7 @@ export default function AdminOficialesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
+                  <label className="block text-[12px] font-medium text-slate-600 mb-1.5">
                     Rango
                   </label>
                   <select
@@ -754,7 +754,7 @@ export default function AdminOficialesPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, rangoId: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
                   >
                     <option value="">Seleccionar rango</option>
                     {rangos.map((r) => (
@@ -768,7 +768,7 @@ export default function AdminOficialesPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2">
-                  <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
+                  <label className="block text-[12px] font-medium text-slate-600 mb-1.5">
                     Patrulla Asignada
                   </label>
                   <BuscadorPatrullas
@@ -784,7 +784,7 @@ export default function AdminOficialesPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
+                  <label className="block text-[12px] font-medium text-slate-600 mb-1.5">
                     Sector
                   </label>
                   <select
@@ -792,7 +792,7 @@ export default function AdminOficialesPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, sectorId: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
                   >
                     <option value="">Sin sector</option>
                     {sectores.map((s) => (
@@ -803,7 +803,7 @@ export default function AdminOficialesPage() {
                   </select>
                 </div>
                 <div className="col-span-3">
-                  <label className="block text-[12px] font-medium text-[#64748B] mb-1.5">
+                  <label className="block text-[12px] font-medium text-slate-600 mb-1.5">
                     Fecha de Ingreso
                   </label>
                   <input
@@ -812,23 +812,23 @@ export default function AdminOficialesPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, fechaIngreso: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition-all"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 transition-all"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setModalMode(null)}
-                  className="px-4 py-2 text-sm font-medium text-[#64748B] bg-white border border-[#E2E8F0] rounded-lg hover:bg-[#F8FAFC] transition-colors"
+                  className="px-4 py-2 bg-transparent text-slate-600 text-[13px] font-normal rounded-lg border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={saving || (modalMode === "create" && !usuarioVerificado)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#2563EB] rounded-lg hover:bg-[#1D4ED8] active:bg-[#1E40AF] disabled:bg-[#93C5FD] disabled:opacity-60 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 active:bg-blue-900 disabled:bg-blue-200 disabled:text-blue-300 disabled:cursor-not-allowed transition-colors"
                 >
                   {saving && (
                     <Loader2 size={14} className="animate-spin" />

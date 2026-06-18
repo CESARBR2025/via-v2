@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bell, Info, X } from "lucide-react";
+import { Bell, Info } from "lucide-react";
 
 const MOCK_NOTIFICATIONS = [
   {
@@ -36,8 +36,8 @@ export default function NotificationBell() {
           transition-colors duration-150
           ${
             open
-              ? "bg-[#EFF6FF] text-[#2563EB]"
-              : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+              ? "bg-blue-50 text-blue-700"
+              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
           }
         `}
       >
@@ -45,9 +45,9 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-[320px] rounded-xl bg-white border border-[#E2E8F0] shadow-[0_20px_60px_rgba(0,0,0,0.12),0_8px_20px_rgba(0,0,0,0.06)] overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#F1F5F9]">
-            <h3 className="text-sm font-semibold text-[#0F172A]">
+        <div className="absolute right-0 top-11 z-50 w-[320px] rounded-xl bg-white border border-slate-200 shadow-modal overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+            <h3 className="text-sm font-medium text-slate-900">
               Notificaciones
             </h3>
           </div>
@@ -58,9 +58,9 @@ export default function NotificationBell() {
                 <Bell
                   size={32}
                   strokeWidth={1.5}
-                  className="text-[#CBD5E1] mb-2"
+                  className="text-slate-300 mb-2"
                 />
-                <p className="text-sm text-[#64748B]">
+                <p className="text-sm text-slate-600">
                   Sin notificaciones nuevas
                 </p>
               </div>
@@ -70,23 +70,23 @@ export default function NotificationBell() {
                   <button
                     key={n.id}
                     type="button"
-                    className="w-full flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-[#F8FAFC] transition-colors text-left"
+                    className="w-full flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors text-left"
                   >
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                       <Info
                         size={15}
                         strokeWidth={1.5}
-                        className="text-[#2563EB]"
+                        className="text-blue-700"
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-medium text-[#0F172A] truncate">
+                      <p className="text-[13px] font-medium text-slate-900 truncate">
                         {n.title}
                       </p>
-                      <p className="text-[12px] text-[#64748B] line-clamp-2 mt-0.5">
+                      <p className="text-[12px] text-slate-600 line-clamp-2 mt-0.5">
                         {n.description}
                       </p>
-                      <p className="text-[11px] text-[#94A3B8] mt-1">
+                      <p className="text-[11px] text-slate-400 mt-1">
                         {n.time}
                       </p>
                     </div>

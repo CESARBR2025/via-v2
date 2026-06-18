@@ -81,9 +81,9 @@ export default function Sidebar({
         flex-col
         overflow-y-auto
 
-        bg-[#FFFFFF]
-        border-r border-[#E2E8F0]
-        shadow-[2px_0_8px_rgba(0,0,0,0.04)]
+        bg-slate-900
+        border-r border-white/10
+        shadow-card
 
         transition-all duration-300 ease-in-out
 
@@ -114,10 +114,10 @@ export default function Sidebar({
               <Shield size={16} className="text-white" strokeWidth={1.5} />
             </div>
             <div>
-              <span className="text-sm font-bold text-[#0F172A] tracking-tight leading-none block">
+              <span className="text-sm font-medium text-white tracking-tight leading-none block">
                 VIA
               </span>
-              <span className="text-[9px] font-medium text-[#94A3B8] tracking-[0.15em] uppercase leading-none mt-0.5 block">
+              <span className="text-[9px] font-medium text-white/40 tracking-[0.15em] uppercase leading-none mt-0.5 block">
                 Dashboard
               </span>
             </div>
@@ -135,9 +135,9 @@ export default function Sidebar({
           aria-label="Colapsar menú lateral"
           className={`
             w-7 h-7 rounded-lg
-            hover:bg-[#F8FAFC]
+            hover:bg-slate-800
             flex items-center justify-center
-            text-[#94A3B8] hover:text-[#0F172A]
+            text-white/40 hover:text-white
             transition-colors duration-200
             ${collapsed ? "hidden" : ""}
           `}
@@ -153,9 +153,9 @@ export default function Sidebar({
           aria-label="Expandir menú lateral"
           className="
             mt-3 w-full h-7 rounded-lg
-            hover:bg-[#F8FAFC]
+            hover:bg-slate-800
             flex items-center justify-center
-            text-[#94A3B8] hover:text-[#0F172A]
+            text-white/40 hover:text-white
             transition-colors duration-200
           "
         >
@@ -171,8 +171,8 @@ export default function Sidebar({
 
             {!collapsed && (
               <div className="flex items-center gap-2 px-3 mb-2">
-                <div className="w-1 h-3 rounded-full bg-[#2563EB]" />
-                <p className="text-[10px] font-semibold tracking-[0.12em] uppercase text-[#94A3B8]">
+                <div className="w-1 h-3 rounded-full bg-blue-500" />
+                <p className="text-[10px] font-medium tracking-[0.12em] uppercase text-white/40">
                   {section.title}
                 </p>
               </div>
@@ -190,7 +190,7 @@ export default function Sidebar({
 
       {/* ═══ FOOTER ═══ */}
 
-      <div className="pt-4 mt-auto border-t border-[#E2E8F0]">
+      <div className="pt-4 mt-auto border-t border-white/10">
         {userName && (
           <div className="relative" ref={userMenuRef}>
             <button
@@ -198,8 +198,8 @@ export default function Sidebar({
               className={`
                 w-full flex items-center rounded-lg transition-all duration-200 text-left
                 ${userMenuOpen
-                  ? "bg-[#EFF6FF]"
-                  : "hover:bg-[#F8FAFC]"
+                  ? "bg-blue-700/20"
+                  : "hover:bg-slate-800"
                 }
                 ${collapsed
                   ? "justify-center w-10 mx-auto h-10"
@@ -207,8 +207,8 @@ export default function Sidebar({
                 }
               `}
             >
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shrink-0">
-                <span className="text-[10px] font-bold text-white">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center shrink-0">
+                <span className="text-[10px] font-medium text-white">
                   {userName.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -216,11 +216,11 @@ export default function Sidebar({
               {!collapsed && (
                 <>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[12px] font-semibold text-[#0F172A] truncate leading-tight">
+                    <p className="text-[12px] font-medium text-white truncate leading-tight">
                       {firstName}
                     </p>
                     {userRole && (
-                      <span className="text-[9px] font-medium text-[#2563EB] bg-[#EFF6FF] px-1.5 py-0.5 rounded-full inline-block mt-0.5 leading-tight">
+                      <span className="text-[9px] font-medium text-blue-300 bg-blue-700/20 px-1.5 py-0.5 rounded-full inline-block mt-0.5 leading-tight">
                         {userRole}
                       </span>
                     )}
@@ -228,7 +228,7 @@ export default function Sidebar({
                   <ChevronUp
                     size={14}
                     strokeWidth={2}
-                    className={`shrink-0 text-[#94A3B8] transition-transform duration-200 ${userMenuOpen ? "rotate-0" : "rotate-180"}`}
+                    className={`shrink-0 text-white/40 transition-transform duration-200 ${userMenuOpen ? "rotate-0" : "rotate-180"}`}
                   />
                 </>
               )}
@@ -237,8 +237,8 @@ export default function Sidebar({
             {userMenuOpen && (
               <div
                 className={`
-                  bg-[#FFFFFF] border border-[#E2E8F0]
-                  shadow-[0_4px_12px_rgba(0,0,0,0.07),0_1px_3px_rgba(0,0,0,0.04)]
+                  bg-white border border-slate-200
+                  shadow-md
                   rounded-xl p-2 z-50
                   animate-fadeIn
 
@@ -249,12 +249,12 @@ export default function Sidebar({
                 `}
               >
                 {collapsed && (
-                  <div className="px-3 py-2.5 border-b border-[#E2E8F0] mb-1.5">
-                    <p className="text-[13px] font-semibold text-[#0F172A] truncate leading-tight">
+                  <div className="px-3 py-2.5 border-b border-slate-200 mb-1.5">
+                    <p className="text-[13px] font-medium text-slate-900 truncate leading-tight">
                       {firstName}
                     </p>
                     {userRole && (
-                      <p className="text-[11px] text-[#64748B] mt-0.5">{userRole}</p>
+                      <p className="text-[11px] text-slate-600 mt-0.5">{userRole}</p>
                     )}
                   </div>
                 )}
@@ -264,19 +264,19 @@ export default function Sidebar({
                   className="
                     w-full flex items-center gap-3
                     h-10 px-3.5 rounded-xl
-                    bg-[#FEF2F2] text-[#DC2626]
-                    hover:bg-[#FEE2E2] active:bg-[#FECACA]
+                    bg-red-50 text-red-600
+                    hover:bg-red-100 active:bg-red-200
                     transition-all duration-200
-                    font-semibold text-[13px]
+                    font-medium text-[13px]
                     group
                   "
                 >
-                  <div className="w-7 h-7 rounded-lg bg-[#FEE2E2] flex items-center justify-center shrink-0 transition-colors group-hover:bg-white">
-                    <LogOut size={14} strokeWidth={2} className="text-[#DC2626]" />
+                  <div className="w-7 h-7 rounded-lg bg-red-100 flex items-center justify-center shrink-0 transition-colors group-hover:bg-white">
+                    <LogOut size={14} strokeWidth={2} className="text-red-600" />
                   </div>
                   <div className="flex-1 text-left">
                     <span className="block leading-tight">Cerrar sesión</span>
-                    <span className="block text-[10px] font-normal text-[#94A3B8] leading-tight mt-0.5">
+                    <span className="block text-[10px] font-normal text-slate-400 leading-tight mt-0.5">
                       Salir del sistema
                     </span>
                   </div>

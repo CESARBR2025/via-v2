@@ -19,8 +19,8 @@ export default function DateDisplay() {
   if (!dateStr) return null;
 
   return (
-    <div className="hidden lg:flex items-center gap-1.5 text-[13px] text-[#64748B] whitespace-nowrap">
-      <CalendarDays size={14} strokeWidth={1.5} className="text-[#94A3B8]" />
+    <div className="hidden lg:flex items-center gap-1.5 text-[13px] text-slate-600 whitespace-nowrap">
+      <CalendarDays size={14} strokeWidth={1.5} className="text-slate-400" />
       <span className="capitalize">{dateStr}</span>
     </div>
   );
