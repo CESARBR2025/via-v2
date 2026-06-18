@@ -15,7 +15,6 @@ export const mapCrearInfraccionToDB = (
     oficial_id: data.oficialId,
 
     patrulla_id: data.patrullaId ?? null,
-    placa_patrulla: data.placaPatrulla ?? null,
 
     articulo_id: data.articuloId,
     fraccion_id: data.fraccionId,

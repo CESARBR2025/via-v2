@@ -10,12 +10,13 @@ interface Option {
 
 interface CustomSelectProps {
     options: Option[];
-    value: string | number; // ← también aquí
-    onChange: (value: string | number) => void; // ← y aquí
+    value: string | number;
+    onChange: (value: string | number) => void;
     placeholder?: string;
     disabled?: boolean;
     error?: boolean;
     name?: string;
+    onOpenChange?: (open: boolean) => void;
 }
 
 
@@ -27,6 +28,7 @@ export function CustomSelect({
     disabled = false,
     error = false,
     name,
+    onOpenChange,
 }: CustomSelectProps) {
     const [open, setOpen] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -46,6 +48,11 @@ export function CustomSelect({
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Notifica al padre cuando se abre/cierra el panel
+    useEffect(() => {
+        onOpenChange?.(open);
+    }, [open, onOpenChange]);
 
     // Cierra con Escape y navegación con teclado
     const [activeIndex, setActiveIndex] = useState(-1);
