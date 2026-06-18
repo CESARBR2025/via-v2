@@ -124,11 +124,14 @@ export class OficialesService {
   }
 
   static async obtenerMiPerfil(usuarioId: string) {
-    const row = await OficialesRepository.obtenerPorUsuarioIdCompleto(usuarioId);
+    const [row, infraccionesCount] = await Promise.all([
+      OficialesRepository.obtenerPorUsuarioIdCompleto(usuarioId),
+      OficialesRepository.contarInfraccionesOficial(usuarioId),
+    ]);
     if (!row) {
       throw new AppError("Oficial no encontrado", 404, "OFICIAL_NOT_FOUND");
     }
-    return mapRowToDetalleDTO(row);
+    return { ...mapRowToDetalleDTO(row), infraccionesCount };
   }
 
   static async actualizarPatrulla(id: string, patrullaId: string | null) {

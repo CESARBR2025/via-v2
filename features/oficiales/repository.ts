@@ -302,4 +302,11 @@ export class OficialesRepository {
     `);
     return result.rows;
   }
+
+  static async contarInfraccionesOficial(usuarioId: string) {
+    const result = await POOL_PG.query(`
+      SELECT COUNT(*)::int as total FROM v2_infracciones WHERE oficial_id = $1
+    `, [usuarioId]);
+    return result.rows[0]?.total ?? 0;
+  }
 }
