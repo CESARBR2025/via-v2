@@ -20,6 +20,7 @@ import {
     Gavel,
     BookOpen,
     List,
+    ExternalLink,
 } from 'lucide-react';
 
 // ─── UTILS ───
@@ -313,7 +314,24 @@ export default async function InfraccionCiudadanoPage({
                 {/* ▸ FUNDAMENTO LEGAL */}
                 {(infraccion.articulo_numero || infraccion.fraccion_numero) && (
                     <Card>
-                        <Section icon={Gavel} iconBg="bg-slate-50" iconColor="text-slate-700" title="Fundamento Legal">
+                        <div>
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                                <h3 className="text-sm font-medium text-slate-900 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-md bg-slate-50 flex items-center justify-center">
+                                        <Gavel size={13} className="text-slate-700" strokeWidth={1.5} />
+                                    </span>
+                                    Fundamento Legal
+                                </h3>
+                                <a
+                                    href="https://drive.google.com/file/d/1nmrn69QltkjZlFvjJ4NeXuLnPNkBH0s-/view?pli=1"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 text-xs font-medium hover:bg-slate-50 hover:text-slate-700 active:scale-[0.99] transition-all"
+                                >
+                                    <ExternalLink size={12} strokeWidth={1.5} />
+                                    Reglamento de Tránsito
+                                </a>
+                            </div>
                             <div className="space-y-3">
                                 {infraccion.articulo_numero && (
                                     <div className="flex gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
@@ -350,7 +368,7 @@ export default async function InfraccionCiudadanoPage({
                                     </div>
                                 )}
                             </div>
-                        </Section>
+                        </div>
                     </Card>
                 )}
 
