@@ -5,6 +5,8 @@ import { Menu } from "lucide-react";
 
 import { useSidebarStore } from "@/stores/sideBarStore";
 import UserAvatarDropdown from "./UserAvatarDropdown";
+import Breadcrumbs from "./Breadcrumbs";
+import GlobalSearch from "./GlobalSearch";
 
 const PAGE_TITLES: Record<string, string> = {
   "/oficiales/captura": "Capturar Infracción",
@@ -43,7 +45,7 @@ export default function Header({ userName, userRole }: Props) {
       gap-4
     ">
 
-      {/* LEFT */}
+      {/* LEFT — mobile: hamburger + title / desktop: breadcrumbs */}
 
       <div className="flex items-center gap-3 min-w-0">
         <button
@@ -63,11 +65,20 @@ export default function Header({ userName, userRole }: Props) {
         <div className="md:hidden h-6 w-px bg-[#E2E8F0]" />
 
         <h1 className="
+          md:hidden
           text-[22px] font-bold text-[#0F172A]
           truncate
         ">
           {title}
         </h1>
+
+        <Breadcrumbs />
+      </div>
+
+      {/* CENTER — global search */}
+
+      <div className="flex-shrink-0">
+        <GlobalSearch />
       </div>
 
       {/* RIGHT — user avatar + dropdown */}
