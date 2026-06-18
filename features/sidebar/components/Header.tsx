@@ -180,7 +180,8 @@ export default function Header({ userName, userRole, roleKey }: Props) {
         <Breadcrumbs />
       </div>
 
-      {/* CENTER — global search */}
+      {/* CENTER — global search (solo roles que gestionan infracciones) */}
+      {!['corralon_mw', 'corralon_mejia'].includes(roleKey) && (
       <div ref={searchRef} className="relative hidden sm:block flex-1 max-w-lg mx-4">
         <div
           className={`
@@ -288,6 +289,7 @@ export default function Header({ userName, userRole, roleKey }: Props) {
           </div>
         )}
       </div>
+      )}
 
       {/* RIGHT — contextual action + user avatar */}
       <div className="flex items-center gap-1">

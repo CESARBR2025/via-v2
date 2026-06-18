@@ -3,8 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import JuzgadoDashboard from "./JuzgadoDashboard"
-import ModalDetalleInfraccion from "@/features/compartido/components/ModalDetalleInfraccion"
-import type { DetalleCompleto } from "@/features/compartido/types/detalleInfraccion"
+import { DetalleInfraccionModal, type InfraccionDetalle } from "@/features/depInfracciones/components/TablaDevInfracciones/DetalleInfraccionModal"
 
 interface DataRow {
     id: string
@@ -27,7 +26,6 @@ interface JuzgadoTableProps {
 const columns = [
     { key: "folio", label: "Folio" },
     { key: "nombre_infractor", label: "Nombre Infractor" },
-    { key: "correo_infractor", label: "Correo" },
     { key: "placa", label: "Placa" },
     { key: "estatus", label: "Estatus" },
     { key: "acciones", label: "Acciones" },
@@ -39,7 +37,7 @@ export default function JuzgadoTable({ respuestaServidor }: JuzgadoTableProps) {
 
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [detalle, setDetalle] = useState<DetalleCompleto | null>(null)
+    const [detalle, setDetalle] = useState<InfraccionDetalle | null>(null)
 
     async function refetchDetalle(id: string) {
         setLoading(true)
@@ -74,7 +72,7 @@ export default function JuzgadoTable({ respuestaServidor }: JuzgadoTableProps) {
                 visibleColumns={columns}
                 onOpenDetalle={handleOpenDetalle}
             />
-            <ModalDetalleInfraccion
+            <DetalleInfraccionModal
                 isOpen={open}
                 onClose={handleCloseDetalle}
                 loading={loading}
