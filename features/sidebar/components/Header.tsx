@@ -6,7 +6,8 @@ import { Menu, Plus } from "lucide-react";
 import { useSidebarStore } from "@/stores/sideBarStore";
 import UserAvatarDropdown from "./UserAvatarDropdown";
 import Breadcrumbs from "./Breadcrumbs";
-import GlobalSearch from "./GlobalSearch";
+import DateDisplay from "./DateDisplay";
+import NotificationBell from "./NotificationBell";
 
 const PAGE_TITLES: Record<string, string> = {
   "/oficiales/dashboard": "Dashboard",
@@ -92,15 +93,13 @@ export default function Header({ userName, userRole, roleKey }: Props) {
         <Breadcrumbs />
       </div>
 
-      {/* CENTER — global search */}
+      {/* CENTER — date */}
 
-      <div className="flex-shrink-0">
-        <GlobalSearch />
-      </div>
+      <DateDisplay />
 
-      {/* RIGHT — contextual action + user avatar */}
+      {/* RIGHT — contextual action + notifications + user avatar */}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         {action && (
           <button
             type="button"
@@ -120,6 +119,7 @@ export default function Header({ userName, userRole, roleKey }: Props) {
           </button>
         )}
 
+        <NotificationBell />
         <UserAvatarDropdown userName={userName} userRole={userRole} />
       </div>
 

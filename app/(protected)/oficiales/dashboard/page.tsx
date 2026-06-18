@@ -80,7 +80,7 @@ export default async function OficialDashboardPage() {
   const dateStr = formatDate();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-7">
+    <div className="space-y-7">
       {/* GREETING */}
       <div className="flex items-start justify-between">
         <div>
