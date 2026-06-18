@@ -32,11 +32,11 @@ export default async function DepInfraccionesPage() {
     return (
         <div className="flex flex-col h-full">
             <div className="shrink-0">
-                <h1 className="text-[22px] font-medium text-slate-900">
-                    Infracciones realizadas en campo
+                <h1 className="text-[22px] font-medium leading-tight text-slate-900">
+                    Mis Infracciones
                 </h1>
-                <p className="text-[14px] text-slate-600 mt-1 mb-6">
-                    Administra las infracciones que realizas en campo
+                <p className="text-sm text-slate-600 leading-relaxed mt-1 mb-6">
+                    Consulta y gestiona el historial de tus infracciones registradas
                 </p>
             </div>
 

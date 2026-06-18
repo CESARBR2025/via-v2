@@ -403,8 +403,10 @@ export class DepInfraccionesRepository {
 
 
     i.articulo_id,
+    a.numero as articulo_numero,
     a.descripcion as articulo_descripcion,
     i.fraccion_id,
+    f.numero as fraccion_numero,
     f.descripcion as fraccion_descripcion,
 
     i.nombre_infractor,
@@ -438,6 +440,7 @@ export class DepInfraccionesRepository {
     o.total_umas,
     o.total_pesos,
 
+    i.oficial_id,
     i.es_titular,
     i.no_oficio_fiscalia,
     i.url_oficio_fiscalia,
@@ -445,13 +448,22 @@ export class DepInfraccionesRepository {
     i.no_carpeta_investigacion,
     i.url_oficio_pago_corralon,
     i.url_orden_salida_liberaciones,
-    o.estatus as estatus_orden_pago
+    o.estatus as estatus_orden_pago,
+    off.numero_empleado as oficial_numero_empleado,
+    u.nombres as oficial_nombres,
+    u.apellido_p as oficial_apellido_p,
+    u.apellido_m as oficial_apellido_m,
+    pat.numero_unidad as patrulla_nombre,
+    off.activo as oficial_activo
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o
     ON o.infraccion_id = i.id
   JOIN v2_articulos_ley a on i.articulo_id = a.id
   JOIN v2_fracciones_ley f on i.fraccion_id = f.id
+  LEFT JOIN v2_usuarios u ON i.oficial_id = u.id
+  LEFT JOIN v2_oficiales off ON off.usuario_id = i.oficial_id
+  LEFT JOIN v2_patrullas pat ON off.patrulla_id = pat.id
   WHERE i.id = $1 
   ORDER BY o.created_at DESC
   LIMIT 1;

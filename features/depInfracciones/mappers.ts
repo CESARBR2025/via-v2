@@ -49,14 +49,25 @@ export const mapInfraccionDetail = (row: any): InfraccionDetail => ({
   },
 
   Infraccion: {
+    articulo_numero: safeRowMapper(row.articulo_numero),
     articulo_descripcion: safeRowMapper(
       row.articulo_descripcion ?? row.articulo_id,
     ),
+    fraccion_numero: safeRowMapper(row.fraccion_numero),
     fraccion_descripcion: safeRowMapper(
       row.fraccion_descripcion ?? row.fraccion_id,
     ),
     total_umas: safeRowMapper(row.total_umas),
     total_pesos: safeRowMapper(row.total_pesos ?? row.monto_final),
+  },
+
+  oficial: {
+    numero_empleado: safeRowMapper(row.oficial_numero_empleado),
+    nombre_completo: safeRowMapper(
+      `${row.oficial_nombres ?? ""} ${row.oficial_apellido_p ?? ""} ${row.oficial_apellido_m ?? ""}`.trim(),
+    ),
+    patrulla_nombre: safeRowMapper(row.patrulla_nombre),
+    activo: safeRowMapper(row.oficial_activo),
   },
 
   datos_infractor: {

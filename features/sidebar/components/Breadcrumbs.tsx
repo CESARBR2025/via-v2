@@ -101,7 +101,7 @@ export default function Breadcrumbs() {
         const isLast = index === segments.length - 1;
 
         return (
-          <span key={href} className="flex items-center gap-1.5 min-w-0">
+          <span key={`${index}-${href}`} className="flex items-center gap-1.5 min-w-0">
             <ChevronRight size={14} className="text-slate-400 flex-shrink-0" strokeWidth={1.5} />
             {isLast || !isClickable(href) ? (
               <span className={`

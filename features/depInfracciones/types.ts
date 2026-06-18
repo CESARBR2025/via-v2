@@ -51,10 +51,19 @@ export type InfraccionDetail = {
   };
 
   Infraccion: {
+    articulo_numero: string;
     articulo_descripcion: string;
+    fraccion_numero: string;
     fraccion_descripcion: string;
     total_umas: number;
     total_pesos: number;
+  };
+
+  oficial: {
+    numero_empleado: string;
+    nombre_completo: string;
+    patrulla_nombre: string;
+    activo: string;
   };
 
   datos_infractor: {

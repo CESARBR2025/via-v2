@@ -88,8 +88,6 @@ export interface InfraccionDB {
 
   patrulla_id: string | null;
 
-  placa_patrulla: string | null;
-
   articulo_id: string;
 
   fraccion_id: string;
