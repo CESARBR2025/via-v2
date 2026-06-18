@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     if (rol === "admin") {
       redirectTo = "/admin/dashboard";
     } else if (rol === "oficial") {
-      redirectTo = "/oficiales/captura";
+      redirectTo = "/oficiales/dashboard";
     } else if (rol === "liberaciones") {
       redirectTo = "/depLiberaciones/dashboard";
     } else if (rol === "infracciones") {

@@ -118,6 +118,8 @@ export default function Header({ userName, userRole, roleKey }: Props) {
           </button>
         )}
 
+        {action && <div className="h-6 w-px bg-slate-200 mx-1" />}
+
         <UserAvatarDropdown userName={userName} userRole={userRole} />
       </div>
 

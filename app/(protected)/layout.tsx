@@ -54,7 +54,7 @@ export default async function DashboardLayout({
 
             {/* DESKTOP */}
 
-            <Sidebar role={role} userName={userName} userRole={userRole} />
+            <Sidebar role={role} />
 
             {/* MOBILE */}
 
