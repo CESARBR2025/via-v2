@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server"
 import { AdminService } from "@/features/admin/service"
+import { requirePermiso } from "@/lib/auth/guard";
+import { PERM } from "@/features/auth/permissions";
 
 export async function GET(req: Request) {
   try {
+    const auth = await requirePermiso(PERM.FINANCIERO.VER);
+    if (auth) return auth;
+
     const { searchParams } = new URL(req.url)
     const year = parseInt(searchParams.get("year") || String(new Date().getFullYear()), 10)
 

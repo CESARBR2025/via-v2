@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/features/auth/service";
+import { requirePermiso } from "@/lib/auth/guard";
+import { PERM } from "@/features/auth/permissions";
 import { OficialesService } from "@/features/oficiales/service";
 
 export async function GET(
@@ -7,10 +8,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.OFICIALES.GESTIONAR);
+    if (auth) return auth;
 
     const { id } = await params;
     const oficial = await OficialesService.obtenerPorId(id);
@@ -30,10 +29,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.OFICIALES.GESTIONAR);
+    if (auth) return auth;
 
     const { id } = await params;
     const body = await req.json();
@@ -64,10 +61,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.OFICIALES.GESTIONAR);
+    if (auth) return auth;
 
     const { id } = await params;
     await OficialesService.desactivar(id);

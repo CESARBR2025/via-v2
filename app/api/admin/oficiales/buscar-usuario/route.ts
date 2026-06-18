@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/features/auth/service";
+import { requirePermiso } from "@/lib/auth/guard";
+import { PERM } from "@/features/auth/permissions";
 import { OficialesRepository } from "@/features/oficiales/repository";
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.OFICIALES.GESTIONAR);
+    if (auth) return auth;
 
     const { searchParams } = new URL(req.url);
     const curp = searchParams.get("curp");

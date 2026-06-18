@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/features/auth/service";
+import { requirePermiso } from "@/lib/auth/guard";
+import { PERM } from "@/features/auth/permissions";
 import { FlotaService } from "@/features/flota/service";
 import { OficialesRepository } from "@/features/oficiales/repository";
 import { POOL_PG } from "@/lib/db";
 
 export async function GET() {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.OFICIALES.GESTIONAR);
+    if (auth) return auth;
 
     let patrullas = await FlotaService.listarPatrullasParaAsignacion();
 
@@ -36,10 +35,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.OFICIALES.GESTIONAR);
+    if (auth) return auth;
 
     const body = await req.json();
     const { numero_unidad, placas } = body;

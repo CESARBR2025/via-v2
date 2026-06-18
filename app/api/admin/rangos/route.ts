@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/features/auth/service";
+import { requirePermiso } from "@/lib/auth/guard";
+import { PERM } from "@/features/auth/permissions";
 import { RangosService } from "@/features/rangos/service";
 
 export async function GET() {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.RANGOS.GESTIONAR);
+    if (auth) return auth;
 
     const rangos = await RangosService.listar();
 
@@ -23,10 +22,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.RANGOS.GESTIONAR);
+    if (auth) return auth;
 
     const body = await req.json();
     if (!body.nombre?.trim()) {

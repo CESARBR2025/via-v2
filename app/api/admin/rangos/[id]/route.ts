@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/features/auth/service";
+import { requirePermiso } from "@/lib/auth/guard";
+import { PERM } from "@/features/auth/permissions";
 import { RangosService } from "@/features/rangos/service";
 
 export async function PUT(
@@ -7,10 +8,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.RANGOS.GESTIONAR);
+    if (auth) return auth;
 
     const { id } = await params;
     const body = await req.json();
@@ -39,10 +38,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await getSession();
-    if (!session || !session.user.roles.includes("admin")) {
-      return NextResponse.json({ ok: false, message: "No autorizado" }, { status: 403 });
-    }
+    const auth = await requirePermiso(PERM.RANGOS.GESTIONAR);
+    if (auth) return auth;
 
     const { id } = await params;
     const rango = await RangosService.toggleActivo(id);
