@@ -19,6 +19,7 @@ import {
     Eye,
     MessageSquare,
 } from 'lucide-react';
+import { SegmentedControl } from './ui/SegmentedControl';
 
 type DocConfig = {
     id: string;
@@ -64,6 +65,7 @@ const MOTIVO_TO_SUBTIPO: Record<string, SubtipoTitular> = {
     INFRACCION: 'infraccion',
     DELITO: 'delito',
     ACCIDENTE: 'accidente',
+    VEHICULO: 'infraccion',
 };
 
 type Props = {
@@ -88,9 +90,9 @@ function getEstatusConfig(estatus: string) {
     if (s === 'espera_revision') {
         return {
             icon: Clock,
-            bg: '#FEF3C7',
-            border: '#F59E0B/30',
-            text: '#D97706',
+            bgClass: 'bg-amber-50',
+            borderClass: 'border-amber-500/30',
+            textClass: 'text-amber-600',
             label: 'En espera de revisión',
         };
     }
@@ -98,35 +100,35 @@ function getEstatusConfig(estatus: string) {
     if (s === 'liberado' || s === 'completado' || s === 'aprobado') {
         return {
             icon: CheckCircle2,
-            bg: '#DCFCE7',
-            border: '#22C55E/30',
-            text: '#166534',
+            bgClass: 'bg-green-50',
+            borderClass: 'border-green-500/30',
+            textClass: 'text-green-700',
             label: estatus,
         };
     }
     if (s === 'pendiente' || s === 'en_proceso' || s === 'en proceso') {
         return {
             icon: Clock,
-            bg: '#FEF3C7',
-            border: '#F59E0B/30',
-            text: '#D97706',
+            bgClass: 'bg-amber-50',
+            borderClass: 'border-amber-500/30',
+            textClass: 'text-amber-600',
             label: estatus,
         };
     }
     if (s === 'rechazado' || s === 'cancelado' || s === 'mesa_de_control_rechazada') {
         return {
             icon: XCircle,
-            bg: '#FEE2E2',
-            border: '#EF4444/30',
-            text: '#991B1B',
+            bgClass: 'bg-red-50',
+            borderClass: 'border-red-500/30',
+            textClass: 'text-red-700',
             label: 'Documentos rechazados',
         };
     }
     return {
         icon: AlertCircle,
-        bg: '#F1F5F9',
-        border: '#E2E8F0',
-        text: '#64748B',
+        bgClass: 'bg-slate-100',
+        borderClass: 'border-slate-200',
+        textClass: 'text-slate-500',
         label: estatus || 'Sin gestión',
     };
 }
@@ -292,8 +294,6 @@ export default function SeccionLiberacion({
                 }
             }
 
-
-
             let endpoint = '/api/ciudadano/subirDocumentos'
 
             if (estatusInfraccion === 'REGISTRADA' && estatusDependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS') {
@@ -366,16 +366,16 @@ export default function SeccionLiberacion({
     };
 
     return (
-        <section className="bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
-            <div className="px-6 py-[18px] border-b border-[#E2E8F0] flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
-                    <Scale size={18} className="text-[#2563EB]" />
+        <section className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
+            <div className="px-6 py-[18px] border-b border-slate-200 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <Scale size={18} className="text-blue-600" strokeWidth={1.5} />
                 </div>
                 <div>
-                    <h3 className="text-[15px] font-semibold text-[#0F172A]">
+                    <h3 className="text-[15px] font-medium text-slate-900">
                         Liberación
                     </h3>
-                    <p className="text-xs text-[#64748B]">
+                    <p className="text-xs text-slate-500">
                         Estatus de gestión
                     </p>
                 </div>
@@ -386,14 +386,9 @@ export default function SeccionLiberacion({
                 {/* STATUS BADGE */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold shrink-0"
-                        style={{
-                            background: estatusConfig.bg,
-                            borderColor: estatusConfig.border,
-                            color: estatusConfig.text,
-                        }}
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium shrink-0 ${estatusConfig.bgClass} ${estatusConfig.borderClass} ${estatusConfig.textClass}`}
                     >
-                        <estatusConfig.icon size={16} />
+                        <estatusConfig.icon size={16} strokeWidth={1.5} />
                         {estatusConfig.label}
 
                     </div>
@@ -419,81 +414,64 @@ export default function SeccionLiberacion({
 
                 {/* OFICIO DISPONIBLE */}
                 {oficioDisponible && (
-                    <div className="rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-3 flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-[#2563EB]/10 flex items-center justify-center shrink-0">
-                            <FileText size={16} className="text-[#2563EB]" />
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-blue-600/10 flex items-center justify-center shrink-0">
+                            <FileText size={16} className="text-blue-600" strokeWidth={1.5} />
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-[#0F172A]">
+                            <p className="text-sm font-medium text-slate-900">
                                 Oficio de liberación disponible
                             </p>
 
                         </div>
                         <button
                             onClick={() => abrirDocumento(urlOficio)}
-                            className="shrink-0 w-9 h-9 rounded-lg hover:bg-[#DBEAFE] flex items-center justify-center transition"
+                            className="shrink-0 w-9 h-9 rounded-lg hover:bg-blue-100 flex items-center justify-center transition"
                         >
-                            <ExternalLink size={16} className="text-[#2563EB]" />
+                            <ExternalLink size={16} className="text-blue-600" strokeWidth={1.5} />
                         </button>
                     </div>
                 )}
 
                 {/* SEPARADOR */}
-                {!tieneDocs && !submitted && estatusDependencia !== 'ESPERA_REVISION' && <div className="h-px bg-[#E2E8F0]" />}
+                {!tieneDocs && !submitted && estatusDependencia !== 'ESPERA_REVISION' && <div className="h-px bg-slate-200" />}
 
                 {/* FORMULARIO (solo si no hay docs) */}
                 {!tieneDocs && !submitted && estatusDependencia !== 'ESPERA_REVISION' && (
                     <>
                         {/* SELECCIÓN TIPO */}
                         <div className="space-y-3">
-                            <p className="text-sm font-semibold text-[#0F172A]">
+                            <p className="text-sm font-medium text-slate-900">
                                 Emitir orden de liberación para:
                             </p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <TipoOption
-                                    icon={Building2}
-                                    selected={selectedType === 'empresa'}
-                                    onClick={() => {
-                                        setSelectedType('empresa');
-                                        setSelectedFiles({});
-                                        setTitularNombre('');
-                                        setTitularAppaterno('');
-                                        setTitularApmaterno('');
-                                        setTitularCurp('');
-                                        setTitularCorreo('');
-                                        setError(null);
-                                    }}
-                                    label="Empresa"
-                                    description="La unidad pertenece a una empresa"
-                                />
-                                <TipoOption
-                                    icon={User}
-                                    selected={selectedType === 'titular'}
-                                    onClick={() => {
-                                        setSelectedType('titular');
-                                        setSelectedFiles({});
-                                        setTitularNombre('');
-                                        setTitularAppaterno('');
-                                        setTitularApmaterno('');
-                                        setTitularCurp('');
-                                        setTitularCorreo('');
-                                        setError(null);
-                                    }}
-                                    label="Titular"
-                                    description="Persona física propietaria"
-                                />
-                            </div>
+                            <SegmentedControl
+                                options={[
+                                    { value: 'empresa', label: 'Empresa', icon: Building2 },
+                                    { value: 'titular', label: 'Titular', icon: User },
+                                ]}
+                                value={selectedType}
+                                onChange={(val) => {
+                                    setSelectedType(val as 'empresa' | 'titular');
+                                    setSelectedFiles({});
+                                    setTitularNombre('');
+                                    setTitularAppaterno('');
+                                    setTitularApmaterno('');
+                                    setTitularCurp('');
+                                    setTitularCorreo('');
+                                    setError(null);
+                                }}
+                            />
                         </div>
 
                         {/* TIPO LIBERACIÓN (auto desde DB) */}
                         {selectedType === 'titular' && (
-                            <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0">
-                                    <FileText size={16} className="text-[#2563EB]" />
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                                    <FileText size={16} className="text-blue-600" strokeWidth={1.5} />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-[#64748B]">Tipo de liberación</p>
-                                    <p className="text-sm font-semibold text-[#0F172A]">
+                                    <p className="text-xs text-slate-500">Tipo de liberación</p>
+                                    <p className="text-sm font-medium text-slate-900">
                                         {subtipoLabel || 'No determinado'}
                                     </p>
                                 </div>
@@ -503,16 +481,16 @@ export default function SeccionLiberacion({
                         {/* DATOS DEL TITULAR (cuando no es el mismo infractor) */}
                         {selectedType === 'titular' && esTitular === false && (
                             <div className="space-y-4">
-                                <div className="border-t border-[#E2E8F0] pt-4">
-                                    <p className="text-sm font-semibold text-[#0F172A] mb-3">
+                                <div className="border-t border-slate-200 pt-4">
+                                    <p className="text-sm font-medium text-slate-900 mb-3">
                                         Datos del titular
                                     </p>
-                                    <p className="text-xs text-[#64748B] mb-4">
+                                    <p className="text-xs text-slate-500 mb-4">
                                         El infractor no es el titular del vehículo. Capture los datos del propietario.
                                     </p>
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div>
-                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                                 Nombre(s) <span className="text-red-400">*</span>
                                             </label>
                                             <input
@@ -520,11 +498,11 @@ export default function SeccionLiberacion({
                                                 value={titularNombre}
                                                 onChange={e => setTitularNombre(e.target.value)}
                                                 placeholder="Nombre(s)"
-                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                                 A. Paterno <span className="text-red-400">*</span>
                                             </label>
                                             <input
@@ -532,11 +510,11 @@ export default function SeccionLiberacion({
                                                 value={titularAppaterno}
                                                 onChange={e => setTitularAppaterno(e.target.value)}
                                                 placeholder="Apellido paterno"
-                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                                 A. Materno
                                             </label>
                                             <input
@@ -544,12 +522,12 @@ export default function SeccionLiberacion({
                                                 value={titularApmaterno}
                                                 onChange={e => setTitularApmaterno(e.target.value)}
                                                 placeholder="Apellido materno"
-                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                             />
                                         </div>
                                     </div>
                                     <div className="mt-4">
-                                        <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                        <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                             CURP <span className="text-red-400">*</span>
                                         </label>
                                         <input
@@ -558,11 +536,11 @@ export default function SeccionLiberacion({
                                             onChange={e => setTitularCurp(e.target.value)}
                                             placeholder="CURP del titular"
                                             maxLength={18}
-                                            className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                         />
                                     </div>
                                     <div className="mt-4">
-                                        <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                        <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                             Correo electrónico
                                         </label>
                                         <input
@@ -570,7 +548,7 @@ export default function SeccionLiberacion({
                                             value={titularCorreo}
                                             onChange={e => setTitularCorreo(e.target.value)}
                                             placeholder="correo@ejemplo.com"
-                                            className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                         />
                                     </div>
                                 </div>
@@ -582,7 +560,7 @@ export default function SeccionLiberacion({
                             <div className="space-y-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                        <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                             Nombre de la empresa <span className="text-red-400">*</span>
                                         </label>
                                         <input
@@ -590,11 +568,11 @@ export default function SeccionLiberacion({
                                             value={nombreEmpresa}
                                             onChange={e => setNombreEmpresa(e.target.value)}
                                             placeholder="Razón social"
-                                            className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                        <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                             RFC <span className="text-red-400">*</span>
                                         </label>
                                         <input
@@ -602,18 +580,18 @@ export default function SeccionLiberacion({
                                             value={rfcEmpresa}
                                             onChange={e => setRfcEmpresa(e.target.value)}
                                             placeholder="RFC de la empresa"
-                                            className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                            className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                         />
                                     </div>
                                 </div>
 
-                                <div className="border-t border-[#E2E8F0] pt-4">
-                                    <p className="text-sm font-semibold text-[#0F172A] mb-3">
+                                <div className="border-t border-slate-200 pt-4">
+                                    <p className="text-sm font-medium text-slate-900 mb-3">
                                         Representante fiscal
                                     </p>
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div>
-                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                                 Nombre(s) <span className="text-red-400">*</span>
                                             </label>
                                             <input
@@ -621,11 +599,11 @@ export default function SeccionLiberacion({
                                                 value={nombreRespFiscal}
                                                 onChange={e => setNombreRespFiscal(e.target.value)}
                                                 placeholder="Nombre(s)"
-                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                                 A. Paterno <span className="text-red-400">*</span>
                                             </label>
                                             <input
@@ -633,11 +611,11 @@ export default function SeccionLiberacion({
                                                 value={apPaternoRespFiscal}
                                                 onChange={e => setApPaternoRespFiscal(e.target.value)}
                                                 placeholder="Apellido paterno"
-                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+                                            <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                                                 A. Materno
                                             </label>
                                             <input
@@ -645,7 +623,7 @@ export default function SeccionLiberacion({
                                                 value={apMaternoRespFiscal}
                                                 onChange={e => setApMaternoRespFiscal(e.target.value)}
                                                 placeholder="Apellido materno"
-                                                className="w-full h-10 px-3.5 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
+                                                className="w-full h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] focus:outline-none transition"
                                             />
                                         </div>
                                     </div>
@@ -656,7 +634,7 @@ export default function SeccionLiberacion({
                         {/* DOCUMENTOS */}
                         {currentDocs.length > 0 && (
                             <div className="space-y-3">
-                                <p className="text-sm font-semibold text-[#0F172A]">
+                                <p className="text-sm font-medium text-slate-900">
                                     Documentos requeridos
                                 </p>
                                 <div className="space-y-2">
@@ -675,9 +653,9 @@ export default function SeccionLiberacion({
 
                         {/* ERROR */}
                         {error && (
-                            <div className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 flex items-center gap-2">
-                                <AlertCircle size={14} className="text-[#DC2626] shrink-0" />
-                                <p className="text-sm text-[#DC2626]">{error}</p>
+                            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 flex items-center gap-2">
+                                <AlertCircle size={14} className="text-red-600 shrink-0" strokeWidth={1.5} />
+                                <p className="text-sm text-red-600">{error}</p>
                             </div>
                         )}
 
@@ -687,11 +665,11 @@ export default function SeccionLiberacion({
                                 onClick={handleSubmit}
                                 disabled={!allSelected || submitting}
                                 className="
-                                    w-full h-12 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8]
-                                    disabled:bg-[#93C5FD] disabled:opacity-60
-                                    text-white text-sm font-semibold
+                                    w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700
+                                    disabled:bg-blue-300 disabled:opacity-60
+                                    text-white text-sm font-medium
                                     flex items-center justify-center gap-2
-                                    transition
+                                    transition active:scale-[0.99]
                                 "
                             >
                                 {submitting ? (
@@ -701,7 +679,7 @@ export default function SeccionLiberacion({
                                     </>
                                 ) : (
                                     <>
-                                        <Upload size={16} />
+                                        <Upload size={16} strokeWidth={1.5} />
                                         Subir documentos
                                     </>
                                 )}
@@ -714,15 +692,15 @@ export default function SeccionLiberacion({
                 {(tieneDocs || submitted || estatusDependencia === 'ESPERA_REVISION' || estatusDependencia === 'MESA_DE_CONTROL_RECHAZADA') && (
                     <div className="space-y-4">
                         {estatusDependencia === 'ESPERA_REVISION' && (
-                            <div className="rounded-xl border border-[#22C55E]/30 bg-[#DCFCE7] p-6 text-center space-y-3">
-                                <div className="w-16 h-16 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center mx-auto">
-                                    <CheckCircle2 size={32} className="text-[#16A34A]" />
+                            <div className="rounded-xl border border-green-500/30 bg-green-50 p-6 text-center space-y-3">
+                                <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto">
+                                    <CheckCircle2 size={32} className="text-green-600" strokeWidth={1.5} />
                                 </div>
                                 <div>
-                                    <h4 className="text-lg font-bold text-[#0F172A]">
+                                    <h4 className="text-lg font-medium text-slate-900">
                                         En espera de revisión
                                     </h4>
-                                    <p className="text-sm text-[#64748B] mt-1">
+                                    <p className="text-sm text-slate-500 mt-1">
                                         Todos los documentos fueron subidos correctamente.
                                         La autoridad revisará la información y emitirá la
                                         orden de liberación.
@@ -732,15 +710,15 @@ export default function SeccionLiberacion({
                         )}
 
                         {estatusDependencia === 'MESA_DE_CONTROL_RECHAZADA' && (
-                            <div className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] p-6 text-center space-y-3">
-                                <div className="w-16 h-16 rounded-full bg-[#FEE2E2]/10 border border-[#FECACA] flex items-center justify-center mx-auto">
-                                    <XCircle size={32} className="text-[#DC2626]" />
+                            <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center space-y-3">
+                                <div className="w-16 h-16 rounded-full bg-red-50/10 border border-red-200 flex items-center justify-center mx-auto">
+                                    <XCircle size={32} className="text-red-600" strokeWidth={1.5} />
                                 </div>
                                 <div>
-                                    <h4 className="text-lg font-bold text-[#0F172A]">
+                                    <h4 className="text-lg font-medium text-slate-900">
                                         Documentos rechazados
                                     </h4>
-                                    <p className="text-sm text-[#64748B] mt-1">
+                                    <p className="text-sm text-slate-500 mt-1">
                                         Algunos documentos fueron rechazados. Revisa el motivo
                                         y vuelve a subir los documentos corregidos.
                                     </p>
@@ -750,10 +728,10 @@ export default function SeccionLiberacion({
 
                         {tieneDocs && (
                             <div className="space-y-3">
-                                <p className="text-sm font-semibold text-[#0F172A] flex items-center gap-2">
-                                    <FileText size={15} className="text-[#2563EB]" />
+                                <p className="text-sm font-medium text-slate-900 flex items-center gap-2">
+                                    <FileText size={15} className="text-blue-600" strokeWidth={1.5} />
                                     Documentos subidos
-                                    {loadingStatus && <Loader2 size={12} className="animate-spin text-[#94A3B8]" />}
+                                    {loadingStatus && <Loader2 size={12} className="animate-spin text-slate-400" />}
                                 </p>
                                 <div className="space-y-3">
                                     {Object.entries(documentosLiberacion).map(([key, doc]) => {
@@ -768,73 +746,71 @@ export default function SeccionLiberacion({
                                         return (
                                             <div key={key} className="space-y-2">
                                                 <div
-                                                    className="flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors"
-                                                    style={{
-                                                        borderColor: aceptado ? '#BBF7D0' : rechazado ? '#FECACA' : '#E2E8F0',
-                                                        background: aceptado ? '#F0FDF4' : rechazado ? '#FEF2F2' : '#F8FAFC',
-                                                    }}
+                                                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors ${
+                                                        aceptado
+                                                            ? 'border-green-200 bg-green-50'
+                                                            : rechazado
+                                                                ? 'border-red-200 bg-red-50'
+                                                                : 'border-slate-200 bg-slate-50'
+                                                    }`}
                                                 >
                                                     <div
-                                                        className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                                                        style={{
-                                                            background: aceptado ? '#DCFCE7' : rechazado ? '#FEE2E2' : '#EFF6FF',
-                                                        }}
+                                                        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                                                            aceptado ? 'bg-green-100' : rechazado ? 'bg-red-100' : 'bg-blue-50'
+                                                        }`}
                                                     >
                                                         {aceptado ? (
-                                                            <CheckCircle2 size={15} className="text-[#16A34A]" />
+                                                            <CheckCircle2 size={15} className="text-green-600" strokeWidth={1.5} />
                                                         ) : rechazado ? (
-                                                            <XCircle size={15} className="text-[#DC2626]" />
+                                                            <XCircle size={15} className="text-red-600" strokeWidth={1.5} />
                                                         ) : (
-                                                            <FileText size={15} className="text-[#2563EB]" />
+                                                            <FileText size={15} className="text-blue-600" strokeWidth={1.5} />
                                                         )}
                                                     </div>
 
-                                                    <span className="text-sm font-medium text-[#0F172A] flex-1 min-w-0">
+                                                    <span className="text-sm font-medium text-slate-900 flex-1 min-w-0">
                                                         {doc.label}
                                                     </span>
 
                                                     {aceptado && (
-                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0"
-                                                            style={{ background: '#DCFCE7', color: '#16A34A' }}>
-                                                            <CheckCircle2 size={10} />
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium shrink-0 bg-green-100 text-green-600">
+                                                            <CheckCircle2 size={10} strokeWidth={1.5} />
                                                             Aceptado
                                                         </span>
                                                     )}
 
                                                     {rechazado && (
-                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0"
-                                                            style={{ background: '#FEE2E2', color: '#DC2626' }}>
-                                                            <XCircle size={10} />
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium shrink-0 bg-red-100 text-red-600">
+                                                            <XCircle size={10} strokeWidth={1.5} />
                                                             Rechazado
                                                         </span>
                                                     )}
 
                                                     {pendiente && !loadingStatus && (
-                                                        <span className="text-[11px] text-[#94A3B8] shrink-0 flex items-center gap-1.5">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-[#94A3B8] animate-pulse" />
+                                                        <span className="text-[11px] text-slate-400 shrink-0 flex items-center gap-1.5">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse" />
                                                             Pendiente
                                                         </span>
                                                     )}
 
                                                     <button
                                                         onClick={() => abrirDocumento(doc.url)}
-                                                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition"
+                                                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition active:scale-[0.99]"
                                                     >
-                                                        <Eye size={12} />
+                                                        <Eye size={12} strokeWidth={1.5} />
                                                         Ver
                                                     </button>
                                                 </div>
 
                                                 {/* RECHAZO: comentario + re-upload */}
                                                 {rechazado && obs && (
-                                                    <div className="ml-12 flex items-start gap-2 px-4 py-2.5 rounded-lg"
-                                                        style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
-                                                        <MessageSquare size={13} className="text-[#D97706] mt-0.5 shrink-0" />
+                                                    <div className="ml-12 flex items-start gap-2 px-4 py-2.5 rounded-lg bg-amber-50 border border-amber-200">
+                                                        <MessageSquare size={13} className="text-amber-600 mt-0.5 shrink-0" strokeWidth={1.5} />
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-[11px] font-semibold text-[#D97706] mb-0.5">
+                                                            <p className="text-[11px] font-medium text-amber-600 mb-0.5">
                                                                 Motivo del rechazo
                                                             </p>
-                                                            <p className="text-[12px] text-[#92400E] italic">
+                                                            <p className="text-[12px] text-amber-800 italic">
                                                                 &ldquo;{obs}&rdquo;
                                                             </p>
                                                         </div>
@@ -844,8 +820,9 @@ export default function SeccionLiberacion({
                                                 {/* RE-UPLOAD solo si rechazado */}
                                                 {rechazado && (
                                                     <div className="ml-12 flex items-center gap-3">
-                                                        <label className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-[#FCA5A5] bg-[#FFFFFF] cursor-pointer hover:bg-[#FFF1F2] transition"
-                                                            style={{ borderColor: tieneReupload ? '#22C55E' : '#FCA5A5' }}>
+                                                        <label className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed bg-white cursor-pointer hover:bg-rose-50 transition ${
+                                                            tieneReupload ? 'border-green-500' : 'border-red-300'
+                                                        }`}>
                                                             <input
                                                                 type="file"
                                                                 accept="image/*,application/pdf"
@@ -860,15 +837,15 @@ export default function SeccionLiberacion({
                                                             />
                                                             {tieneReupload ? (
                                                                 <>
-                                                                    <CheckCircle2 size={14} className="text-[#16A34A]" />
-                                                                    <span className="text-[12px] font-medium text-[#16A34A] truncate">
+                                                                    <CheckCircle2 size={14} className="text-green-600" strokeWidth={1.5} />
+                                                                    <span className="text-[12px] font-medium text-green-600 truncate">
                                                                         {reuploadFiles[key].name}
                                                                     </span>
                                                                 </>
                                                             ) : (
                                                                 <>
-                                                                    <Upload size={14} className="text-[#DC2626]" />
-                                                                    <span className="text-[12px] text-[#64748B]">
+                                                                    <Upload size={14} className="text-red-600" strokeWidth={1.5} />
+                                                                    <span className="text-[12px] text-slate-500">
                                                                         Seleccionar nuevo archivo
                                                                     </span>
                                                                 </>
@@ -881,9 +858,9 @@ export default function SeccionLiberacion({
                                                                     delete n[key];
                                                                     return n;
                                                                 })}
-                                                                className="shrink-0 px-2 py-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[11px] text-[#64748B] transition"
+                                                                className="shrink-0 px-2 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-[11px] text-slate-500 transition"
                                                             >
-                                                                <X size={13} />
+                                                                <X size={13} strokeWidth={1.5} />
                                                             </button>
                                                         )}
                                                     </div>
@@ -898,7 +875,7 @@ export default function SeccionLiberacion({
                                     <button
                                         onClick={handleReupload}
                                         disabled={reuploading}
-                                        className="w-full h-11 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] disabled:opacity-60 text-white text-sm font-semibold flex items-center justify-center gap-2 transition"
+                                        className="w-full h-11 rounded-lg bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-medium flex items-center justify-center gap-2 transition active:scale-[0.99]"
                                     >
                                         {reuploading ? (
                                             <>
@@ -907,7 +884,7 @@ export default function SeccionLiberacion({
                                             </>
                                         ) : (
                                             <>
-                                                <Upload size={16} />
+                                                <Upload size={16} strokeWidth={1.5} />
                                                 Reenviar {Object.keys(reuploadFiles).length} documento(s) a revisión
                                             </>
                                         )}
@@ -916,9 +893,9 @@ export default function SeccionLiberacion({
 
                                 {/* ERROR */}
                                 {error && (
-                                    <div className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 flex items-center gap-2">
-                                        <AlertCircle size={14} className="text-[#DC2626] shrink-0" />
-                                        <p className="text-sm text-[#DC2626]">{error}</p>
+                                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 flex items-center gap-2">
+                                        <AlertCircle size={14} className="text-red-600 shrink-0" strokeWidth={1.5} />
+                                        <p className="text-sm text-red-600">{error}</p>
                                     </div>
                                 )}
                             </div>
@@ -933,58 +910,6 @@ export default function SeccionLiberacion({
 // =====================================================
 // SUB COMPONENTES
 // =====================================================
-
-function TipoOption({
-    icon: Icon,
-    selected,
-    onClick,
-    label,
-    description,
-}: {
-    icon: React.ElementType;
-    selected: boolean;
-    onClick: () => void;
-    label: string;
-    description: string;
-}) {
-    return (
-        <button
-            onClick={onClick}
-            className={`
-                relative flex items-start gap-3 p-4 rounded-xl border-2 transition text-left
-                ${selected
-                    ? 'border-[#2563EB] bg-[#EFF6FF]'
-                    : 'border-[#E2E8F0] hover:border-[#CBD5E1] hover:bg-[#F8FAFC]'
-                }
-            `}
-        >
-            <div
-                className={`
-                    shrink-0 mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition
-                    ${selected ? 'border-[#2563EB] bg-[#2563EB]' : 'border-[#CBD5E1]'}
-                `}
-            >
-                {selected && <div className="w-2 h-2 rounded-full bg-white" />}
-            </div>
-            <div className="flex items-start gap-3 min-w-0">
-                <div
-                    className={`
-                        w-10 h-10 rounded-lg flex items-center justify-center shrink-0
-                        ${selected ? 'bg-[#DBEAFE]' : 'bg-[#F1F5F9]'}
-                    `}
-                >
-                    <Icon size={18} className={selected ? 'text-[#2563EB]' : 'text-[#64748B]'} />
-                </div>
-                <div className="min-w-0">
-                    <p className={`text-sm font-semibold ${selected ? 'text-[#2563EB]' : 'text-[#0F172A]'}`}>
-                        {label}
-                    </p>
-                    <p className="text-xs text-[#64748B] mt-0.5">{description}</p>
-                </div>
-            </div>
-        </button>
-    );
-}
 
 function DocUploadRow({
     doc,
@@ -1004,25 +929,25 @@ function DocUploadRow({
             className={`
                 flex items-center gap-3 px-4 py-3 rounded-lg border transition
                 ${file
-                    ? 'border-[#22C55E]/30 bg-[#DCFCE7]'
-                    : 'border-[#E2E8F0] bg-[#F8FAFC]'
+                    ? 'border-green-500/30 bg-green-50'
+                    : 'border-slate-200 bg-slate-50'
                 }
             `}
         >
             <div
                 className={`
                     w-9 h-9 rounded-lg flex items-center justify-center shrink-0
-                    ${file ? 'bg-[#22C55E]/10' : 'bg-[#FFFFFF] border border-[#E2E8F0]'}
+                    ${file ? 'bg-green-500/10' : 'bg-white border border-slate-200'}
                 `}
             >
                 {file ? (
-                    <CheckCircle2 size={16} className="text-[#16A34A]" />
+                    <CheckCircle2 size={16} className="text-green-600" strokeWidth={1.5} />
                 ) : (
-                    <FileUp size={16} className="text-[#64748B]" />
+                    <FileUp size={16} className="text-slate-500" strokeWidth={1.5} />
                 )}
             </div>
 
-            <span className={`text-sm flex-1 min-w-0 ${file ? 'text-[#16A34A]' : 'text-[#0F172A]'}`}>
+            <span className={`text-sm flex-1 min-w-0 ${file ? 'text-green-600' : 'text-slate-900'}`}>
                 {file ? file.name : doc.label}
             </span>
 
@@ -1041,9 +966,9 @@ function DocUploadRow({
             {!file && (
                 <button
                     onClick={() => inputRef.current?.click()}
-                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition"
+                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition active:scale-[0.99]"
                 >
-                    <Upload size={12} />
+                    <Upload size={12} strokeWidth={1.5} />
                     Seleccionar
                 </button>
             )}
@@ -1051,9 +976,9 @@ function DocUploadRow({
             {file && (
                 <button
                     onClick={onRemove}
-                    className="shrink-0 w-7 h-7 rounded-lg hover:bg-[#22C55E]/20 flex items-center justify-center transition"
+                    className="shrink-0 w-7 h-7 rounded-lg hover:bg-green-500/20 flex items-center justify-center transition"
                 >
-                    <X size={14} className="text-[#16A34A]" />
+                    <X size={14} className="text-green-600" strokeWidth={1.5} />
                 </button>
             )}
         </div>
@@ -1069,11 +994,11 @@ function InfoItem2({
 }) {
     if (!value) return null;
     return (
-        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
-            <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-[#94A3B8] mb-1">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5">
+            <p className="text-[11px] font-medium tracking-[0.15em] uppercase text-slate-400 mb-1">
                 {label}
             </p>
-            <p className="text-sm font-semibold text-[#0F172A] break-all">
+            <p className="text-sm font-medium text-slate-900 break-all">
                 {value}
             </p>
         </div>

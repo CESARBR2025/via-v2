@@ -138,6 +138,7 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
     marca: row.marca,
     modelo: row.modelo,
     color: row.color,
+    noSerieVehiculo: row.no_serie_vehiculo,
 
     tipoVehiculo: row.tipo_vehiculo,
 
@@ -155,7 +156,11 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
     estado: row.estado,
 
     articuloId: row.articulo_id,
+    articulo_numero: row.articulo_numero,
+    articulo_descripcion: row.articulo_descripcion,
     fraccionId: row.fraccion_id,
+    fraccion_numero: row.fraccion_numero,
+    fraccion_descripcion: row.fraccion_descripcion,
 
     nombreInfractor: row.nombre_infractor,
     apellidoPaternoInfractor: row.apellido_paterno_infractor,

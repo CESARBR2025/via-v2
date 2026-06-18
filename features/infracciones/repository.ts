@@ -146,6 +146,12 @@ export class InfraccionesRepository {
         -- Clasificación de la fracción
         vfl.clasificacion,
 
+        -- Articulo y fracción
+        val.numero AS articulo_numero,
+        val.descripcion AS articulo_descripcion,
+        vfl.numero AS fraccion_numero,
+        vfl.descripcion AS fraccion_descripcion,
+
         -- Datos de orden de pago
         ops.id AS orden_pago_local_id,
         ops.orden_pago_id,
@@ -204,6 +210,9 @@ export class InfraccionesRepository {
 
     FROM v2_infracciones i
 
+    JOIN v2_articulos_ley val
+        ON i.articulo_id = val.id
+
     JOIN v2_fracciones_ley vfl
         ON i.fraccion_id = vfl.id
 
@@ -217,7 +226,9 @@ export class InfraccionesRepository {
         ON dl.solicitud_id = sl.id
 
     WHERE i.id = $1
-    GROUP BY i.id, vfl.clasificacion, ops.id, ops.orden_pago_id, ops.estatus,
+    GROUP BY i.id, val.numero, val.descripcion,
+             vfl.clasificacion, vfl.numero, vfl.descripcion,
+             ops.id, ops.orden_pago_id, ops.estatus,
              ops.url_pago, ops.url_guardado, ops.folio_orden,
              ops.fecha_vencimiento, ops.total_pesos, ops.total_umas,
              ops.created_at, ops.concepto_id, sl.id, sl.tipo_liberacion,
