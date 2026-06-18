@@ -27,7 +27,7 @@ export function SegmentedControl({
     <div
       className={`
         flex bg-slate-100 rounded-xl p-1 gap-0
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+        ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none select-none' : ''}
         ${error ? 'ring-2 ring-red-500 ring-offset-1' : ''}
       `}
       role="radiogroup"
@@ -50,15 +50,15 @@ export function SegmentedControl({
               text-sm font-medium
               transition-all duration-200
               ${selected
-                ? 'bg-white text-blue-700 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-blue-700 text-white shadow-[0_2px_8px_rgba(29,78,216,0.25)] active:scale-[0.98]'
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 active:scale-[0.98]'
               }
               ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-1
             `}
           >
             {Icon && (
-              <Icon size={16} strokeWidth={1.5} className={selected ? 'text-blue-700' : 'text-slate-400'} />
+              <Icon size={16} strokeWidth={1.5} className={selected ? 'text-white' : 'text-slate-400'} />
             )}
             {opt.label}
           </button>

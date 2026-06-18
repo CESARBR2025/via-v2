@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 // CustomSelect.tsx — cambia la interface Option
 interface Option {
@@ -80,13 +81,13 @@ export function CustomSelect({
     }, [open, options, activeIndex, onChange]);
 
     const triggerClasses = [
-        'flex w-full items-center justify-between gap-2 px-3 h-[42px]',
+        'flex w-full items-center justify-between gap-2 px-3 py-2',
         'rounded-lg border bg-white text-sm transition-all cursor-pointer',
         open
-            ? 'border-[#2563EB] ring-2 ring-[#2563EB]/15'
+            ? 'border-blue-600 ring-2 ring-blue-600/15'
             : error
                 ? 'border-red-400'
-                : 'border-gray-300 hover:border-[#2563EB]',
+                : 'border-slate-200 hover:border-blue-600',
         disabled ? 'opacity-50 cursor-not-allowed' : '',
     ]
         .filter(Boolean)
@@ -108,25 +109,16 @@ export function CustomSelect({
                 aria-label={name ? `${name}: ${selectedLabel ?? placeholder}` : placeholder}
             >
                 <span
-                    className={`flex-1 text-left truncate ${!selectedLabel ? 'text-gray-400' : 'text-gray-900'
+                    className={`flex-1 text-left truncate ${!selectedLabel ? 'text-slate-400' : 'text-slate-900'
                         }`}
                 >
                     {selectedLabel ?? placeholder}
                 </span>
-                <svg
-                    className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''
-                        }`}
-                    viewBox="0 0 16 16"
-                    fill="none"
-                >
-                    <path
-                        d="M4 6l4 4 4-4"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    />
-                </svg>
+                <ChevronDown
+                    size={16}
+                    className={`shrink-0 text-slate-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                    strokeWidth={1.5}
+                />
             </button>
 
             {/* Panel */}
@@ -134,7 +126,7 @@ export function CustomSelect({
                 <ul
                     role="listbox"
                     aria-label={placeholder}
-                    className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 rounded-lg border border-gray-200 bg-white shadow-lg overflow-y-auto max-h-[184px]"
+                    className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 rounded-lg border border-slate-200 bg-white shadow-md overflow-y-auto max-h-[184px]"
                 >
                     <li>
                         <button
@@ -145,7 +137,7 @@ export function CustomSelect({
                                 onChange('');
                                 setOpen(false);
                             }}
-                            className="w-full px-3 py-2.5 text-left text-sm text-gray-400 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                            className="w-full px-3 py-2.5 text-left text-sm text-slate-400 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                         >
                             {placeholder}
                         </button>
@@ -166,10 +158,10 @@ export function CustomSelect({
                                 className={[
                                     'w-full px-3 py-2.5 text-left text-sm leading-snug transition-colors',
                                     'whitespace-normal break-words',
-                                    i > 0 ? 'border-t border-gray-100' : '',
+                                    i > 0 ? 'border-t border-slate-100' : '',
                                     value === opt.value
                                         ? 'bg-blue-50 text-blue-700 font-medium'
-                                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700',
+                                        : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700',
                                     i === activeIndex ? 'bg-blue-50' : '',
                                 ]
                                     .filter(Boolean)

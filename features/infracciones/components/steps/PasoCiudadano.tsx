@@ -1,6 +1,6 @@
 'use client';
 
-import { UserCheck, UserX, BadgeCheck, UserMinus } from 'lucide-react';
+import { UserCheck, UserX, BadgeCheck, UserMinus, CheckCircle2 } from 'lucide-react';
 
 import { useInfraccionStore } from '@/stores/useInfraccionStore';
 
@@ -35,11 +35,9 @@ export default function PasoCiudadano({
             {/* PRESENCIA */}
             {/* ======================== */}
             <Card>
-                <div className="flex items-center justify-between mb-4">
-                    <CardTitle>
-                        Presencia del ciudadano
-                    </CardTitle>
-                </div>
+                <CardTitle>
+                    Presencia del ciudadano
+                </CardTitle>
 
                 <SegmentedControl
                     options={[
@@ -58,7 +56,8 @@ export default function PasoCiudadano({
                 />
 
                 {presente !== null && (
-                    <p className={`text-xs mt-3 pl-0.5 ${presente ? 'text-green-600' : 'text-slate-600'}`}>
+                    <p className={`text-xs mt-3 pl-0.5 flex items-center gap-1.5 ${presente ? 'text-green-600' : 'text-slate-500'}`}>
+                        {presente && <CheckCircle2 size={12} className="shrink-0 text-green-500" strokeWidth={2} />}
                         {presente
                             ? 'El conductor se encuentra en el lugar de la infracción'
                             : 'La infracción se registrará sin la presencia del conductor'
@@ -79,11 +78,9 @@ export default function PasoCiudadano({
             {presente && (
 
                 <Card>
-                    <div className="flex items-center justify-between mb-4">
-                        <CardTitle>
-                            Titularidad del vehículo
-                        </CardTitle>
-                    </div>
+                    <CardTitle>
+                        Titularidad del vehículo
+                    </CardTitle>
 
                     <SegmentedControl
                         options={[
@@ -101,7 +98,8 @@ export default function PasoCiudadano({
                     />
 
                     {titular !== null && (
-                        <p className={`text-xs mt-3 pl-0.5 ${titular ? 'text-green-600' : 'text-slate-600'}`}>
+                        <p className={`text-xs mt-3 pl-0.5 flex items-center gap-1.5 ${titular ? 'text-green-600' : 'text-slate-500'}`}>
+                            {titular && <CheckCircle2 size={12} className="shrink-0 text-green-500" strokeWidth={2} />}
                             {titular
                                 ? 'El ciudadano es el propietario registrado del vehículo'
                                 : 'El ciudadano conduce un vehículo que no está a su nombre'

@@ -277,20 +277,30 @@ export function MapaDireccionRegistro({ onAddressChange }: MapaDireccionRegistro
                 type="button"
                 onClick={obtenerUbicacion}
                 disabled={geoLoading}
-                className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-[#2563EB] bg-white/90 backdrop-blur-sm rounded-lg hover:bg-white active:bg-[#F8FAFC] transition-all duration-200 disabled:opacity-50 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] border border-[#E2E8F0]"
+                className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-lg transition-all active:scale-[0.98] disabled:opacity-50 shadow-md"
             >
                 <Crosshair size={13} className={geoLoading ? 'animate-spin' : ''} />
                 {geoLoading ? 'Obteniendo…' : 'Ubicarme'}
             </button>
 
-            <button
-                type="button"
-                onClick={() => setSatellite((prev) => !prev)}
-                className={`absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold bg-white/90 backdrop-blur-sm rounded-lg hover:bg-white active:bg-[#F8FAFC] transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] border ${satellite ? 'text-[#2563EB] border-[#2563EB]' : 'text-[#64748B] border-[#E2E8F0]'}`}
-            >
-                {satellite ? <Satellite size={13} /> : <MapIcon size={13} />}
-                {satellite ? 'Satelital' : 'Mapa'}
-            </button>
+            <div className="absolute top-3 left-3 z-10 inline-flex items-center bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-slate-200 overflow-hidden text-[11px] font-medium">
+                <button
+                    type="button"
+                    onClick={() => setSatellite(false)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 transition-all ${!satellite ? 'bg-blue-700 text-white' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
+                >
+                    <MapIcon size={13} />
+                    Mapa
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setSatellite(true)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 transition-all ${satellite ? 'bg-blue-700 text-white' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
+                >
+                    <Satellite size={13} />
+                    Satélite
+                </button>
+            </div>
 
             {geoError && (
                 <p className="absolute bottom-3 left-3 right-3 z-10 text-[10px] font-medium text-[#EF4444] bg-[#FEE2E2] px-3 py-1.5 rounded-lg">

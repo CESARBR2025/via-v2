@@ -1,4 +1,4 @@
-import { FileText, Receipt, CheckCircle2, XCircle, Loader2, RefreshCw } from "lucide-react";
+import { FileText, Receipt, CheckCircle2, XCircle, Loader2, RefreshCw, Check } from "lucide-react";
 import { ProcesoEstado } from "../../types.";
 
 interface ProcesoModalProps {
@@ -9,58 +9,58 @@ interface ProcesoModalProps {
 
 const config: Record<ProcesoEstado, {
     icon: typeof FileText;
-    color: string;
-    bgColor: string;
-    ringColor: string;
+    bgClass: string;
+    textClass: string;
+    ringClass: string;
     label: string;
 }> = {
     inicio: {
         icon: FileText,
-        color: "#2563EB",
-        bgColor: "#EFF6FF",
-        ringColor: "rgba(37,99,235,0.2)",
+        bgClass: "bg-blue-50",
+        textClass: "text-blue-600",
+        ringClass: "ring-blue-600/20",
         label: "",
     },
     creando: {
         icon: FileText,
-        color: "#2563EB",
-        bgColor: "#EFF6FF",
-        ringColor: "rgba(37,99,235,0.2)",
+        bgClass: "bg-blue-50",
+        textClass: "text-blue-600",
+        ringClass: "ring-blue-600/20",
         label: "Creando infracción",
     },
     documentos: {
         icon: FileText,
-        color: "#2563EB",
-        bgColor: "#EFF6FF",
-        ringColor: "rgba(37,99,235,0.2)",
+        bgClass: "bg-blue-50",
+        textClass: "text-blue-600",
+        ringClass: "ring-blue-600/20",
         label: "Creando infracción",
     },
     evidencias: {
         icon: FileText,
-        color: "#2563EB",
-        bgColor: "#EFF6FF",
-        ringColor: "rgba(37,99,235,0.2)",
+        bgClass: "bg-blue-50",
+        textClass: "text-blue-600",
+        ringClass: "ring-blue-600/20",
         label: "Creando infracción",
     },
     orden: {
         icon: Receipt,
-        color: "#F59E0B",
-        bgColor: "#FEF3C7",
-        ringColor: "rgba(245,158,11,0.2)",
+        bgClass: "bg-amber-50",
+        textClass: "text-amber-500",
+        ringClass: "ring-amber-500/20",
         label: "Generando orden de pago",
     },
     completado: {
         icon: CheckCircle2,
-        color: "#22C55E",
-        bgColor: "#DCFCE7",
-        ringColor: "rgba(34,197,94,0.2)",
+        bgClass: "bg-green-50",
+        textClass: "text-green-500",
+        ringClass: "ring-green-500/20",
         label: "Completado",
     },
     error: {
         icon: XCircle,
-        color: "#EF4444",
-        bgColor: "#FEE2E2",
-        ringColor: "rgba(239,68,68,0.2)",
+        bgClass: "bg-red-50",
+        textClass: "text-red-500",
+        ringClass: "ring-red-500/20",
         label: "Error",
     },
 };
@@ -86,7 +86,7 @@ function getStepIndex(estado: ProcesoEstado): number {
 export function ProcesoModal({ estado, mensaje, onRetry }: ProcesoModalProps) {
     if (estado === "inicio") return null;
 
-    const { icon: Icon, color, bgColor, ringColor, label } = config[estado];
+    const { icon: Icon, bgClass, textClass, ringClass, label } = config[estado];
     const isProcessing = estado === "creando" || estado === "orden";
     const isError = estado === "error";
     const currentStep = getStepIndex(estado);
@@ -98,64 +98,33 @@ export function ProcesoModal({ estado, mensaje, onRetry }: ProcesoModalProps) {
             aria-modal="true"
             aria-live="polite"
             aria-label={mensaje || label}
-            onKeyDown={(e) => {
-                if (e.key === 'Escape' && isError) {
-                    // Cerrar sólo si es error (no en medio de proceso)
-                }
-            }}
         >
-            {/* Focus trap: mantiene el foco dentro del modal */}
             <div
-                tabIndex={0}
-                onFocus={(e) => {
-                    const container = e.currentTarget.parentElement?.querySelector('[data-focus-trap]');
-                    if (container) (container as HTMLElement).focus();
-                }}
-            />
-            <div
-                data-focus-trap
-                className="bg-[#FFFFFF] rounded-2xl w-full max-w-sm overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.08)]"
+                className="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-modal"
                 tabIndex={-1}
             >
-
                 {/* Visual area */}
                 <div className="flex flex-col items-center px-8 pt-10 pb-6">
-                    <div
-                        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
-                        style={{
-                            backgroundColor: bgColor,
-                            boxShadow: `0 0 0 4px ${ringColor}`,
-                        }}
-                    >
+                    <div className={`w-16 h-16 rounded-xl flex items-center justify-center mb-5 ring-4 ${bgClass} ${ringClass}`}>
                         {isProcessing ? (
-                            <Loader2
-                                size={28}
-                                style={{ color }}
-                                className="animate-spin"
-                                strokeWidth={1.5}
-                            />
+                            <Loader2 size={28} className={`animate-spin ${textClass}`} strokeWidth={1.5} />
                         ) : (
-                            <Icon
-                                size={28}
-                                style={{ color }}
-                                strokeWidth={1.5}
-                                className={isError ? "" : "animate-in fade-in zoom-in"}
-                            />
+                            <Icon size={28} className={textClass} strokeWidth={1.5} />
                         )}
                     </div>
 
-                    <p className="text-[16px] font-semibold text-[#0F172A] text-center">
+                    <p className="text-sm font-medium text-slate-900 text-center">
                         {mensaje || label}
                     </p>
 
                     {isProcessing && (
-                        <p className="text-[12px] text-[#64748B] mt-2 text-center">
+                        <p className="text-xs text-slate-500 mt-2 text-center">
                             Por favor espera, esto solo toma unos segundos
                         </p>
                     )}
 
                     {isError && (
-                        <p className="text-[12px] text-[#EF4444] mt-2 text-center">
+                        <p className="text-xs text-red-500 mt-2 text-center">
                             Revisa tu conexión e intenta de nuevo
                         </p>
                     )}
@@ -163,19 +132,18 @@ export function ProcesoModal({ estado, mensaje, onRetry }: ProcesoModalProps) {
 
                 {/* Actions */}
                 {isError && (
-                    <div className="px-8 pb-8 flex flex-col gap-2" data-focus-trap-inner>
+                    <div className="px-8 pb-8 flex flex-col gap-2">
                         {onRetry && (
                             <button
                                 type="button"
                                 onClick={onRetry}
-                                className="w-full h-11 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 transition-colors"
-                                style={{ background: '#2563EB' }}
+                                className="w-full h-11 rounded-lg text-[13px] font-medium text-white flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 transition-all active:scale-[0.99]"
                             >
                                 <RefreshCw size={15} />
                                 Reintentar
                             </button>
                         )}
-                        <p className="text-[10px] text-[#94A3B8] text-center">
+                        <p className="text-[10px] text-slate-400 text-center">
                             Si el problema persiste, cierra el formulario y vuelve a intentarlo
                         </p>
                     </div>
@@ -196,16 +164,14 @@ export function ProcesoModal({ estado, mensaje, onRetry }: ProcesoModalProps) {
                                             <div
                                                 className={`
                                                     w-7 h-7 rounded-full flex items-center justify-center
-                                                    text-[11px] font-bold transition-all duration-300
-                                                    ${isDone ? "bg-[#22C55E] text-white" : ""}
-                                                    ${isActive ? "bg-[#2563EB] text-white ring-4 ring-[#2563EB]/20" : ""}
-                                                    ${isPending ? "bg-[#F1F5F9] text-[#94A3B8] border border-[#E2E8F0]" : ""}
+                                                    text-[11px] font-medium transition-all duration-300
+                                                    ${isDone ? "bg-green-500 text-white" : ""}
+                                                    ${isActive ? "bg-blue-600 text-white ring-4 ring-blue-600/20" : ""}
+                                                    ${isPending ? "bg-slate-100 text-slate-400 border border-slate-200" : ""}
                                                 `}
                                             >
                                                 {isDone ? (
-                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                                    </svg>
+                                                    <Check size={14} strokeWidth={3} />
                                                 ) : (
                                                     idx + 1
                                                 )}
@@ -213,9 +179,9 @@ export function ProcesoModal({ estado, mensaje, onRetry }: ProcesoModalProps) {
                                             <span
                                                 className={`
                                                     text-[10px] text-center leading-tight
-                                                    ${isDone ? "text-[#22C55E] font-medium" : ""}
-                                                    ${isActive ? "text-[#2563EB] font-semibold" : ""}
-                                                    ${isPending ? "text-[#94A3B8]" : ""}
+                                                    ${isDone ? "text-green-500 font-medium" : ""}
+                                                    ${isActive ? "text-blue-600 font-medium" : ""}
+                                                    ${isPending ? "text-slate-400" : ""}
                                                 `}
                                             >
                                                 {step.label}
@@ -224,10 +190,7 @@ export function ProcesoModal({ estado, mensaje, onRetry }: ProcesoModalProps) {
 
                                         {idx < STEPS.length - 1 && (
                                             <div
-                                                className="flex-1 h-[2px] mx-2 mt-[-18px] transition-all duration-300"
-                                                style={{
-                                                    background: idx < currentStep ? "#22C55E" : "#E2E8F0",
-                                                }}
+                                                className={`flex-1 h-[2px] mx-2 mt-[-18px] transition-all duration-300 ${idx < currentStep ? 'bg-green-500' : 'bg-slate-200'}`}
                                             />
                                         )}
                                     </div>

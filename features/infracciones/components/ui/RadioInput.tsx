@@ -22,10 +22,10 @@ export function RadioOption({
             className={`
         relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200
         ${checked
-                    ? 'border-[#2563EB] bg-[#EFF6FF] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]'
+                    ? 'border-blue-600 bg-blue-50 shadow-card'
                     : error
-                        ? 'border-[#FECACA] hover:border-[#EF4444]'
-                        : 'border-[#E2E8F0] hover:border-[#CBD5E1] hover:bg-[#F8FAFC]'
+                        ? 'border-red-200 hover:border-red-500'
+                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                 }
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
       `}
@@ -42,19 +42,19 @@ export function RadioOption({
             <div
                 className={`
         shrink-0 mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
-        ${checked ? 'border-[#2563EB] bg-[#2563EB]' : 'border-[#CBD5E1]'}
+        ${checked ? 'border-blue-600 bg-blue-600' : 'border-slate-300'}
       `}
             >
                 {checked && <div className="w-2 h-2 rounded-full bg-white" />}
             </div>
             <div>
                 <p
-                    className={`text-sm font-semibold ${checked ? 'text-[#2563EB]' : 'text-[#0F172A]'}`}
+                    className={`text-sm font-medium ${checked ? 'text-blue-600' : 'text-slate-900'}`}
                 >
                     {label}
                 </p>
                 {description && (
-                    <p className="text-xs text-[#64748B] mt-0.5">{description}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{description}</p>
                 )}
             </div>
         </label>

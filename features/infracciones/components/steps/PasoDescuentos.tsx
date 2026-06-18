@@ -96,7 +96,7 @@ export default function PasoDecuentos({ loading, boolError }: Props) {
                     error={boolError(datos.esCiudadanoAdultoMayor)}
                 />
                 {datos.esCiudadanoAdultoMayor !== null && (
-                    <p className={`text-xs mt-3 pl-0.5 ${datos.esCiudadanoAdultoMayor ? 'text-[#16A34A]' : 'text-[#64748B]'}`}>
+                    <p className={`text-xs mt-3 pl-0.5 ${datos.esCiudadanoAdultoMayor ? 'text-green-600' : 'text-slate-500'}`}>
                         {datos.esCiudadanoAdultoMayor
                             ? 'El ciudadano aplica para validación INAPAM y descuento del 70%'
                             : 'Se aplicará descuento regular del 50%'
@@ -104,7 +104,7 @@ export default function PasoDecuentos({ loading, boolError }: Props) {
                     </p>
                 )}
                 {boolError(datos.esCiudadanoAdultoMayor) && (
-                    <p className="text-xs text-[#EF4444] mt-2">
+                    <p className="text-xs text-red-500 mt-2">
                         Indica si el ciudadano es adulto mayor
                     </p>
                 )}
@@ -126,7 +126,7 @@ export default function PasoDecuentos({ loading, boolError }: Props) {
                         error={boolError(datos.presentaInapam)}
                     />
                     {datos.presentaInapam !== null && (
-                        <p className={`text-xs mt-3 pl-0.5 ${datos.presentaInapam ? 'text-[#16A34A]' : 'text-[#64748B]'}`}>
+                        <p className={`text-xs mt-3 pl-0.5 ${datos.presentaInapam ? 'text-green-600' : 'text-slate-500'}`}>
                             {datos.presentaInapam
                                 ? 'Se solicitarán fotografías del INE y de la credencial INAPAM'
                                 : 'Solo se solicitará fotografía del INE como identificación'
@@ -134,7 +134,7 @@ export default function PasoDecuentos({ loading, boolError }: Props) {
                         </p>
                     )}
                     {boolError(datos.presentaInapam) && (
-                        <p className="text-xs text-[#EF4444] mt-2">
+                        <p className="text-xs text-red-500 mt-2">
                             Indica si el ciudadano presenta credencial INAPAM
                         </p>
                     )}
@@ -194,22 +194,22 @@ export default function PasoDecuentos({ loading, boolError }: Props) {
                     <div className="flex-1 min-w-0">
 
                         <div className="flex items-baseline gap-1.5">
-                            <span className="text-3xl font-bold text-[#0F172A]">
+                            <span className="text-3xl font-bold text-slate-900">
                                 {datos.descuentoAplicado}%
                             </span>
-                            <span className="text-sm text-[#64748B] font-medium">
+                            <span className="text-sm text-slate-500 font-medium">
                                 de descuento
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-[#E2E8F0] flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2 text-[#64748B]">
+                <div className="mt-4 pt-4 border-t border-slate-200 flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-2 text-slate-500">
                         <Calendar size={15} />
                         <span>Fecha límite:</span>
                     </div>
-                    <span className="font-semibold text-[#0F172A]">
+                    <span className="font-semibold text-slate-900">
                         {datos.fechaLimiteDescuento
                             ? new Date(
                                 datos.fechaLimiteDescuento
@@ -220,7 +220,7 @@ export default function PasoDecuentos({ loading, boolError }: Props) {
                             })
                             : '--'}
                     </span>
-                    <div className="flex items-center gap-1.5 ml-auto text-xs text-[#64748B]">
+                    <div className="flex items-center gap-1.5 ml-auto text-xs text-slate-500">
                         <Clock size={13} />
                         <span>10 días para pago con descuento</span>
                     </div>
@@ -291,10 +291,10 @@ function FileUploadZone({
             className={`
                 relative rounded-xl border-2 p-5 transition-all duration-200
                 ${isDragOver
-                    ? 'border-[#2563EB] bg-[#EFF6FF]'
+                    ? 'border-blue-600 bg-blue-50'
                     : file
-                        ? 'border-[#22C55E] bg-[#F0FDF4]'
-                        : 'border-dashed border-[#E2E8F0] bg-white hover:border-[#2563EB] hover:bg-[#F8FAFC]'
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-dashed border-slate-200 bg-white hover:border-blue-600 hover:bg-slate-50'
                 }
                 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
             `}
@@ -312,14 +312,14 @@ function FileUploadZone({
             {file ? (
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="shrink-0 w-10 h-10 rounded-lg bg-[#DCFCE7] flex items-center justify-center text-[#22C55E]">
+                        <div className="shrink-0 w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-500">
                             <CheckCircle2 size={20} />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-sm font-medium text-[#0F172A] truncate">
+                            <p className="text-sm font-medium text-slate-900 truncate">
                                 {file.name}
                             </p>
-                            <p className="text-xs text-[#64748B]">
+                            <p className="text-xs text-slate-500">
                                 {(file.size / 1024).toFixed(1)} KB
                             </p>
                         </div>
@@ -331,7 +331,7 @@ function FileUploadZone({
                             e.stopPropagation();
                             onRemove();
                         }}
-                        className="shrink-0 p-1.5 rounded-lg text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#EF4444] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="shrink-0 p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Eliminar archivo"
                     >
                         <X size={16} />
@@ -339,18 +339,18 @@ function FileUploadZone({
                 </div>
             ) : (
                 <div className="flex items-center gap-4">
-                    <div className="shrink-0 w-10 h-10 rounded-lg bg-[#F1F5F9] flex items-center justify-center text-[#64748B]">
+                    <div className="shrink-0 w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
                         {icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#0F172A]">
+                        <p className="text-sm font-medium text-slate-900">
                             {label}
                         </p>
-                        <p className="text-xs text-[#64748B] mt-0.5">
+                        <p className="text-xs text-slate-500 mt-0.5">
                             {description}
                         </p>
                     </div>
-                    <div className="shrink-0 p-2 rounded-lg bg-[#EFF6FF] text-[#2563EB]">
+                    <div className="shrink-0 p-2 rounded-lg bg-blue-50 text-blue-600">
                         <Upload size={18} />
                     </div>
                 </div>

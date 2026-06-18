@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Upload } from 'lucide-react';
 
 import { Card } from '../ui/Card';
 import { CardTitle } from '../ui/CardTitle';
@@ -103,19 +104,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                         "
                     >
                         <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                            <svg
-                                className="w-6 h-6 text-blue-700"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-                                />
-                            </svg>
+                            <Upload size={24} className="text-blue-700" strokeWidth={1.5} />
                         </div>
 
                         <div className="text-center">

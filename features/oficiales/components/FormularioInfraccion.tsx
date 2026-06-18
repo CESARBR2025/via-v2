@@ -1,6 +1,8 @@
 'use client';
 
-import { FileText } from 'lucide-react';
+import {
+  FileText, AlertCircle, ArrowLeft, Shield,
+} from 'lucide-react';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useOnlineStatus } from '@/lib/online';
 
@@ -50,15 +52,15 @@ import PasoDecuentos from '@/features/infracciones/components/steps/PasoDescuent
 const inputBase = `
   w-full rounded-lg border border-slate-200 bg-white px-3 py-2
   text-sm text-slate-900 placeholder:text-slate-400
-  focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10
+  focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/15
   transition-all duration-200
   disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed
 `;
 
 const inputError = `
-  w-full rounded-lg border border-red-300 bg-red-50 px-3 py-2
+  w-full rounded-lg border border-red-400 bg-red-50 px-3 py-2
   text-sm text-slate-900 placeholder:text-slate-400
-  focus:border-red-500 focus:ring-2 focus:ring-red-200/50 focus:outline-none
+  focus:border-red-500 focus:ring-2 focus:ring-red-500/15 focus:outline-none
   transition-all duration-200
 `;
 
@@ -384,7 +386,7 @@ export default function FormularioInfraccion() {
                 id: 'ciudadano' as const,
                 title: 'Ciudadano',
                 description:
-                    'Indica si el ciudadano está presente y si es titular del vehículo.',
+                    '¿El conductor está aquí? Selecciona si está presente o ausente, y si es el dueño del vehículo.',
                 component: (
                     <PasoCiudadano
                         key="ciudadano"
@@ -397,7 +399,7 @@ export default function FormularioInfraccion() {
                 id: 'ubicacion' as const,
                 title: 'Ubicación',
                 description:
-                    'Confirma o ajusta la ubicación del incidente en el mapa.',
+                    'Señala en el mapa dónde ocurrió la infracción. Puedes usar tu ubicación o hacer clic directamente.',
                 component: (
                     <PasoUbicacion
                         key="ubicacion"
@@ -416,7 +418,7 @@ export default function FormularioInfraccion() {
                         id: 'conductor' as const,
                         title: 'Conductor',
                         description:
-                            'Captura los datos de identificación del conductor.',
+                            'Registra los datos del conductor. Si tiene INE, la CURP autocompletará la información.',
                         component: (
                             <PasoConductor
                                 key="conductor"
@@ -434,7 +436,7 @@ export default function FormularioInfraccion() {
                         id: 'descuentos' as const,
                         title: 'Descuentos',
                         description:
-                            'Captura los datos para generar descuentos.',
+                            'Indica si aplica algún descuento. Adultos mayores con INAPAM vigente obtienen hasta 70%.',
                         component: (
                             <PasoDecuentos
                                 key="conductor"
@@ -453,7 +455,7 @@ export default function FormularioInfraccion() {
                 id: 'vehiculo' as const,
                 title: 'Vehículo',
                 description:
-                    'Registra los datos completos del vehículo involucrado.',
+                    'Ingresa la placa, marca, modelo y color del vehículo. Todos los campos son obligatorios.',
                 component: (
                     <PasoVehiculo
                         key="vehiculo"
@@ -470,7 +472,7 @@ export default function FormularioInfraccion() {
                 id: 'infraccion' as const,
                 title: 'Infracción',
                 description:
-                    'Selecciona el artículo, concepto y garantía de la infracción.',
+                    'Elige el artículo y fracción que se infringieron, y qué garantía se retendrá.',
                 component: (
                     <PasoInfraccion
                         key="infraccion"
@@ -486,7 +488,7 @@ export default function FormularioInfraccion() {
                 id: 'evidencias' as const,
                 title: 'Evidencias',
                 description:
-                    'Adjunta fotografías como evidencia del incidente (opcional).',
+                    '¿Tomaste fotos? Adjúntalas para fortalecer el expediente. Este paso es opcional.',
                 component: (
                     <PasoEvidencias
                         key="evidencias"
@@ -499,7 +501,7 @@ export default function FormularioInfraccion() {
                 id: 'confirmacion' as const,
                 title: 'Confirmación',
                 description:
-                    'Revisa toda la información antes de registrar la infracción.',
+                    'Revisa que todos los datos sean correctos. Una vez registrada, la boleta no podrá modificarse.',
                 component: (
                     <PasoConfirmacion
                         key="confirmacion"
@@ -518,7 +520,7 @@ export default function FormularioInfraccion() {
                 id: 'pago' as const,
                 title: 'Pago',
                 description:
-                    'Validación del pago en línea de la infracción digital.',
+                    'Pregunta al ciudadano si desea pagar ahora. Puede liquidar en línea con tarjeta o QR.',
                 component: (
                     <PasoPago
                         key="pago"
@@ -937,11 +939,6 @@ export default function FormularioInfraccion() {
     // Obtener configuración del paso actual
     const activeStepConfig = steps[currentStep] || steps[0];
 
-    // Calcular porcentaje de progreso
-    const progressPct = Math.round(
-        (currentStep / (steps.length - 1)) * 100
-    );
-
     // ═══════════════════════════════════════════════════════════════════
     // HANDLERS - Interacción del Usuario
     // ═══════════════════════════════════════════════════════════════════
@@ -992,6 +989,61 @@ export default function FormularioInfraccion() {
                 />
             )}
 
+            {/* Header */}
+            <div className="shrink-0 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-4 space-y-3">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <h1 className="text-[22px] font-medium text-slate-900 leading-tight shrink-0">
+                            Nueva Infracción
+                        </h1>
+                        <span className="text-sm font-medium text-slate-400 shrink-0">·</span>
+                        <span className="text-sm font-medium text-slate-500 truncate min-w-0">
+                            Paso {activeStepConfig.title}
+                        </span>
+                    </div>
+                    <span className="shrink-0 text-sm font-medium text-slate-400 tabular-nums">
+                        {currentStep + 1}/{steps.length}
+                    </span>
+                </div>
+
+                {/* Stepper */}
+                <div className="flex items-center">
+                    {steps.map((step, idx) => {
+                        const isDone = idx < currentStep;
+                        const isActive = idx === currentStep;
+                        const stepNum = idx + 1;
+                        return (
+                            <div key={step.id} className="flex items-center flex-1 last:flex-none">
+                                <button
+                                    type="button"
+                                    onClick={() => idx < currentStep && setCurrentStep(idx)}
+                                    disabled={idx > currentStep}
+                                    title={step.title}
+                                    className={`
+                                        w-7 h-7 rounded-full flex items-center justify-center
+                                        text-[11px] font-medium transition-all duration-300 shrink-0
+                                        ${isDone ? 'bg-blue-700 text-white cursor-pointer hover:scale-110' : ''}
+                                        ${isActive ? 'bg-blue-700 text-white ring-4 ring-blue-700/20 cursor-default' : ''}
+                                        ${idx > currentStep ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-default' : ''}
+                                    `}
+                                >
+                                    {isDone ? (
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                        </svg>
+                                    ) : (
+                                        stepNum
+                                    )}
+                                </button>
+                                {idx < steps.length - 1 && (
+                                    <div className={`flex-1 h-[2px] mx-1.5 transition-all duration-300 ${idx < currentStep ? 'bg-blue-700' : 'bg-slate-200'}`} />
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
 
 
             {/* ═══════════════════════════════════════════════════════════════
@@ -1007,9 +1059,7 @@ export default function FormularioInfraccion() {
                                 {/* Header */}
                                 <div className="text-center space-y-2">
                                     <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto ring-4 ring-blue-700/15">
-                                        <svg className="w-8 h-8 text-blue-700" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-                                        </svg>
+                                        <Shield size={32} className="text-blue-700" strokeWidth={1.5} />
                                     </div>
                                     <h2 className="text-[22px] font-medium text-slate-900">
                                         Infracción Registrada
@@ -1071,9 +1121,7 @@ export default function FormularioInfraccion() {
 
                                 {/* Nota informativa */}
                                 <div className="flex items-start gap-3 bg-amber-50 border border-amber-500/30 rounded-lg p-4">
-                                    <svg className="w-5 h-5 shrink-0 text-amber-600 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                                    </svg>
+                                    <AlertCircle size={20} className="shrink-0 text-amber-600 mt-0.5" strokeWidth={2} />
                                     <div>
                                         <p className="text-xs font-medium text-amber-800">
                                             Transcripción a boleta física
@@ -1088,7 +1136,7 @@ export default function FormularioInfraccion() {
                                 <button
                                     type="button"
                                     onClick={() => window.location.reload()}
-                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-3.5 px-4 rounded-lg transition-all active:scale-[0.98]"
+                                    className="w-full bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-medium text-sm py-3 px-4 rounded-lg transition-all active:scale-[0.99]"
                                 >
                                     Terminar y Salir
                                 </button>
@@ -1097,79 +1145,14 @@ export default function FormularioInfraccion() {
                     </div>
                 ) : (
                     <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-5">
-                        {/* Thin progress bar */}
-                        <div className="h-1 rounded-full bg-slate-100 overflow-hidden">
-                            <div
-                                className="h-full rounded-full bg-blue-700 transition-all duration-500 ease-out"
-                                style={{ width: `${progressPct}%` }}
-                            />
-                        </div>
-
-                        {/* Step header with dots */}
-                        <div className="flex items-start justify-between gap-6">
-                            <div className="min-w-0">
-                                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-600">
-                                    Paso {currentStep + 1} de {steps.length}
-                                </p>
-                                <h2 className="text-[22px] font-medium text-slate-900 leading-tight mt-0.5">
-                                    {activeStepConfig.title}
-                                </h2>
-                            </div>
-
-                            {/* Desktop compact dots */}
-                            <div className="hidden sm:flex items-center gap-1.5 mt-2 shrink-0">
-                                {steps.map((step, idx) => {
-                                    const isDone = idx < currentStep;
-                                    const isActive = idx === currentStep;
-                                    return (
-                                        <button
-                                            key={step.id}
-                                            type="button"
-                                            onClick={() => idx < currentStep && setCurrentStep(idx)}
-                                            disabled={idx > currentStep}
-                                            title={step.title}
-                                            className={`
-                                                rounded-full transition-all duration-300 shrink-0
-                                                ${isDone ? 'w-2.5 h-2.5 bg-green-500 cursor-pointer hover:scale-125' : ''}
-                                                ${isActive ? 'w-3 h-3 bg-blue-700 ring-4 ring-blue-700/15' : ''}
-                                                ${idx > currentStep ? 'w-2 h-2 bg-slate-200 cursor-default' : ''}
-                                            `}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {/* Mobile progress dots */}
-                        <div className="sm:hidden flex items-center gap-1.5">
-                            {steps.map((step, idx) => {
-                                const isDone = idx < currentStep;
-                                const isActive = idx === currentStep;
-                                return (
-                                    <div
-                                        key={step.id}
-                                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                                                isDone
-                                                    ? 'bg-green-500'
-                                                    : isActive
-                                                    ? 'bg-blue-700'
-                                                    : 'bg-slate-200'
-                                        }`}
-                                    />
-                                );
-                            })}
-                        </div>
-
                         {/* Description & validation */}
                         <div>
                             <p className="text-[14px] text-slate-600 leading-relaxed">
                                 {activeStepConfig.description}
                             </p>
                             {validationError && (
-                                <div className="mt-3 flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[13px] font-medium bg-red-50 text-red-600 border border-red-200">
-                                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                                    </svg>
+                                <div className="mt-3 flex items-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-medium bg-red-50 text-red-600 border border-red-200">
+                                    <AlertCircle size={16} className="shrink-0" strokeWidth={2} />
                                     {validationError}
                                 </div>
                             )}
@@ -1184,13 +1167,14 @@ export default function FormularioInfraccion() {
           FOOTER - Botones de navegación (oculto en resumen ausente)
           ════════════════════════════════════════════════════════════════ */}
             {!ausenteCompletado && activeStepConfig.id !== 'pago' && (
-                <footer className="bg-white border-t border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between shrink-0">
+                <footer className="bg-white border-t border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between shrink-0">
                     <button
                         type="button"
                         disabled={currentStep === 0 || loading}
                         onClick={() => prevStep()}
-                        className="px-5 py-2.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-normal text-slate-600 hover:bg-slate-50 active:bg-slate-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
+                        <ArrowLeft size={16} className="inline-block mr-1.5 -mt-0.5" strokeWidth={1.5} />
                         Atrás
                     </button>
 
@@ -1199,7 +1183,7 @@ export default function FormularioInfraccion() {
                             type="button"
                             disabled={loading}
                             onClick={handleNextStep}
-                            className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-[13px] font-medium rounded-lg shadow-[0_4px_12px_rgba(29,78,216,0.25)] transition-colors disabled:opacity-50"
+                            className="px-5 py-2 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-sm font-medium rounded-lg transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Siguiente
                         </button>
@@ -1208,7 +1192,7 @@ export default function FormularioInfraccion() {
                             type="submit"
                             disabled={loading}
                             onClick={handleRegistrarNuevaInfraccion}
-                            className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white text-[13px] font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                            className="px-5 py-2 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-sm font-medium rounded-lg transition-all active:scale-[0.99] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <>

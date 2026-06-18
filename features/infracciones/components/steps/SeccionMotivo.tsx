@@ -1,4 +1,5 @@
 import React from 'react';
+import { BookOpen } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { CardTitle } from '../ui/CardTitle';
 import { FieldLabel } from '../ui/FieldLabel';
@@ -114,19 +115,7 @@ export const SeccionMotivo: React.FC<SeccionMotivoProps> = ({
             {articuloSeleccionado && (
                 <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4 transition-all animate-fadeIn">
                     <div className="flex items-start gap-3">
-                        <svg
-                            className="mt-0.5 h-5 w-5 shrink-0 text-blue-600"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
-                            />
-                        </svg>
+                        <BookOpen size={20} className="mt-0.5 shrink-0 text-blue-600" strokeWidth={1.5} />
                         <div className="space-y-3 text-xs leading-relaxed text-blue-900 w-full">
                             <div>
                                 <p className="font-semibold text-blue-950">ARTÍCULO {articuloSeleccionado.numero}</p>
