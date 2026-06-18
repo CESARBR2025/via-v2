@@ -33,7 +33,7 @@ export function TablaInfracciones({ rows, onOpen }: any) {
 
                         const badge = requiereCaptura
                             ? { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Incompleto' }
-                            : { ...getBadgeStyles(row.estatus), label: row.estatus };
+                            : getBadgeStyles(row.estatusInfraccion);
 
                         return (
                             <tr
