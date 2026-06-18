@@ -1,6 +1,6 @@
 import { POOL_PG } from "@/lib/db";
 
-const FLOTA_API_URL = "http://proyecto-flota.vercel.app/api/publica";
+const FLOTA_API_URL = "http://proyecto-flota.vercel.app/api/publica?placa";
 const CACHE_TTL = 120_000; // 2 minutos
 
 interface FlotaVehiculoRaw {
@@ -44,7 +44,6 @@ export interface PatrullaAsignacion {
   secretaria?: string;
 }
 
-// Cache en memoria compartido (se invalida cada CACHE_TTL)
 let cacheFlota: { datos: FlotaVehiculoRaw[]; timestamp: number } | null = null;
 
 export class FlotaService {
@@ -91,7 +90,7 @@ export class FlotaService {
   static async listarPatrullasParaAsignacion(): Promise<PatrullaAsignacion[]> {
     const { datos: flota, desdeCache } = await this.obtenerFlota();
 
-    // Si los datos vienen del cache, saltar sync y solo leer BD
+    // Cache hit: skip sync, solo leer BD
     if (desdeCache && flota.length > 0) {
       const result = await POOL_PG.query(`
         SELECT id, numero_unidad, placas
@@ -101,7 +100,9 @@ export class FlotaService {
       `);
 
       return result.rows.map((r) => {
-        const fleetData = flota.find((f) => f.placa_vehiculo === r.numero_unidad);
+        const fleetData = flota.find(
+          (f) => f.placa_vehiculo === r.numero_unidad,
+        );
         return {
           id: r.id,
           numero_unidad: r.numero_unidad,
@@ -116,7 +117,7 @@ export class FlotaService {
       });
     }
 
-    // Sin datos del API, regresar lo que haya en BD
+    // Sin datos del API
     if (flota.length === 0) {
       const result = await POOL_PG.query(`
         SELECT id, numero_unidad, placas
@@ -131,27 +132,28 @@ export class FlotaService {
       }));
     }
 
-    // Solo acá: datos frescos del API → sincronizar con BD
-    for (const v of flota) {
-      const existente = await POOL_PG.query(
-        `SELECT id FROM v2_patrullas WHERE numero_unidad = $1`,
-        [v.placa_vehiculo],
-      );
-
-      if (existente.rows.length === 0) {
-        await POOL_PG.query(
-          `INSERT INTO v2_patrullas (numero_unidad, placas, descripcion, activo, sincronizado_en)
-           VALUES ($1, $2, $3, true, NOW())`,
-          [v.placa_vehiculo, v.placa_vehiculo, `${v.marca} ${v.modelo} ${v.tipo_vehiculo}`.trim()],
-        );
-      } else {
-        await POOL_PG.query(
-          `UPDATE v2_patrullas SET placas = $1, descripcion = $2, sincronizado_en = NOW()
-           WHERE numero_unidad = $3`,
-          [v.placa_vehiculo, `${v.marca} ${v.modelo} ${v.tipo_vehiculo}`.trim(), v.placa_vehiculo],
-        );
-      }
-    }
+    // Datos frescos → upsert en batch (1 solo query)
+    await POOL_PG.query(
+      `
+      INSERT INTO v2_patrullas (numero_unidad, placas, descripcion, activo, sincronizado_en)
+      SELECT
+        unnest($1::text[]),
+        unnest($2::text[]),
+        unnest($3::text[]),
+        true,
+        NOW()
+      ON CONFLICT (numero_unidad)
+      DO UPDATE SET
+        placas          = EXCLUDED.placas,
+        descripcion     = EXCLUDED.descripcion,
+        sincronizado_en = NOW()
+      `,
+      [
+        flota.map((v) => v.placa_vehiculo),
+        flota.map((v) => v.placa_vehiculo),
+        flota.map((v) => `${v.marca} ${v.modelo} ${v.tipo_vehiculo}`.trim()),
+      ],
+    );
 
     const result = await POOL_PG.query(`
       SELECT id, numero_unidad, placas
