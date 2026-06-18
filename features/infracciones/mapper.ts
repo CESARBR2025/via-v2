@@ -124,7 +124,7 @@ export const mapInfraccionDetalle = (row: any): InfraccionDetalleDTO => {
     id: row.id,
     folio: row.folio,
 
-    estatusPago: row.estatusPago,
+    estatusPago: row.estatuspago,
     fechaInfraccion: row.fecha_infraccion,
 
     montoTotal: Number(row.monto_total),

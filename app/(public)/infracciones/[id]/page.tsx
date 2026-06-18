@@ -15,7 +15,6 @@ import {
     Palette,
     Barcode,
     MapPin,
-    BanknoteArrowDown,
     ShieldCheck,
     CreditCard,
     Gavel,
@@ -59,15 +58,10 @@ function sanitize(value: string | number | null | undefined, fallback = '—'): 
 
 // ─── STATUS CONFIG ───
 
-const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string; label: string; icon: typeof CheckCircle2 }> = {
-    PAGADA: { bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500', label: 'Pagada y liberada', icon: CheckCircle2 },
-    PENDIENTE_PAGO: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', label: 'Pago pendiente', icon: AlertTriangle },
-    REGISTRADA: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', label: 'Registrada', icon: FileText },
-    CANCELADA: { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', label: 'Cancelada', icon: AlertTriangle },
-};
-
-function getStatusStyle(status?: string) {
-    return STATUS_STYLES[status ?? ''] ?? { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', label: status ?? 'Desconocido', icon: AlertTriangle };
+function getStatusStyle(isPagada: boolean) {
+    return isPagada
+        ? { bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500', label: 'Pagada', icon: CheckCircle2 }
+        : { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', label: 'Pago pendiente', icon: AlertTriangle };
 }
 
 // ─── MAIN ───
@@ -85,11 +79,14 @@ export default async function InfraccionCiudadanoPage({
             ? 'https://via-v2.vercel.app'
             : 'http://localhost:3000';
 
-    const res = await fetch(`${baseUrl}/api/infracciones/registradas/${id}`);
+    const res = await fetch(`${baseUrl}/api/infracciones/registradas/${id}`, { cache: 'no-store' });
     const responseDataInfraccion = await res.json();
     const infraccion = responseDataInfraccion.data;
 
-    const status = getStatusStyle(infraccion.estatusInfraccion);
+    console.log(infraccion.estatusPago)
+    console.log(infraccion)
+    const isPagada = infraccion.estatusPago === 'P';
+    const status = getStatusStyle(isPagada);
     const StatusIcon = status.icon;
 
     const hasCoords =
@@ -102,6 +99,20 @@ export default async function InfraccionCiudadanoPage({
         infraccion.apellidoPaternoInfractor,
         infraccion.apellidoMaternoInfractor,
     ].filter(Boolean).join(' ');
+
+    const descuentoValido = (() => {
+        const pct = Number(infraccion.descuento_aplicado);
+        if (!pct || pct <= 0) return false;
+        if (!infraccion.fecha_limite_descuento) return false;
+        const hoy = new Date();
+        const limite = new Date(infraccion.fecha_limite_descuento);
+        if (isNaN(limite.getTime())) return false;
+        return hoy <= limite;
+    })();
+
+    const totalUmasPagar = descuentoValido
+        ? Number(infraccion.montoTotal) * (1 - Number(infraccion.descuento_aplicado) / 100)
+        : Number(infraccion.montoTotal);
 
     return (
         <main className="min-h-screen bg-slate-100">
@@ -151,48 +162,131 @@ export default async function InfraccionCiudadanoPage({
             {/* ══ CONTENT ══ */}
             <div className="max-w-4xl mx-auto px-6 -mt-5 relative z-10 pb-10 space-y-5">
 
-                {/* ▸ MONTO A PAGAR */}
-                <Card className="overflow-hidden p-0 shadow-[0_4px_12px_rgba(29,78,216,0.2)]">
-                    <div className="bg-gradient-to-br from-blue-700 to-blue-900 px-6 pt-6 pb-5 relative overflow-hidden">
-                        <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/5" />
-                        <div className="absolute top-12 -right-3 w-16 h-16 rounded-full bg-white/5" />
+                {/* ▸ MONTO / PAGADA */}
+                {isPagada ? (
+                    <Card className="overflow-hidden p-0 shadow-[0_4px_12px_rgba(34,197,94,0.2)]">
+                        <div className="bg-gradient-to-br from-green-700 to-green-900 px-6 pt-6 pb-5 relative overflow-hidden">
+                            <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/5" />
+                            <div className="absolute top-12 -right-3 w-16 h-16 rounded-full bg-white/5" />
 
-                        <div className="relative">
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/15 text-white text-[10px] font-medium tracking-wider uppercase">
-                                    Monto a pagar
-                                </span>
-                            </div>
-                            <div className="flex items-baseline gap-2 mt-2">
-                                <span className="text-[36px] font-medium text-white leading-none tracking-tight">
-                                    ${infraccion.total_pesos}
-                                </span>
-                                <span className="text-sm text-blue-300/80 font-medium">MXN</span>
-                            </div>
-                            <div className="flex items-baseline gap-2 mt-1">
-                                <span className="text-xl font-medium text-blue-200/90 leading-none">
-                                    {infraccion.total_umas}
-                                </span>
-                                <span className="text-xs text-blue-300/70 font-medium">UMAs equivalentes</span>
+                            <div className="relative">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/15 text-white text-[10px] font-medium tracking-wider uppercase">
+                                        <CheckCircle2 size={11} strokeWidth={1.5} className="mr-1" />
+                                        Infracción Pagada
+                                    </span>
+                                </div>
+                                <div className="flex items-baseline gap-2 mt-2">
+                                    <span className="text-[36px] font-medium text-white leading-none tracking-tight">
+                                        ${infraccion.total_pesos}
+                                    </span>
+                                    <span className="text-sm text-green-300/80 font-medium">MXN</span>
+                                </div>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                    <span className="text-xl font-medium text-green-200/90 leading-none">
+                                        {totalUmasPagar.toFixed(1)}
+                                    </span>
+                                    <span className="text-xs text-green-300/70 font-medium">UMAs</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="px-6 py-4 flex flex-col gap-2.5">
-                        <MontoRow label="Monto total de UMAs" value={`${infraccion.montoTotal} UMAs`} />
-                        <MontoRow label="Descuento aplicado" value={`${Number(infraccion.descuento_aplicado)}%`} />
-                        <MontoRow label="Total UMAs a pagar" value={`${infraccion.total_umas} UMAs`} />
-                        <div className="h-px bg-slate-200" />
-                        <MontoRow
-                            label="Estatus"
-                            value={infraccion.estatus === 'I' ? 'Por pagar' : 'Pagada'}
-                            valueClass={infraccion.estatus === 'I' ? 'text-red-500' : 'text-green-600'}
-                        />
-                    </div>
-                </Card>
+                        <div className="px-6 py-4 flex flex-col gap-2.5">
+                            <MontoRow label="Monto total de UMAs" value={`${infraccion.montoTotal} UMAs`} />
+
+                            {Number(infraccion.descuento_aplicado) > 0 && (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-slate-500">Descuento aplicado</span>
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 border border-green-200 text-green-700 text-xs font-medium">
+                                        —{Number(infraccion.descuento_aplicado)}%
+                                    </span>
+                                </div>
+                            )}
+
+                            <MontoRow label="Total pagado" value={`${totalUmasPagar.toFixed(1)} UMAs`} />
+
+                            {infraccion.created_at && (
+                                <p className="text-[11px] text-slate-400 flex items-center gap-1">
+                                    <Clock size={11} strokeWidth={1.5} />
+                                    Pagado el {formatDate(infraccion.created_at)}
+                                </p>
+                            )}
+
+                            <div className="h-px bg-slate-200" />
+                            <MontoRow
+                                label="Estatus"
+                                value="Pagada"
+                                valueClass="text-green-600"
+                            />
+                        </div>
+                    </Card>
+                ) : (
+                    <Card className="overflow-hidden p-0 shadow-[0_4px_12px_rgba(29,78,216,0.2)]">
+                        <div className="bg-gradient-to-br from-blue-700 to-blue-900 px-6 pt-6 pb-5 relative overflow-hidden">
+                            <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/5" />
+                            <div className="absolute top-12 -right-3 w-16 h-16 rounded-full bg-white/5" />
+
+                            <div className="relative">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/15 text-white text-[10px] font-medium tracking-wider uppercase">
+                                        Monto a pagar
+                                    </span>
+                                    {descuentoValido && (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/20 text-green-300 text-[10px] font-medium tracking-wider uppercase border border-green-400/30">
+                                            —{Number(infraccion.descuento_aplicado)}% desc
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex items-baseline gap-2 mt-2">
+                                    <span className="text-[36px] font-medium text-white leading-none tracking-tight">
+                                        ${infraccion.total_pesos}
+                                    </span>
+                                    <span className="text-sm text-blue-300/80 font-medium">MXN</span>
+                                </div>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                    <span className="text-xl font-medium text-blue-200/90 leading-none">
+                                        {totalUmasPagar.toFixed(1)}
+                                    </span>
+                                    <span className="text-xs text-blue-300/70 font-medium">UMAs equivalentes</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="px-6 py-4 flex flex-col gap-2.5">
+                            <MontoRow label="Monto total de UMAs" value={`${infraccion.montoTotal} UMAs`} />
+
+                            {descuentoValido ? (
+                                <>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-slate-500">Descuento aplicado</span>
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium">
+                                            —{Number(infraccion.descuento_aplicado)}%
+                                        </span>
+                                    </div>
+                                    <MontoRow label="Total UMAs a pagar" value={`${totalUmasPagar.toFixed(1)} UMAs`} />
+                                    <p className="text-[11px] text-amber-600 flex items-center gap-1">
+                                        <Clock size={11} strokeWidth={1.5} />
+                                        Vence {formatDate(infraccion.fecha_limite_descuento)}
+                                    </p>
+                                </>
+                            ) : (
+                                <p className="text-xs text-slate-400 italic">
+                                    No aplica descuento
+                                </p>
+                            )}
+
+                            <div className="h-px bg-slate-200" />
+                            <MontoRow
+                                label="Estatus"
+                                value="Por pagar"
+                                valueClass="text-red-500"
+                            />
+                        </div>
+                    </Card>
+                )}
 
                 {/* ▸ PAGO DIGITAL */}
-                {infraccion.estatusInfraccion === 'PENDIENTE_PAGO' && (
+                {!isPagada && (
                     <section className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
                         <div className="px-6 py-[18px] border-b border-slate-200 flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
@@ -250,21 +344,21 @@ export default async function InfraccionCiudadanoPage({
 
                 {/* ▸ LIBERACIÓN (solo si la garantía retenida es el vehículo) */}
                 {infraccion.tipoGarantia === 'VEHICULO' && (
-                <SeccionLiberacion
-                    dependenciaReceptora={infraccion.dependenciaReceptora}
-                    noOficio={infraccion.noOficio}
-                    urlOficio={infraccion.urlOficio}
-                    estatusDependencia={infraccion.estatusDependencia}
-                    estatusInfraccion={infraccion.estatusInfraccion}
-                    nombreTitular={infraccion.nombreTitular}
-                    correoTitular={infraccion.correoTitular}
-                    curpTitular={infraccion.curpTitular}
-                    noCarpetaInvestigacion={infraccion.noCarpetaInvestigacion}
-                    motivoRetencion={infraccion.motivoRetencion}
-                    infraccionId={infraccion.id}
-                    documentosLiberacion={infraccion.documentosLiberacion || {}}
-                    esTitular={infraccion.esTitular}
-                />
+                    <SeccionLiberacion
+                        dependenciaReceptora={infraccion.dependenciaReceptora}
+                        noOficio={infraccion.noOficio}
+                        urlOficio={infraccion.urlOficio}
+                        estatusDependencia={infraccion.estatusDependencia}
+                        estatusInfraccion={infraccion.estatusInfraccion}
+                        nombreTitular={infraccion.nombreTitular}
+                        correoTitular={infraccion.correoTitular}
+                        curpTitular={infraccion.curpTitular}
+                        noCarpetaInvestigacion={infraccion.noCarpetaInvestigacion}
+                        motivoRetencion={infraccion.motivoRetencion}
+                        infraccionId={infraccion.id}
+                        documentosLiberacion={infraccion.documentosLiberacion || {}}
+                        esTitular={infraccion.esTitular}
+                    />
                 )}
 
                 {/* ▸ INFRACTOR (solo datos capturados) */}
@@ -331,27 +425,6 @@ export default async function InfraccionCiudadanoPage({
                         </div>
                     )}
                 </Card>
-
-                {/* ▸ DESCUENTOS */}
-                {infraccion.descuento_aplicado && Number(infraccion.descuento_aplicado) > 0 && (
-                    <Card>
-                        <Section icon={BanknoteArrowDown} iconBg="bg-amber-50" iconColor="text-amber-600" title="Descuento">
-                            <div className="flex items-center gap-3 p-3.5 rounded-lg bg-amber-50 border border-amber-200">
-                                <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center shrink-0">
-                                    <BanknoteArrowDown size={16} className="text-white" strokeWidth={1.5} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-amber-900">
-                                        {Number(infraccion.descuento_aplicado)}% de descuento aplicado
-                                    </p>
-                                    <p className="text-xs text-amber-700/70 mt-0.5">
-                                        Válido hasta {formatDate(infraccion.fecha_limite_descuento)}
-                                    </p>
-                                </div>
-                            </div>
-                        </Section>
-                    </Card>
-                )}
 
                 {/* ▸ GARANTÍA */}
                 {infraccion.tipoGarantia && (
