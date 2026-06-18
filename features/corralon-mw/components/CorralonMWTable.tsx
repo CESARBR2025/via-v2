@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import CorralonMWDashboard from "./CorralonMWDashboard"
 import SubirComprobanteModal from "./SubirComprobanteModal"
-
 interface DataRow {
     id: string
     nombre_infractor?: string
@@ -26,7 +25,6 @@ interface CorralonMWTableProps {
 const columns = [
     { key: "folio", label: "Folio" },
     { key: "nombre_infractor", label: "Nombre Infractor" },
-    { key: "correo_infractor", label: "Correo" },
     { key: "placa", label: "Placa" },
     { key: "estatus", label: "Estatus" },
     { key: "acciones", label: "Acciones" },
@@ -35,17 +33,10 @@ const columns = [
 export default function CorralonMWTable({ respuestaServidor }: CorralonMWTableProps) {
     const router = useRouter()
     const [comprobanteId, setComprobanteId] = useState<string | null>(null)
-
     const listaDatos = respuestaServidor?.data ?? []
 
-    function handleOpenComprobante(id: string) {
-        setComprobanteId(id)
-    }
-
-    function handleCloseComprobante() {
-        setComprobanteId(null)
-        router.refresh()
-    }
+    function handleOpenComprobante(id: string) { setComprobanteId(id) }
+    function handleCloseComprobante() { setComprobanteId(null); router.refresh() }
 
     return (
         <>
@@ -54,7 +45,6 @@ export default function CorralonMWTable({ respuestaServidor }: CorralonMWTablePr
                 visibleColumns={columns}
                 onSubirComprobante={handleOpenComprobante}
             />
-
             {comprobanteId && (
                 <SubirComprobanteModal
                     idInfraccion={comprobanteId}

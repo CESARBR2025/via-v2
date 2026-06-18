@@ -13,7 +13,6 @@ import {
     Loader2,
     SearchX,
 } from 'lucide-react';
-import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 
 /* ─── INTERFACES ─── */
 
@@ -86,7 +85,7 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string; 
     },
     PENDIENTE: {
         bg: 'bg-[#FEF3C7]',
-        text: 'text-[#92400E]',
+        text: 'text-[#78350F]',
         border: 'border-[#FCD34D]',
         dot: 'bg-[#F59E0B]',
         label: 'Pendiente de Pago',
@@ -396,14 +395,6 @@ export const ModalDetallesPublico: React.FC<ModalDetalleInfraccionProps> = ({
                                                     </div>
                                                 </div>
                                             )}
-
-                                            <div className="overflow-hidden rounded-xl border border-[#A7F3D0]">
-                                                <MapboxLocationPreview
-                                                    lat={latMapa}
-                                                    lng={lngMapa}
-                                                    height="260px"
-                                                />
-                                            </div>
                                         </div>
                                     </Section>
 

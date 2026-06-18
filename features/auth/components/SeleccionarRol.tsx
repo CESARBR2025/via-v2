@@ -129,15 +129,15 @@ function Spinner({ className, style }: { className?: string; style?: React.CSSPr
 function BackgroundDecoration() {
     return (
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-[#2563EB]/[0.03] blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#60A5FA]/[0.03] blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[#2563EB]/[0.02] blur-3xl" />
+            <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-blue-700/5 blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full bg-blue-400/5 blur-3xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-blue-700/5 blur-3xl" />
             <svg className="absolute inset-0 w-full h-full opacity-[0.015]"
                 xmlns="http://www.w3.org/2000/svg"
             >
                 <defs>
                     <pattern id="role-grid" width="48" height="48" patternUnits="userSpaceOnUse">
-                        <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#2563EB" strokeWidth="0.5" />
+                        <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" strokeWidth="0.5" />
                     </pattern>
                 </defs>
                 <rect width="100%" height="100%" fill="url(#role-grid)" />
@@ -224,20 +224,20 @@ export default function SeleccionarRol({ rolesIniciales, lastRole }: Seleccionar
         <>
             <LoaderOverlay show={isClosing} text={loadingMessage} />
 
-            <main className="min-h-screen w-full overflow-y-auto bg-[#F1F5F9] flex flex-col justify-between relative">
+            <main className="min-h-screen w-full overflow-y-auto bg-slate-100 flex flex-col justify-between relative">
                 <BackgroundDecoration />
 
                 <div className="relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full max-w-5xl grow flex flex-col justify-center">
 
                     {/* Header */}
                     <div className={`mb-10 sm:mb-12 text-center transition-all duration-500 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center mx-auto mb-5 shadow-[0_8px_24px_rgba(37,99,235,0.2)]">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-700/20">
                             <Shield size={26} className="text-white" strokeWidth={1.5} />
                         </div>
-                        <h1 className="text-[28px] font-bold text-[#0F172A] tracking-tight mb-2">
+                        <h1 className="text-[28px] font-medium text-slate-900 tracking-tight mb-2">
                             Seleccionar perfil
                         </h1>
-                        <p className="text-sm text-[#64748B] max-w-md mx-auto">
+                        <p className="text-sm text-slate-500 max-w-md mx-auto">
                             Elige el perfil con el que deseas trabajar en esta sesión operativa.
                         </p>
                     </div>
@@ -272,11 +272,10 @@ export default function SeleccionarRol({ rolesIniciales, lastRole }: Seleccionar
                                     }}
                                     className={`
                                         group w-full text-left rounded-xl overflow-hidden flex flex-col
-                                        bg-[#FFFFFF] border border-[#E2E8F0]
-                                        shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]
+                                        bg-white border border-slate-200 shadow-card
                                         transition-all duration-300 ease-out
                                         hover:-translate-y-1
-                                        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2563EB]
+                                        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-700
                                         ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
                                         ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}
                                     `}
@@ -288,8 +287,8 @@ export default function SeleccionarRol({ rolesIniciales, lastRole }: Seleccionar
                                     }}
                                     onMouseLeave={(e) => {
                                         if (!isDisabled) {
-                                            e.currentTarget.style.borderColor = '#E2E8F0';
-                                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)';
+                                            e.currentTarget.style.borderColor = '';
+                                            e.currentTarget.style.boxShadow = '';
                                         }
                                     }}
                                 >
@@ -322,7 +321,7 @@ export default function SeleccionarRol({ rolesIniciales, lastRole }: Seleccionar
                                                             <Icon size={16} strokeWidth={2} style={{ color: accent }} />
                                                         )}
                                                     </div>
-                                                    <span className="text-sm font-semibold text-[#0F172A] leading-tight truncate">
+                                                    <span className="text-sm font-medium text-slate-900 leading-tight truncate">
                                                         {label}
                                                     </span>
                                                 </div>
@@ -342,7 +341,7 @@ export default function SeleccionarRol({ rolesIniciales, lastRole }: Seleccionar
                                                 )}
                                             </div>
 
-                                            <p className="text-xs text-[#64748B] leading-relaxed line-clamp-2">
+                                            <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
                                                 {description}
                                             </p>
                                         </div>
@@ -361,7 +360,7 @@ export default function SeleccionarRol({ rolesIniciales, lastRole }: Seleccionar
                     </div>
                 </div>
 
-                <footer className="relative z-10 w-full py-6 text-center text-[10px] text-[#94A3B8] border-t border-[#E2E8F0] bg-white/80 backdrop-blur-sm tracking-wide shrink-0">
+                <footer className="relative z-10 w-full py-6 text-center text-[10px] text-slate-400 border-t border-slate-200 bg-white/80 backdrop-blur-sm tracking-wide shrink-0">
                     Sistema Integral de Infracciones · SSPM de San Juan del Río
                 </footer>
             </main>

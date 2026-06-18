@@ -9,7 +9,6 @@ import {
     Loader2,
     X,
 } from 'lucide-react';
-import { emitKeypressEvents } from 'readline';
 
 type Props = {
     infraccionId: string;
@@ -29,9 +28,6 @@ export default function PagoInfraccion({
     estatusDependencia,
     estatusInfraccion
 }: Props) {
-    console.log(estatus)
-
-    console.log(urlPago)
     const router = useRouter();
 
     const [open, setOpen] = useState(false);
@@ -52,10 +48,6 @@ export default function PagoInfraccion({
     const verificarPago = async () => {
 
         // Estados actuales
-        console.log(estatusInfraccion)
-        console.log(estatusDependencia)
-
-
 
         // EVITAR REQUESTS DUPLICADOS
 
@@ -79,7 +71,6 @@ export default function PagoInfraccion({
                 url = `/api/pagosInfracciones/confirmarPagoRetenida/${ordenPagoId}/${infraccionId}`
             } else if (estatusInfraccion === 'PENDIENTE_PAGO' && estatusDependencia === 'PENDIENTE_PAGO_LIBERACION') {
                 // Caso 4: Pago de infraccion liberacion
-                console.log('entro aqui')
                 url = `/api/pagosInfracciones/confirmarPagoLiberacion/${ordenPagoId}/${infraccionId}`
             }
 
@@ -91,8 +82,6 @@ export default function PagoInfraccion({
             );
 
             const data = await res.json();
-
-            console.log('VERIFICAR PAGO:', data);
 
             // =============================================
             // PAGADO
@@ -153,11 +142,7 @@ export default function PagoInfraccion({
 
         if (!open || pagado) return;
 
-        console.log('INICIANDO POLLING');
-
         const interval = setInterval(() => {
-
-            console.log('POLLING: verificando pago');
 
             verificarPago();
 
@@ -166,8 +151,6 @@ export default function PagoInfraccion({
         // LIMPIAR INTERVALO
 
         return () => {
-
-            console.log('DETENIENDO POLLING');
 
             clearInterval(interval);
 
@@ -206,12 +189,12 @@ export default function PagoInfraccion({
                     flex items-center justify-center
                     mx-auto
                 ">
-                    <CheckCircle2 size={40} />
+                    <CheckCircle2 size={40} strokeWidth={1.5} />
                 </div>
 
                 <div className="space-y-2">
 
-                    <h3 className="text-xl font-black text-slate-800">
+                    <h3 className="text-xl font-medium text-slate-800">
                         Tu infracción fue pagada
                     </h3>
 
@@ -238,15 +221,17 @@ export default function PagoInfraccion({
             <button
                 onClick={() => setOpen(true)}
                 className="
-                    w-full h-14 rounded-2xl
-                    bg-[#0b3b60]
-                    hover:bg-[#0d4d7d]
-                    text-white font-bold
+                    w-full h-14 rounded-lg
+                    bg-blue-700
+                    hover:bg-blue-800
+                    active:bg-blue-900
+                    text-white font-medium
                     transition
                     flex items-center justify-center gap-2
+                    active:scale-[0.99]
                 "
             >
-                <CreditCard size={18} />
+                <CreditCard size={18} strokeWidth={1.5} />
 
                 Pagar infracción
 
@@ -255,7 +240,7 @@ export default function PagoInfraccion({
             {/* INFO */}
 
             <div className="
-                rounded-2xl bg-blue-50
+                rounded-lg bg-blue-50
                 border border-blue-100
                 p-4
             ">
@@ -279,11 +264,11 @@ export default function PagoInfraccion({
                 ">
 
                     <div className="
-                        bg-white rounded-3xl
+                        bg-white rounded-xl
                         w-full max-w-4xl
                         h-[90vh]
                         overflow-hidden
-                        shadow-2xl
+                        shadow-modal
                         flex flex-col
                     ">
 
@@ -296,7 +281,7 @@ export default function PagoInfraccion({
 
                             <div>
 
-                                <h3 className="font-black text-slate-800">
+                                <h3 className="font-medium text-slate-800">
                                     Pago Digital
                                 </h3>
 
@@ -304,22 +289,18 @@ export default function PagoInfraccion({
                                     Plataforma segura
                                 </p>
 
-
-
-
-
                             </div>
 
                             {!mostrandoExito && (
                                 <button
                                     onClick={handleClose}
                                     className="
-                                        w-10 h-10 rounded-xl
+                                        w-10 h-10 rounded-lg
                                         hover:bg-slate-100
                                         flex items-center justify-center
                                     "
                                 >
-                                    <X size={18} />
+                                    <X size={18} strokeWidth={1.5} />
                                 </button>
                             )}
 
@@ -350,12 +331,12 @@ export default function PagoInfraccion({
                                     mb-8
                                 ">
 
-                                    <CheckCircle2 size={56} />
+                                    <CheckCircle2 size={56} strokeWidth={1.5} />
 
                                 </div>
 
                                 <h2 className="
-                                    text-4xl font-black
+                                    text-4xl font-medium
                                     text-slate-800
                                     leading-tight
                                 ">
@@ -366,7 +347,7 @@ export default function PagoInfraccion({
 
                                 <p className="
                                     mt-4 text-lg
-                                    font-semibold
+                                    font-medium
                                     text-emerald-700
                                 ">
 
@@ -411,12 +392,13 @@ export default function PagoInfraccion({
                                         onClick={verificarPago}
                                         disabled={loading}
                                         className="
-                                            h-12 px-6 rounded-2xl
+                                            h-12 px-6 rounded-lg
                                             bg-emerald-600
                                             hover:bg-emerald-700
                                             disabled:opacity-50
-                                            text-white font-bold
+                                            text-white font-medium
                                             flex items-center gap-2
+                                            active:scale-[0.99]
                                         "
                                     >
 
@@ -431,7 +413,7 @@ export default function PagoInfraccion({
                                             </>
                                         ) : (
                                             <>
-                                                <CheckCircle2 size={18} />
+                                                <CheckCircle2 size={18} strokeWidth={1.5} />
 
                                                 Verificar pago
                                             </>

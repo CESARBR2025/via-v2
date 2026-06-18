@@ -82,6 +82,7 @@ export async function PATCH(request: Request) {
             "oficio_liberacion_juzgado",
             "poder_notarial",
             "constancia_situacion_fiscal",
+            "carta_poder",
         ];
 
         const archivos: { tipo: string; file: File }[] = [];

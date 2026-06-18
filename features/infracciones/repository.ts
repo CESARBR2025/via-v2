@@ -25,7 +25,6 @@ export class InfraccionesRepository {
             seq_valor,
             oficial_id,
             patrulla_id,
-            placa_patrulla,
             articulo_id,
             fraccion_id,
             ciudadano_presente,
@@ -67,7 +66,7 @@ export class InfraccionesRepository {
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
             $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
             $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,
-            $31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42
+            $31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41
         )
         RETURNING *
     )
@@ -95,7 +94,6 @@ export class InfraccionesRepository {
         data.seq_valor,
         data.oficial_id,
         data.patrulla_id,
-        data.placa_patrulla,
         data.articulo_id,
         data.fraccion_id,
         data.ciudadano_presente,
@@ -147,6 +145,12 @@ export class InfraccionesRepository {
 
         -- Clasificación de la fracción
         vfl.clasificacion,
+
+        -- Articulo y fracción
+        val.numero AS articulo_numero,
+        val.descripcion AS articulo_descripcion,
+        vfl.numero AS fraccion_numero,
+        vfl.descripcion AS fraccion_descripcion,
 
         -- Datos de orden de pago
         ops.id AS orden_pago_local_id,
@@ -206,10 +210,13 @@ export class InfraccionesRepository {
 
     FROM v2_infracciones i
 
+    JOIN v2_articulos_ley val
+        ON i.articulo_id = val.id
+
     JOIN v2_fracciones_ley vfl
         ON i.fraccion_id = vfl.id
 
-    LEFT JOIN v2_ordenes_pago_sa7 ops
+    JOIN v2_ordenes_pago_sa7 ops
         ON ops.infraccion_id = i.id
 
     LEFT JOIN v2_solicitudes_liberacion sl
@@ -219,11 +226,14 @@ export class InfraccionesRepository {
         ON dl.solicitud_id = sl.id
 
     WHERE i.id = $1
-    GROUP BY i.id, vfl.clasificacion, ops.id, ops.orden_pago_id, ops.estatus,
+    GROUP BY i.id, val.numero, val.descripcion,
+             vfl.clasificacion, vfl.numero, vfl.descripcion,
+             ops.id, ops.orden_pago_id, ops.estatus,
              ops.url_pago, ops.url_guardado, ops.folio_orden,
              ops.fecha_vencimiento, ops.total_pesos, ops.total_umas,
              ops.created_at, ops.concepto_id, sl.id, sl.tipo_liberacion,
              sl.es_empresa, sl.nombre_empresa, sl.rfc_empresa, sl.estatus
+    ORDER BY ops.created_at DESC NULLS LAST, sl.id DESC NULLS LAST
     `,
       [id],
     );

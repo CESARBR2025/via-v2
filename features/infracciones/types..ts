@@ -88,8 +88,6 @@ export interface InfraccionDB {
 
   patrulla_id: string | null;
 
-  placa_patrulla: string | null;
-
   articulo_id: string;
 
   fraccion_id: string;
@@ -218,6 +216,7 @@ export interface InfraccionDetalleDTO {
   marca: string | null;
   modelo: string | null;
   color: string | null;
+  noSerieVehiculo: string | null;
 
   tipoVehiculo: string;
 
@@ -235,7 +234,11 @@ export interface InfraccionDetalleDTO {
   estado: string | null;
 
   articuloId: string;
+  articulo_numero: string | null;
+  articulo_descripcion: string | null;
   fraccionId: string;
+  fraccion_numero: string | null;
+  fraccion_descripcion: string | null;
   nombreInfractor: string | null;
   apellidoPaternoInfractor: string | null;
   apellidoMaternoInfractor: string | null;

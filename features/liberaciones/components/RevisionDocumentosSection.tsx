@@ -54,8 +54,8 @@ const DOC_LABELS: Record<string, string> = {
 };
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; label: string; icon: React.ReactNode }> = {
-    ACEPTADO: { bg: '#DCFCE7', text: '#16A34A', label: 'Aceptado', icon: <CheckCircle2 size={10} /> },
-    RECHAZADO: { bg: '#FEE2E2', text: '#DC2626', label: 'Rechazado', icon: <XCircle size={10} /> },
+    ACEPTADO: { bg: '#DCFCE7', text: '#166534', label: 'Aceptado', icon: <CheckCircle2 size={10} /> },
+    RECHAZADO: { bg: '#FEE2E2', text: '#991B1B', label: 'Rechazado', icon: <XCircle size={10} /> },
 };
 
 export default function RevisionDocumentosSection({
@@ -81,8 +81,6 @@ export default function RevisionDocumentosSection({
         }
         setLoading(false);
     }, [infraccionId]);
-    console.log(documentos)
-
     useEffect(() => { fetchDocs(); }, [fetchDocs]);
 
     const handleRevision = async (docId: string, accion: 'ACEPTADO' | 'RECHAZADO', observaciones?: string) => {
@@ -98,7 +96,6 @@ export default function RevisionDocumentosSection({
             setAccionando(null);
         }
     };
-    console.log(documentos)
 
     const [finalizando, setFinalizando] = useState(false);
     const [finalizadoEstatus, setFinalizadoEstatus] = useState<string | null>(null);

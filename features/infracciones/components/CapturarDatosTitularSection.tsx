@@ -1,25 +1,26 @@
 'use client'
 
-import { useState } from 'react'
-import { User, Play, Shield, CheckCircle2, Loader2 } from 'lucide-react'
-import { DetalleCompleto } from '@/features/compartido/components/ModalDetalleGenerico'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { User, CheckCircle2, Loader2, AlertCircle, ArrowRight, Info } from 'lucide-react'
+import type { DetalleCompleto } from '@/features/compartido/types/detalleInfraccion'
+import ModalEntregarGarantia from './ModalEntregarGarantia'
+import { useToastStore } from '@/stores/useToastStore'
 
 interface Props {
   detalle: DetalleCompleto
   onSuccess: () => void
+  onClose?: () => void
 }
 
-export default function CapturarDatosTitularSection({ detalle, onSuccess }: Props) {
+export default function CapturarDatosTitularSection({ detalle, onSuccess, onClose }: Props) {
   const estatus = detalle.Header.estatus_dependencia
 
-  console.log(detalle)
-
   if (estatus === 'PENDIENTE_DATOS_INFRACTOR') {
-    return <TitularForm detalle={detalle} onSuccess={onSuccess} />
+    return <TitularForm detalle={detalle} onSuccess={onSuccess} onClose={onClose} />
   }
 
   if (estatus === 'PENDIENTE_PAGO_INFRACCION' || estatus === 'PENDIENTE_ENTREGA_GARANTIA' || estatus === 'PENDIENTE_DEVOLUCION_GARANTIA') {
-    return <EntregarGarantiaButton detalle={detalle} onSuccess={onSuccess} />
+    return <ModalEntregarGarantia detalle={detalle} onSuccess={onSuccess} />
   }
 
   return null
@@ -29,7 +30,22 @@ function isNoData(v: string | null | undefined): boolean {
   return !v || v === 'NO_DATA' || v.trim() === ''
 }
 
-function TitularForm({ detalle, onSuccess }: Props) {
+type FieldName = 'infrNombre' | 'infrAppaterno' | 'infrApmaterno' | 'infrCurp' | 'infrCorreo' | 'nombre' | 'appaterno' | 'apmaterno' | 'curp' | 'correo'
+
+function validateField(name: FieldName, value: string): string | undefined {
+  const trimmed = value.trim()
+  if (!trimmed) return 'Requerido'
+  if (name === 'infrCurp' || name === 'curp') {
+    if (trimmed.length !== 18) return 'Debe tener 18 caracteres'
+  }
+  if (name === 'infrCorreo' || name === 'correo') {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return 'Correo inválido'
+  }
+  return undefined
+}
+
+function TitularForm({ detalle, onSuccess, onClose }: Props) {
+  const addToast = useToastStore((s) => s.addToast)
   const d = detalle.datos_infractor
 
   const infractorNoData =
@@ -39,6 +55,7 @@ function TitularForm({ detalle, onSuccess }: Props) {
   const esTitularPredeterminado = d?.es_titular === true
 
   const [esTitular, setEsTitular] = useState(esTitularPredeterminado)
+  const [paso, setPaso] = useState(infractorNoData ? 1 : 2)
 
   const [infrNombre, setInfrNombre] = useState('')
   const [infrAppaterno, setInfrAppaterno] = useState('')
@@ -71,59 +88,93 @@ function TitularForm({ detalle, onSuccess }: Props) {
   )
 
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
+  const [submitError, setSubmitError] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldName, string>>>({})
+  const [touched, setTouched] = useState<Set<FieldName>>(new Set())
 
-  const copyInfractorToTitular = () => {
-    setNombre(getInfractorNombre())
-    setAppaterno(getInfractorAppaterno())
-    setApmaterno(getInfractorApmaterno())
-    setCurp(getInfractorCurp())
-    setCorreo(getInfractorCorreo())
-  }
+  const firstErrorRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLDivElement>(null)
 
-  const clearTitular = () => {
-    setNombre('')
-    setAppaterno('')
-    setApmaterno('')
-    setCurp('')
-    setCorreo('')
-  }
+  const markTouched = useCallback((name: FieldName) => {
+    setTouched(prev => new Set(prev).add(name))
+  }, [])
 
-  const handleToggle = (value: boolean) => {
-    setEsTitular(value)
-    if (value) {
-      copyInfractorToTitular()
-    } else {
-      clearTitular()
+  const validateAndSet = useCallback((name: FieldName, value: string) => {
+    const error = validateField(name, value)
+    setFieldErrors(prev => {
+      const next = { ...prev }
+      if (error) next[name] = error
+      else delete next[name]
+      return next
+    })
+  }, [])
+
+  const handleBlur = useCallback((name: FieldName, value: string) => {
+    markTouched(name)
+    const trimmed = value.trim()
+    if (!trimmed && name !== 'infrApmaterno' && name !== 'apmaterno' && name !== 'infrCorreo') {
+      validateAndSet(name, value)
+    } else if (trimmed) {
+      validateAndSet(name, value)
     }
-  }
+  }, [markTouched, validateAndSet])
 
-  const handleSubmit = async () => {
-    if (!esTitular) {
-      if (!nombre.trim() || !appaterno.trim() || !curp.trim() || !correo.trim()) {
-        setError('Todos los campos del titular son obligatorios')
-        return
-      }
-    } else {
-      const titularNombre = nombre.trim()
-      const titularAppaterno = appaterno.trim()
-      const titularCurp = curp.trim()
-      if (!titularNombre || !titularAppaterno || !titularCurp) {
-        setError('Los datos del titular (nombre, apellido paterno y CURP) son obligatorios')
-        return
-      }
-    }
+  const clearFieldError = useCallback((name: FieldName) => {
+    setFieldErrors(prev => {
+      if (!prev[name]) return prev
+      const next = { ...prev }
+      delete next[name]
+      return next
+    })
+  }, [])
+
+  const handleFieldChange = useCallback((name: FieldName, setter: (v: string) => void, value: string) => {
+    setter(value)
+    clearFieldError(name)
+  }, [clearFieldError])
+
+  const getActiveErrors = useCallback((): Partial<Record<FieldName, string>> => {
+    const errors: Partial<Record<FieldName, string>> = {}
 
     if (infractorNoData) {
-      if (!infrNombre.trim() || !infrAppaterno.trim() || !infrCurp.trim()) {
-        setError('Los datos del infractor (nombre, apellido paterno y CURP) son obligatorios')
-        return
+      for (const name of ['infrNombre', 'infrAppaterno', 'infrCurp'] as FieldName[]) {
+        const val = name === 'infrNombre' ? infrNombre : name === 'infrAppaterno' ? infrAppaterno : infrCurp
+        const err = validateField(name, val)
+        if (err) errors[name] = err
       }
+    }
+
+    if (!esTitular) {
+      for (const name of ['nombre', 'appaterno', 'curp', 'correo'] as FieldName[]) {
+        const val = name === 'nombre' ? nombre : name === 'appaterno' ? appaterno : name === 'curp' ? curp : correo
+        const err = validateField(name, val)
+        if (err) errors[name] = err
+      }
+    } else {
+      for (const name of ['nombre', 'appaterno', 'curp'] as FieldName[]) {
+        const val = name === 'nombre' ? nombre : name === 'appaterno' ? appaterno : curp
+        const err = validateField(name, val)
+        if (err) errors[name] = err
+      }
+    }
+
+    return errors
+  }, [infractorNoData, esTitular, infrNombre, infrAppaterno, infrCurp, nombre, appaterno, curp, correo])
+
+  const handleSubmit = async () => {
+    const errors = getActiveErrors()
+    setFieldErrors(errors)
+    setSubmitError('')
+
+    if (Object.keys(errors).length > 0) {
+      const allNames = new Set<FieldName>([...touched])
+      Object.keys(errors).forEach(k => allNames.add(k as FieldName))
+      setTouched(allNames)
+      return
     }
 
     setSaving(true)
-    setError('')
     try {
       const res = await fetch('/api/infracciones/iniciarProceso', {
         method: 'PATCH',
@@ -131,11 +182,11 @@ function TitularForm({ detalle, onSuccess }: Props) {
         body: JSON.stringify({
           id: detalle.Header.id_infraccion,
           es_titular: esTitular,
-          nombre_titular: nombre.trim(),
-          appaterno_titular: appaterno.trim(),
-          apmaterno_titular: apmaterno.trim(),
-          curp_titular: curp.trim().toUpperCase(),
-          correo_titular: correo.trim(),
+          nombre_titular: esTitular ? getInfractorNombre() : nombre.trim(),
+          appaterno_titular: esTitular ? getInfractorAppaterno() : appaterno.trim(),
+          apmaterno_titular: esTitular ? getInfractorApmaterno() : apmaterno.trim(),
+          curp_titular: esTitular ? getInfractorCurp() : curp.trim().toUpperCase(),
+          correo_titular: esTitular ? getInfractorCorreo() : correo.trim(),
           nombre_infractor: infrNombre.trim().toUpperCase() || null,
           appaterno_infractor: infrAppaterno.trim().toUpperCase() || null,
           apmaterno_infractor: infrApmaterno.trim().toUpperCase() || null,
@@ -145,28 +196,42 @@ function TitularForm({ detalle, onSuccess }: Props) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Error al guardar')
+      addToast('Datos guardados correctamente', 'success')
       setSubmitted(true)
       onSuccess()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al guardar los datos')
+      const msg = err instanceof Error ? err.message : 'Error al guardar los datos'
+      setSubmitError(msg)
+      addToast(msg, 'error')
     } finally {
       setSaving(false)
     }
   }
 
+  useEffect(() => {
+    if (Object.keys(fieldErrors).length > 0 && firstErrorRef.current) {
+      firstErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [fieldErrors])
+
   if (submitted) {
     return (
-      <div className="rounded-xl border overflow-hidden" style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' }}>
-        <div className="px-5 py-3 flex items-center gap-3 border-b" style={{ background: '#F0FDF4', borderColor: '#BBF7D066' }}>
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#22C55E' }}>
-            <CheckCircle2 size={14} strokeWidth={2.2} className="text-white" />
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden" role="status" aria-live="polite">
+        <div className="flex items-center gap-3 px-5 py-3 border-b border-green-200/40 bg-green-50">
+          <div className="flex items-center justify-center shrink-0 w-7 h-7 rounded-lg bg-green-500">
+            <CheckCircle2 size={14} strokeWidth={2.5} className="text-white" />
           </div>
-          <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#16A34A' }}>Titular registrado</h3>
+          <div>
+            <h3 className="text-xs font-medium uppercase tracking-wider text-green-600">Titular registrado</h3>
+            <p className="text-[11px] text-green-500 mt-0.5">El caso ha sido iniciado correctamente</p>
+          </div>
         </div>
-        <div className="p-5 text-center">
-          <CheckCircle2 size={24} strokeWidth={2} className="mx-auto text-[#22C55E]" />
-          <p className="text-[14px] font-semibold text-[#166534] mt-2">Datos del titular guardados</p>
-          <p className="text-[12px] text-[#16A34A] mt-0.5">El caso ha sido iniciado correctamente.</p>
+        <div className="px-5 py-8 text-center">
+          <div className="mx-auto w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-3">
+            <CheckCircle2 size={24} strokeWidth={2} className="text-green-500" />
+          </div>
+          <p className="text-sm font-medium text-green-700">Datos del titular guardados</p>
+          <p className="mt-1 text-xs text-green-600">El proceso ha sido iniciado exitosamente.</p>
         </div>
       </div>
     )
@@ -178,290 +243,496 @@ function TitularForm({ detalle, onSuccess }: Props) {
   const infrCurpDisplay = d?.curp_infractor ?? ''
   const infrCorreoDisplay = d?.correo_infractor ?? ''
 
-  const inputClass = "w-full rounded-lg border px-2.5 py-1.5 text-[13px] outline-none transition-all"
+  const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400 hover:border-slate-300 focus:outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-700/10 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+
+  function avanzarPaso() {
+    if (paso === 1 && infractorNoData) {
+      const errors: Partial<Record<FieldName, string>> = {}
+      for (const name of ['infrNombre', 'infrAppaterno', 'infrCurp'] as FieldName[]) {
+        const val = name === 'infrNombre' ? infrNombre : name === 'infrAppaterno' ? infrAppaterno : infrCurp
+        const err = validateField(name, val)
+        if (err) errors[name] = err
+      }
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors)
+        const allNames = new Set<FieldName>(touched)
+        Object.keys(errors).forEach(k => allNames.add(k as FieldName))
+        setTouched(allNames)
+        return
+      }
+    }
+    setPaso(p => p + 1)
+  }
+
+  async function handleSiSubmit() {
+    setEsTitular(true)
+    setSaving(true)
+    setSubmitError('')
+    try {
+      const res = await fetch('/api/infracciones/iniciarProceso', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: detalle.Header.id_infraccion,
+          es_titular: true,
+          nombre_titular: getInfractorNombre(),
+          appaterno_titular: getInfractorAppaterno(),
+          apmaterno_titular: getInfractorApmaterno(),
+          curp_titular: getInfractorCurp(),
+          correo_titular: getInfractorCorreo(),
+          nombre_infractor: infrNombre.trim().toUpperCase() || null,
+          appaterno_infractor: infrAppaterno.trim().toUpperCase() || null,
+          apmaterno_infractor: infrApmaterno.trim().toUpperCase() || null,
+          curp_infractor: infrCurp.trim().toUpperCase() || null,
+          correo_infractor: infrCorreo.trim() || null,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error al guardar')
+      addToast('Datos guardados correctamente', 'success')
+      setSubmitted(true)
+      onSuccess()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al guardar los datos'
+      setSubmitError(msg)
+      addToast(msg, 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
-    <div className="rounded-xl border overflow-hidden" style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' }}>
-      <div className="px-5 py-3 flex items-center gap-3 border-b" style={{ background: '#EFF6FF', borderColor: '#2563EB22' }}>
-        <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#2563EB' }}>
-          <User size={14} strokeWidth={2.2} className="text-white" />
+    <div ref={formRef} className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
+      <div className="flex items-center justify-between gap-3 px-5 py-3 bg-slate-50 border-b border-slate-200">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center justify-center shrink-0 w-7 h-7 rounded-lg bg-blue-700">
+            <User size={14} strokeWidth={2.5} className="text-white" />
+          </div>
+          <div>
+            <h3 className="text-xs font-medium uppercase tracking-wider text-blue-700">Capturar datos del titular</h3>
+            <p className="text-[10px] text-slate-500 mt-0.5">Registra los datos del titular de la infracción</p>
+          </div>
         </div>
-        <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#2563EB' }}>Capturar datos del titular</h3>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-500 transition-colors bg-white border border-slate-200"
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
-      <div className="p-5 space-y-4">
-        {/* Infractor data */}
-        <div className="rounded-lg p-4 space-y-2" style={{ background: infractorNoData ? '#FFFBEB' : '#F8FAFC', border: `1px solid ${infractorNoData ? '#FDE68A' : '#E2E8F0'}` }}>
-          <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B]">Datos del infractor</p>
-          {infractorNoData ? (
-            <>
-              <p className="text-[11px] text-[#92400E] mb-2">Los datos del infractor no fueron capturados. Complétalos:</p>
-              <div className="space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <Field label="Nombre(s)" value={infrNombre} onChange={setInfrNombre} placeholder="Nombre(s)" />
-                  <Field label="A. Paterno" value={infrAppaterno} onChange={setInfrAppaterno} placeholder="Paterno" />
-                  <Field label="A. Materno" value={infrApmaterno} onChange={setInfrApmaterno} placeholder="Materno" />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Field label="CURP" value={infrCurp} onChange={setInfrCurp} placeholder="CURP (18 caracteres)" maxLength={18} uppercase />
-                  <Field label="Correo" value={infrCorreo} onChange={setInfrCorreo} placeholder="correo@ejemplo.com" type="email" />
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <p className="text-[10px] font-semibold tracking-wider uppercase text-[#94A3B8]">Nombre completo</p>
-                <p className="text-[13px] font-semibold text-[#0F172A]">
-                  {[infrNombreDisplay, infrAppaternoDisplay, infrApmaternoDisplay].filter(Boolean).join(' ') || '—'}
-                </p>
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold tracking-wider uppercase text-[#94A3B8]">CURP</p>
-                <p className="text-[13px] font-semibold font-mono text-[#0F172A]">{infrCurpDisplay || '—'}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold tracking-wider uppercase text-[#94A3B8]">Correo</p>
-                <p className="text-[13px] font-semibold text-[#0F172A]">{infrCorreoDisplay || '—'}</p>
-              </div>
-            </div>
-          )}
-
-        </div>
-
-        {/* Toggle ¿Es el titular? */}
-        <div>
-          <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] block mb-2">¿Es el titular?</label>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => handleToggle(true)}
-              className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${esTitular ? 'text-white' : 'text-[#64748B] border'}`}
-              style={{
-                background: esTitular ? '#2563EB' : '#FFFFFF',
-                borderColor: esTitular ? '#2563EB' : '#E2E8F0',
-                boxShadow: esTitular ? '0 4px 12px rgba(37,99,235,0.2)' : 'none',
-              }}
-            >
-              Sí
-            </button>
-            <button
-              type="button"
-              onClick={() => handleToggle(false)}
-              className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${!esTitular ? 'text-white' : 'text-[#64748B] border'}`}
-              style={{
-                background: !esTitular ? '#EF4444' : '#FFFFFF',
-                borderColor: !esTitular ? '#EF4444' : '#E2E8F0',
-                boxShadow: !esTitular ? '0 4px 12px rgba(239,68,68,0.2)' : 'none',
-              }}
-            >
-              No
-            </button>
+      <div className="p-5 space-y-5">
+        {/* Stepper */}
+        <div className="flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-[11px] font-medium px-2.5 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-700" />
+            Paso {paso} de {esTitular && paso === 2 ? '2' : '3'}
+          </span>
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: esTitular && paso === 2 ? 2 : 3 }).map((_, i) => {
+              const stepNum = i + 1
+              return (
+                <span
+                  key={stepNum}
+                  className={
+                    stepNum === paso
+                      ? 'h-[7px] w-5 rounded-full bg-blue-700'
+                      : stepNum < paso
+                        ? 'h-[7px] w-[7px] rounded-full bg-blue-700 opacity-35'
+                        : 'h-[7px] w-[7px] rounded-full bg-slate-200'
+                  }
+                />
+              )
+            })}
           </div>
         </div>
 
-        {!esTitular && (
-          <div className="rounded-lg p-4 space-y-3" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
-            <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#DC2626]">Datos del titular (capturar)</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <Field label="Nombre(s)" value={nombre} onChange={setNombre} placeholder="Nombre(s)" />
-              <Field label="A. Paterno" value={appaterno} onChange={setAppaterno} placeholder="Paterno" />
-              <Field label="A. Materno" value={apmaterno} onChange={setApmaterno} placeholder="Materno" />
+        {/* ═══ Paso 1: Datos del infractor ═══ */}
+        {paso === 1 && (
+          <div role="group" aria-labelledby="step1-label">
+            <div className="flex items-center gap-2.5 mb-3">
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-700 text-[10px] font-medium text-white" aria-hidden="true">1</span>
+              <p id="step1-label" className="text-[11px] font-medium tracking-wider uppercase text-slate-500">Datos del infractor</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="CURP" value={curp} onChange={setCurp} placeholder="CURP (18 caracteres)" maxLength={18} uppercase />
-              <Field label="Correo electrónico" value={correo} onChange={setCorreo} placeholder="correo@ejemplo.com" type="email" />
+
+            {infractorNoData ? (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-start gap-2 p-2.5 rounded-lg bg-blue-50 border border-blue-200">
+                  <AlertCircle size={12} className="text-blue-700 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-blue-800 leading-relaxed">
+                    Los datos del infractor no fueron capturados. Complétalos.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <Field
+                    name="infrNombre"
+                    label="Nombre(s)"
+                    value={infrNombre}
+                    onChange={v => handleFieldChange('infrNombre', setInfrNombre, v)}
+                    onBlur={() => handleBlur('infrNombre', infrNombre)}
+                    placeholder="Nombre(s)"
+                    className={inputClass}
+                    error={touched.has('infrNombre') ? fieldErrors.infrNombre : undefined}
+                    required
+                    autoComplete="given-name"
+                  />
+                  <Field
+                    name="infrAppaterno"
+                    label="A. Paterno"
+                    value={infrAppaterno}
+                    onChange={v => handleFieldChange('infrAppaterno', setInfrAppaterno, v)}
+                    onBlur={() => handleBlur('infrAppaterno', infrAppaterno)}
+                    placeholder="Paterno"
+                    className={inputClass}
+                    error={touched.has('infrAppaterno') ? fieldErrors.infrAppaterno : undefined}
+                    required
+                    autoComplete="family-name"
+                  />
+                  <Field
+                    name="infrApmaterno"
+                    label="A. Materno"
+                    value={infrApmaterno}
+                    onChange={v => handleFieldChange('infrApmaterno', setInfrApmaterno, v)}
+                    onBlur={() => markTouched('infrApmaterno')}
+                    placeholder="Materno"
+                    className={inputClass}
+                    autoComplete="additional-name"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <Field
+                    name="infrCurp"
+                    label="CURP"
+                    value={infrCurp}
+                    onChange={v => handleFieldChange('infrCurp', setInfrCurp, v)}
+                    onBlur={() => handleBlur('infrCurp', infrCurp)}
+                    placeholder="CURP (18 caracteres)"
+                    maxLength={18}
+                    uppercase
+                    className={inputClass}
+                    error={touched.has('infrCurp') ? fieldErrors.infrCurp : undefined}
+                    required
+                    autoComplete="off"
+                    inputMode="text"
+                  />
+                  <Field
+                    name="infrCorreo"
+                    label="Correo"
+                    value={infrCorreo}
+                    onChange={v => handleFieldChange('infrCorreo', setInfrCorreo, v)}
+                    onBlur={() => handleBlur('infrCorreo', infrCorreo)}
+                    placeholder="correo@ejemplo.com"
+                    type="email"
+                    className={inputClass}
+                    error={touched.has('infrCorreo') ? fieldErrors.infrCorreo : undefined}
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                    <p className="text-[10px] font-medium tracking-wider uppercase text-slate-400 mb-0.5">Nombre completo</p>
+                    <p className="text-xs font-medium text-slate-900 truncate">
+                      {[infrNombreDisplay, infrAppaternoDisplay, infrApmaternoDisplay].filter(Boolean).join(' ') || '—'}
+                    </p>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                    <p className="text-[10px] font-medium tracking-wider uppercase text-slate-400 mb-0.5">CURP</p>
+                    <p className="text-xs font-medium font-mono tracking-wider text-slate-900">{infrCurpDisplay || '—'}</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                    <p className="text-[10px] font-medium tracking-wider uppercase text-slate-400 mb-0.5">Correo</p>
+                    <p className="text-xs font-medium text-slate-900 truncate">{infrCorreoDisplay || '—'}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={avanzarPaso}
+              className="w-full mt-4 inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-medium text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 active:scale-[0.99] shadow-sm transition-all duration-150"
+            >
+              <span>Continuar</span>
+              <ArrowRight size={14} strokeWidth={2.5} />
+            </button>
+          </div>
+        )}
+
+        {/* ═══ Paso 2: Relación titular ═══ */}
+        {paso === 2 && (
+          <div role="group" aria-labelledby="step2-label">
+            <div className="flex items-center gap-2.5 mb-3">
+              <span className="flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-medium text-white bg-blue-700" aria-hidden="true">2</span>
+              <p id="step2-label" className="text-[11px] font-medium tracking-wider uppercase text-slate-500">El infractor es el titular</p>
+            </div>
+
+            <div className="border border-slate-200 rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 bg-slate-50">
+                <p className="text-[11px] font-medium text-slate-500">¿El infractor es el propietario?</p>
+                <div className="inline-flex items-center rounded-md p-0.5 bg-white border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={handleSiSubmit}
+                    disabled={saving}
+                    className="px-3.5 py-1.5 rounded text-[11px] font-medium transition-all duration-150 bg-blue-700 text-white shadow-sm"
+                  >
+                    {saving ? 'Guardando…' : 'Sí'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaso(3)}
+                    className="px-3.5 py-1.5 rounded text-[11px] font-medium transition-all duration-150 text-slate-500 hover:text-slate-900"
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-4">
+                {esTitular ? (
+                  <div className="flex flex-col items-center gap-4 py-4 text-center">
+                    <Loader2 size={24} className="animate-spin text-blue-700" />
+                    <p className="text-sm font-medium text-slate-500">Iniciando proceso…</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 border border-amber-200">
+                      <AlertCircle size={14} className="text-amber-700 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-[11px] font-medium text-amber-800">El infractor y el titular son personas distintas</p>
+                        <p className="text-[10px] text-amber-700 mt-0.5">Capture los datos del propietario del vehículo para continuar el proceso.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setPaso(1)}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg py-2.5 px-4 text-[13px] font-medium text-slate-600 bg-transparent border border-slate-200 hover:bg-slate-50 hover:border-slate-300 active:bg-slate-100 transition-colors duration-150"
+                      >
+                        <ArrowRight size={14} strokeWidth={2.5} className="rotate-180" />
+                        <span>Regresar</span>
+                      </button>
+                      <button
+                        onClick={() => setPaso(3)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-medium text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 active:scale-[0.99] shadow-sm transition-all duration-150"
+                      >
+                        <span>Continuar</span>
+                        <ArrowRight size={14} strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        {esTitular && (
-          <div className="rounded-lg p-4 space-y-2" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-            <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#16A34A]">Datos del titular (prellenados)</p>
-            <p className="text-[12px] text-[#166534]">Los datos del infractor se usarán como datos del titular.</p>
+        {/* ═══ Paso 3: Datos del titular ═══ */}
+        {paso === 3 && (
+          <div role="group" aria-labelledby="step3-label">
+            <div className="flex items-center gap-2.5 mb-3">
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-700 text-[10px] font-medium text-white" aria-hidden="true">3</span>
+              <p id="step3-label" className="text-[11px] font-medium tracking-wider uppercase text-slate-500">Datos del titular</p>
+            </div>
+
+            <div className="border border-slate-200 rounded-xl overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-slate-200 bg-slate-50">
+                <p className="text-[11px] font-medium text-slate-500">Complete los datos del propietario</p>
+              </div>
+              <div className="p-4 space-y-3">
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 border border-amber-200">
+                  <AlertCircle size={14} className="text-amber-700 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[11px] font-medium text-amber-800">El infractor y el titular son personas distintas</p>
+                    <p className="text-[10px] text-amber-700 mt-0.5">Capture los datos del propietario del vehículo para continuar el proceso.</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <Field
+                    name="nombre"
+                    label="Nombre(s)"
+                    value={nombre}
+                    onChange={v => handleFieldChange('nombre', setNombre, v)}
+                    onBlur={() => handleBlur('nombre', nombre)}
+                    placeholder="Nombre(s)"
+                    className={inputClass}
+                    error={touched.has('nombre') ? fieldErrors.nombre : undefined}
+                    required
+                    autoComplete="given-name"
+                  />
+                  <Field
+                    name="appaterno"
+                    label="A. Paterno"
+                    value={appaterno}
+                    onChange={v => handleFieldChange('appaterno', setAppaterno, v)}
+                    onBlur={() => handleBlur('appaterno', appaterno)}
+                    placeholder="Paterno"
+                    className={inputClass}
+                    error={touched.has('appaterno') ? fieldErrors.appaterno : undefined}
+                    required
+                    autoComplete="family-name"
+                  />
+                  <Field
+                    name="apmaterno"
+                    label="A. Materno"
+                    value={apmaterno}
+                    onChange={v => handleFieldChange('apmaterno', setApmaterno, v)}
+                    onBlur={() => markTouched('apmaterno')}
+                    placeholder="Materno"
+                    className={inputClass}
+                    autoComplete="additional-name"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <Field
+                    name="curp"
+                    label="CURP"
+                    value={curp}
+                    onChange={v => handleFieldChange('curp', setCurp, v)}
+                    onBlur={() => handleBlur('curp', curp)}
+                    placeholder="CURP (18 caracteres)"
+                    maxLength={18}
+                    uppercase
+                    className={inputClass}
+                    error={touched.has('curp') ? fieldErrors.curp : undefined}
+                    required
+                    autoComplete="off"
+                    inputMode="text"
+                  />
+                  <Field
+                    name="correo"
+                    label="Correo electrónico"
+                    value={correo}
+                    onChange={v => handleFieldChange('correo', setCorreo, v)}
+                    onBlur={() => handleBlur('correo', correo)}
+                    placeholder="correo@ejemplo.com"
+                    type="email"
+                    className={inputClass}
+                    error={touched.has('correo') ? fieldErrors.correo : undefined}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+                <div className="flex items-start gap-1.5 px-0.5">
+                  <Info size={12} className="text-blue-700 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-blue-700 leading-relaxed">
+                    Estos datos deben coincidir con los del propietario registrados en la tarjeta de circulación.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 mt-4">
+              <button
+                onClick={() => setPaso(2)}
+                className="inline-flex items-center justify-center gap-2 rounded-lg py-2.5 px-4 text-[13px] font-medium text-slate-600 bg-transparent border border-slate-200 hover:bg-slate-50 hover:border-slate-300 active:bg-slate-100 transition-colors duration-150"
+              >
+                <ArrowRight size={14} strokeWidth={2.5} className="rotate-180" />
+                <span>Regresar</span>
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={saving}
+                aria-busy={saving}
+                className={`flex-1 inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-medium text-white transition-all duration-150 ${
+                  saving
+                    ? 'bg-blue-200 text-blue-300 cursor-not-allowed'
+                    : 'bg-blue-700 hover:bg-blue-800 active:bg-blue-900 active:scale-[0.99] shadow-sm'
+                }`}
+              >
+                {saving ? (
+                  <><Loader2 size={14} className="animate-spin" /><span>Guardando…</span></>
+                ) : (
+                  <><span>Iniciar proceso</span><ArrowRight size={14} strokeWidth={2.5} /></>
+                )}
+              </button>
+            </div>
           </div>
         )}
 
-        {error && (
-          <p className="text-[12px] font-medium text-[#DC2626]">{error}</p>
+        {/* ── Error ── */}
+        {submitError && (
+          <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200" role="alert" aria-live="assertive">
+            <AlertCircle size={12} className="text-red-600 shrink-0 mt-0.5" />
+            <p className="text-[11px] font-medium text-red-600">{submitError}</p>
+          </div>
         )}
 
-        <button
-          onClick={handleSubmit}
-          disabled={saving}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-semibold text-white transition-all disabled:opacity-50"
-          style={{ background: saving ? '#94A3B8' : '#2563EB', boxShadow: saving ? 'none' : '0 4px 12px rgba(37,99,235,0.25)' }}
-        >
-          {saving ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <Play size={14} strokeWidth={2.5} fill="white" />
-          )}
-          {saving ? 'Guardando…' : 'Iniciar proceso'}
-        </button>
+        <div ref={firstErrorRef} />
       </div>
     </div>
   )
 }
 
 function Field({
-  label, value, onChange, placeholder, maxLength, type, uppercase,
+  name, label, value, onChange, onBlur, placeholder, maxLength, type, uppercase, className, error, required, autoComplete, inputMode,
 }: {
+  name: string
   label: string
   value: string
   onChange: (v: string) => void
+  onBlur?: () => void
   placeholder?: string
   maxLength?: number
   type?: string
   uppercase?: boolean
+  className?: string
+  error?: string
+  required?: boolean
+  autoComplete?: string
+  inputMode?: 'text' | 'email' | 'url' | 'search' | 'tel'
 }) {
+  const fieldId = `field-${name}`
+  const errorId = `${fieldId}-error`
+
   return (
     <div className="space-y-1">
-      <label className="text-[10px] font-semibold tracking-wider uppercase text-[#64748B]">{label}</label>
-      <input
-        type={type ?? 'text'}
-        value={value}
-        onChange={e => onChange(uppercase ? e.target.value.toUpperCase() : e.target.value)}
-        placeholder={placeholder}
-        maxLength={maxLength}
-        className="w-full rounded-lg border px-2.5 py-1.5 text-[13px] outline-none transition-all"
-        style={{ borderColor: '#E2E8F0', color: '#0F172A', background: '#FFFFFF', fontFamily: uppercase ? 'monospace' : undefined, letterSpacing: uppercase ? '0.05em' : undefined }}
-        onFocus={e => { e.target.style.borderColor = '#EF4444'; e.target.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.12)' }}
-        onBlur={e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.boxShadow = 'none' }}
-      />
-    </div>
-  )
-}
-
-function EntregarGarantiaButton({ detalle, onSuccess }: Props) {
-  const [liberando, setLiberando] = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
-  const pagoCompletado = detalle.Header.estatus_orden_pago === 'P'
-
-  const garantiaLabel = (() => {
-    const g = detalle.garantia?.garantia_retenida
-    if (!g || g === 'NO_DATA') return 'No especificada'
-    if (g === 'true') return 'Garantía entregada'
-    return g
-  })()
-
-  const handleLiberar = async () => {
-    setLiberando(true)
-    try {
-      const res = await fetch('/api/infracciones/liberarGarantia', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: detalle.Header.id_infraccion }),
-      })
-      if (!res.ok) throw new Error('Error al liberar garantía')
-      setModalOpen(false)
-      onSuccess()
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLiberando(false)
-    }
-  }
-
-  return (
-    <>
-      <div className="rounded-xl border overflow-hidden" style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' }}>
-        <div className="px-5 py-3 flex items-center gap-3 border-b" style={{ background: '#F0FDF4', borderColor: '#BBF7D066' }}>
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#22C55E' }}>
-            <Shield size={14} strokeWidth={2.2} className="text-white" />
-          </div>
-          <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#16A34A' }}>Liberar garantía</h3>
-        </div>
-        <div className="p-5 space-y-3">
-          <div className="rounded-lg p-4 space-y-2" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-            <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#16A34A]">Garantía retenida</p>
-            <p className="text-[15px] font-bold text-[#0F172A]">{garantiaLabel}</p>
-          </div>
-          <button
-            onClick={() => setModalOpen(true)}
-            disabled={!pagoCompletado || liberando}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              background: pagoCompletado ? '#22C55E' : '#94A3B8',
-              boxShadow: pagoCompletado ? '0 4px 12px rgba(34,197,94,0.25)' : 'none',
-            }}
-          >
-            {liberando ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <CheckCircle2 size={14} strokeWidth={2.5} />
-            )}
-            {liberando ? 'Liberando…' : 'Entregar garantía'}
-          </button>
-        </div>
+      <label htmlFor={fieldId} className="text-[10px] font-medium tracking-wider uppercase text-slate-500">
+        {label}
+        {required && <span className="text-red-600 ml-0.5" aria-hidden="true">*</span>}
+      </label>
+      <div className="relative">
+        <input
+          id={fieldId}
+          type={type ?? 'text'}
+          value={value}
+          onChange={e => onChange(uppercase ? e.target.value.toUpperCase() : e.target.value)}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          required={required}
+          autoComplete={autoComplete}
+          inputMode={inputMode}
+          disabled={false}
+          aria-invalid={!!error}
+          aria-required={required}
+          aria-describedby={error ? errorId : undefined}
+          className={`${className || ''} ${error
+            ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50'
+            : ''
+          }`}
+          style={{
+            fontFamily: uppercase ? 'monospace' : undefined,
+            letterSpacing: uppercase ? '0.05em' : undefined,
+          }}
+        />
       </div>
-
-      {modalOpen && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center"
-          style={{ background: 'rgba(15,23,42,0.5)' }}
-          onClick={() => !liberando && setModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl border overflow-hidden"
-            style={{ background: '#FFFFFF', borderColor: '#E2E8F0', boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 8px 20px rgba(0,0,0,0.08)' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: '#F1F5F9' }}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#22C55E' }}>
-                  <Shield size={16} strokeWidth={2.2} className="text-white" />
-                </div>
-                <h2 className="text-[16px] font-bold text-[#0F172A]">Confirmar liberación</h2>
-              </div>
-              <button
-                onClick={() => setModalOpen(false)}
-                disabled={liberando}
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#64748B] transition-colors disabled:opacity-50"
-                style={{ background: '#F1F5F9' }}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="px-6 py-5 space-y-4">
-              <div className="rounded-xl p-4" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#64748B] mb-1">Folio</p>
-                <p className="text-[15px] font-bold text-[#0F172A] font-mono">{detalle.Header.folio_de_infraccion}</p>
-              </div>
-              <div className="rounded-xl p-4" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-                <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#16A34A] mb-1">Garantía retenida</p>
-                <p className="text-[15px] font-bold text-[#0F172A]">{garantiaLabel}</p>
-              </div>
-              <p className="text-[12px] text-[#64748B]">
-                Al liberar la garantía, el estatus cambiará a <strong>Liberada</strong> y se dará por concluido el proceso de infracciones.
-              </p>
-            </div>
-            <div className="px-6 py-4 border-t flex items-center justify-end gap-3" style={{ borderColor: '#F1F5F9', background: '#F8FAFC' }}>
-              <button
-                onClick={() => setModalOpen(false)}
-                disabled={liberando}
-                className="px-4 py-2 rounded-lg text-[13px] font-semibold border transition-colors disabled:opacity-50"
-                style={{ borderColor: '#E2E8F0', color: '#64748B', background: '#FFFFFF' }}
-              >
-                Cerrar
-              </button>
-              <button
-                onClick={handleLiberar}
-                disabled={liberando}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold text-white transition-all disabled:opacity-50"
-                style={{ background: liberando ? '#94A3B8' : '#22C55E', boxShadow: liberando ? 'none' : '0 4px 12px rgba(34,197,94,0.25)' }}
-              >
-                {liberando ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <CheckCircle2 size={14} strokeWidth={2.5} />
-                )}
-                {liberando ? 'Liberando…' : 'Liberar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+      <div className="flex items-center justify-between min-h-[16px]">
+        {error ? (
+          <p id={errorId} role="alert" className="text-[10px] font-medium text-red-600">{error}</p>
+        ) : (
+          <span />
+        )}
+        {maxLength && (
+          <p className={`text-[10px] ml-auto ${value.length >= maxLength ? 'text-red-600' : 'text-slate-400'}`} aria-live="polite">
+            {value.length}/{maxLength}
+          </p>
+        )}
+      </div>
+    </div>
   )
 }

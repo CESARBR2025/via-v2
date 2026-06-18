@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { FileText, ShieldCheck, Download, Eye, ScrollText } from "lucide-react"
-import { DetalleCompleto } from "@/features/compartido/components/ModalDetalleGenerico"
+import type { DetalleCompleto } from "@/features/compartido/types/detalleInfraccion"
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento'
 
 function DocOficioRow({ numeroOficio, urlOficio }: { numeroOficio?: string; urlOficio?: string }) {

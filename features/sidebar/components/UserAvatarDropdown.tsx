@@ -1,28 +1,35 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { LogOut, ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { LogOut, ChevronDown, User, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 type Props = {
-    simulatedName?: string;
-    simulatedRole?: string;
+    userName: string;
+    userRole: string;
 };
 
-export default function UserAvatarDropdown({
-    simulatedName,
-    simulatedRole,
-}: Props = {}) {
+function getInitials(name: string): string {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 0) return "?";
+    const first = parts[0].charAt(0).toUpperCase();
+    const last = parts.length > 1 ? parts[parts.length - 1].charAt(0).toUpperCase() : "";
+    return first + last;
+}
+
+function getFirstName(name: string): string {
+    return name.trim().split(/\s+/)[0] || name;
+}
+
+export default function UserAvatarDropdown({ userName, userRole }: Props) {
     const router = useRouter();
 
     const storeUser = useAuthStore((state) => state.user);
     const logout = useAuthStore((state) => state.logout);
 
-    const user = storeUser ?? {
-        name: simulatedName ?? "Usuario",
-        role: simulatedRole ?? "Sin rol",
-    };
+    const user = storeUser ?? { name: userName, role: userRole };
 
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -62,7 +69,8 @@ export default function UserAvatarDropdown({
         }
     }
 
-    const isSimulated = !storeUser;
+    const initials = getInitials(user.name);
+    const firstName = getFirstName(user.name);
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -70,48 +78,50 @@ export default function UserAvatarDropdown({
             <button
                 type="button"
                 onClick={() => setOpen((prev) => !prev)}
-                className="
-          flex items-center gap-3
-          rounded-lg
-          px-2 py-1.5
-          hover:bg-[#F8FAFC]
-          transition-all duration-200
-        "
+                className={`
+                    flex items-center gap-2.5
+                    rounded-xl
+                    px-2.5 py-2
+                    transition-all duration-200
+                    ${open
+                        ? "bg-white/90 backdrop-blur-md ring-2 ring-blue-600/20"
+                        : "bg-white/60 backdrop-blur-md border border-slate-200/60 hover:bg-white/90"
+                    }
+                `}
             >
-                {/* Avatar */}
+                {/* Avatar with initials */}
                 <div
-                    className="
-            w-10 h-10 rounded-lg
-            bg-gradient-to-br from-[#2563EB] to-[#1D4ED8]
-            flex items-center justify-center
-            text-white font-semibold text-sm
-            shadow-[0_6px_20px_rgba(37,99,235,0.15)]
-            border border-white/30
-            transition-transform duration-200
-            hover:scale-[1.03]
-          "
+                    className={`
+                        w-9 h-9 rounded-lg
+                        flex items-center justify-center
+                        text-white font-medium text-[13px] tracking-wide
+                        transition-all duration-200
+                        bg-gradient-to-br from-blue-700 to-blue-600
+                        shadow-lg shadow-blue-700/20
+                        ${open ? "scale-105" : ""}
+                    `}
                 >
-                    {user.name.charAt(0)}
+                    {initials || <User size={14} />}
                 </div>
 
                 {/* Info */}
                 <div className="hidden md:flex flex-col items-start leading-tight">
-                    <span className="text-sm font-semibold text-[#0F172A] max-w-[140px] truncate">
-                        {user.name}
+                    <span className="text-sm font-medium text-slate-900 max-w-[120px] truncate">
+                        {firstName}
                     </span>
-
-                    <span className="text-xs font-medium text-[#64748B]">
+                    <span className="text-[11px] font-medium text-slate-500">
                         {user.role}
                     </span>
                 </div>
 
                 {/* Arrow */}
                 <ChevronDown
+                    size={14}
                     className={`
-            w-4 h-4 text-[#64748B]
-            transition-transform duration-200
-            ${open ? "rotate-180" : ""}
-          `}
+                        text-slate-400 hidden md:block
+                        transition-transform duration-200
+                        ${open ? "rotate-180" : ""}
+                    `}
                 />
             </button>
 
@@ -119,70 +129,103 @@ export default function UserAvatarDropdown({
             {open && (
                 <div
                     className="
-            absolute right-0 top-16 z-50
-            w-[280px]
-            rounded-xl
-            bg-white
-            border border-[#E2E8F0]
-            shadow-[0_20px_60px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.08)]
-            overflow-hidden
-            animate-in fade-in zoom-in-95 duration-200
-          "
+                        absolute right-0 top-full mt-2 z-50
+                        w-[280px]
+                        rounded-xl
+                        bg-white
+                        border border-slate-200
+                        shadow-modal
+                        overflow-hidden
+                        animate-fadeIn
+                    "
                 >
-                    {/* Header */}
-                    <div
-                        className="
-              px-5 py-5
-              bg-white
-              border-b border-[#F1F5F9]
-            "
-                    >
+                    {/* Header — user info */}
+                    <div className="px-4 pt-4 pb-3">
                         <div className="flex items-center gap-3">
                             <div
                                 className="
-                  w-11 h-11 rounded-lg
-                  bg-gradient-to-br from-[#2563EB] to-[#1D4ED8]
-                  flex items-center justify-center
-                  text-white font-semibold text-sm
-                  shadow-[0_6px_20px_rgba(37,99,235,0.15)]
-                "
+                                w-10 h-10 rounded-xl
+                                bg-gradient-to-br from-blue-700 to-blue-600
+                                flex items-center justify-center
+                                text-white font-medium text-sm tracking-wide
+                                shadow-md shadow-blue-700/20
+                                "
                             >
-                                {user.name.charAt(0)}
+                                {initials}
                             </div>
 
-                            <div className="min-w-0">
-                                <p className="text-sm font-semibold text-[#0F172A] truncate">
+                            <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium text-slate-900 truncate leading-tight">
                                     {user.name}
                                 </p>
-
-                                <p className="text-xs text-[#64748B] font-medium mt-1">
+                                <p className="text-[12px] text-slate-500 truncate mt-0.5">
                                     {user.role}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="p-3">
+                    {/* Divider */}
+                    <div className="mx-3 h-px bg-slate-100" />
+
+                    {/* Menu items */}
+                    <div className="p-1.5">
+                        <Link
+                            href="/oficiales/perfil"
+                            onClick={() => setOpen(false)}
+                            className="
+                                w-full flex items-center gap-3
+                                px-3 py-2.5
+                                rounded-lg
+                                text-sm font-medium text-slate-700
+                                hover:bg-slate-100
+                                transition-colors duration-150
+                            "
+                        >
+                            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100">
+                                <Settings size={14} className="text-slate-500" />
+                            </span>
+                            Mi Perfil
+                        </Link>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="mx-3 h-px bg-slate-100" />
+
+                    {/* Logout */}
+                    <div className="p-1.5">
                         <button
                             type="button"
-                            onClick={isSimulated ? () => router.push("/login") : handleLogout}
+                            onClick={handleLogout}
                             disabled={loading}
                             className="
-                w-full flex items-center gap-3
-                px-4 py-3.5
-                rounded-lg
-                text-sm font-semibold
-                text-[#EF4444]
-                hover:bg-[#FEE2E2]
-                transition-all duration-200
-                disabled:opacity-70
-              "
+                                w-full flex items-center gap-3
+                                px-3 py-2.5
+                                rounded-lg
+                                text-sm font-medium
+                                text-red-600
+                                hover:bg-red-50
+                                transition-colors duration-150
+                                disabled:opacity-50 disabled:cursor-not-allowed
+                            "
                         >
-                            <LogOut className="w-4 h-4" />
-
-                            {loading ? "Cerrando sesión..." : isSimulated ? "Cerrar sesión" : "Cerrar sesión"}
+                            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-50">
+                                <LogOut size={14} className="text-red-500" />
+                            </span>
+                            <span className="flex-1 text-left">
+                                {loading ? "Cerrando sesión..." : "Cerrar sesión"}
+                            </span>
+                            {loading && (
+                                <span className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                            )}
                         </button>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100">
+                        <p className="text-[10px] text-slate-400 text-center font-medium">
+                            VIA Dashboard v2
+                        </p>
                     </div>
                 </div>
             )}

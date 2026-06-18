@@ -41,8 +41,6 @@ const columns = [
 export default function TablaCompartida({ respuestaServidor, userRole }: TablaCompartidaProps) {
     const router = useRouter()
 
-    console.log(userRole)
-    console.log(respuestaServidor)
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [detalle, setDetalle] = useState<DetalleCompleto | null>(null)
@@ -70,8 +68,6 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
             setLoading(false)
         }
     }
-
-    console.log(detalle)
 
     async function handleOpenDetalle(id: string) {
         const row = listaDatos.find(r => r.id === id)
@@ -187,10 +183,10 @@ export default function TablaCompartida({ respuestaServidor, userRole }: TablaCo
                                 <CargarOficioSection
                                     key="cargar-oficio"
                                     idInfraccion={detalle.Header.id_infraccion}
+                                    folio={detalle.Header.folio_de_infraccion}
                                     noOficioActual={detalle.Header.no_oficio_fiscalia}
                                     noCarpetaActual={detalle.Header.no_carpeta_investigacion}
-                                    esTitular={detalle.datos_infractor?.es_titular}
-                                    nombreInfractor={detalle.datos_infractor?.nombre_infractor}
+                                nombreInfractor={detalle.datos_infractor?.nombre_infractor}
                                     appaternoInfractor={detalle.datos_infractor?.appaterno_infractor}
                                     apmaternoInfractor={detalle.datos_infractor?.apmaterno_infractor}
                                     correoInfractor={detalle.datos_infractor?.correo_infractor}

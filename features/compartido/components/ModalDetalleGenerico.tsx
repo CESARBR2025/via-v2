@@ -7,80 +7,30 @@ import {
     Scale, Hash, FileSpreadsheet, CalendarDays, Image, Receipt,
     ScrollText, Eye, Upload, Loader2
 } from 'lucide-react';
-import MapboxLocationPreview from '@/features/depInfracciones/components/TablaDevInfracciones/components/MapaPreview';
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento';
 
 
 // ══════════════════════════════ TIPOS ══════════════════════════════
 
-export type DetalleHeader = {
-    id_infraccion: string;
-    folio_de_infraccion: string;
-    fecha_de_registro_de_infraccion: string;
-    estatus_de_infraccion: string;
-    url_ine: string;
-    url_tarjeta_circulacion: string;
-    url_inapam: string;
-    url_evidencias: string[];
-    no_oficio_fiscalia?: string;
-    url_oficio_fiscalia?: string;
-    estatus_dependencia: string
-    no_carpeta_investigacion: string
-    appaterno_infractor: string
-    url_oficio_pago_corralon?: string
-    url_orden_salida_liberaciones?: string
-    estatus_orden_pago?: string
-    estatus: string
-};
+import type {
+  DetalleHeader,
+  DetalleInfraccion,
+  DetalleInfractor,
+  DetalleVehiculo,
+  DetalleGarantia,
+  DetalleUbicacion,
+  DetalleCompleto,
+} from '@/features/compartido/types/detalleInfraccion'
 
-export type DetalleInfraccion = {
-    articulo_descripcion: string;
-    fraccion_descripcion: string;
-    total_umas: string | number;
-    total_pesos: string | number;
-};
-
-export type DetalleInfractor = {
-    nombre_infractor: string;
-    correo_infractor: string;
-    curp_infractor: string;
-    es_titular: boolean;
-    apmaterno_infractor: string
-    appaterno_infractor: string
-    nombre_titular_liberacion: string
-};
-
-export type DetalleVehiculo = {
-    placa: string;
-    tipo: string;
-    marca: string;
-    modelo: string;
-    anio: string;
-    color: string;
-};
-
-export type DetalleGarantia = {
-    garantia_retenida: string;
-};
-
-export type DetalleUbicacion = {
-    latitud: string;
-    longitud: string;
-    calle: string;
-    cod_postal: string;
-    numero: string;
-    municipio: string;
-    estado: string;
-};
-
-export type DetalleCompleto = {
-    Header: DetalleHeader;
-    Infraccion: DetalleInfraccion;
-    datos_infractor: DetalleInfractor;
-    vehiculo: DetalleVehiculo;
-    garantia: DetalleGarantia;
-    ubicacion: DetalleUbicacion;
-};
+export type {
+  DetalleHeader,
+  DetalleInfraccion,
+  DetalleInfractor,
+  DetalleVehiculo,
+  DetalleGarantia,
+  DetalleUbicacion,
+  DetalleCompleto,
+}
 
 interface ModalDetalleGenericoProps {
     isOpen: boolean;
@@ -93,13 +43,14 @@ interface ModalDetalleGenericoProps {
     sidebarExtra?: React.ReactNode[];
     mainExtra?: React.ReactNode[];
     fullWidthExtra?: React.ReactNode[];
+    children?: React.ReactNode;
 }
 
 // ══════════════════════════════ HELPERS ══════════════════════════════
 
 const STATUS_MAP: Record<string, { dot: string; bg: string; text: string; label: string }> = {
     PAGADA: { dot: '#22C55E', bg: '#DCFCE7', text: '#166534', label: 'Pagada' },
-    PENDIENTE: { dot: '#F59E0B', bg: '#FEF3C7', text: '#92400E', label: 'Pendiente de Pago' },
+    PENDIENTE: { dot: '#F59E0B', bg: '#FEF3C7', text: '#78350F', label: 'Pendiente de Pago' },
     REGISTRADA: { dot: '#3B82F6', bg: '#DBEAFE', text: '#1E40AF', label: 'Registrada' },
     CANCELADA: { dot: '#EF4444', bg: '#FEE2E2', text: '#991B1B', label: 'Cancelada' },
 };
@@ -129,11 +80,9 @@ function sani(value: string | null | undefined, fallback = '—'): string {
 
 export default function ModalDetalleGenerico({
     isOpen, onClose, loading, detalle, role, onRefresh,
-    antesContenido, sidebarExtra, mainExtra, fullWidthExtra,
+    antesContenido, sidebarExtra, mainExtra, fullWidthExtra, children,
 }: ModalDetalleGenericoProps) {
     const ref = useRef<HTMLDivElement>(null);
-    console.log(detalle)
-
 
 
     useEffect(() => {
@@ -295,11 +244,6 @@ export default function ModalDetalleGenerico({
                                             </div>
                                             <ExternalLink size={14} className="text-[#0F766E]/50 group-hover:text-[#0F766E] transition-colors shrink-0" />
                                         </a>
-                                        {latOk && lngOk && (
-                                            <div className="rounded-xl overflow-hidden border border-[#CCFBF1]">
-                                                <MapboxLocationPreview lat={Number(detalle.ubicacion.latitud)} lng={Number(detalle.ubicacion.longitud)} height="240px" />
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
 
@@ -536,6 +480,7 @@ export default function ModalDetalleGenerico({
                                 {sidebarExtra?.map((s, i) => (
                                     <div key={`se-${i}`}>{s}</div>
                                 ))}
+                                {children}
                             </div>
                         </div>
                     )}
@@ -559,8 +504,6 @@ export default function ModalDetalleGenerico({
 
 function DatosInfractorSection({ detalle, role }: { detalle: DetalleCompleto; role: string }) {
     const esTitular = !!detalle.datos_infractor.nombre_titular_liberacion;
-    console.log(detalle)
-    console.log(esTitular)
 
     if (role === 'fiscalia' && detalle.Header.estatus === 'REGISTRADA' && detalle.Header.estatus_dependencia === 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO') {
         return esTitular ? <TitularVerificado detalle={detalle} /> : <CapturaTitular />;

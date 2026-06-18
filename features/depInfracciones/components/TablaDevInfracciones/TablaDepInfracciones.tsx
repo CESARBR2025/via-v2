@@ -1,14 +1,12 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { FileText, SearchX } from 'lucide-react';
-import CardTable from '@/features/sidebar/components/CardTable';
+import { useState } from 'react';
+import { SearchX } from 'lucide-react';
 import { useTableInfracciones } from './hooks/useInfracciones';
-import { TablaInfraccionesHeader } from './components/TBInfHeader';
 import { TablaInfraccionesSearch } from './components/TbInfSearch';
 import { TablaInfracciones } from './components/TbInfracciones';
 import { TablaInfraccionesFooter } from './components/TBInfFooter';
-import { InfraccionDetalle, ModalDetalleInfraccionDtoInfracciones } from './ModalDetallesInfraccion';
+import { DetalleInfraccionModal, type InfraccionDetalle } from './DetalleInfraccionModal';
 
 type Infraccion = {
     id: string;
@@ -50,7 +48,6 @@ export default function TablaDepInfracciones({ data }: Props) {
             setLoading(false);
         }
     }
-    console.log(detalle)
 
     async function handleOpenDetalle(id: string) {
         setOpen(true);
@@ -58,15 +55,8 @@ export default function TablaDepInfracciones({ data }: Props) {
         await refetchDetalle(id);
     }
 
-    useEffect(() => {
-        if (detalle) {
-            console.log('🔄 El estado detalle se actualizó con éxito:', detalle);
-        }
-    }, [detalle]);
-
     return (
-        <CardTable className="flex flex-col flex-1 min-h-0 p-0 w-full">
-            <TablaInfraccionesHeader count={filteredRows.length} total={data.total} />
+        <div className="flex flex-col flex-1 min-h-0 bg-white border border-slate-200 rounded-xl shadow-card">
             <TablaInfraccionesSearch value={searchGlobal} onChange={setSearchGlobal} onClear={() => setSearchGlobal('')} />
 
             <div className="flex-1 min-h-0 overflow-y-auto w-full">
@@ -74,12 +64,12 @@ export default function TablaDepInfracciones({ data }: Props) {
                     <TablaInfracciones rows={filteredRows} onOpen={handleOpenDetalle} />
                 ) : (
                     <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F1F5F9]">
-                            <SearchX size={22} className="text-[#94A3B8]" strokeWidth={1.5} />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
+                            <SearchX size={22} className="text-slate-400" strokeWidth={1.5} />
                         </div>
                         <div>
-                            <p className="text-[15px] font-semibold text-[#0F172A]">Sin infracciones encontradas</p>
-                            <p className="text-[13px] text-[#64748B] mt-0.5">
+                            <p className="text-sm font-medium text-slate-900">Sin infracciones encontradas</p>
+                            <p className="text-xs text-slate-500 mt-0.5">
                                 {searchGlobal ? 'Intenta con otro término de búsqueda.' : 'No hay infracciones pendientes.'}
                             </p>
                         </div>
@@ -89,18 +79,15 @@ export default function TablaDepInfracciones({ data }: Props) {
 
             <TablaInfraccionesFooter count={filteredRows.length} page={data.page} total={data.total} />
 
-            {open && (
-                <ModalDetalleInfraccionDtoInfracciones
-                    isOpen={open}
-                    onClose={() => {
-                        setOpen(false);
-                        router.refresh();
-                    }}
-                    loading={loading}
-                    detalle={detalle}
-                    onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
-                />
-            )}
-        </CardTable>
+            <DetalleInfraccionModal
+                isOpen={open}
+                onClose={() => {
+                    setOpen(false)
+                    router.refresh()
+                }}
+                loading={loading}
+                detalle={detalle}
+            />
+        </div>
     );
 }

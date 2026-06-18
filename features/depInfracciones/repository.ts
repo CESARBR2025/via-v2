@@ -166,7 +166,8 @@ export class DepInfraccionesRepository {
           no_carpeta_investigacion
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-          AND estatus_dependencia IN ( 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS')
+          AND estatus_dependencia IN ( 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS',
+          'LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_DELITO')
           AND dependencia_receptora = $1
 
         
@@ -213,7 +214,7 @@ export class DepInfraccionesRepository {
         LEFT JOIN v2_ordenes_pago_sa7 ops ON ops.infraccion_id = i.id
         WHERE (i.tipo_garantia != 'VEHICULO' OR i.estatus_dependencia = 'VEHICULO_EN_CORRALON')
           AND (
-            i.estatus_dependencia IN ('PENDIENTE_DATOS_INFRACTOR', 'PENDIENTE_PAGO_INFRACCION', 'PENDIENTE_PAGO_INSTANTE', 'PLACA_RETENIDA_EN_TRANSITO', 'PENDIENTE_ENTREGA_GARANTIA', 'PENDIENTE_DEVOLUCION_GARANTIA', 'LIBERADO_POR_INFRACCIONES', 'VEHICULO_EN_CORRALON')
+            i.estatus_dependencia IN ('PENDIENTE_DATOS_INFRACTOR', 'PENDIENTE_PAGO_INFRACCION', 'PENDIENTE_PAGO_INSTANTE', 'PLACA_RETENIDA_EN_TRANSITO', 'PENDIENTE_ENTREGA_GARANTIA', 'PENDIENTE_DEVOLUCION_GARANTIA', 'LIBERADO_POR_INFRACCIONES', 'VEHICULO_EN_CORRALON', 'LIBERADA_INFRACCIONES_INSTANTE')
             OR
             (i.estatus_dependencia IS NULL AND i.estatus = 'PENDIENTE_DATOS_INFRACTOR')
           )
@@ -368,7 +369,8 @@ export class DepInfraccionesRepository {
       SELECT COUNT(*)::int AS total
       FROM v2_infracciones
       WHERE tipo_garantia = 'VEHICULO'
-         AND estatus_dependencia IN ('RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS'  )
+         AND estatus_dependencia IN ( 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO', 'MESA_DE_CONTROL_PENDIENTE_DOCS',
+          'LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_DELITO')
         AND dependencia_receptora = $1
     `;
       values.push(dependencia);
@@ -401,8 +403,10 @@ export class DepInfraccionesRepository {
 
 
     i.articulo_id,
+    a.numero as articulo_numero,
     a.descripcion as articulo_descripcion,
     i.fraccion_id,
+    f.numero as fraccion_numero,
     f.descripcion as fraccion_descripcion,
 
     i.nombre_infractor,
@@ -436,6 +440,7 @@ export class DepInfraccionesRepository {
     o.total_umas,
     o.total_pesos,
 
+    i.oficial_id,
     i.es_titular,
     i.no_oficio_fiscalia,
     i.url_oficio_fiscalia,
@@ -443,13 +448,22 @@ export class DepInfraccionesRepository {
     i.no_carpeta_investigacion,
     i.url_oficio_pago_corralon,
     i.url_orden_salida_liberaciones,
-    o.estatus as estatus_orden_pago
+    o.estatus as estatus_orden_pago,
+    off.numero_empleado as oficial_numero_empleado,
+    u.nombres as oficial_nombres,
+    u.apellido_p as oficial_apellido_p,
+    u.apellido_m as oficial_apellido_m,
+    pat.numero_unidad as patrulla_nombre,
+    off.activo as oficial_activo
 
   FROM v2_infracciones i
   LEFT JOIN v2_ordenes_pago_sa7 o
     ON o.infraccion_id = i.id
   JOIN v2_articulos_ley a on i.articulo_id = a.id
   JOIN v2_fracciones_ley f on i.fraccion_id = f.id
+  LEFT JOIN v2_usuarios u ON i.oficial_id = u.id
+  LEFT JOIN v2_oficiales off ON off.usuario_id = i.oficial_id
+  LEFT JOIN v2_patrullas pat ON off.patrulla_id = pat.id
   WHERE i.id = $1 
   ORDER BY o.created_at DESC
   LIMIT 1;

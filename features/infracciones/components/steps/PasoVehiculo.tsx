@@ -951,7 +951,7 @@ export default function PasoVehiculo({
                                         ref={i === activeMarcaIdx ? (el) => el?.scrollIntoView({ block: 'nearest' }) : undefined}
                                         onMouseEnter={() => setActiveMarcaIdx(i)}
                                         type="button"
-                                        className="w-full px-3 py-2 text-left hover:bg-gray-100"
+                                        className="w-full px-3 py-2 text-left hover:bg-slate-100"
                                         onClick={() => {
                                             setBusquedaMarca(marca);
                                             actualizarDatos({ marca });
@@ -1032,7 +1032,7 @@ export default function PasoVehiculo({
                                         ref={i === activeModeloIdx ? (el) => el?.scrollIntoView({ block: 'nearest' }) : undefined}
                                         onMouseEnter={() => setActiveModeloIdx(i)}
                                         type="button"
-                                        className="w-full px-3 py-2 text-left hover:bg-gray-100"
+                                        className="w-full px-3 py-2 text-left hover:bg-slate-100"
                                         onClick={() => {
                                             setBusquedaModelo(modelo);
                                             actualizarDatos({ modelo });
@@ -1138,7 +1138,7 @@ export default function PasoVehiculo({
                                         ref={i === activeColorIdx ? (el) => el?.scrollIntoView({ block: 'nearest' }) : undefined}
                                         onMouseEnter={() => setActiveColorIdx(i)}
                                         type="button"
-                                        className="w-full px-3 py-2 text-left hover:bg-gray-100"
+                                        className="w-full px-3 py-2 text-left hover:bg-slate-100"
                                         onClick={() => {
                                             setBusquedaColor(color);
                                             actualizarDatos({ color });
@@ -1262,7 +1262,7 @@ export default function PasoVehiculo({
                                         ref={i === activeEstadoIdx ? (el) => el?.scrollIntoView({ block: 'nearest' }) : undefined}
                                         onMouseEnter={() => setActiveEstadoIdx(i)}
                                         type="button"
-                                        className="w-full px-3 py-2 text-left hover:bg-gray-100"
+                                        className="w-full px-3 py-2 text-left hover:bg-slate-100"
                                         onClick={() => {
                                             setBusquedaEstado(estado);
                                             actualizarDatos({ estadoOrigen: estado });

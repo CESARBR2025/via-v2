@@ -189,10 +189,16 @@ export async function POST(req: NextRequest) {
 
     console.error("[GUARDADO DOCUMENTOS JUZGADO]", error);
 
+    let mensaje = "Error interno del servidor";
+
+    if (error instanceof TypeError && (error as any).cause?.code === 'CERT_HAS_EXPIRED') {
+      mensaje = "El registro no pudo completarse. El certificado de seguridad ha expirado. Por favor contacta a soporte técnico.";
+    } else if (error instanceof Error) {
+      mensaje = error.message;
+    }
+
     return NextResponse.json(
-      {
-        message: error instanceof Error ? error.message : "Error interno",
-      },
+      { message: mensaje },
       { status: 500 },
     );
   } finally {

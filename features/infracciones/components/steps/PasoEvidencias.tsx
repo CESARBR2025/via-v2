@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Upload } from 'lucide-react';
 
 import { Card } from '../ui/Card';
 import { CardTitle } from '../ui/CardTitle';
@@ -40,7 +41,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                 className={`
                     flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 w-fit
                     ${agregarEvidencia
-                        ? 'border-[#2563EB] bg-blue-50'
+                        ? 'border-blue-700 bg-blue-50'
                         : 'border-slate-200 hover:border-slate-300'
                     }
                 `}
@@ -49,7 +50,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                     className={`
                         w-10 h-6 rounded-full relative transition-all duration-300
                         ${agregarEvidencia
-                            ? 'bg-[#2563EB]'
+                            ? 'bg-blue-700'
                             : 'bg-slate-300'
                         }
                     `}
@@ -98,28 +99,16 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                         className="
                             flex flex-col items-center justify-center gap-3 p-8
                             border-2 border-dashed border-slate-300 rounded-xl
-                            hover:border-[#2563EB] hover:bg-blue-50/30
+                            hover:border-blue-700 hover:bg-blue-50/30
                             cursor-pointer transition-all duration-200
                         "
                     >
                         <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                            <svg
-                                className="w-6 h-6 text-[#2563EB]"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-                                />
-                            </svg>
+                            <Upload size={24} className="text-blue-700" strokeWidth={1.5} />
                         </div>
 
                         <div className="text-center">
-                            <p className="text-sm font-semibold text-[#2563EB]">
+                            <p className="text-sm font-medium text-blue-700">
                                 Seleccionar fotografías
                             </p>
 
@@ -156,7 +145,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                     {/* Evidencias seleccionadas */}
                     {evidencias.length > 0 && (
                         <div className="mt-4 space-y-2">
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
                                 {
                                     evidencias.length
                                 }{' '}
@@ -177,7 +166,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                                                 gap-2
                                                 text-xs
                                                 bg-blue-50
-                                                text-[#2563EB]
+                                                text-blue-700
                                                 border
                                                 border-blue-200
                                                 px-3
@@ -208,7 +197,7 @@ export const PasoEvidencias: React.FC<PasoEvidenciasProps> = ({
                                                         }
                                                     );
                                                 }}
-                                                className="font-bold hover:text-red-600"
+                                                className="font-medium hover:text-red-600"
                                             >
                                                 ×
                                             </button>

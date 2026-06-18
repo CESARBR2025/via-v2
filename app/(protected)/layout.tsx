@@ -1,8 +1,5 @@
 import { cookies } from "next/headers";
 
-import BottomNav
-    from "@/features/sidebar/components/BottomNav";
-
 import Header
     from "@/features/sidebar/components/Header";
 
@@ -10,6 +7,20 @@ import Sidebar
     from "@/features/sidebar/components/SideBar";
 import MobileSidebar from "@/features/sidebar/components/MobileSideBar";
 import { UserRole } from "@/features/sidebar/config/types";
+import { getSession } from "@/features/auth/service";
+import OfflineBanner from "@/components/OfflineBanner";
+import GlobalDetailModal from "@/components/GlobalDetailModal";
+
+const ROLE_LABELS: Record<string, string> = {
+    admin: "Administrador",
+    oficial: "Oficial",
+    infracciones: "Agente de Infracciones",
+    liberaciones: "Agente de Liberaciones",
+    fiscalia: "Agente de Fiscalia",
+    juzgado_civico: "Agente de Juzgado Cívico",
+    corralon_mejia: "Agente de Deposito Mejía",
+    corralon_mw: "Agente de Deposito MW",
+};
 
 export default async function DashboardLayout({
     children,
@@ -17,17 +28,29 @@ export default async function DashboardLayout({
     children: React.ReactNode;
 }) {
 
-    const cookieStore = await cookies();
+    const [cookieStore, session] = await Promise.all([
+        cookies(),
+        getSession(),
+    ]);
 
     const role =
         (cookieStore.get("last_role")?.value ||
             "oficial") as UserRole;
 
+    const userName = session
+        ? `${session.user.nombres} ${session.user.apellido_p}`
+        : "Usuario";
+
+    const userRole =
+        session && session.user.roles.length > 0
+            ? ROLE_LABELS[session.user.roles[0]] || session.user.roles[0]
+            : "Sin rol";
+
     return (
         <div className="
             flex h-screen
             overflow-hidden
-            bg-[#F1F5F9]
+            bg-slate-100
         ">
 
             {/* DESKTOP */}
@@ -36,7 +59,7 @@ export default async function DashboardLayout({
 
             {/* MOBILE */}
 
-            <MobileSidebar role={role} />
+            <MobileSidebar role={role} userName={userName} userRole={userRole} />
 
             {/* CONTENT */}
 
@@ -45,22 +68,24 @@ export default async function DashboardLayout({
                 overflow-hidden
             ">
 
-                <Header />
+                <Header
+                    userName={userName}
+                    userRole={userRole}
+                    roleKey={role}
+                />
+
+                <OfflineBanner />
 
                 <main className="
                     flex-1 overflow-y-auto
                     p-4 md:p-6
-                    pb-20 md:pb-6
                 ">
                     {children}
                 </main>
 
+                <GlobalDetailModal />
+
             </div>
-
-
-            {/* MOBILE NAV */}
-
-            <BottomNav role={role} />
 
         </div>
     );

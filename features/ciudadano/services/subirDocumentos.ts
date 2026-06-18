@@ -58,24 +58,56 @@ type ArchivoConfig = {
 const REQUIRED_FILES: Record<TipoLiberacion, ArchivoConfig[]> = {
   INFRACCION: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
-    { campo: "ine_titular", formKey: "archivoIneTitular", label: "INE del titular" },
-    { campo: "comprobante_domicilio", formKey: "archivoComprobanteDomicilio", label: "Comprobante de domicilio" },
-    { campo: "tarjeta_circulacion", formKey: "archivoTarjetaCirculacion", label: "Tarjeta de circulación" },
+    {
+      campo: "ine_titular",
+      formKey: "archivoIneTitular",
+      label: "INE del titular",
+    },
+    {
+      campo: "comprobante_domicilio",
+      formKey: "archivoComprobanteDomicilio",
+      label: "Comprobante de domicilio",
+    },
+    {
+      campo: "tarjeta_circulacion",
+      formKey: "archivoTarjetaCirculacion",
+      label: "Tarjeta de circulación",
+    },
   ],
   DELITO: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
-    { campo: "ine_titular", formKey: "archivoIneTitular", label: "INE del titular" },
+    {
+      campo: "ine_titular",
+      formKey: "archivoIneTitular",
+      label: "INE del titular",
+    },
   ],
   ACCIDENTE: [
     { campo: "factura", formKey: "archivoFactura", label: "Factura" },
-    { campo: "ine_titular", formKey: "archivoIneTitular", label: "INE del titular" },
+    {
+      campo: "ine_titular",
+      formKey: "archivoIneTitular",
+      label: "INE del titular",
+    },
   ],
 };
 
 const EMPRESA_FILES: ArchivoConfig[] = [
-  { campo: "ine_representante_legal", formKey: "archivoIneRepresentanteLegal", label: "INE del representante legal" },
-  { campo: "poder_notarial", formKey: "archivoPoderNotarial", label: "Poder notarial" },
-  { campo: "constancia_situacion_fiscal", formKey: "archivoConstanciaSituacionFiscal", label: "Constancia de situación fiscal" },
+  {
+    campo: "ine_representante_legal",
+    formKey: "archivoIneRepresentanteLegal",
+    label: "INE del representante legal",
+  },
+  {
+    campo: "poder_notarial",
+    formKey: "archivoPoderNotarial",
+    label: "Poder notarial",
+  },
+  {
+    campo: "constancia_situacion_fiscal",
+    formKey: "archivoConstanciaSituacionFiscal",
+    label: "Constancia de situación fiscal",
+  },
 ];
 
 export type StatusUpdate = {
@@ -96,7 +128,9 @@ export async function procesarSubidaDocumentos(
   }
 
   if (!tipoLiberacion || !TIPOS_LIBERACION.includes(tipoLiberacion as any)) {
-    throw new Error(`tipoLiberacion debe ser uno de: ${TIPOS_LIBERACION.join(", ")}`);
+    throw new Error(
+      `tipoLiberacion debe ser uno de: ${TIPOS_LIBERACION.join(", ")}`,
+    );
   }
 
   const tipo = tipoLiberacion as TipoLiberacion;
@@ -111,9 +145,17 @@ export async function procesarSubidaDocumentos(
     nombreEmpresa = (formData.get("nombreEmpresa") as string) || null;
     rfcEmpresa = (formData.get("rfcEmpresa") as string) || null;
     nombreRespFiscal = (formData.get("nombreRespFiscal") as string) || null;
-    apPaternoRespFiscal = (formData.get("apPaternoRespFiscal") as string) || null;
-    apMaternoRespFiscal = (formData.get("apMaternoRespFiscal") as string) || null;
+    apPaternoRespFiscal =
+      (formData.get("apPaternoRespFiscal") as string) || null;
+    apMaternoRespFiscal =
+      (formData.get("apMaternoRespFiscal") as string) || null;
   }
+
+  const nombreTitular = (formData.get("nombreTitular") as string) || null;
+  const appaternoTitular = (formData.get("appaternoTitular") as string) || null;
+  const apmaternoTitular = (formData.get("apmaternoTitular") as string) || null;
+  const curpTitular = (formData.get("curpTitular") as string) || null;
+  const correoTitular = (formData.get("correoTitular") as string) || null;
 
   const archivos: (ArchivoConfig & { file: File | null })[] = [];
 
@@ -128,6 +170,17 @@ export async function procesarSubidaDocumentos(
       const file = formData.get(f.formKey) as File | null;
       archivos.push({ ...f, file });
     }
+  }
+
+  // Carta poder (cuando el infractor no es el titular)
+  const cartaPoderFile = formData.get("archivoCartaPoder") as File | null;
+  if (cartaPoderFile) {
+    archivos.push({
+      campo: "carta_poder",
+      formKey: "archivoCartaPoder",
+      label: "Carta poder",
+      file: cartaPoderFile,
+    });
   }
 
   const tieneDocumentos = archivos.some((a) => a.file !== null);
@@ -175,14 +228,32 @@ export async function procesarSubidaDocumentos(
              apmaterno_resp_fiscal = COALESCE($8, apmaterno_resp_fiscal),
              updated_at = CURRENT_TIMESTAMP
          WHERE id = $1`,
-        [solicitudId, tipo, esEmpresa, nombreEmpresa, rfcEmpresa, nombreRespFiscal, apPaternoRespFiscal, apMaternoRespFiscal],
+        [
+          solicitudId,
+          tipo,
+          esEmpresa,
+          nombreEmpresa,
+          rfcEmpresa,
+          nombreRespFiscal,
+          apPaternoRespFiscal,
+          apMaternoRespFiscal,
+        ],
       );
     } else {
       const r = await client.query(
         `INSERT INTO v2_solicitudes_liberacion (infraccion_id, tipo_liberacion, es_empresa, nombre_empresa, rfc_empresa, estatus, nombre_resp_fiscal, appaterno_resp_fiscal, apmaterno_resp_fiscal)
          VALUES ($1, $2, $3, $4, $5, 'PENDIENTE', $6, $7, $8)
          RETURNING id`,
-        [idInfraccion, tipo, esEmpresa, nombreEmpresa, rfcEmpresa, nombreRespFiscal, apPaternoRespFiscal, apMaternoRespFiscal],
+        [
+          idInfraccion,
+          tipo,
+          esEmpresa,
+          nombreEmpresa,
+          rfcEmpresa,
+          nombreRespFiscal,
+          apPaternoRespFiscal,
+          apMaternoRespFiscal,
+        ],
       );
       solicitudId = r.rows[0].id;
     }
@@ -195,7 +266,7 @@ export async function procesarSubidaDocumentos(
       );
     }
 
-    const setClauses: string[] = ['updated_at = CURRENT_TIMESTAMP'];
+    const setClauses: string[] = ["updated_at = CURRENT_TIMESTAMP"];
     const values: any[] = [idInfraccion];
     let idx = 2;
 
@@ -208,8 +279,29 @@ export async function procesarSubidaDocumentos(
       values.push(statusUpdate.estatus_dependencia);
     }
 
+    if (nombreTitular) {
+      setClauses.push(`nombre_titular_liberacion = $${idx++}`);
+      values.push(nombreTitular);
+    }
+    if (appaternoTitular) {
+      setClauses.push(`appaterno_titular_liberacion = $${idx++}`);
+      values.push(appaternoTitular);
+    }
+    if (apmaternoTitular) {
+      setClauses.push(`apmaterno_titular_liberacion = $${idx++}`);
+      values.push(apmaternoTitular);
+    }
+    if (curpTitular) {
+      setClauses.push(`curp_titular_liberacion = $${idx++}`);
+      values.push(curpTitular);
+    }
+    if (correoTitular) {
+      setClauses.push(`correo_titular_liberacion = $${idx++}`);
+      values.push(correoTitular);
+    }
+
     await client.query(
-      `UPDATE v2_infracciones SET ${setClauses.join(', ')} WHERE id = $1`,
+      `UPDATE v2_infracciones SET ${setClauses.join(", ")} WHERE id = $1`,
       values,
     );
 

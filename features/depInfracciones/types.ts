@@ -5,14 +5,14 @@ export type InfraccionListItem = {
   estatusInfraccion: string;
 
   //extras fiscalia
-  estatus_dependencia: string;
+  estatusDependencia: string;
   no_carpeta_investigacion: string;
 
   nombre_infractor: string;
   correo_infractor: string;
   id: number;
   folio: string;
-  estatus: string;
+
   placa: string | null;
   created_at: string;
 
@@ -51,10 +51,19 @@ export type InfraccionDetail = {
   };
 
   Infraccion: {
+    articulo_numero: string;
     articulo_descripcion: string;
+    fraccion_numero: string;
     fraccion_descripcion: string;
     total_umas: number;
     total_pesos: number;
+  };
+
+  oficial: {
+    numero_empleado: string;
+    nombre_completo: string;
+    patrulla_nombre: string;
+    activo: string;
   };
 
   datos_infractor: {

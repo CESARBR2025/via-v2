@@ -1,9 +1,10 @@
 'use client';
 
+import { BadgeCheck, Ban, Loader2, IdCard, Mail, User, CheckCircle2, AlertCircle, Search } from 'lucide-react';
 
 import { Card } from '../ui/Card';
 import { CardTitle } from '../ui/CardTitle';
-import { RadioOption } from '../ui/RadioInput';
+import { SegmentedControl } from '../ui/SegmentedControl';
 import { FieldLabel } from '../ui/FieldLabel';
 import { useState } from 'react';
 import { useInfraccionStore } from '@/stores/useInfraccionStore';
@@ -95,43 +96,47 @@ export default function PasoConductor({
             <Card>
                 <CardTitle>Identificación oficial (INE)</CardTitle>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-                    <RadioOption
-                        error={boolError(datos.presentaIne)}
-                        name="presentaIne"
-                        value="true"
-                        checked={datos.presentaIne === true}
-                        onChange={() => actualizarDatos({ presentaIne: true })}
-                        label="Presenta INE"
-                        description="Se verificará CURP y datos del documento"
-                        disabled={loading || curpLoading}
-                    />
-
-                    <RadioOption
-                        error={boolError(datos.presentaIne)}
-                        name="presentaIne"
-                        value="false"
-                        checked={datos.presentaIne === false}
-                        onChange={() => {
-                            setCurpStatus('idle');
-                            actualizarDatos({
-                                presentaIne: false,
-                                curpInfractor: '',
-                                nombreInfractor: '',
-                                apPaternoInfractor: '',
-                                apMaternoInfractor: '',
-                                correoInfractor: '',
-                            });
+                <div className="mb-5">
+                    <SegmentedControl
+                        options={[
+                            { value: 'true', label: 'Presenta INE', icon: BadgeCheck },
+                            { value: 'false', label: 'No presenta INE', icon: Ban },
+                        ]}
+                        value={datos.presentaIne === null ? null : String(datos.presentaIne)}
+                        onChange={(val) => {
+                            if (val === 'true') {
+                                actualizarDatos({ presentaIne: true });
+                            } else {
+                                setCurpStatus('idle');
+                                actualizarDatos({
+                                    presentaIne: false,
+                                    curpInfractor: '',
+                                    nombreInfractor: '',
+                                    apPaternoInfractor: '',
+                                    apMaternoInfractor: '',
+                                    correoInfractor: '',
+                                });
+                            }
                         }}
-                        label="No presenta INE"
-                        description="Se capturarán datos de manera manual"
                         disabled={loading || curpLoading}
+                        error={boolError(datos.presentaIne)}
                     />
-                </div>
 
-                <p className="text-xs mt-1 h-4 text-red-500">
-                    {boolError(datos.presentaIne) ? 'Indica si el conductor presenta INE' : ''}
-                </p>
+                    {datos.presentaIne !== null && (
+                        <p className={`text-xs mt-3 pl-0.5 ${datos.presentaIne ? 'text-green-600' : 'text-slate-600'}`}>
+                            {datos.presentaIne
+                                ? 'Se verificará CURP y datos del documento oficial'
+                                : 'Los datos del conductor se capturarán manualmente'
+                            }
+                        </p>
+                    )}
+
+                    {boolError(datos.presentaIne) && (
+                        <p className="text-xs text-red-500 mt-2">
+                            Indica si el conductor presenta identificación oficial
+                        </p>
+                    )}
+                </div>
 
                 {datos.presentaIne === true ? (
                     <div className="space-y-4 p-4 rounded-xl border-2 border-slate-200">
@@ -164,10 +169,7 @@ export default function PasoConductor({
 
                                 {curpLoading && (
                                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                        <svg className="animate-spin h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                                        </svg>
+                                        <Loader2 size={16} className="animate-spin text-blue-500" strokeWidth={2} />
                                     </div>
                                 )}
                             </div>

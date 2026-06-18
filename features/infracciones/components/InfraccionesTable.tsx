@@ -3,12 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import InfraccionesDashboard from "./InfraccionesDashboard"
-import ModalDetalleGenerico, { DetalleCompleto } from "@/features/compartido/components/ModalDetalleGenerico"
-import CapturarDatosTitularSection from "./CapturarDatosTitularSection"
-import RevisionDocumentosSection from "@/features/liberaciones/components/RevisionDocumentosSection"
-import CargarOficioSection from "@/features/compartido/components/CargarOficioSection"
-import OficioLiberacionSection from "@/features/compartido/components/OficioLiberacionSection"
-import DocumentosLiberadosSection from "@/features/compartido/components/DocumentosLiberadosSection"
+import { DetalleInfraccionModal, type InfraccionDetalle } from "@/features/depInfracciones/components/TablaDevInfracciones/DetalleInfraccionModal"
 
 interface DataRow {
     id: string
@@ -39,50 +34,37 @@ const columns = [
 
 export default function InfraccionesTable({ respuestaServidor }: InfraccionesTableProps) {
     const router = useRouter()
+    const listaDatos = respuestaServidor?.data ?? []
 
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [detalle, setDetalle] = useState<DetalleCompleto | null>(null)
-    const [revisionModalId, setRevisionModalId] = useState<string | null>(null)
+    const [detalle, setDetalle] = useState<InfraccionDetalle | null>(null)
 
-    const listaDatos = respuestaServidor?.data ?? []
-
-    async function refetchDetalle(id: string) {
+    async function fetchDetalle(id: string) {
         setLoading(true)
+        setDetalle(null)
         try {
             const res = await fetch(`/api/depInfracciones/detalleInfraccion/${id}`)
             if (!res.ok) throw new Error('Error al obtener el detalle de la infracción')
             const json = await res.json()
             setDetalle(json.data)
         } catch (error) {
-            console.error('Error en el refetch:', error)
+            console.error('Error en el fetchDetalle:', error)
         } finally {
             setLoading(false)
         }
     }
 
-    async function handleOpenDetalle(id: string) {
-        const row = listaDatos.find(r => r.id === id)
-        if (row?.estatus === 'REGISTRADA' && row?.estatus_dependencia === 'MESA_DE_CONTROL_REVISION') {
-            setOpen(false)
-            setRevisionModalId(id)
-        } else {
-            setOpen(true)
-            setDetalle(null)
-            await refetchDetalle(id)
-        }
+    function handleOpenDetalle(id: string) {
+        setOpen(true)
+        fetchDetalle(id)
     }
 
     function handleCloseDetalle() {
         setOpen(false)
-        setRevisionModalId(null)
+        setDetalle(null)
         router.refresh()
     }
-
-    const estatus = detalle?.Header?.estatus_dependencia
-    const mostrarBotonInicio = estatus === 'PENDIENTE_DATOS_INFRACTOR'
-    const enProceso = estatus === 'PENDIENTE_PAGO_INFRACCION' || estatus === 'PENDIENTE_ENTREGA_GARANTIA' || estatus === 'PENDIENTE_DEVOLUCION_GARANTIA'
-    const liberado = estatus === 'LIBERADO_POR_INFRACCIONES'
 
     return (
         <>
@@ -92,59 +74,11 @@ export default function InfraccionesTable({ respuestaServidor }: InfraccionesTab
                 onOpenDetalle={handleOpenDetalle}
             />
 
-            <ModalDetalleGenerico
+            <DetalleInfraccionModal
                 isOpen={open}
                 onClose={handleCloseDetalle}
                 loading={loading}
                 detalle={detalle}
-                role="infracciones"
-                onRefresh={detalle ? () => refetchDetalle(detalle.Header.id_infraccion) : undefined}
-                antesContenido={
-                    mostrarBotonInicio || enProceso ? (
-                        <CapturarDatosTitularSection
-                            detalle={detalle!}
-                            onSuccess={() => refetchDetalle(detalle!.Header.id_infraccion)}
-                        />
-                    ) : undefined
-                }
-                fullWidthExtra={
-                    enProceso && detalle?.Header ? [
-                        <RevisionDocumentosSection
-                            key="revision-docs"
-                            infraccionId={detalle.Header.id_infraccion}
-                        />,
-                    ] : liberado && detalle?.Header ? [
-                        <DocumentosLiberadosSection
-                            key="docs-liberados"
-                            detalle={detalle}
-                        />,
-                    ] : undefined
-                }
-                sidebarExtra={
-                    detalle?.Header && !mostrarBotonInicio && !liberado ? [
-                        enProceso ? (
-                            <CargarOficioSection
-                                key="cargar-oficio"
-                                idInfraccion={detalle.Header.id_infraccion}
-                                noOficioActual={detalle.Header.no_oficio_fiscalia}
-                                noCarpetaActual={detalle.Header.no_carpeta_investigacion}
-                                esTitular={detalle.datos_infractor?.es_titular}
-                                nombreInfractor={detalle.datos_infractor?.nombre_infractor}
-                                appaternoInfractor={detalle.datos_infractor?.appaterno_infractor}
-                                apmaternoInfractor={detalle.datos_infractor?.apmaterno_infractor}
-                                correoInfractor={detalle.datos_infractor?.correo_infractor}
-                                curpInfractor={detalle.datos_infractor?.curp_infractor}
-                                onSuccess={() => refetchDetalle(detalle.Header.id_infraccion)}
-                            />
-                        ) : (
-                            <OficioLiberacionSection
-                                key="oficio"
-                                numeroOficio={detalle.Header.no_oficio_fiscalia}
-                                urlOficio={detalle.Header.url_oficio_fiscalia}
-                            />
-                        ),
-                    ] : []
-                }
             />
         </>
     )

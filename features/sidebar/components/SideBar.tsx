@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
 import {
-  LogOut,
   ChevronLeft,
   ChevronRight,
-  Shield,
 } from "lucide-react";
 
 import { navigationByRole }
@@ -19,10 +17,6 @@ import { UserRole }
 
 import { useSidebarStore }
   from "@/stores/sideBarStore";
-import SidebarActionItem from "./SideBarActionItem";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/useAuthStore";
-import LoaderOverlay from "@/features/auth/components/LoaderOverlay";
 
 type Props = {
   role: UserRole;
@@ -40,20 +34,6 @@ export default function Sidebar({
     toggleCollapsed,
   } = useSidebarStore();
 
-  const router = useRouter();
-  const logout = useAuthStore((s) => s.logout);
-  const [loggingOut, setLoggingOut] = useState(false);
-
-  const handleLogout = async () => {
-    setLoggingOut(true);
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } finally {
-      logout();
-      router.replace("/login");
-    }
-  };
-
   return (
     <aside
       className={`
@@ -61,9 +41,9 @@ export default function Sidebar({
         flex-col
         overflow-y-auto
 
-        bg-[#FFFFFF]
-        border-r border-[#E2E8F0]
-        shadow-[2px_0_8px_rgba(0,0,0,0.04)]
+        bg-slate-900
+        border-r border-white/10
+        shadow-card
 
         transition-all duration-300 ease-in-out
 
@@ -89,34 +69,43 @@ export default function Sidebar({
       >
 
         {!collapsed && (
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shadow-[0_2px_8px_rgba(37,99,235,0.2)]">
-              <Shield size={16} className="text-white" strokeWidth={1.5} />
-            </div>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/roles/Estrella.png"
+              alt="SSPM"
+              width={32}
+              height={32}
+              className="object-contain shrink-0"
+            />
             <div>
-              <span className="text-sm font-bold text-[#0F172A] tracking-tight leading-none block">
-                VIA
+              <span className="text-sm font-medium text-white tracking-tight leading-none block">
+                SSPM
               </span>
-              <span className="text-[9px] font-medium text-[#94A3B8] tracking-[0.15em] uppercase leading-none mt-0.5 block">
-                Dashboard
+              <span className="text-[9px] font-medium text-white/40 tracking-[0.15em] uppercase leading-none mt-0.5 block">
+                San Juan del Río
               </span>
             </div>
           </div>
         )}
 
         {collapsed && (
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center shadow-[0_2px_8px_rgba(37,99,235,0.2)]">
-            <Shield size={16} className="text-white" strokeWidth={1.5} />
-          </div>
+          <Image
+            src="/roles/Estrella.png"
+            alt="SSPM"
+            width={28}
+            height={28}
+            className="object-contain"
+          />
         )}
 
         <button
           onClick={toggleCollapsed}
+          aria-label="Colapsar menú lateral"
           className={`
             w-7 h-7 rounded-lg
-            hover:bg-[#F8FAFC]
+            hover:bg-slate-800
             flex items-center justify-center
-            text-[#94A3B8] hover:text-[#0F172A]
+            text-white/40 hover:text-white
             transition-colors duration-200
             ${collapsed ? "hidden" : ""}
           `}
@@ -129,11 +118,12 @@ export default function Sidebar({
       {collapsed && (
         <button
           onClick={toggleCollapsed}
+          aria-label="Expandir menú lateral"
           className="
             mt-3 w-full h-7 rounded-lg
-            hover:bg-[#F8FAFC]
+            hover:bg-slate-800
             flex items-center justify-center
-            text-[#94A3B8] hover:text-[#0F172A]
+            text-white/40 hover:text-white
             transition-colors duration-200
           "
         >
@@ -143,14 +133,14 @@ export default function Sidebar({
 
       {/* ═══ NAV ═══ */}
 
-      <nav className="flex flex-col gap-6 mt-6 flex-1">
+      <nav className="flex flex-col gap-6 mt-6 flex-1" aria-label="Navegación principal">
         {sections.map((section) => (
           <div key={section.title} className="space-y-1">
 
             {!collapsed && (
               <div className="flex items-center gap-2 px-3 mb-2">
-                <div className="w-1 h-3 rounded-full bg-[#2563EB]" />
-                <p className="text-[10px] font-semibold tracking-[0.12em] uppercase text-[#64748B]">
+                <div className="w-1 h-3 rounded-full bg-blue-400" />
+                <p className="text-[10px] font-medium tracking-[0.12em] uppercase text-white/40">
                   {section.title}
                 </p>
               </div>
@@ -166,28 +156,7 @@ export default function Sidebar({
         ))}
       </nav>
 
-      {/* ═══ FOOTER ═══ */}
 
-      <div className="pt-4 mt-auto border-t border-[#E2E8F0]">
-        {!collapsed && (
-          <div className="px-2">
-            <SidebarActionItem
-              label="Cerrar sesión"
-              icon={LogOut}
-              onClick={handleLogout}
-            />
-          </div>
-        )}
-        {collapsed && (
-          <SidebarActionItem
-            label="Cerrar sesión"
-            icon={LogOut}
-            onClick={handleLogout}
-          />
-        )}
-      </div>
-
-      <LoaderOverlay show={loggingOut} text="Saliendo del sistema..." />
     </aside>
   );
 }

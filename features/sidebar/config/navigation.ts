@@ -1,8 +1,51 @@
-import { Home, FileClockIcon, AtSign } from "lucide-react";
+import { FilePlus, ClipboardCheck, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown, User, LayoutDashboard } from "lucide-react";
 
 import { UserRole } from "./types";
 
 export const navigationByRole: Record<UserRole, any[]> = {
+  admin: [
+    {
+      title: "Dashboard",
+      items: [
+        {
+          label: "Inicio",
+          href: "/admin/dashboard",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      title: "Indicadores",
+      items: [
+        {
+          label: "KPIs",
+          href: "/admin/kpis",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      title: "Gestión",
+      items: [
+        {
+          label: "Oficiales",
+          href: "/admin/oficiales",
+          icon: Users,
+        },
+      ],
+    },
+    {
+      title: "Configuración",
+      items: [
+        {
+          label: "Catálogos",
+          href: "/admin/configuracion",
+          icon: Settings,
+        },
+      ],
+    },
+  ],
+
   fiscalia: [
     // =====================================
     // SECCIÓN
@@ -23,18 +66,39 @@ export const navigationByRole: Record<UserRole, any[]> = {
 
   oficial: [
     {
+      title: "Dashboard",
+      items: [
+        {
+          label: "Inicio",
+          href: "/oficiales/dashboard",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
       title: "Infracciones",
 
       items: [
         {
           label: "Capturar",
           href: "/oficiales/captura",
-          icon: Home,
+          icon: FilePlus,
         },
         {
           label: "Realizadas",
           href: "/oficiales/realizadas",
-          icon: Home,
+          icon: ClipboardCheck,
+        },
+      ],
+    },
+    {
+      title: "Mi Cuenta",
+
+      items: [
+        {
+          label: "Mi Perfil",
+          href: "/oficiales/perfil",
+          icon: User,
         },
       ],
     },
