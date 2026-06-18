@@ -1,4 +1,4 @@
-import { FilePlus, ClipboardCheck, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown, User, LayoutDashboard } from "lucide-react";
+import { FilePlus, ClipboardCheck, FileClockIcon, AtSign, Users, Settings, MapPin, Building2, ArrowUpDown, User, LayoutDashboard, Shield, KeyRound } from "lucide-react";
 
 import { UserRole } from "./types";
 
@@ -32,6 +32,11 @@ export const navigationByRole: Record<UserRole, any[]> = {
           href: "/admin/oficiales",
           icon: Users,
         },
+        {
+          label: "Usuarios",
+          href: "/admin/usuarios",
+          icon: Shield,
+        },
       ],
     },
     {
@@ -41,6 +46,16 @@ export const navigationByRole: Record<UserRole, any[]> = {
           label: "Catálogos",
           href: "/admin/configuracion",
           icon: Settings,
+        },
+      ],
+    },
+    {
+      title: "Seguridad",
+      items: [
+        {
+          label: "Roles y Permisos",
+          href: "/admin/roles-permisos",
+          icon: KeyRound,
         },
       ],
     },
