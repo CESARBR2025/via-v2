@@ -7,6 +7,8 @@ import {
   templateCapturaInfractor,
   templateInfraccion,
 } from "./templates/sendInfraccion";
+import { templatePendingApproval } from "./templates/pendingApproval";
+import { templateRoleAssigned } from "./templates/roleAssigned";
 
 type EnviarCorreoParams = {
   idInfraccion: string;
@@ -148,6 +150,48 @@ export async function enviarCorreoAsignacionFiscalia(
     ],
   });
 }
+type EnviarRegistroPendienteParams = {
+  correo: string;
+  nombres: string;
+};
+
+type EnviarRolAsignadoParams = {
+  correo: string;
+  nombres: string;
+  rol: string;
+};
+
+export async function enviarCorreoRegistroPendiente(
+  data: EnviarRegistroPendienteParams,
+) {
+  const { html, text } = templatePendingApproval({
+    nombres: data.nombres,
+  });
+
+  await sendMail({
+    to: data.correo,
+    subject: "SSPM - Cuenta creada, pendiente de autorización",
+    text,
+    html,
+  });
+}
+
+export async function enviarCorreoRolAsignado(
+  data: EnviarRolAsignadoParams,
+) {
+  const { html, text } = templateRoleAssigned({
+    nombres: data.nombres,
+    rol: data.rol,
+  });
+
+  await sendMail({
+    to: data.correo,
+    subject: `SSPM - Rol asignado: ${data.rol}`,
+    text,
+    html,
+  });
+}
+
 // ========================
 
 export async function enviarOrdenLiberacionCorreo(

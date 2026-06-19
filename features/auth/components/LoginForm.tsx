@@ -47,6 +47,8 @@ export default function LoginForm() {
             if (data.action === 'SELECT_ROLE') {
                 sessionStorage.setItem('available_roles', JSON.stringify(data.roles));
                 router.push('/seleccionar-rol');
+            } else if (data.action === 'PENDING_APPROVAL') {
+                router.push('/pending-approval');
             } else if (data.action === 'REDIRECT') {
                 router.push(data.redirectTo);
             }

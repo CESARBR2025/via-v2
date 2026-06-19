@@ -16,6 +16,12 @@ export const envSchema = z.object({
   JWT_SECRET_COOKIE: z
     .string()
     .min(15, "El secreto de cookies no fue cargado123"),
+
+  // SMTP
+  SMTP_HOST: z.string().min(1, "SMTP_HOST no fue cargado"),
+  SMTP_PORT: z.string().min(1, "SMTP_PORT no fue cargado"),
+  SMTP_USER: z.string().min(1, "SMTP_USER no fue cargado"),
+  SMTP_PASS: z.string().min(1, "SMTP_PASS no fue cargado"),
 });
 
 // Esto analiza process.env y si falta algo, rompe la app inmediatamente con un error explícito
