@@ -40,8 +40,6 @@ export function MonthlyRevenueChart() {
     fetchData()
   }, [year])
 
-  const maxTotal = Math.max(...data.map((d) => d.total), 1)
-
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between mb-6">
@@ -76,7 +74,7 @@ export function MonthlyRevenueChart() {
           Sin datos para {year}
         </div>
       ) : (
-        <div className="h-64">
+        <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
               <XAxis
