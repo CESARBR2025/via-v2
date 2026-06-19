@@ -90,7 +90,9 @@ export async function POST(req: Request) {
     // 7. Redirect dinámico
     let redirectTo = "/dashboard";
 
-    if (rol === "admin") {
+    if (rol === "super_admin") {
+      redirectTo = "/admin/dashboard";
+    } else if (rol === "admin") {
       redirectTo = "/admin/dashboard";
     } else if (rol === "oficial") {
       redirectTo = "/oficiales/dashboard";

@@ -107,13 +107,22 @@ const ROLE_CONFIG: Record<string, {
         loadingMessage: 'Cargando métricas y panel general...',
     },
     admin: {
-        label: 'Super Administrador',
-        description: 'Gestión de usuarios y catálogos del sistema',
+        label: 'Administrador',
+        description: 'Gestión de oficiales y catálogos del sistema',
         Icon: Settings,
         accent: '#EF4444',
         accentBg: '#FEE2E2',
         accentLight: 'rgba(239,68,68,0.12)',
         loadingMessage: 'Accediendo a configuración del sistema...',
+    },
+    super_admin: {
+        label: 'Super Administrador',
+        description: 'Gestión total del sistema, usuarios y roles',
+        Icon: Shield,
+        accent: '#DC2626',
+        accentBg: '#FEE2E2',
+        accentLight: 'rgba(220,38,38,0.12)',
+        loadingMessage: 'Accediendo al panel de administración...',
     },
 };
 

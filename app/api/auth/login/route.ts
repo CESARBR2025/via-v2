@@ -160,8 +160,9 @@ export const POST = withErrorHandling(async function POST(req: Request) {
 
   // Mapeo dinámico de redirección basado en tu catálogo de roles real
   let redirectTo = "/dashboard";
-  if (roles.includes("admin")) redirectTo = "/admin/dashboard";
-  else if (roles.includes("oficial")) redirectTo = "/oficiales/captura";
+  if (roles.includes("super_admin")) redirectTo = "/admin/dashboard";
+  else if (roles.includes("admin")) redirectTo = "/admin/dashboard";
+  else if (roles.includes("oficial")) redirectTo = "/oficiales/dashboard";
   else if (roles.includes("liberaciones"))
     redirectTo = "/depLiberaciones/dashboard";
 

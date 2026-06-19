@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/features/auth/service";
 
 const roleDashboard: Record<string, string> = {
+  super_admin: "/admin/dashboard",
   admin: "/admin/dashboard",
-  oficial: "/oficiales/captura",
+  oficial: "/oficiales/dashboard",
   infracciones: "/depInfracciones/dashboard",
   liberaciones: "/depLiberaciones/dashboard",
   fiscalia: "/externos/fiscalia/dashboard",
