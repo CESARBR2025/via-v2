@@ -11,6 +11,7 @@ import {
 import { withErrorHandling } from "@/lib/errors/wraperError";
 import { cusGetUserInfo, cusLogin } from "@/lib/cus";
 import { POOL_PG } from "@/lib/db";
+import { enviarCorreoRegistroPendiente } from "@/features/emails/server";
 
 export const POST = withErrorHandling(async function POST(req: Request) {
   const body = await req.json();
@@ -58,6 +59,13 @@ export const POST = withErrorHandling(async function POST(req: Request) {
       ],
     );
     user = newUserQuery.rows[0];
+
+    enviarCorreoRegistroPendiente({
+      correo: user.correo,
+      nombres: user.nombres,
+    }).catch((err) =>
+      console.error("[LOGIN] Error al enviar correo de pendiente:", err),
+    );
   }
 
   // 3. Consultar la matriz RBAC unificada (Roles y sus Permisos asignados)
@@ -77,30 +85,19 @@ export const POST = withErrorHandling(async function POST(req: Request) {
 
   let rbacRows = extraccionRBAC.rows;
 
-  // 4. Fallback de seguridad: Si es tu ID de desarrollo o no tiene rol, asignamos 'admin' u 'oficial'
+  // 4. Sin roles asignados → redirigir a pantalla de aprobación pendiente
   if (rbacRows.length < 1) {
-    // Si eres tú probando (ID 17336), te asignamos rol de Administrador global
-    const defaultRol = id_usuario_general === "17336" ? "admin" : "ciudadano";
-
-    await POOL_PG.query(
-      `INSERT INTO v2_usuarios_roles (usuario_id, rol_id)
-       SELECT $1, id FROM v2_roles WHERE nombre = $2
-       ON CONFLICT DO NOTHING`,
-      [user.id, defaultRol],
+    console.log(
+      `Usuario ${user.id} sin roles asignados → pendiente de aprobación`,
     );
 
-    // Volvemos a consultar para estructurar los permisos del rol asignado por defecto
-    const reloadedRbac = await POOL_PG.query(
-      `SELECT r.nombre as rol_nombre, p.modulo, p.accion
-       FROM v2_usuarios u
-       INNER JOIN v2_usuarios_roles ur ON u.id = ur.usuario_id
-       INNER JOIN v2_roles r ON ur.rol_id = r.id
-       INNER JOIN v2_roles_permisos rp ON r.id = rp.rol_id
-       INNER JOIN v2_permisos p ON rp.permiso_id = p.id
-       WHERE u.id = $1 AND u.activo = true AND r.activo = true`,
-      [user.id],
-    );
-    rbacRows = reloadedRbac.rows;
+    const res = NextResponse.json({
+      ok: true,
+      action: "PENDING_APPROVAL",
+      redirectTo: "/pending-approval",
+    });
+
+    return res;
   }
 
   console.log(rbacRows);

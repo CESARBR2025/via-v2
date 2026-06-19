@@ -3,6 +3,7 @@ import { requirePermiso } from "@/lib/auth/guard";
 import { PERM } from "@/features/auth/permissions";
 import { POOL_PG } from "@/lib/db";
 import { getSession } from "@/features/auth/service";
+import { enviarCorreoRolAsignado } from "@/features/emails/server";
 
 export async function GET(
   req: NextRequest,
@@ -77,19 +78,26 @@ export async function PUT(
       );
     }
 
-    const usuarioExists = await POOL_PG.query(
-      `SELECT id FROM v2_usuarios WHERE id = $1`,
+    const usuarioData = await POOL_PG.query(
+      `SELECT id, nombres, apellido_p, correo FROM v2_usuarios WHERE id = $1`,
       [id],
     );
-    if (usuarioExists.rows.length === 0) {
+    if (usuarioData.rows.length === 0) {
       return NextResponse.json(
         { ok: false, message: "Usuario no encontrado" },
         { status: 404 },
       );
     }
+    const usuario = usuarioData.rows[0];
+
+    const rolesActuales = await POOL_PG.query(
+      `SELECT COUNT(*) as total FROM v2_usuarios_roles WHERE usuario_id = $1`,
+      [id],
+    );
+    const teniaRoles = Number(rolesActuales.rows[0].total) > 0;
 
     const rolesValidos = await POOL_PG.query(
-      `SELECT id FROM v2_roles WHERE id = ANY($1) AND activo = true`,
+      `SELECT id, nombre FROM v2_roles WHERE id = ANY($1) AND activo = true`,
       [nuevosRoles],
     );
     const rolesValidosIds = rolesValidos.rows.map((r) => r.id);
@@ -118,6 +126,17 @@ export async function PUT(
       throw error;
     } finally {
       client.release();
+    }
+
+    if (!teniaRoles && rolesValidosIds.length > 0) {
+      const primerRol = rolesValidos.rows[0].nombre;
+      enviarCorreoRolAsignado({
+        correo: usuario.correo,
+        nombres: usuario.nombres,
+        rol: primerRol,
+      }).catch((err) =>
+        console.error("[ADMIN USUARIOS PUT] Error al enviar correo:", err),
+      );
     }
 
     const result = await POOL_PG.query(
