@@ -12,6 +12,8 @@ const publicRoutes = [
 ];
 
 const roleRouteMap: Record<string, string[]> = {
+  "/admin/usuarios": ["super_admin"],
+  "/admin/roles-permisos": ["super_admin"],
   "/admin": ["admin", "super_admin"],
   "/oficiales": ["oficial"],
   "/depInfracciones": ["infracciones"],
