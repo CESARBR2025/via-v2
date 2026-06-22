@@ -5,6 +5,7 @@ import { DepInfraccionesRepository } from "./repository";
 import { mapInfraccionDetail, mapInfraccionListItem } from "./mappers";
 
 import { getHoyYAyerRange } from "@/lib/utils/dataRange";
+import { POOL_PG } from "@/lib/db";
 export class DepInfraccionesService {
   static async listarInfraccionesService() {
     try {
@@ -59,59 +60,37 @@ export class DepInfraccionesService {
     }
   }
 
+  static async obtenerOficialId(userId: string) {
+    // Extraer el id de oficial
+    const sql = `
+    SELECT id
+    FROM v2_oficiales
+    WHERE usuario_id = $1
+`;
+
+    const { rows } = await POOL_PG.query(sql, [userId]);
+
+    if (rows.length === 0) {
+      throw new Error("No existe un oficial para ese usuario");
+    }
+
+    return rows[0].id;
+  }
   static async listarInfraccionesRealizadasService(userId: string) {
-    console.log(userId);
-    console.log("entro");
     try {
-      // 2. Rango de fechas (hoy + ayer)
-      const { from, to } = getHoyYAyerRange();
-
-      console.log("[SERVICE][INFRACCIONES][LISTAR] Rango fechas:", {
-        from,
-        to,
-      });
-
-      console.log(userId);
-      // 3. Queries en paralelo
-      const [listResult, total] = await Promise.all([
-        DepInfraccionesRepository.getInfraccionesRealizadasOficialRP({
-          from,
-          to,
+      const listResult =
+        await DepInfraccionesRepository.getInfraccionesRealizadasOficialRP({
           userId,
-        }),
+        });
 
-        DepInfraccionesRepository.contarRegistrosInfracciones({
-          from,
-          to,
-        }),
-      ]);
-
-      console.log("[SERVICE][INFRACCIONES][LISTAR] Resultado:", {
-        rows: listResult.rows?.length ?? 0,
-        total,
-      });
-
-      // 4. Mapear
       const data = listResult.rows.map(mapInfraccionListItem);
-      console.log(data);
 
-      // 5. Response
       return {
         data,
-        total,
+        total: listResult.rows.length,
       };
     } catch (error) {
       console.error("[SERVICE][INFRACCIONES][LISTAR] ERROR:", error);
-
-      if (error && typeof error === "object") {
-        console.error("DETAIL:", (error as any).detail);
-        console.error("MESSAGE:", (error as any).message);
-        console.error("CODE:", (error as any).code);
-        console.error("TABLE:", (error as any).table);
-        console.error("COLUMN:", (error as any).column);
-        console.error("CONSTRAINT:", (error as any).constraint);
-      }
-
       throw error;
     }
   }

@@ -102,14 +102,14 @@ export default function CargarOficioSection({
                     apmaterno: apmaternoInfractor ?? '',
                     correo: correoInfractor ?? '',
                     curp: curpInfractor ?? '',
-                  }
+                }
                 : {
                     nombre: nombre.trim(),
                     appaterno: appaterno.trim(),
                     apmaterno: apmaterno.trim(),
                     correo: correoTitular.trim(),
                     curp: curpTitular.trim(),
-                  }
+                }
 
             if (titularData.nombre) fd.append('nombre_titular_liberacion', titularData.nombre)
             if (titularData.appaterno) fd.append('appaterno_titular_liberacion', titularData.appaterno)
@@ -177,12 +177,12 @@ export default function CargarOficioSection({
                         <div className="space-y-4">
                             <div className="space-y-1">
                                 <label className="text-xs font-medium tracking-wider uppercase text-slate-500">Número de Oficio <span className="text-red-600" aria-hidden="true">*</span></label>
-                                <input type="text" value={numeroOficio} onChange={e => { setNumeroOficio(e.target.value); setErrores(p => ({...p, numeroOficio: ''})) }} placeholder="Escriba el número de oficio" className={`${inputClass} ${errores.numeroOficio ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50' : ''}`} />
+                                <input type="text" value={numeroOficio} onChange={e => { setNumeroOficio(e.target.value); setErrores(p => ({ ...p, numeroOficio: '' })) }} placeholder="Escriba el número de oficio" className={`${inputClass} ${errores.numeroOficio ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50' : ''}`} />
                                 {errores.numeroOficio && <p className="text-xs font-medium text-red-600">{errores.numeroOficio}</p>}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium tracking-wider uppercase text-slate-500">No. Carpeta de Investigación <span className="text-red-600" aria-hidden="true">*</span></label>
-                                <input type="text" value={noCarpeta} onChange={e => { setNoCarpeta(e.target.value); setErrores(p => ({...p, noCarpeta: ''})) }} placeholder="Ej: C-2025-00123" className={`${inputClass} ${errores.noCarpeta ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50' : ''}`} />
+                                <input type="text" value={noCarpeta} onChange={e => { setNoCarpeta(e.target.value); setErrores(p => ({ ...p, noCarpeta: '' })) }} placeholder="Ej: C-2025-00123" className={`${inputClass} ${errores.noCarpeta ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50' : ''}`} />
                                 {errores.noCarpeta && <p className="text-xs font-medium text-red-600">{errores.noCarpeta}</p>}
                             </div>
                             <button onClick={() => { if (validarOficio()) setPaso(2) }} className="w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-medium text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 active:scale-[0.99] shadow-sm transition-all duration-150">
@@ -254,19 +254,19 @@ export default function CargarOficioSection({
                                     <p className="text-xs font-medium text-blue-700">Datos del titular (capturar)</p>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                                    <Campo label="Nombre(s)" value={nombre} onChange={setNombre} error={errores.nombre} limpiarError={() => setErrores(p => ({...p, nombre: ''}))} required />
-                                    <Campo label="A. Paterno" value={appaterno} onChange={setAppaterno} error={errores.appaterno} limpiarError={() => setErrores(p => ({...p, appaterno: ''}))} required />
-                                    <Campo label="A. Materno" value={apmaterno} onChange={setApmaterno} error={errores.apmaterno} limpiarError={() => setErrores(p => ({...p, apmaterno: ''}))} required />
+                                    <Campo label="Nombre(s)" value={nombre} onChange={setNombre} error={errores.nombre} limpiarError={() => setErrores(p => ({ ...p, nombre: '' }))} required />
+                                    <Campo label="A. Paterno" value={appaterno} onChange={setAppaterno} error={errores.appaterno} limpiarError={() => setErrores(p => ({ ...p, appaterno: '' }))} required />
+                                    <Campo label="A. Materno" value={apmaterno} onChange={setApmaterno} error={errores.apmaterno} limpiarError={() => setErrores(p => ({ ...p, apmaterno: '' }))} required />
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-medium tracking-wider uppercase text-slate-500">Correo Electrónico <span className="text-red-600" aria-hidden="true">*</span></label>
-                                        <input type="text" value={correoTitular} onChange={e => { setCorreoTitular(e.target.value); setErrores(p => ({...p, correoTitular: ''})) }} placeholder="correo@ejemplo.com" className={`${inputClass} ${errores.correoTitular ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50' : ''}`} />
+                                        <input type="text" value={correoTitular} onChange={e => { setCorreoTitular(e.target.value); setErrores(p => ({ ...p, correoTitular: '' })) }} placeholder="correo@ejemplo.com" className={`${inputClass} ${errores.correoTitular ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50' : ''}`} />
                                         {errores.correoTitular && <p className="text-xs font-medium text-red-600">{errores.correoTitular}</p>}
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-medium tracking-wider uppercase text-slate-500">CURP <span className="text-red-600" aria-hidden="true">*</span></label>
-                                        <input type="text" value={curpTitular} onChange={e => { setCurpTitular(e.target.value.toUpperCase()); setErrores(p => ({...p, curpTitular: ''})) }} placeholder="CURP (18 caracteres)" maxLength={18} className={`${inputClass} font-mono tracking-wider ${errores.curpTitular ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50' : ''}`} />
+                                        <input type="text" value={curpTitular} onChange={e => { setCurpTitular(e.target.value.toUpperCase()); setErrores(p => ({ ...p, curpTitular: '' })) }} placeholder="CURP (18 caracteres)" maxLength={18} className={`${inputClass} font-mono tracking-wider ${errores.curpTitular ? 'border-red-300 focus:border-red-300 focus:ring-2 focus:ring-red-200/50' : ''}`} />
                                         {errores.curpTitular && <p className="text-xs font-medium text-red-600">{errores.curpTitular}</p>}
                                     </div>
                                 </div>

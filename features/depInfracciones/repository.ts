@@ -45,14 +45,9 @@ export class DepInfraccionesRepository {
   }
 
   //Listar infracciones de oficiales realizdas
-  static async getInfraccionesRealizadasOficialRP(params: {
-    from: string;
-    to: string;
-    userId: string;
-  }) {
-    console.log("entro");
-
-    const { from, to, userId } = params;
+  static async getInfraccionesRealizadasOficialRP(params: { userId: string }) {
+    const { userId } = params;
+    console.log(userId);
 
     const query = `
         SELECT
@@ -66,14 +61,11 @@ export class DepInfraccionesRepository {
       FROM v2_infracciones
       WHERE oficial_id = $1
       ORDER BY created_at DESC
-
     `;
 
     const values = [userId];
-    console.log(values);
 
     const result = await pool.query(query, values);
-    console.log(result);
 
     return {
       rows: result.rows,
