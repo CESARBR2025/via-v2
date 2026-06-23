@@ -4,7 +4,7 @@ import { enviarCorreoInfraccion } from "@/features/emails/server";
 import { Beaker } from "lucide-react";
 
 const SA7_URL =
-  "https://sanjuandelrio.sytes.net:3044/api/sasiete/qas/generar-orden-completa";
+  "https://sanjuandelrio.sytes.net:3044/api/sasiete/generar-orden-completa";
 
 export async function POST(req: NextRequest) {
   try {
@@ -102,12 +102,16 @@ export async function POST(req: NextRequest) {
     // CONSTRUIR BODY PARA SA7
     // =========================================
     const CONCEPTO_PRUEBA = "31378";
+    let descuentoNum;
+    if (descuentoAplicado) {
+      descuentoNum = Number(descuentoAplicado);
+    }
 
     let descuento = 0;
-    if (descuentoAplicado) {
-      if (descuentoAplicado === "70") {
+    if (descuentoNum) {
+      if (descuentoNum === 70) {
         descuento = 0.3;
-      } else if (descuentoAplicado === "50") {
+      } else if (descuentoNum === 50) {
         descuento = 0.5;
       }
 

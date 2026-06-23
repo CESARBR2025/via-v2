@@ -75,157 +75,59 @@ export async function PATCH(request: Request) {
     const nuevoEstatus = tieneRechazados ? "REGISTRADA" : "PENDIENTE_PAGO";
 
     // ─────────────────────────────────────────────────────────────
-    // GENERAR ORDEN DE PAGO SA7 (solo si todos aprobados)
+    // OBTENER DATOS PARA ORDEN DE PAGO
     // ─────────────────────────────────────────────────────────────
+    let folio: string | null = null;
+    let concepto_id: number | null = null;
+    let descuento_aplicado: number | null = null;
+
+    let nombre_usuario = "";
+    let apellidos_usuario = "";
+    let correo_infractor = "";
+
     if (nuevoEstatus === "PENDIENTE_PAGO") {
-      try {
-        const datosSA7Res = await db.query(
+      const infraRes = await db.query(
+        `
+        SELECT
+          i.folio,
+          i.descuento_aplicado,
+          i.fraccion_id,
+          i.nombre_infractor,
+          i.apellido_paterno_infractor,
+          i.apellido_materno_infractor,
+          i.nombre_titular_liberacion,
+          i.appaterno_titular_liberacion,
+          i.apmaterno_titular_liberacion,
+          i.correo_titular_liberacion,
+          i.correo_infractor
+        FROM v2_infracciones i
+        WHERE i.id = $1
+        `,
+        [infraccionId],
+      );
+
+      if (infraRes.rows.length > 0) {
+        const row = infraRes.rows[0];
+        folio = row.folio;
+        descuento_aplicado = row.descuento_aplicado;
+
+        nombre_usuario = (row.nombre_titular_liberacion || row.nombre_infractor || "").trim();
+        apellidos_usuario = [
+          row.appaterno_titular_liberacion || row.apellido_paterno_infractor || "",
+          row.apmaterno_titular_liberacion || row.apellido_materno_infractor || "",
+        ].filter(Boolean).join(" ").trim() || "SIN APELLIDO";
+        correo_infractor = row.correo_titular_liberacion || row.correo_infractor || "";
+
+        const conceptoRes = await db.query(
           `
-            SELECT
-              i.folio,
-              i.nombre_infractor,
-              i.apellido_paterno_infractor,
-              i.apellido_materno_infractor,
-              i.nombre_titular_liberacion,
-              i.appaterno_titular_liberacion,
-              i.apmaterno_titular_liberacion,
-              i.correo_titular_liberacion,
-              i.descuento_aplicado,
-              i.fraccion_id
-            FROM v2_infracciones i
-            WHERE i.id = $1
+          SELECT ccs.concept_id
+          FROM v2_fracciones_ley fl
+          JOIN v2_catalogo_conceptos_sa7 ccs ON ccs.clasificacion_type = fl.clasificacion
+          WHERE fl.id = $1
           `,
-          [infraccionId],
+          [row.fraccion_id],
         );
-
-        if (datosSA7Res.rows.length > 0) {
-          const dbData = datosSA7Res.rows[0];
-
-          const nombreUsuario = (
-            dbData.nombre_titular_liberacion ||
-            dbData.nombre_infractor ||
-            ""
-          ).trim();
-          const apellidosUsuario =
-            [
-              dbData.appaterno_titular_liberacion ||
-                dbData.apellido_paterno_infractor ||
-                "",
-              dbData.apmaterno_titular_liberacion ||
-                dbData.apellido_materno_infractor ||
-                "",
-            ]
-              .filter(Boolean)
-              .join(" ")
-              .trim() || "SIN APELLIDO";
-
-          const baseUrl =
-            process.env.NODE_ENV === "production"
-              ? "https://via-v2.vercel.app"
-              : "http://localhost:3000";
-
-          const tokenRes = await fetch(`${baseUrl}/api/auth/token-guest`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              codigo_invitacion: `INV-${new Date().getTime()}`,
-              nombre_invitado: "SA7_SYSTEM",
-            }),
-          });
-
-          if (tokenRes.ok) {
-            const tokenData = await tokenRes.json();
-            const tokenGuest = tokenData.data?.token;
-
-            if (tokenGuest) {
-              const CONCEPTO_PRUEBA = "31378";
-              const descuentoAplicado = Number(dbData.descuento_aplicado) || 0;
-              let descuento = 0;
-              if (descuentoAplicado === 70) {
-                descuento = 0.3;
-              } else if (descuentoAplicado === 50) {
-                descuento = 0.5;
-              } else {
-                descuento = 1;
-              }
-
-              const payloadSA7 = {
-                nombreUsuario,
-                apellidosUsuario,
-                rfc: "",
-                conceptosIds: [CONCEPTO_PRUEBA],
-                cantidades: { [CONCEPTO_PRUEBA]: descuento },
-                referencias: {
-                  [CONCEPTO_PRUEBA]: [
-                    `${nombreUsuario} ${apellidosUsuario}`,
-                    "",
-                  ],
-                },
-                id_usuario_general: "17336",
-                tipo_tramite: "via_v2_cobro_infracciones_online",
-                folio: dbData.folio,
-              };
-
-              const SA7_URL =
-                "https://sanjuandelrio.sytes.net:3044/api/sasiete/qas/generar-orden-completa";
-
-              const sa7Res = await fetch(SA7_URL, {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${tokenGuest}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payloadSA7),
-              });
-
-              const orden_pago_id = sa7Res.headers.get("x-orden-pago-id");
-              const estatus = sa7Res.headers.get("x-estatus");
-              const url_pago = sa7Res.headers.get("x-url-pago");
-              const url_guardado = sa7Res.headers.get("x-url-guardado");
-              const folio_orden = sa7Res.headers.get("x-folio-orden");
-              const fecha_vencimiento = sa7Res.headers.get(
-                "x-fecha-vencimiento",
-              );
-              const total_pesos = sa7Res.headers.get("x-total-pesos");
-              const total_umas = sa7Res.headers.get("x-total-umas");
-
-              await db.query(
-                `
-                INSERT INTO v2_ordenes_pago_sa7 (
-                  infraccion_id, folio_infraccion, nombre_usuario, apellidos_usuario, concepto_id,
-                  orden_pago_id, estatus, url_pago, url_guardado, folio_orden,
-                  fecha_vencimiento, total_pesos, total_umas, request_payload
-                ) VALUES (
-                  $1,$2,$3,$4,$5,
-                  $6,$7,$8,$9,$10,
-                  $11,$12,$13,$14
-                )
-                `,
-                [
-                  infraccionId,
-                  dbData.folio,
-                  nombreUsuario,
-                  apellidosUsuario,
-                  CONCEPTO_PRUEBA,
-                  orden_pago_id,
-                  estatus,
-                  url_pago,
-                  url_guardado,
-                  folio_orden,
-                  fecha_vencimiento || null,
-                  total_pesos || 0,
-                  total_umas || 0,
-                  JSON.stringify(payloadSA7),
-                ],
-              );
-            }
-          }
-        }
-      } catch (orderError) {
-        console.error(
-          "[SA7][ERROR] No se pudo generar la orden de pago:",
-          orderError,
-        );
+        concepto_id = conceptoRes.rows[0]?.concept_id || null;
       }
     }
 
@@ -256,6 +158,12 @@ export async function PATCH(request: Request) {
           : "Documentos rechazados, se notificará al ciudadano",
       estatus: nuevoEstatus,
       estatusDependencia: nuevoEstatusDep,
+      folio,
+      concepto_id,
+      descuento_aplicado,
+      nombre_usuario,
+      apellidos_usuario,
+      correo_infractor,
     });
   } catch (error) {
     console.error("[LIBERACIONES][FINALIZAR REVISIÓN] Error interno:", error);

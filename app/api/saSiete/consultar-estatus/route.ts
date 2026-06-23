@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     // =====================================================
     // SOAP XML
     // =====================================================
+    console.log(datosOrden);
 
     const soapBody = `<?xml version="1.0" encoding="utf-8"?>
 <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
