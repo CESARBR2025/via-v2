@@ -90,6 +90,13 @@ export async function POST(req: NextRequest) {
       "curp_titular_liberacion",
     ) as string;
 
+    // Datos del infractor (cuando fue capturado por NO_DATA)
+    const nombre_infractor = formData.get("nombre_infractor") as string;
+    const apellido_paterno_infractor = formData.get("apellido_paterno_infractor") as string;
+    const apellido_materno_infractor = formData.get("apellido_materno_infractor") as string;
+    const correo_infractor = formData.get("correo_infractor") as string;
+    const curp_infractor = formData.get("curp_infractor") as string;
+
     if (!folio) {
       return NextResponse.json(
         {
@@ -142,6 +149,11 @@ export async function POST(req: NextRequest) {
         apmaterno_titular_liberacion = COALESCE($7, apmaterno_titular_liberacion),
         correo_titular_liberacion = COALESCE($8, correo_titular_liberacion),
         curp_titular_liberacion = COALESCE($9, curp_titular_liberacion),
+        nombre_infractor = COALESCE($10, nombre_infractor),
+        apellido_paterno_infractor = COALESCE($11, apellido_paterno_infractor),
+        apellido_materno_infractor = COALESCE($12, apellido_materno_infractor),
+        correo_infractor = COALESCE($13, correo_infractor),
+        curp_infractor = COALESCE($14, curp_infractor),
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING
@@ -162,6 +174,11 @@ export async function POST(req: NextRequest) {
         apmaterno_titular_liberacion || null,
         correo_titular_liberacion || null,
         curp_titular_liberacion || null,
+        nombre_infractor || null,
+        apellido_paterno_infractor || null,
+        apellido_materno_infractor || null,
+        correo_infractor || null,
+        curp_infractor || null,
       ],
     );
 
