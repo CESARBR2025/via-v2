@@ -1,6 +1,6 @@
 // 1) Generar orden de pago
 export async function generarOrdenPago(payload: {
-  infraccion_id: number;
+  infraccion_id: string;
   nombre_usuario: string;
   apellidos_usuario: string;
   concepto_id: number;

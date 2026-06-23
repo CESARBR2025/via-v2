@@ -35,7 +35,7 @@ export async function PATCH(request: Request) {
           estatus_dependencia = 'MESA_DE_CONTROL_PENDIENTE_DOCS',
           updated_at = NOW()
       WHERE id = $1
-      RETURNING id, folio;
+      RETURNING id, folio, descuento_aplicado, fraccion_id;
     `;
 
     const resultado = await db.query(query, [
@@ -55,6 +55,20 @@ export async function PATCH(request: Request) {
     }
 
     const infraccion = resultado.rows[0];
+
+    const conceptoResult = await db.query(
+      `
+      SELECT ccs.concept_id
+      FROM v2_fracciones_ley fl
+      JOIN v2_catalogo_conceptos_sa7 ccs ON ccs.clasificacion_type = fl.clasificacion
+      WHERE fl.id = $1
+      `,
+      [infraccion.fraccion_id],
+    );
+
+    const concepto_id = conceptoResult.rows[0]?.concept_id || null;
+    console.log(concepto_id);
+
     const nombreUsuario =
       `${nombre_infractor || ""} ${apellido_paterno_infractor || ""}`.trim();
     const correoDestino = correo_infractor || "";
@@ -73,7 +87,15 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json(
-      { message: "Datos del infractor guardados.", infraccion },
+      {
+        message: "Datos del infractor guardados.",
+        infraccion: {
+          id: infraccion.id,
+          folio: infraccion.folio,
+          concepto_id,
+          descuento_aplicado: infraccion.descuento_aplicado,
+        },
+      },
       { status: 200 },
     );
   } catch (error) {

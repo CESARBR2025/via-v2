@@ -129,10 +129,20 @@ export default function MobileSidebar({
                 {/* HEADER */}
 
                 <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center shadow-sm">
-                            <span className="text-sm font-medium text-white tracking-tight leading-none">
-                                VIA
+                    <div className="flex items-center gap-3">
+                        <Image
+                            src="/roles/Estrella.png"
+                            alt="SSPM"
+                            width={32}
+                            height={32}
+                            className="object-contain shrink-0"
+                        />
+                        <div>
+                            <span className="text-sm font-medium text-white tracking-tight leading-none block">
+                                SSPM
+                            </span>
+                            <span className="text-[9px] font-medium text-white/40 tracking-[0.15em] uppercase leading-none mt-0.5 block">
+                                San Juan del Río
                             </span>
                         </div>
                     </div>

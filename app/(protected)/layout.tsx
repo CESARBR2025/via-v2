@@ -12,6 +12,7 @@ import OfflineBanner from "@/components/OfflineBanner";
 import GlobalDetailModal from "@/components/GlobalDetailModal";
 
 const ROLE_LABELS: Record<string, string> = {
+    super_admin: "Super Administrador",
     admin: "Administrador",
     oficial: "Oficial",
     infracciones: "Agente de Infracciones",
@@ -33,9 +34,13 @@ export default async function DashboardLayout({
         getSession(),
     ]);
 
-    const role =
-        (cookieStore.get("last_role")?.value ||
-            "oficial") as UserRole;
+    const lastRole = cookieStore.get("last_role")?.value;
+    const firstSessionRole = session?.user.roles[0];
+    const role = (
+        lastRole && session?.user.roles.includes(lastRole)
+            ? lastRole
+            : firstSessionRole || "oficial"
+    ) as UserRole;
 
     const userName = session
         ? `${session.user.nombres} ${session.user.apellido_p}`

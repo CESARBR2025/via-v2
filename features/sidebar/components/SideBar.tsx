@@ -41,7 +41,7 @@ export default function Sidebar({
         flex-col
         overflow-y-auto
 
-        bg-slate-900
+        bg-blue-950
         border-r border-white/10
         shadow-card
 
@@ -52,6 +52,7 @@ export default function Sidebar({
           : "w-[220px] py-6 px-3"
         }
       `}
+
     >
 
       {/* ═══ HEADER ═══ */}
@@ -103,7 +104,7 @@ export default function Sidebar({
           aria-label="Colapsar menú lateral"
           className={`
             w-7 h-7 rounded-lg
-            hover:bg-slate-800
+            hover:bg-white/12
             flex items-center justify-center
             text-white/40 hover:text-white
             transition-colors duration-200
@@ -121,7 +122,7 @@ export default function Sidebar({
           aria-label="Expandir menú lateral"
           className="
             mt-3 w-full h-7 rounded-lg
-            hover:bg-slate-800
+            hover:bg-white/12
             flex items-center justify-center
             text-white/40 hover:text-white
             transition-colors duration-200

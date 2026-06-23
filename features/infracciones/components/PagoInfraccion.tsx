@@ -1,11 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
     CheckCircle2,
     CreditCard,
+    ExternalLink,
     Loader2,
     X,
 } from 'lucide-react';
@@ -28,6 +29,9 @@ export default function PagoInfraccion({
     estatusDependencia,
     estatusInfraccion
 }: Props) {
+    console.log(urlPago)
+    console.log(ordenPagoId)
+    let urlPagoFinal = `https://municipio.azurewebsites.net/PagoOP.aspx?id=${ordenPagoId}`
     const router = useRouter();
 
     const [open, setOpen] = useState(false);
@@ -40,6 +44,38 @@ export default function PagoInfraccion({
 
     const [mostrandoExito, setMostrandoExito] =
         useState(false);
+
+    const popupRef = useRef<Window | null>(null)
+    const [popupAbierta, setPopupAbierta] = useState(false)
+    const [abriendoPopup, setAbriendoPopup] = useState(false)
+
+    useEffect(() => {
+        if (!popupAbierta) return
+        const interval = setInterval(() => {
+            if (popupRef.current?.closed) {
+                setPopupAbierta(false)
+                popupRef.current = null
+            }
+        }, 1000)
+        return () => clearInterval(interval)
+    }, [popupAbierta])
+
+    const abrirPopup = () => {
+        setAbriendoPopup(true)
+        setTimeout(() => {
+            const ancho = 800
+            const alto = 750
+            const left = (screen.width - ancho) / 2
+            const top = (screen.height - alto) / 2
+            popupRef.current = window.open(
+                urlPagoFinal,
+                'PagoInfraccion',
+                `width=${ancho},height=${alto},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
+            )
+            setPopupAbierta(true)
+            setAbriendoPopup(false)
+        }, 300)
+    }
 
     // =====================================================
     // VERIFICAR PAGO
@@ -265,8 +301,8 @@ export default function PagoInfraccion({
 
                     <div className="
                         bg-white rounded-xl
-                        w-full max-w-4xl
-                        h-[90vh]
+                        w-full max-w-4xl xl:max-w-6xl
+                        h-[90vh] md:h-[85vh]
                         overflow-hidden
                         shadow-modal
                         flex flex-col
@@ -311,12 +347,12 @@ export default function PagoInfraccion({
                         {mostrandoExito ? (
 
                             <div className="
-                                h-[700px]
+                                flex-1
                                 flex flex-col
                                 items-center
                                 justify-center
                                 text-center
-                                px-10
+                                px-6
                                 bg-gradient-to-b
                                 from-emerald-50
                                 to-white
@@ -372,57 +408,175 @@ export default function PagoInfraccion({
 
                         ) : (
 
-                            <>
-                                {/* IFRAME */}
+                            <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
-                                <iframe
-                                    src={urlPago}
-                                    className="w-full h-[700px]"
-                                    allow="payment"
-                                />
-
-                                {/* FOOTER */}
+                                {/* INSTRUCTIONS PANEL */}
 
                                 <div className="
-                                    border-t border-slate-200
-                                    p-4 flex justify-end
+                                    lg:w-72 lg:border-r border-slate-200
+                                    bg-slate-50
+                                    p-5
+                                    space-y-5
+                                    overflow-y-auto
+                                    shrink-0
+                                    max-h-64 lg:max-h-none
                                 ">
+                                    <div>
+                                        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                            Indicaciones
+                                        </h4>
+                                        <p className="text-[11px] text-slate-400 mt-1">
+                                            Sigue estos pasos para completar tu pago
+                                        </p>
+                                    </div>
 
-                                    <button
-                                        onClick={verificarPago}
-                                        disabled={loading}
-                                        className="
-                                            h-12 px-6 rounded-lg
-                                            bg-emerald-600
-                                            hover:bg-emerald-700
-                                            disabled:opacity-50
-                                            text-white font-medium
-                                            flex items-center gap-2
-                                            active:scale-[0.99]
-                                        "
-                                    >
+                                    <div className="space-y-4">
+                                        <div className="flex gap-3">
+                                            <span className="w-7 h-7 rounded-full bg-blue-700 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-800">Calcula el pago</p>
+                                                <p className="text-xs text-slate-500 leading-relaxed">Da clic en el bot&oacute;n <span className="font-medium text-slate-700">Calcular pago</span> dentro del formulario.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <span className="w-7 h-7 rounded-full bg-blue-700 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-800">Selecciona Visa</p>
+                                                <p className="text-xs text-slate-500 leading-relaxed">Elige la opci&oacute;n <span className="font-medium text-slate-700">Tarjeta Visa</span> como m&eacute;todo de pago.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <span className="w-7 h-7 rounded-full bg-blue-700 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-800">Ingresa tus datos</p>
+                                                <p className="text-xs text-slate-500 leading-relaxed">Proporciona los datos de tu tarjeta: n&uacute;mero, fecha de vencimiento y CVV.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <span className="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-800">&iexcl;Listo!</p>
+                                                <p className="text-xs text-slate-500 leading-relaxed">Una vez procesado, presiona <span className="font-medium text-slate-700">Verificar pago</span> para confirmar.</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                        {loading ? (
-                                            <>
-                                                <Loader2
-                                                    size={18}
-                                                    className="animate-spin"
-                                                />
-
-                                                Verificando...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CheckCircle2 size={18} strokeWidth={1.5} />
-
-                                                Verificar pago
-                                            </>
-                                        )}
-
-                                    </button>
-
+                                    <div className="rounded-lg bg-blue-50 border border-blue-100 p-3">
+                                        <p className="text-[11px] text-blue-700 leading-relaxed">
+                                            Tus datos est&aacute;n protegidos. La transacci&oacute;n se realiza en un entorno seguro.
+                                        </p>
+                                    </div>
                                 </div>
-                            </>
+
+                                {/* POPUP + FOOTER */}
+
+                                <div className="flex-1 flex flex-col min-w-0">
+                                    <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 gap-6">
+
+                                        <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700">
+                                            <CreditCard size={28} strokeWidth={1.5} />
+                                        </div>
+
+                                        <div className="text-center space-y-2 max-w-sm">
+                                            <h4 className="text-base font-semibold text-slate-800">
+                                                Abrir plataforma de pago
+                                            </h4>
+                                            <p className="text-sm text-slate-500 leading-relaxed">
+                                                Ser&aacute;s redirigido a una ventana segura para realizar el pago con tu tarjeta.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            onClick={abrirPopup}
+                                            disabled={abriendoPopup || popupAbierta}
+                                            className="
+                                                h-14 px-10 rounded-lg
+                                                bg-blue-700
+                                                hover:bg-blue-800
+                                                active:bg-blue-900
+                                                active:scale-[0.99]
+                                                text-white font-medium
+                                                flex items-center gap-2.5
+                                                transition-all
+                                                shadow-lg shadow-blue-700/20
+                                                disabled:opacity-60 disabled:cursor-not-allowed
+                                            "
+                                        >
+                                            {abriendoPopup ? (
+                                                <>
+                                                    <Loader2 size={18} className="animate-spin" />
+                                                    Abriendo...
+                                                </>
+                                            ) : popupAbierta ? (
+                                                <>
+                                                    <ExternalLink size={18} strokeWidth={1.5} />
+                                                    Ventana abierta
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <CreditCard size={18} strokeWidth={1.5} />
+                                                    Ir a pagar
+                                                </>
+                                            )}
+                                        </button>
+
+                                        {popupAbierta ? (
+                                            <div className="flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-100 px-4 py-2.5">
+                                                <span className="w-2 h-2 rounded-full bg-blue-700 animate-pulse" />
+                                                <p className="text-xs text-blue-700 font-medium">Esperando que completes el pago en la ventana abierta...</p>
+                                            </div>
+                                        ) : (
+                                            <p className="text-[11px] text-slate-400 text-center max-w-xs">
+                                                Despu&eacute;s de realizar el pago, cierra la ventana y presiona el bot&oacute;n de abajo para verificar.
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="
+                                        border-t border-slate-200
+                                        p-4 flex items-center justify-between gap-4
+                                    ">
+                                        <p className="text-xs text-slate-400 hidden sm:block">
+                                            El pago se verifica autom&aacute;ticamente cada 5 segundos
+                                        </p>
+
+                                        <button
+                                            onClick={verificarPago}
+                                            disabled={loading}
+                                            className="
+                                                h-12 px-6 rounded-lg
+                                                bg-emerald-600
+                                                hover:bg-emerald-700
+                                                disabled:opacity-50
+                                                text-white font-medium
+                                                flex items-center gap-2
+                                                active:scale-[0.99]
+                                                ml-auto
+                                            "
+                                        >
+
+                                            {loading ? (
+                                                <>
+                                                    <Loader2
+                                                        size={18}
+                                                        className="animate-spin"
+                                                    />
+
+                                                    Verificando...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <CheckCircle2 size={18} strokeWidth={1.5} />
+
+                                                    Verificar pago
+                                                </>
+                                            )}
+
+                                        </button>
+
+                                    </div>
+                                </div>
+                            </div>
 
                         )}
 

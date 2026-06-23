@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { abrirDocumento } from '@/features/expediente/helpers/abrirDocumento';
+import { generarOrdenPago } from '@/features/saSiete/services';
 import {
     FileText,
     CheckCircle2,
@@ -99,28 +100,46 @@ export default function RevisionDocumentosSection({
 
     const [finalizando, setFinalizando] = useState(false);
     const [finalizadoEstatus, setFinalizadoEstatus] = useState<string | null>(null);
+    const [paso, setPaso] = useState<'save' | 'order' | null>(null);
 
     const handleFinalizar = async () => {
         if (stats.pendientes > 0) return;
         setFinalizando(true);
+        setPaso('save');
         try {
             const res = await fetch('/api/liberaciones/finalizarRevision', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ infraccionId }),
             });
-            if (res.ok) {
-                const data = await res.json();
-                setFinalizadoEstatus(data.estatus);
-                onValidated?.();
-            } else {
-                const data = await res.json();
-                console.error('[FINALIZAR]', data.error);
+            if (!res.ok) throw new Error('Error al finalizar la revisión');
+
+            const data = await res.json();
+            setFinalizadoEstatus(data.estatus);
+            console.log(data.estatus)
+
+            if (data.estatus === 'PENDIENTE_PAGO' && data.folio && data.concepto_id) {
+
+
+                console.log(data)
+                setPaso('order');
+                await generarOrdenPago({
+                    infraccion_id: infraccionId,
+                    nombre_usuario: data.nombre_usuario,
+                    apellidos_usuario: data.apellidos_usuario,
+                    concepto_id: Number(data.concepto_id),
+                    folio: data.folio,
+                    correoInfractor: data.correo_infractor,
+                    descuentoAplicado: String(data.descuento_aplicado || ''),
+                });
             }
+
+            onValidated?.();
         } catch (err) {
             console.error('[FINALIZAR]', err);
         } finally {
             setFinalizando(false);
+            setPaso(null);
         }
     };
 
@@ -154,7 +173,7 @@ export default function RevisionDocumentosSection({
                     <FileText size={17} className="text-[#2563EB]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h3 className="text-[15px] font-semibold text-[#0F172A] tracking-tight">Documentos del Ciudadano</h3>
+                    <h3 className="text-[15px] font-semibold text-[#0F172A] tracking-tight">Documentos del Ciudadano </h3>
                     <p className="text-[12px] text-[#64748B]">Revisa y dictamina cada documento</p>
                 </div>
 
@@ -223,10 +242,10 @@ export default function RevisionDocumentosSection({
                     </thead>
                     <tbody className="divide-y" style={{ borderColor: '#F1F5F9' }}>
                         {documentos.map((doc, idx) => {
-    const pendiente = !doc.estatusRevision || doc.estatusRevision === 'PENDIENTE';
-    const aceptado = doc.estatusRevision === 'ACEPTADO';
-    const rechazado = doc.estatusRevision === 'RECHAZADO';
-    const badge = (aceptado || rechazado) ? STATUS_BADGE[doc.estatusRevision!] : null;
+                            const pendiente = !doc.estatusRevision || doc.estatusRevision === 'PENDIENTE';
+                            const aceptado = doc.estatusRevision === 'ACEPTADO';
+                            const rechazado = doc.estatusRevision === 'RECHAZADO';
+                            const badge = (aceptado || rechazado) ? STATUS_BADGE[doc.estatusRevision!] : null;
 
                             return (
                                 <tr
@@ -489,7 +508,11 @@ export default function RevisionDocumentosSection({
                             ) : (
                                 <CheckCircle2 size={15} />
                             )}
-                            {finalizando ? 'Finalizando...' : 'Finalizar revisión'}
+                            {finalizando
+                                ? paso === 'order'
+                                    ? 'Generando orden de pago...'
+                                    : 'Guardando revisión...'
+                                : 'Finalizar revisión'}
                         </button>
                     </div>
                 )}

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { MapaDireccionRegistro } from '@/features/oficiales/components/MapaDireccionRegistro';
 import { useInfraccionStore } from '@/stores/useInfraccionStore';
-import { MapPin, Home, MapPinned, CheckCircle2 } from 'lucide-react';
+import { MapPin, Home, CheckCircle2 } from 'lucide-react';
 import { Card } from '../ui/Card';
 
 interface Props {
@@ -29,8 +29,29 @@ export default function PasoUbicacion({
     } | null>(null);
 
     return (
-        <div className="grid grid-cols-[1fr_1fr] gap-4">
-            {/* ─── IZQUIERDA: Info card ─── */}
+        <div className="space-y-4">
+            {/* ─── MAPA ─── */}
+            <div className="h-[300px]">
+                <MapaDireccionRegistro
+                    onAddressChange={(addressData) => {
+                        setUltimaDir(addressData);
+                        setDireccion(addressData);
+
+                        actualizarDatos({
+                            latitud: addressData.latitud ?? null,
+                            longitud: addressData.longitud ?? null,
+                            calle: addressData.calle ?? '',
+                            numero: addressData.numero ?? '',
+                            colonia: addressData.colonia ?? '',
+                            codigoPostal: addressData.codigoPostal ?? '',
+                            municipio: addressData.municipio ?? '',
+                            estado: addressData.estado ?? '',
+                        });
+                    }}
+                />
+            </div>
+
+            {/* ─── DATOS DE UBICACIÓN ─── */}
             {ultimaDir ? (
                 <Card className="flex flex-col">
                     {/* Header */}
@@ -68,7 +89,7 @@ export default function PasoUbicacion({
                     </div>
 
                     {/* Info grid */}
-                    <div className="grid grid-cols-3 gap-3 mb-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-2">
                         <div className="bg-slate-50 rounded-lg px-3.5 py-3">
                             <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400 mb-1">
                                 Colonia
@@ -103,7 +124,7 @@ export default function PasoUbicacion({
                     </div>
                 </Card>
             ) : (
-                <div className="flex flex-col items-center justify-center h-full min-h-[280px] text-center p-8 rounded-xl border border-slate-200 bg-white shadow-card">
+                <Card className="flex flex-col items-center justify-center text-center py-8">
                     <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center mb-4">
                         <MapPin size={20} className="text-slate-400" />
                     </div>
@@ -111,29 +132,8 @@ export default function PasoUbicacion({
                     <p className="text-xs text-slate-400 mt-1">
                         Presiona <span className="font-medium text-slate-600">Ubicarme</span> o haz clic en el mapa
                     </p>
-                </div>
+                </Card>
             )}
-
-                {/* ─── DERECHA: Mapa ─── */}
-                <div>
-                    <MapaDireccionRegistro
-                        onAddressChange={(addressData) => {
-                            setUltimaDir(addressData);
-                            setDireccion(addressData);
-
-                            actualizarDatos({
-                                latitud: addressData.latitud ?? null,
-                                longitud: addressData.longitud ?? null,
-                                calle: addressData.calle ?? '',
-                                numero: addressData.numero ?? '',
-                                colonia: addressData.colonia ?? '',
-                                codigoPostal: addressData.codigoPostal ?? '',
-                                municipio: addressData.municipio ?? '',
-                                estado: addressData.estado ?? '',
-                            });
-                        }}
-                    />
-                </div>
         </div>
     );
 }

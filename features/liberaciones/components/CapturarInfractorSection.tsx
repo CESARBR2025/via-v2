@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Loader2, Save, AlertCircle } from 'lucide-react'
 import { useToastStore } from '@/stores/useToastStore'
+import { generarOrdenPago } from '@/features/saSiete/services'
 
 type Props = {
   infraccionId: string
@@ -45,6 +46,7 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
   const [correo, setCorreo] = useState('')
   const [esTitular, setEsTitular] = useState<boolean | null>(null)
   const [saving, setSaving] = useState(false)
+  const [step, setStep] = useState<'save' | 'order' | null>(null)
   const [error, setError] = useState('')
   const [errores, setErrores] = useState<Record<string, string>>({})
   const addToast = useToastStore((s) => s.addToast)
@@ -53,12 +55,14 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
     const nuevos: Record<string, string> = {}
     if (!nombre.trim()) nuevos.nombre = 'Requerido'
     if (!appaterno.trim()) nuevos.appaterno = 'Requerido'
+    if (!correo.trim()) nuevos.correo = 'Requerido para la orden de pago'
     if (esTitular === null) nuevos.esTitular = 'Selecciona una opción'
     setErrores(nuevos)
     setError('')
     if (Object.keys(nuevos).length > 0) return
 
     setSaving(true)
+    setStep('save')
     try {
       const res = await fetch('/api/liberaciones/guardarDatosInfractor', {
         method: 'PATCH',
@@ -73,14 +77,41 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
         }),
       })
       if (!res.ok) throw new Error('Error al guardar')
-      addToast('Datos del infractor guardados correctamente', 'success')
+
+      const data = await res.json()
+      const { folio, concepto_id, descuento_aplicado } = data.infraccion
+      console.log(folio)
+      console.log(concepto_id)
+      console.log(descuento_aplicado)
+      console.log(correo)
+
+      if (!folio || !concepto_id || !descuento_aplicado) {
+        throw new Error('No se pudieron obtener los datos para generar la orden de pago')
+      }
+
+      // ─── Generar orden de pago ───
+      setStep('order')
+      console.log('paso')
+      await generarOrdenPago({
+        infraccion_id: infraccionId,
+        nombre_usuario: nombre.trim().toUpperCase(),
+        apellidos_usuario: `${appaterno.trim().toUpperCase()} ${apmaterno.trim().toUpperCase()}`.trim(),
+        concepto_id: Number(concepto_id),
+        folio,
+        correoInfractor: correo.trim(),
+        descuentoAplicado: String(descuento_aplicado),
+      })
+      console.log('paso')
+
+      addToast('Datos guardados y orden de pago generada correctamente', 'success')
       onSuccess()
-    } catch {
-      const msg = 'Error al guardar los datos del infractor'
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al procesar'
       setError(msg)
       addToast(msg, 'error')
     } finally {
       setSaving(false)
+      setStep(null)
     }
   }
 
@@ -166,9 +197,13 @@ export default function CapturarInfractorSection({ infraccionId, onSuccess }: Pr
         className="w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[13px] font-medium text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 active:scale-[0.99] shadow-sm transition-all duration-150 disabled:bg-blue-200 disabled:text-blue-300 disabled:cursor-not-allowed"
       >
         {saving ? (
-          <><Loader2 size={14} className="animate-spin" /><span>Guardando…</span></>
+          step === 'order' ? (
+            <><Loader2 size={14} className="animate-spin" /><span>Generando orden de pago…</span></>
+          ) : (
+            <><Loader2 size={14} className="animate-spin" /><span>Guardando…</span></>
+          )
         ) : (
-          <><Save size={14} strokeWidth={2.5} /><span>Guardar datos del infractor</span></>
+          <><Save size={14} strokeWidth={2.5} /><span>Guardar y generar orden de pago</span></>
         )}
       </button>
     </div>

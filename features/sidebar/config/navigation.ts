@@ -32,6 +32,49 @@ export const navigationByRole: Record<UserRole, any[]> = {
           href: "/admin/oficiales",
           icon: Users,
         },
+      ],
+    },
+    {
+      title: "Configuración",
+      items: [
+        {
+          label: "Catálogos",
+          href: "/admin/configuracion",
+          icon: Settings,
+        },
+      ],
+    },
+  ],
+
+  super_admin: [
+    {
+      title: "Dashboard",
+      items: [
+        {
+          label: "Inicio",
+          href: "/admin/dashboard",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      title: "Indicadores",
+      items: [
+        {
+          label: "KPIs",
+          href: "/admin/kpis",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      title: "Gestión",
+      items: [
+        {
+          label: "Oficiales",
+          href: "/admin/oficiales",
+          icon: Users,
+        },
         {
           label: "Usuarios",
           href: "/admin/usuarios",

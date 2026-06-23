@@ -17,8 +17,12 @@ export async function GET(request: NextRequest) {
     console.log(userId);
 
     console.log("entro");
+    const oficialId = await DepInfraccionesService.obtenerOficialId(userId);
+
     const result =
-      await DepInfraccionesService.listarInfraccionesRealizadasService(userId);
+      await DepInfraccionesService.listarInfraccionesRealizadasService(
+        oficialId,
+      );
     console.log(result);
     return NextResponse.json(result);
   } catch (error: any) {

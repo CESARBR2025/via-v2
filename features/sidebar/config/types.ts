@@ -6,4 +6,5 @@ export type UserRole =
   | "corralon_mw"
   | "corralon_mejia"
   | "juzgado_civico"
-  | "admin";
+  | "admin"
+  | "super_admin";

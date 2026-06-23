@@ -41,7 +41,7 @@ export function TopFraccionesChart() {
           Sin datos
         </div>
       ) : (
-        <div className="h-64">
+        <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}

@@ -85,9 +85,9 @@ export default async function InfraccionCiudadanoPage({
     const res = await fetch(`${baseUrl}/api/infracciones/registradas/${id}`, { cache: 'no-store' });
     const responseDataInfraccion = await res.json();
     const infraccion = responseDataInfraccion.data;
-
-    console.log(infraccion.estatusPago)
     console.log(infraccion)
+    console.log(infraccion.estatusPago)
+
     const isPagada = infraccion.estatusPago === 'P';
     const status = getStatusStyle(isPagada);
     const StatusIcon = status.icon;
@@ -116,6 +116,13 @@ export default async function InfraccionCiudadanoPage({
     const totalUmasPagar = descuentoValido
         ? Number(infraccion.montoTotal) * (1 - Number(infraccion.descuento_aplicado) / 100)
         : Number(infraccion.montoTotal);
+
+    const mostrarPago =
+        infraccion.estatusInfraccion === 'PENDIENTE_PAGO' && (
+            infraccion.estatusDependencia === 'PENDIENTE_PAGO_LIBERACION' ||
+            infraccion.estatusDependencia === 'PLACA_RETENIDA_EN_TRANSITO' ||
+            infraccion.estatusDependencia === 'PENDIENTE_PAGO_INSTANTE'
+        );
 
     return (
         <main className="min-h-screen bg-slate-100">
@@ -223,73 +230,73 @@ export default async function InfraccionCiudadanoPage({
                             />
                         </div>
                     </Card>
-                ) : (
-                    <Card className="overflow-hidden p-0 shadow-[0_4px_12px_rgba(29,78,216,0.2)]">
-                        <div className="bg-gradient-to-br from-blue-700 to-blue-900 px-6 pt-6 pb-5 relative overflow-hidden">
-                            <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/5" />
-                            <div className="absolute top-12 -right-3 w-16 h-16 rounded-full bg-white/5" />
+                ) : mostrarPago ? (
+                <Card className="overflow-hidden p-0 shadow-[0_4px_12px_rgba(29,78,216,0.2)]">
+                    <div className="bg-gradient-to-br from-blue-700 to-blue-900 px-6 pt-6 pb-5 relative overflow-hidden">
+                        <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/5" />
+                        <div className="absolute top-12 -right-3 w-16 h-16 rounded-full bg-white/5" />
 
-                            <div className="relative">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/15 text-white text-[10px] font-medium tracking-wider uppercase">
-                                        Monto a pagar
+                        <div className="relative">
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/15 text-white text-[10px] font-medium tracking-wider uppercase">
+                                    Monto a pagar
+                                </span>
+                                {descuentoValido && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/20 text-green-300 text-[10px] font-medium tracking-wider uppercase border border-green-400/30">
+                                        —{Number(infraccion.descuento_aplicado)}% desc
                                     </span>
-                                    {descuentoValido && (
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/20 text-green-300 text-[10px] font-medium tracking-wider uppercase border border-green-400/30">
-                                            —{Number(infraccion.descuento_aplicado)}% desc
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex items-baseline gap-2 mt-2">
-                                    <span className="text-[36px] font-medium text-white leading-none tracking-tight">
-                                        ${infraccion.total_pesos}
-                                    </span>
-                                    <span className="text-sm text-blue-300/80 font-medium">MXN</span>
-                                </div>
-                                <div className="flex items-baseline gap-2 mt-1">
-                                    <span className="text-xl font-medium text-blue-200/90 leading-none">
-                                        {totalUmasPagar.toFixed(1)}
-                                    </span>
-                                    <span className="text-xs text-blue-300/70 font-medium">UMAs equivalentes</span>
-                                </div>
+                                )}
+                            </div>
+                            <div className="flex items-baseline gap-2 mt-2">
+                                <span className="text-[36px] font-medium text-white leading-none tracking-tight">
+                                    ${infraccion.total_pesos}
+                                </span>
+                                <span className="text-sm text-blue-300/80 font-medium">MXN</span>
+                            </div>
+                            <div className="flex items-baseline gap-2 mt-1">
+                                <span className="text-xl font-medium text-blue-200/90 leading-none">
+                                    {totalUmasPagar.toFixed(1)}
+                                </span>
+                                <span className="text-xs text-blue-300/70 font-medium">UMAs equivalentes</span>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="px-6 py-4 flex flex-col gap-2.5">
-                            <MontoRow label="Monto total de UMAs" value={`${infraccion.montoTotal} UMAs`} />
+                    <div className="px-6 py-4 flex flex-col gap-2.5">
+                        <MontoRow label="Monto total de UMAs" value={`${infraccion.montoTotal} UMAs`} />
 
-                            {descuentoValido ? (
-                                <>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-slate-500">Descuento aplicado</span>
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium">
-                                            —{Number(infraccion.descuento_aplicado)}%
-                                        </span>
-                                    </div>
-                                    <MontoRow label="Total UMAs a pagar" value={`${totalUmasPagar.toFixed(1)} UMAs`} />
-                                    <p className="text-[11px] text-amber-600 flex items-center gap-1">
-                                        <Clock size={11} strokeWidth={1.5} />
-                                        Vence {formatDate(infraccion.fecha_limite_descuento)}
-                                    </p>
-                                </>
-                            ) : (
-                                <p className="text-xs text-slate-400 italic">
-                                    No aplica descuento
+                        {descuentoValido ? (
+                            <>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-slate-500">Descuento aplicado</span>
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium">
+                                        —{Number(infraccion.descuento_aplicado)}%
+                                    </span>
+                                </div>
+                                <MontoRow label="Total UMAs a pagar" value={`${totalUmasPagar.toFixed(1)} UMAs`} />
+                                <p className="text-[11px] text-amber-600 flex items-center gap-1">
+                                    <Clock size={11} strokeWidth={1.5} />
+                                    Vence {formatDate(infraccion.fecha_limite_descuento)}
                                 </p>
-                            )}
+                            </>
+                        ) : (
+                            <p className="text-xs text-slate-400 italic">
+                                No aplica descuento
+                            </p>
+                        )}
 
-                            <div className="h-px bg-slate-200" />
-                            <MontoRow
-                                label="Estatus"
-                                value="Por pagar"
-                                valueClass="text-red-500"
-                            />
-                        </div>
-                    </Card>
-                )}
+                        <div className="h-px bg-slate-200" />
+                        <MontoRow
+                            label="Estatus"
+                            value="Por pagar"
+                            valueClass="text-red-500"
+                        />
+                    </div>
+                </Card>
+                ) : null}
 
                 {/* ▸ PAGO DIGITAL */}
-                {!isPagada && (
+                {mostrarPago && (
                     <section className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
                         <div className="px-6 py-[18px] border-b border-slate-200 flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
