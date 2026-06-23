@@ -216,7 +216,7 @@ export class InfraccionesRepository {
     JOIN v2_fracciones_ley vfl
         ON i.fraccion_id = vfl.id
 
-    JOIN v2_ordenes_pago_sa7 ops
+    LEFT JOIN v2_ordenes_pago_sa7 ops
         ON ops.infraccion_id = i.id
 
     LEFT JOIN v2_solicitudes_liberacion sl

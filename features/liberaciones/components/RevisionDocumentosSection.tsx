@@ -154,7 +154,7 @@ export default function RevisionDocumentosSection({
                     <FileText size={17} className="text-[#2563EB]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h3 className="text-[15px] font-semibold text-[#0F172A] tracking-tight">Documentos del Ciudadano</h3>
+                    <h3 className="text-[15px] font-semibold text-[#0F172A] tracking-tight">Documentos del Ciudadano </h3>
                     <p className="text-[12px] text-[#64748B]">Revisa y dictamina cada documento</p>
                 </div>
 
@@ -223,10 +223,10 @@ export default function RevisionDocumentosSection({
                     </thead>
                     <tbody className="divide-y" style={{ borderColor: '#F1F5F9' }}>
                         {documentos.map((doc, idx) => {
-    const pendiente = !doc.estatusRevision || doc.estatusRevision === 'PENDIENTE';
-    const aceptado = doc.estatusRevision === 'ACEPTADO';
-    const rechazado = doc.estatusRevision === 'RECHAZADO';
-    const badge = (aceptado || rechazado) ? STATUS_BADGE[doc.estatusRevision!] : null;
+                            const pendiente = !doc.estatusRevision || doc.estatusRevision === 'PENDIENTE';
+                            const aceptado = doc.estatusRevision === 'ACEPTADO';
+                            const rechazado = doc.estatusRevision === 'RECHAZADO';
+                            const badge = (aceptado || rechazado) ? STATUS_BADGE[doc.estatusRevision!] : null;
 
                             return (
                                 <tr

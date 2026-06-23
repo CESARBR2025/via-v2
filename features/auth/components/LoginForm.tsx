@@ -223,7 +223,7 @@ export default function LoginForm() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-blue-700 text-white text-[13px] font-medium px-4 py-2.5 rounded-lg border-none hover:bg-blue-800 active:bg-blue-900 active:scale-[0.99] disabled:bg-blue-200 disabled:text-blue-300 disabled:cursor-not-allowed transition-colors duration-150 flex items-center justify-center gap-2"
+                            className="w-full h-11 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-medium text-sm rounded-lg shadow-md hover:shadow-lg transition-all active:scale-[0.99] flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>

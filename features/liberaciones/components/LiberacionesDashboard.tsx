@@ -661,23 +661,18 @@ export default function LiberacionesDashboard({
             )}
 
             {revisionModalId && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm">
-                    <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-100 rounded-2xl shadow-modal">
-                        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 rounded-t-2xl">
-                            <h2 className="text-[15px] font-medium text-slate-900">Revisión de documentos</h2>
-                            <button
-                                onClick={() => { setRevisionModalId(null); router.refresh() }}
-                                className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-500 transition-colors duration-150"
-                            >
-                                Cerrar
-                            </button>
-                        </div>
-                        <div className="p-6">
-                            <RevisionDocumentosSection
-                                infraccionId={revisionModalId}
-                                onValidated={() => { setRevisionModalId(null); router.refresh() }}
-                            />
-                        </div>
+                <div className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/70 backdrop-blur-sm pt-12 pb-8 overflow-y-auto">
+                    <div className="relative w-full max-w-4xl animate-in fade-in zoom-in-95 duration-200">
+                        <button
+                            onClick={() => { setRevisionModalId(null); router.refresh() }}
+                            className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center hover:bg-slate-50 transition-colors"
+                        >
+                            <X size={14} strokeWidth={2.5} />
+                        </button>
+                        <RevisionDocumentosSection
+                            infraccionId={revisionModalId}
+                            onValidated={() => { setRevisionModalId(null); router.refresh() }}
+                        />
                     </div>
                 </div>
             )}

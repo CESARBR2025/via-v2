@@ -42,10 +42,10 @@ export default function SidebarItem({
                     : "gap-2.5 px-3"
                 }
 
-                ${active
-                    ? "bg-blue-700/20 text-blue-300"
-                    : "text-white/55 hover:bg-slate-800 hover:text-white/75"
-                }
+${active
+    ? "bg-white/20 text-white"
+    : "text-white/55 hover:bg-white/12 hover:text-white/80"
+}
             `}
         >
             <Icon
@@ -54,8 +54,8 @@ export default function SidebarItem({
                 className={`
                     shrink-0 transition-colors duration-200
                     ${active
-                        ? "text-blue-300"
-                        : "text-white/40 group-hover:text-white/55"
+                        ? "text-white"
+                        : "text-white/40 group-hover:text-white/70"
                     }
                 `}
             />

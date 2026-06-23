@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       },
 
       referencias: {
-        [CONCEPTO_PRUEBA]: [`${nombre_usuario} ${apellidos_usuario}`, ""],
+        [CONCEPTO_PRUEBA]: [`${nombre_usuario} ${apellidos_usuario}`],
       },
 
       id_usuario_general: "17336",
@@ -151,6 +151,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(payloadSA7),
     });
 
+    console.log("entro a aesto =================================");
     console.log(responseSA7);
     // =========================================
     // LEER HEADERS IMPORTANTES
