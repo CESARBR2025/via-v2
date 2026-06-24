@@ -25,7 +25,7 @@ export default function RootLayout({
       className={`${inter.variable} h-full antialiased`}
     >
       <body
-        className={`${inter.className} min-h-full flex flex-col`}
+        className={`${inter.className} min-h-full flex flex-col overflow-x-hidden`}
         suppressHydrationWarning
       >
         {children}

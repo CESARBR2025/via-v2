@@ -4,7 +4,7 @@ import { getBadgeStyles } from '../utils/infraccionBadge';
 
 export function TablaInfracciones({ rows, onOpen }: any) {
     return (
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
             <table className="w-full min-w-[800px] border-collapse">
                 <thead className="sticky top-0 z-10">
                     <tr className="bg-slate-50 border-b border-slate-200">

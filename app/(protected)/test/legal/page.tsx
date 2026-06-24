@@ -99,7 +99,7 @@ export default function LegalPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F1F5F9]">
+        <div className="min-h-dvh overflow-x-hidden bg-[#F1F5F9]">
             <div className="relative bg-gradient-to-br from-[#2563EB] via-[#1D4ED8] to-[#1E40AF] overflow-hidden">
                 <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full opacity-10 bg-white/30" />
                 <div className="absolute top-12 -right-6 w-32 h-32 rounded-full opacity-[0.08] bg-white/40" />
