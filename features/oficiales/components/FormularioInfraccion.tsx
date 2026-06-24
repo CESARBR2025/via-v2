@@ -407,6 +407,19 @@ export default function FormularioInfraccion() {
     }, [success]);
 
     // ═══════════════════════════════════════════════════════════════════
+    // AUTO-DISMISS - Limpiar error de validación al editar campos
+    // ═══════════════════════════════════════════════════════════════════
+    const prevDatosRef = useRef(datos);
+
+    useEffect(() => {
+        if (validationError && datos !== prevDatosRef.current) {
+            setValidationError(null);
+            setIntentoAvanzar(false);
+        }
+        prevDatosRef.current = datos;
+    }, [datos, validationError]);
+
+    // ═══════════════════════════════════════════════════════════════════
     // RECUPERACIÓN DE SESIÓN - Verificar localStorage al montar
     // ═══════════════════════════════════════════════════════════════════
     useEffect(() => {
