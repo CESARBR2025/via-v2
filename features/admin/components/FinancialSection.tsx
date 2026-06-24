@@ -2,6 +2,9 @@ import { MonthlyRevenueChart } from "./MonthlyRevenueChart"
 import { TopFraccionesChart } from "./TopFraccionesChart"
 import { RevenueByDayChart } from "./RevenueByDayChart"
 import { EfectividadCobroChart } from "./EfectividadCobroChart"
+import { RevenueBySeverityChart } from "./RevenueBySeverityChart"
+import { RevenueBySectorChart } from "./RevenueBySectorChart"
+import { TopOficialesChart } from "./TopOficialesChart"
 
 export function FinancialSection() {
   return (
@@ -24,7 +27,14 @@ export function FinancialSection() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <EfectividadCobroChart />
+        <RevenueBySeverityChart />
       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 ">
+        <RevenueBySectorChart />
+      </div>
+
+      <TopOficialesChart />
     </div>
   )
 }

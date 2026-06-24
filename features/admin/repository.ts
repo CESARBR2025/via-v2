@@ -4,6 +4,9 @@ import type {
   MonthlyRevenue,
   FinancieroData,
   GeograficoData,
+  RevenueBySector,
+  TopOficial,
+  RevenueBySeverity,
 } from "./types";
 
 const MONTHS = [
@@ -205,6 +208,87 @@ export class AdminRepository {
       month: i + 1,
       label,
       total: dataMap.get(i + 1) ?? 0,
+    }));
+  }
+
+  static async getRevenueBySector(): Promise<RevenueBySector[]> {
+    const result = await pool.query(`
+    SELECT
+        COALESCE(s.nombre, 'SIN ASIGNAR') AS sector,
+        COUNT(DISTINCT i.id)::int AS infracciones,
+        COUNT(DISTINCT ops.id)::int AS pagos,
+        COALESCE(SUM(ops.total_pesos), 0)::numeric(12,2) AS total
+      FROM v2_ordenes_pago_sa7 ops
+      JOIN v2_infracciones i ON i.id = ops.infraccion_id
+      LEFT JOIN v2_oficiales off ON off.id = i.oficial_id
+      LEFT JOIN v2_sectores s ON s.id = off.sector_id
+      WHERE ops.estatus = 'P'
+      GROUP BY s.nombre
+      ORDER BY total DESC
+    `);
+    return result.rows.map((r: any) => ({
+      sector: r.sector,
+      infracciones: r.infracciones,
+      pagos: r.pagos,
+      total: Number(r.total),
+    }));
+  }
+
+  static async getTopOficiales(limit = 10): Promise<TopOficial[]> {
+    const result = await pool.query(
+      `
+         SELECT
+          off.id AS usuario_id,
+          off.numero_empleado ,
+          u.nombres,
+          
+          
+          COUNT(DISTINCT i.id)::int AS infracciones,
+          COALESCE(SUM(ops.total_pesos), 0)::numeric(12,2) AS total
+        FROM v2_ordenes_pago_sa7 ops
+        JOIN v2_infracciones i ON i.id = ops.infraccion_id
+        LEFT JOIN v2_oficiales off ON off.id = i.oficial_id
+        left join v2_usuarios u on u.id = off.usuario_id
+        WHERE ops.estatus = 'P'
+        GROUP BY off.id, u.nombres,  off.numero_empleado
+        ORDER BY total DESC
+        LIMIT $1
+        
+      `,
+      [limit],
+    );
+
+    return result.rows.map((r: any) => ({
+      usuarioId: r.usuario_id,
+      nombres: r.nombres,
+      apellidoP: r.apellido_p,
+      apellidoM: r.apellido_m,
+      numeroEmpleado: r.numero_empleado,
+      infracciones: r.infracciones,
+      pagos: r.pagos,
+      total: Number(r.total),
+    }));
+  }
+
+  static async getRevenueBySeverity(): Promise<RevenueBySeverity[]> {
+    const result = await pool.query(`
+      SELECT
+        fl.clasificacion,
+        COUNT(DISTINCT i.id)::int AS infracciones,
+        COUNT(DISTINCT ops.id)::int AS pagos,
+        COALESCE(SUM(ops.total_pesos), 0)::numeric(12,2) AS total
+      FROM v2_ordenes_pago_sa7 ops
+      JOIN v2_infracciones i ON i.id = ops.infraccion_id
+      JOIN v2_fracciones_ley fl ON fl.id = i.fraccion_id
+      WHERE ops.estatus = 'P'
+      GROUP BY fl.clasificacion
+      ORDER BY total DESC
+    `);
+    return result.rows.map((r: any) => ({
+      clasificacion: r.clasificacion,
+      infracciones: r.infracciones,
+      pagos: r.pagos,
+      total: Number(r.total),
     }));
   }
 }
