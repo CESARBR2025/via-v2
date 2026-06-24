@@ -4,7 +4,7 @@ import { enviarCorreoInfraccion } from "@/features/emails/server";
 import { Beaker } from "lucide-react";
 
 const SA7_URL =
-  "https://sanjuandelrio.sytes.net:3044/api/sasiete/generar-orden-completa";
+  "https://sanjuandelrio.sytes.net:3044/api/sasiete/qas/generar-orden-completa";
 
 export async function POST(req: NextRequest) {
   try {
