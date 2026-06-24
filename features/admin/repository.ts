@@ -34,6 +34,7 @@ export class AdminRepository {
         WHERE ops.estatus = 'P'
       `),
 
+      // pendientes de pago
       pool.query(`
           SELECT COUNT(DISTINCT i.id)::int AS total
         FROM v2_infracciones i
@@ -41,6 +42,8 @@ export class AdminRepository {
         WHERE ops.estatus = 'I'
           
       `),
+      // pagadas al instante
+
       pool.query(`
              SELECT COUNT(DISTINCT i.id)::int AS total
         FROM v2_infracciones i
@@ -51,11 +54,10 @@ export class AdminRepository {
 
       // Vehiculos retenidos
       pool.query(`
-                  SELECT COUNT(*)::int AS total
+                   SELECT COUNT(*)::int AS total
         FROM v2_infracciones
         WHERE tipo_garantia = 'VEHICULO'
-          AND estatus  IN ('CERRADA')
-          AND estatus_dependencia in ('LIBERADA_POR_ACCIDENTE', 'LIBERADA_POR_INFRACCION', 'LIBERADA_POR_DELITO')
+          AND estatus_dependencia in ('VEHICULO_EN_CORRALON', 'RETENIDO_POR_ACCIDENTE_PENDIENTE_OFICIO', 'RETENIDO_POR_DELITO_PENDIENTE_OFICIO')
 
           
       `),
@@ -67,17 +69,20 @@ export class AdminRepository {
 
       // Deuda pendiente
       pool.query(`
-        SELECT COALESCE(SUM(i.monto_final), 0)::numeric(12,2) AS total
+            SELECT COALESCE(SUM(ops.total_pesos), 0)::numeric(12,2) AS total
         FROM v2_infracciones i
         LEFT JOIN v2_ordenes_pago_sa7 ops ON ops.infraccion_id = i.id
         WHERE (ops.estatus IS NULL OR ops.estatus != 'P')
-          AND (i.tipo_garantia IS NULL OR i.tipo_garantia != 'VEHICULO')
+      
       `),
 
       // Monto promedio
       pool.query(`
-        SELECT COALESCE(AVG(i.monto_final), 0)::numeric(12,2) AS total
+          SELECT  COALESCE(AVG(ops.total_pesos), 0)::numeric(12,2) AS total
         FROM v2_infracciones i
+        LEFT JOIN v2_ordenes_pago_sa7 ops ON ops.infraccion_id = i.id
+       
+        
       `),
 
       // Descuentos INAPAM

@@ -173,7 +173,7 @@ export const sanitizeCrearInfraccionPayload = (
 
     montoTotal: Number(body.fraccionMonto || 0),
 
-    aplicaDescuentoInapam: false,
+    aplicaDescuentoInapam: !!(body.esCiudadanoAdultoMayor === true && body.presentaInapam === true),
 
     descuentoAplicado: body.descuentoAplicado,
 
