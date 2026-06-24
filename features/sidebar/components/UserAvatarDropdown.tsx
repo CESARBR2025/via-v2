@@ -2,13 +2,27 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { LogOut, ChevronDown, User, Settings } from "lucide-react";
+import { LogOut, ChevronDown, User, Settings, RefreshCw, Shield, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
+
+const ROLE_LABELS: Record<string, string> = {
+    super_admin: "Super Administrador",
+    admin: "Administrador",
+    oficial: "Oficial de Policía",
+    infracciones: "Depto. Infracciones",
+    liberaciones: "Depto. Liberaciones",
+    fiscalia: "Fiscalía",
+    juzgado_civico: "Juzgado Cívico",
+    corralon_mejia: "Corralón Mejía",
+    corralon_mw: "Corralón MW",
+};
 
 type Props = {
     userName: string;
     userRole: string;
+    allRoles: string[];
+    activeRole: string;
 };
 
 function getInitials(name: string): string {
@@ -23,7 +37,7 @@ function getFirstName(name: string): string {
     return name.trim().split(/\s+/)[0] || name;
 }
 
-export default function UserAvatarDropdown({ userName, userRole }: Props) {
+export default function UserAvatarDropdown({ userName, userRole, allRoles, activeRole }: Props) {
     const router = useRouter();
 
     const storeUser = useAuthStore((state) => state.user);
@@ -33,6 +47,7 @@ export default function UserAvatarDropdown({ userName, userRole }: Props) {
 
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [switchingRole, setSwitchingRole] = useState<string | null>(null);
 
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -69,8 +84,36 @@ export default function UserAvatarDropdown({ userName, userRole }: Props) {
         }
     }
 
+    async function handleSwitchRole(rol: string) {
+        if (rol === activeRole || switchingRole) return;
+
+        try {
+            setSwitchingRole(rol);
+
+            const res = await fetch("/api/auth/switch-role", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ rol }),
+            });
+
+            const data = await res.json();
+
+            if (data.ok && data.redirectTo) {
+                setOpen(false);
+                router.replace(data.redirectTo);
+                router.refresh();
+            }
+        } catch (error) {
+            console.error("Switch role error:", error);
+        } finally {
+            setSwitchingRole(null);
+        }
+    }
+
     const initials = getInitials(user.name);
     const firstName = getFirstName(user.name);
+
+    const otherRoles = allRoles.filter((r) => r !== activeRole);
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -188,6 +231,55 @@ export default function UserAvatarDropdown({ userName, userRole }: Props) {
                             Mi Perfil
                         </Link>
                     </div>
+
+                    {/* Divider */}
+                    <div className="mx-3 h-px bg-slate-100" />
+
+                    {/* Role switcher */}
+                    {otherRoles.length > 0 && (
+                        <div className="p-1.5">
+                            <div className="px-3 py-1.5">
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                                    Cambiar rol
+                                </p>
+                            </div>
+                            <div className="space-y-0.5">
+                                {otherRoles.map((rol) => {
+                                    const isLoading = switchingRole === rol;
+                                    const label = ROLE_LABELS[rol] || rol;
+
+                                    return (
+                                        <button
+                                            key={rol}
+                                            type="button"
+                                            onClick={() => handleSwitchRole(rol)}
+                                            disabled={isLoading}
+                                            className="
+                                                w-full flex items-center gap-3
+                                                px-3 py-2.5
+                                                rounded-lg
+                                                text-sm font-medium text-slate-700
+                                                hover:bg-blue-50 hover:text-blue-700
+                                                transition-colors duration-150
+                                                disabled:opacity-50 disabled:cursor-not-allowed
+                                                group
+                                            "
+                                        >
+                                            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-blue-100 transition-colors">
+                                                {isLoading ? (
+                                                    <span className="w-3.5 h-3.5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                                                ) : (
+                                                    <Shield size={14} className="text-slate-500 group-hover:text-blue-600" />
+                                                )}
+                                            </span>
+                                            <span className="flex-1 text-left">{label}</span>
+                                            <ArrowRight size={13} className="text-slate-300 group-hover:text-blue-500 transition-colors opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Divider */}
                     <div className="mx-3 h-px bg-slate-100" />

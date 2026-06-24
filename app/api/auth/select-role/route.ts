@@ -77,13 +77,13 @@ export async function POST(req: Request) {
       (row) => `${row.modulo}:${row.accion}`,
     );
 
-    // 6. Crear sesión FINAL
+    // 6. Crear sesión FINAL — guardamos TODOS los roles del usuario
     await createSession({
       id: user.id,
       nombres: user.nombres,
       apellido_p: user.apellido_p,
       correo: user.correo,
-      roles: [rol],
+      roles: preSession.roles,
       permisos,
     });
 
