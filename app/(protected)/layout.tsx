@@ -48,7 +48,7 @@ export default async function DashboardLayout({
 
     const userRole =
         session && session.user.roles.length > 0
-            ? ROLE_LABELS[session.user.roles[0]] || session.user.roles[0]
+            ? ROLE_LABELS[role] || role
             : "Sin rol";
 
     return (
@@ -77,6 +77,7 @@ export default async function DashboardLayout({
                     userName={userName}
                     userRole={userRole}
                     roleKey={role}
+                    allRoles={session?.user.roles}
                 />
 
                 <OfflineBanner />

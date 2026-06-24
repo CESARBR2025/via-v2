@@ -30,6 +30,7 @@ type Props = {
   userName: string;
   userRole: string;
   roleKey: string;
+  allRoles?: string[];
 };
 
 type ContextualAction = {
@@ -52,7 +53,7 @@ type SearchResult = {
   nombre_infractor: string | null
 }
 
-export default function Header({ userName, userRole, roleKey }: Props) {
+export default function Header({ userName, userRole, roleKey, allRoles }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const toggleMobile = useSidebarStore((s) => s.toggleMobile);
@@ -314,7 +315,12 @@ export default function Header({ userName, userRole, roleKey }: Props) {
 
         {action && <div className="h-6 w-px bg-slate-200 mx-1" />}
 
-        <UserAvatarDropdown userName={userName} userRole={userRole} />
+        <UserAvatarDropdown
+            userName={userName}
+            userRole={userRole}
+            allRoles={allRoles ?? [roleKey]}
+            activeRole={roleKey}
+        />
       </div>
 
     </header>
