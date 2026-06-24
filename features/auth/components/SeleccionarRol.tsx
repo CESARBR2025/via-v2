@@ -183,8 +183,8 @@ export default function SeleccionarRol({ rolesIniciales, lastRole }: Seleccionar
         <>
             <LoaderOverlay show={isClosing} text={loadingMessage} />
 
-            <main className="min-h-screen w-full overflow-y-auto bg-slate-50 flex flex-col justify-between relative">
-                <div className="relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full max-w-5xl grow flex flex-col justify-center">
+            <main className="min-h-dvh w-full overflow-x-hidden bg-slate-50 flex flex-col relative">
+                <div className="relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full max-w-5xl flex-1 flex flex-col justify-center">
 
                     {/* Header */}
                     <div className={`mb-10 sm:mb-12 text-center transition-all duration-500 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
@@ -295,7 +295,7 @@ export default function SeleccionarRol({ rolesIniciales, lastRole }: Seleccionar
                     </div>
                 </div>
 
-                <footer className="relative z-10 w-full py-6 text-center text-[10px] text-slate-400 border-t border-slate-200 bg-white/80 backdrop-blur-sm tracking-wide shrink-0">
+                <footer className="relative z-10 w-full py-6 text-center text-[10px] text-slate-400 border-t border-slate-200 bg-white/80 backdrop-blur-sm tracking-wide shrink-0 mt-auto">
                     Sistema Integral de Infracciones · SSPM de San Juan del Río
                 </footer>
             </main>

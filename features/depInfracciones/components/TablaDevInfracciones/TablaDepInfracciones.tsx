@@ -59,7 +59,7 @@ export default function TablaDepInfracciones({ data }: Props) {
         <div className="flex flex-col flex-1 min-h-0 bg-white border border-slate-200 rounded-xl shadow-card">
             <TablaInfraccionesSearch value={searchGlobal} onChange={setSearchGlobal} onClear={() => setSearchGlobal('')} />
 
-            <div className="flex-1 min-h-0 overflow-y-auto w-full">
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden w-full">
                 {filteredRows.length > 0 ? (
                     <TablaInfracciones rows={filteredRows} onOpen={handleOpenDetalle} />
                 ) : (

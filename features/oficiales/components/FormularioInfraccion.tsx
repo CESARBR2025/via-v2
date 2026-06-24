@@ -90,6 +90,37 @@ export default function FormularioInfraccion() {
     const [procesoMensaje, setProcesoMensaje] = useState('');
 
     // ───────────────────────────────────────────────────────────────────
+    // RECUPERACIÓN DE SESIÓN - Persistencia en localStorage
+    // ───────────────────────────────────────────────────────────────────
+    const LS_KEY = 'via_infraccion_activa';
+
+    const guardarSesionLocal = useCallback((data: {
+        infraccionId: number;
+        folio: string;
+        totalPesos?: string;
+        totalUmas?: string;
+        isAusente?: boolean;
+        ausenteData?: Record<string, any>;
+    }) => {
+        try {
+            localStorage.setItem(LS_KEY, JSON.stringify({ ...data, timestamp: Date.now() }));
+        } catch { }
+    }, []);
+
+    const limpiarSesionLocal = useCallback(() => {
+        try { localStorage.removeItem(LS_KEY); } catch { }
+    }, []);
+
+    const [sessionToResume, setSessionToResume] = useState<{
+        infraccionId: number;
+        folio: string;
+        totalPesos?: string;
+        totalUmas?: string;
+        isAusente?: boolean;
+        ausenteData?: Record<string, any>;
+    } | null>(null);
+
+    // ───────────────────────────────────────────────────────────────────
     // ESTADOS BÚSQUEDA DE DIRECCIONES
     // ───────────────────────────────────────────────────────────────────
     const [direccion, setDireccion] = useState<AddressData>({
@@ -219,6 +250,7 @@ export default function FormularioInfraccion() {
      */
     const handleFinalizarSinPago = useCallback(async () => {
         if (!infraccionCreada?.id) return;
+        limpiarSesionLocal();
         try {
             await fetch('/api/infracciones/retencionPlaca', {
                 method: 'PATCH',
@@ -229,7 +261,7 @@ export default function FormularioInfraccion() {
             console.error('Error al actualizar retención de placa:', err);
         }
         window.location.reload();
-    }, [infraccionCreada]);
+    }, [infraccionCreada, limpiarSesionLocal]);
 
     /**
      * Verifica el estado del pago de una infracción
@@ -305,6 +337,7 @@ export default function FormularioInfraccion() {
                 // ─────────────────────────────────────────────────────────────
                 if (data.pagado) {
                     setPagado(true);
+                    limpiarSesionLocal();
                     return;
                 }
             } catch (error) {
@@ -316,7 +349,7 @@ export default function FormularioInfraccion() {
         } finally {
             setLoading(false);
         }
-    }, [loading, infraccionCreada, setLoading, setPagado]);
+    }, [loading, infraccionCreada, setLoading, setPagado, limpiarSesionLocal]);
 
     // ═══════════════════════════════════════════════════════════════════
     // EFECTOS - Inicialización y sincronización
@@ -372,6 +405,70 @@ export default function FormularioInfraccion() {
             return () => clearTimeout(t);
         }
     }, [success]);
+
+    // ═══════════════════════════════════════════════════════════════════
+    // AUTO-DISMISS - Limpiar error de validación al editar campos
+    // ═══════════════════════════════════════════════════════════════════
+    const prevDatosRef = useRef(datos);
+
+    useEffect(() => {
+        if (validationError && datos !== prevDatosRef.current) {
+            setValidationError(null);
+            setIntentoAvanzar(false);
+        }
+        prevDatosRef.current = datos;
+    }, [datos, validationError]);
+
+    // ═══════════════════════════════════════════════════════════════════
+    // RECUPERACIÓN DE SESIÓN - Verificar localStorage al montar
+    // ═══════════════════════════════════════════════════════════════════
+    useEffect(() => {
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return;
+
+        try {
+            const saved = JSON.parse(raw);
+            const MAX_AGE = 24 * 60 * 60 * 1000; // 24 horas
+            if (Date.now() - saved.timestamp > MAX_AGE) {
+                limpiarSesionLocal();
+                return;
+            }
+            if (!saved.infraccionId || !saved.folio) {
+                limpiarSesionLocal();
+                return;
+            }
+
+            // Verificar con API que la orden sigue existiendo
+            (async () => {
+                try {
+                    const res = await fetch(`/api/saSiete/buscar-orden?infraccion_id=${saved.infraccionId}`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+                    if (!res.ok) {
+                        // Sin orden de pago — puede ser ausente, verificar infraccion
+                        if (saved.isAusente) {
+                            setSessionToResume(saved);
+                        } else {
+                            limpiarSesionLocal();
+                        }
+                        return;
+                    }
+                    const result = await res.json();
+                    if (result.ok && result.data?.orden_pago_id) {
+                        setSessionToResume(saved);
+                    } else {
+                        limpiarSesionLocal();
+                    }
+                } catch {
+                    // Sin conexión: confiar en localStorage si es reciente
+                    setSessionToResume(saved);
+                }
+            })();
+        } catch {
+            limpiarSesionLocal();
+        }
+    }, [LS_KEY, limpiarSesionLocal]);
 
     // ═══════════════════════════════════════════════════════════════════
     // CONFIGURACIÓN DE PASOS - Define estructura del formulario
@@ -848,29 +945,36 @@ export default function FormularioInfraccion() {
             // CIUDADANO AUSENTE o GARANTÍA VEHICULAR — saltar orden de pago, mostrar resumen
             // ─────────────────────────────────────────────────────────────
             if (datos.estaCiudadanoPresente === false || datos.garantiaSeleccionada === 'VEHICULO') {
+                const ausenteData = {
+                    placa: storeData.placa,
+                    marca: storeData.marca,
+                    modelo: storeData.modelo,
+                    anio: storeData.anio,
+                    color: storeData.color,
+                    tipoVehiculo: storeData.tipoVehiculo,
+                    lugar: `${storeData.calle || ''} ${storeData.numero || ''}, ${storeData.colonia || ''}`.trim(),
+                    municipio: storeData.municipio,
+                    estado: storeData.estado,
+                    fraccion: storeData.fraccionDescripcion,
+                    articulo: storeData.articuloNumero,
+                    monto: storeData.fraccionMonto,
+                    descuento: storeData.descuentoAplicado,
+                    fechaLimite: storeData.fechaLimiteDescuento,
+                    garantia: storeData.garantiaSeleccionada,
+                    dependenciaRemisora: storeData.dependenciaRemisora,
+                    fecha: new Date().toISOString(),
+                };
+                guardarSesionLocal({
+                    infraccionId: nuevaInfraccion.data.id,
+                    folio: nuevaInfraccion.data.folio,
+                    isAusente: true,
+                    ausenteData,
+                });
                 setModalState('inicio');
                 setAusenteCompletado({
                     id: nuevaInfraccion.data.id,
                     folio: nuevaInfraccion.data.folio,
-                    data: {
-                        placa: storeData.placa,
-                        marca: storeData.marca,
-                        modelo: storeData.modelo,
-                        anio: storeData.anio,
-                        color: storeData.color,
-                        tipoVehiculo: storeData.tipoVehiculo,
-                        lugar: `${storeData.calle || ''} ${storeData.numero || ''}, ${storeData.colonia || ''}`.trim(),
-                        municipio: storeData.municipio,
-                        estado: storeData.estado,
-                        fraccion: storeData.fraccionDescripcion,
-                        articulo: storeData.articuloNumero,
-                        monto: storeData.fraccionMonto,
-                        descuento: storeData.descuentoAplicado,
-                        fechaLimite: storeData.fechaLimiteDescuento,
-                        garantia: storeData.garantiaSeleccionada,
-                        dependenciaRemisora: storeData.dependenciaRemisora,
-                        fecha: new Date().toISOString(),
-                    },
+                    data: ausenteData,
                 });
                 return;
             }
@@ -902,6 +1006,12 @@ export default function FormularioInfraccion() {
                     totalPesos: orden.data.total_pesos,
                     totalUmas: orden.data.total_umas,
                 });
+                guardarSesionLocal({
+                    infraccionId: nuevaInfraccion.data.id,
+                    folio: nuevaInfraccion.data.folio,
+                    totalPesos: orden.data.total_pesos,
+                    totalUmas: orden.data.total_umas,
+                });
             } catch (error) {
                 logError('GENERACIÓN ORDEN DE PAGO', error);
                 setModalState('error');
@@ -930,7 +1040,7 @@ export default function FormularioInfraccion() {
                 err instanceof Error ? err.message : 'Error inesperado'
             );
         }
-    }, [datos, setCurrentStep, steps.length]);
+    }, [datos, setCurrentStep, steps.length, guardarSesionLocal]);
 
     // ═══════════════════════════════════════════════════════════════════
     // CÁLCULOS DERIVADOS
@@ -989,6 +1099,191 @@ export default function FormularioInfraccion() {
                 />
             )}
 
+            {/* ───────────────────────────────────────────────────────────────
+          DIÁLOGO DE RECUPERACIÓN - Sesión previa encontrada
+          ─────────────────────────────────────────────────────────────── */}
+            {sessionToResume && (
+                <div className="flex-1 flex items-center justify-center px-4 py-12">
+                    <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-elevated overflow-hidden">
+                        <div className="h-1.5 bg-gradient-to-r from-amber-400 to-amber-500" />
+                        <div className="p-6 sm:p-8 space-y-6">
+                            <div className="text-center space-y-3">
+                                <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto ring-4 ring-amber-500/15">
+                                    <svg className="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-xl font-semibold text-slate-900">
+                                    Infracción en proceso
+                                </h2>
+                                <p className="text-sm text-slate-500 leading-relaxed">
+                                    Tienes una infracción registrada con el folio <span className="font-mono font-medium text-slate-700">{sessionToResume.folio}</span> que aún no se ha finalizado.
+                                </p>
+                            </div>
+
+                            <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+                                <div className="flex items-center justify-between text-sm">
+                                    <span className="text-slate-500">Folio</span>
+                                    <span className="font-mono font-medium text-slate-900">{sessionToResume.folio}</span>
+                                </div>
+                                {sessionToResume.totalPesos && (
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-slate-500">Total</span>
+                                        <span className="font-mono font-medium text-slate-900">
+                                            ${Number(sessionToResume.totalPesos).toLocaleString('es-MX')}
+                                        </span>
+                                    </div>
+                                )}
+                                {!sessionToResume.isAusente && (
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-slate-500">Estatus</span>
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-600 border border-amber-200">
+                                            Pendiente de pago
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col gap-2.5">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setInfraccionCreada({
+                                            id: sessionToResume.infraccionId,
+                                            folio: sessionToResume.folio,
+                                        });
+                                        if (sessionToResume.totalPesos && sessionToResume.totalUmas) {
+                                            setOrdenPago({
+                                                totalPesos: sessionToResume.totalPesos,
+                                                totalUmas: sessionToResume.totalUmas,
+                                            });
+                                        }
+                                        if (sessionToResume.isAusente && sessionToResume.ausenteData) {
+                                            setAusenteCompletado({
+                                                id: sessionToResume.infraccionId,
+                                                folio: sessionToResume.folio,
+                                                data: sessionToResume.ausenteData,
+                                            });
+                                        } else {
+                                            setCurrentStep(steps.length - 1);
+                                        }
+                                        setSessionToResume(null);
+                                    }}
+                                    className="w-full py-2.5 px-4 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-sm font-medium rounded-lg transition-all active:scale-[0.99]"
+                                >
+                                    Continuar al pago
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        limpiarSesionLocal();
+                                        useInfraccionStore.getState().resetAll();
+                                        setSessionToResume(null);
+                                    }}
+                                    className="w-full py-2.5 px-4 border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-slate-600 text-sm font-medium rounded-lg transition-all"
+                                >
+                                    Iniciar nueva infracción
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {sessionToResume ? (
+
+                /* ══════════════════════════════════════════════════════
+                DIÁLOGO DE RECUPERACIÓN
+                ══════════════════════════════════════════════════════ */
+                <div className="flex-1 flex items-center justify-center px-4 py-12">
+                    <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-elevated overflow-hidden">
+                        <div className="h-1.5 bg-gradient-to-r from-amber-400 to-amber-500" />
+                        <div className="p-6 sm:p-8 space-y-6">
+                            <div className="text-center space-y-3">
+                                <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto ring-4 ring-amber-500/15">
+                                    <svg className="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-xl font-semibold text-slate-900">
+                                    Infracción en proceso
+                                </h2>
+                                <p className="text-sm text-slate-500 leading-relaxed">
+                                    Tienes una infracción registrada con el folio <span className="font-mono font-medium text-slate-700">{sessionToResume.folio}</span> que aún no se ha finalizado.
+                                </p>
+                            </div>
+
+                            <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+                                <div className="flex items-center justify-between text-sm">
+                                    <span className="text-slate-500">Folio</span>
+                                    <span className="font-mono font-medium text-slate-900">{sessionToResume.folio}</span>
+                                </div>
+                                {sessionToResume.totalPesos && (
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-slate-500">Total</span>
+                                        <span className="font-mono font-medium text-slate-900">
+                                            ${Number(sessionToResume.totalPesos).toLocaleString('es-MX')}
+                                        </span>
+                                    </div>
+                                )}
+                                {!sessionToResume.isAusente && (
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-slate-500">Estatus</span>
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-600 border border-amber-200">
+                                            Pendiente de pago
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col gap-2.5">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setInfraccionCreada({
+                                            id: sessionToResume.infraccionId,
+                                            folio: sessionToResume.folio,
+                                        });
+                                        if (sessionToResume.totalPesos && sessionToResume.totalUmas) {
+                                            setOrdenPago({
+                                                totalPesos: sessionToResume.totalPesos,
+                                                totalUmas: sessionToResume.totalUmas,
+                                            });
+                                        }
+                                        if (sessionToResume.isAusente && sessionToResume.ausenteData) {
+                                            setAusenteCompletado({
+                                                id: sessionToResume.infraccionId,
+                                                folio: sessionToResume.folio,
+                                                data: sessionToResume.ausenteData,
+                                            });
+                                        } else {
+                                            setCurrentStep(steps.length - 1);
+                                        }
+                                        setSessionToResume(null);
+                                    }}
+                                    className="w-full py-2.5 px-4 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-sm font-medium rounded-lg transition-all active:scale-[0.99]"
+                                >
+                                    Continuar al pago
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        limpiarSesionLocal();
+                                        useInfraccionStore.getState().resetAll();
+                                        setSessionToResume(null);
+                                    }}
+                                    className="w-full py-2.5 px-4 border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-slate-600 text-sm font-medium rounded-lg transition-all"
+                                >
+                                    Iniciar nueva infracción
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            ) : (
+
+            <>
             {/* Header */}
             <div className="shrink-0 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-4 space-y-3">
                 <div className="flex items-center justify-between gap-4">
@@ -1011,20 +1306,26 @@ export default function FormularioInfraccion() {
                     {steps.map((step, idx) => {
                         const isDone = idx < currentStep;
                         const isActive = idx === currentStep;
+                        const isLocked = infraccionCreada !== null;
+                        const canNavigateBack = isDone && !isLocked;
+                        const isStepDisabled = idx > currentStep || (isDone && isLocked);
                         const stepNum = idx + 1;
                         return (
                             <div key={step.id} className="flex items-center flex-1 last:flex-none">
                                 <button
                                     type="button"
-                                    onClick={() => idx < currentStep && setCurrentStep(idx)}
-                                    disabled={idx > currentStep}
+                                    onClick={() => canNavigateBack && setCurrentStep(idx)}
+                                    disabled={isStepDisabled}
                                     title={step.title}
                                     className={`
                                         w-7 h-7 rounded-full flex items-center justify-center
                                         text-[11px] font-medium transition-all duration-300 shrink-0
-                                        ${isDone ? 'bg-blue-700 text-white cursor-pointer hover:scale-110' : ''}
-                                        ${isActive ? 'bg-blue-700 text-white ring-4 ring-blue-700/20 cursor-default' : ''}
-                                        ${idx > currentStep ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-default' : ''}
+                                        ${isActive
+                                            ? 'bg-blue-700 text-white ring-4 ring-blue-700/20 cursor-default'
+                                            : canNavigateBack
+                                                ? 'bg-blue-700 text-white cursor-pointer hover:scale-110'
+                                                : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-default'
+                                        }
                                     `}
                                 >
                                     {isDone ? (
@@ -1135,7 +1436,10 @@ export default function FormularioInfraccion() {
                                 {/* Botón Terminar */}
                                 <button
                                     type="button"
-                                    onClick={() => window.location.reload()}
+                                    onClick={() => {
+                                        limpiarSesionLocal();
+                                        window.location.reload();
+                                    }}
                                     className="w-full bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-medium text-sm py-3 px-4 rounded-lg transition-all active:scale-[0.99]"
                                 >
                                     Terminar y Salir
@@ -1170,7 +1474,7 @@ export default function FormularioInfraccion() {
                 <footer className="bg-white border-t border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between shrink-0">
                     <button
                         type="button"
-                        disabled={currentStep === 0 || loading}
+                        disabled={currentStep === 0 || loading || infraccionCreada !== null}
                         onClick={() => prevStep()}
                         className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-normal text-slate-600 hover:bg-slate-50 active:bg-slate-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -1205,6 +1509,8 @@ export default function FormularioInfraccion() {
                         </button>
                     )}
                 </footer>
+            )}
+            </>
             )}
         </form>
     );

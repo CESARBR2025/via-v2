@@ -4,7 +4,7 @@ import { Clock, Mail, ArrowLeft } from 'lucide-react';
 
 export default function PendingApprovalPage() {
   return (
-    <main className="min-h-screen w-full flex flex-col lg:flex-row bg-slate-50">
+    <main className="min-h-dvh w-full overflow-x-hidden flex flex-col lg:flex-row bg-slate-50">
       {/* ─── Left Panel — Content ─── */}
       <div className="w-full lg:w-1/2 bg-slate-50 flex items-center justify-center px-6 py-10 lg:py-0 min-w-0 relative">
         {/* SSPM logo */}
@@ -94,7 +94,7 @@ export default function PendingApprovalPage() {
       </div>
 
       {/* ─── Right Panel — Dark Branding (same as login) ─── */}
-      <div className="w-full lg:w-1/2 p-5 lg:p-8 flex flex-col">
+      <div className="hidden lg:flex lg:w-1/2 p-5 flex-col">
         <div className="relative flex-1 bg-gradient-to-b from-blue-800 via-blue-900 to-blue-950 rounded-2xl overflow-hidden flex flex-col shadow-2xl">
           {/* Decorative elements */}
           <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
@@ -108,89 +108,92 @@ export default function PendingApprovalPage() {
           <div className="relative z-10 flex-1 flex flex-col justify-between px-12 py-14 lg:py-20 lg:px-14">
             {/* ─── Collage ─── */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-              {/* ① Dashboard — fondo abajo-derecha */}
-              <div
-                style={{
-                  transform:
-                    'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
-                }}
-                className="absolute left-[40%] top-[80%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-              >
-                <Image
-                  fill
-                  src="/login-preview/01-dashboard.png"
-                  alt="Dashboard oficial"
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
-              </div>
+              {/* Tablet — simplified (2 images) */}
+              <div className="hidden lg:block">
+                {/* ① Dashboard — fondo abajo-derecha */}
+                <div
+                  style={{
+                    transform:
+                      'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
+                  }}
+                  className="absolute left-[40%] top-[80%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
+                >
+                  <Image
+                    fill
+                    src="/login-preview/01-dashboard.png"
+                    alt="Dashboard oficial"
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 50vw, 25vw"
+                  />
+                </div>
 
-              {/* ② Ubicación */}
-              <div
-                style={{
-                  transform:
-                    'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
-                }}
-                className="absolute left-[80%] top-[80%] -translate-x-1/2 -translate-y-1/2 w-[50%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-              >
-                <Image
-                  fill
-                  src="/login-preview/02-ubicacion.png"
-                  alt="Captura ubicación"
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
-              </div>
+                {/* ② Ubicación */}
+                <div
+                  style={{
+                    transform:
+                      'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
+                  }}
+                  className="absolute left-[80%] top-[80%] -translate-x-1/2 -translate-y-1/2 w-[50%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
+                >
+                  <Image
+                    fill
+                    src="/login-preview/02-ubicacion.png"
+                    alt="Captura ubicación"
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 50vw, 25vw"
+                  />
+                </div>
 
-              {/* ③ Orden de Pago */}
-              <div
-                style={{
-                  transform:
-                    'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
-                }}
-                className="absolute left-[80%] top-[99%] -translate-x-1/2 -translate-y-1/2 w-[50%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-              >
-                <Image
-                  fill
-                  src="/login-preview/03-orden-pago.png"
-                  alt="Orden de pago"
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
-              </div>
+                {/* ③ Orden de Pago */}
+                <div
+                  style={{
+                    transform:
+                      'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
+                  }}
+                  className="absolute left-[80%] top-[99%] -translate-x-1/2 -translate-y-1/2 w-[50%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
+                >
+                  <Image
+                    fill
+                    src="/login-preview/03-orden-pago.png"
+                    alt="Orden de pago"
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 50vw, 25vw"
+                  />
+                </div>
 
-              {/* ⑦ Admin KPIs — arriba */}
-              <div
-                style={{
-                  transform:
-                    'perspective(1300px) rotateY(-15deg) rotateX(10deg) rotate(0deg)',
-                }}
-                className="absolute left-[45%] top-[30%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-              >
-                <Image
-                  fill
-                  src="/login-preview/07-dashboard-admin.png"
-                  alt="Dashboard admin KPIs"
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
-              </div>
+                {/* ⑦ Admin KPIs — arriba */}
+                <div
+                  style={{
+                    transform:
+                      'perspective(1300px) rotateY(-15deg) rotateX(10deg) rotate(0deg)',
+                  }}
+                  className="absolute left-[45%] top-[30%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
+                >
+                  <Image
+                    fill
+                    src="/login-preview/07-dashboard-admin.png"
+                    alt="Dashboard admin KPIs"
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 50vw, 25vw"
+                  />
+                </div>
 
-              {/* ⑥ Admin — centro */}
-              <div
-                style={{
-                  transform:
-                    'perspective(1300px) rotateY(-15deg) rotateX(10deg) rotate(0deg)',
-                }}
-                className="absolute left-[70%] top-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-              >
-                <Image
-                  fill
-                  src="/login-preview/06-dashboard-admin.png"
-                  alt="Dashboard admin"
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
+                {/* ⑥ Admin — centro */}
+                <div
+                  style={{
+                    transform:
+                      'perspective(1300px) rotateY(-15deg) rotateX(10deg) rotate(0deg)',
+                  }}
+                  className="absolute left-[70%] top-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
+                >
+                  <Image
+                    fill
+                    src="/login-preview/06-dashboard-admin.png"
+                    alt="Dashboard admin"
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 50vw, 25vw"
+                  />
+                </div>
               </div>
 
               {/* Gradient overlay */}

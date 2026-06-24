@@ -53,7 +53,7 @@ export default function ConsultaPage() {
     }
 
     return (
-        <main className="min-h-screen bg-[#F1F5F9] px-6 py-16 relative">
+        <main className="min-h-dvh overflow-x-hidden bg-[#F1F5F9] px-6 py-16 relative">
             <BackgroundDecoration />
 
             <div className="relative z-10 mx-auto flex max-w-5xl flex-col gap-8">

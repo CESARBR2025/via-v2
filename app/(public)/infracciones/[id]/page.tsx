@@ -125,7 +125,7 @@ export default async function InfraccionCiudadanoPage({
         );
 
     return (
-        <main className="min-h-screen bg-slate-100">
+        <main className="min-h-dvh overflow-x-hidden bg-slate-100">
 
             {/* ══ HERO HEADER ══ */}
             <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 relative overflow-hidden">
