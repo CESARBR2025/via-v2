@@ -11,12 +11,6 @@ const SEVERITY_COLORS: Record<string, string> = {
   Leve: "#22C55E",
 }
 
-const SEVERITY_LABELS: Record<string, string> = {
-  Grave: "Grave",
-  Media: "Media",
-  Leve: "Leve",
-}
-
 const SEVERITY_BG: Record<string, string> = {
   Grave: "#FEE2E2",
   Media: "#FEF3C7",
@@ -50,8 +44,6 @@ export function RevenueBySeverityChart() {
     fetchData()
   }, [])
 
-  console.log(data)
-
   if (loading) {
     return (
       <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
@@ -75,7 +67,7 @@ export function RevenueBySeverityChart() {
   const totalRecaudado = data.reduce((acc, d) => acc + d.total, 0)
 
   const chartData = data.map((d) => ({
-    name: SEVERITY_LABELS[d.clasificacion] ?? d.clasificacion,
+    name: d.clasificacion,
     value: d.total,
     clasificacion: d.clasificacion,
   }))
@@ -108,14 +100,16 @@ export function RevenueBySeverityChart() {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value) => [formatPesos(Number(value)), "Recaudación"]}
+                formatter={(value, name) => [formatPesos(Number(value)), name]}
                 contentStyle={{
                   backgroundColor: "#FFFFFF",
                   border: "1px solid #E2E8F0",
-                  borderRadius: 8,
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.07)",
+                  borderRadius: 10,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.04)",
+                  padding: "10px 14px",
                   fontSize: 13,
                 }}
+                labelStyle={{ color: "#64748B", fontSize: 12, fontWeight: 600, marginBottom: 4 }}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -135,7 +129,7 @@ export function RevenueBySeverityChart() {
                       style={{ backgroundColor: SEVERITY_COLORS[entry.clasificacion] ?? "#94A3B8" }}
                     />
                     <span className="text-[12px] font-medium text-[#64748B]">
-                      {SEVERITY_LABELS[entry.clasificacion] ?? entry.clasificacion}
+                      {entry.clasificacion}
                     </span>
                   </div>
                   <span className="text-[12px] font-semibold text-[#0F172A]">

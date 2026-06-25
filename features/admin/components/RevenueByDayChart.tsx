@@ -70,15 +70,17 @@ export function RevenueByDayChart() {
                 contentStyle={{
                   backgroundColor: "#FFFFFF",
                   border: "1px solid #E2E8F0",
-                  borderRadius: 8,
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.07)",
+                  borderRadius: 10,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.04)",
+                  padding: "10px 14px",
                   fontSize: 13,
                 }}
+                labelStyle={{ color: "#64748B", fontSize: 12, fontWeight: 600, marginBottom: 4 }}
               />
               <Bar
                 dataKey="total"
-                fill="#60A5FA"
-                radius={[4, 4, 0, 0]}
+                fill="#0EA5E9"
+                radius={[6, 6, 0, 0]}
                 maxBarSize={36}
               />
             </BarChart>

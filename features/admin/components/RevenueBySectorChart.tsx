@@ -8,10 +8,10 @@ import {
 import type { RevenueBySector } from "../types"
 
 const SECTOR_COLORS: Record<string, string> = {
-  PONIENTE: "#2563EB",
-  ORIENTE: "#60A5FA",
-  CENTRO: "#1E3A8A",
-  "SIN ASIGNAR": "#94A3B8",
+  PONIENTE: "#3B82F6",
+  ORIENTE: "#0EA5E9",
+  CENTRO: "#6366F1",
+  "SIN ASIGNAR": "#CBD5E1",
 }
 
 const formatPesos = (v: number) =>
@@ -40,8 +40,6 @@ export function RevenueBySectorChart() {
     }
     fetchData()
   }, [])
-
-  console.log(data)
 
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
@@ -85,10 +83,12 @@ export function RevenueBySectorChart() {
                 contentStyle={{
                   backgroundColor: "#FFFFFF",
                   border: "1px solid #E2E8F0",
-                  borderRadius: 8,
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.07)",
+                  borderRadius: 10,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.04)",
+                  padding: "10px 14px",
                   fontSize: 13,
                 }}
+                labelStyle={{ color: "#64748B", fontSize: 12, fontWeight: 600, marginBottom: 4 }}
               />
               <Bar dataKey="total" radius={[0, 4, 4, 0]} maxBarSize={20}>
                 {data.map((entry) => (

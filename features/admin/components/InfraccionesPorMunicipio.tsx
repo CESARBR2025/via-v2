@@ -65,7 +65,7 @@ export function InfraccionesPorMunicipio() {
               </div>
               <div className="w-full h-2 bg-[#F1F5F9] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#2563EB] rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-[#3B82F6] to-[#2563EB] rounded-full transition-all duration-500"
                   style={{ width: `${(item.total / maxTotal) * 100}%` }}
                 />
               </div>
