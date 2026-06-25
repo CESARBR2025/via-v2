@@ -119,151 +119,18 @@ export default function LoginForm() {
                 </div>
             </div>
 
-            {/* ─── Right Panel — Dark Branding ─── */}
-            {/* Oculto en mobile, visible desde md */}
+            {/* ─── Right Panel — Imagen de fondo ─── */}
             <div className="hidden md:flex md:w-[45%] lg:w-1/2 p-4 lg:p-5 flex-col">
-                <div className="relative flex-1 bg-gradient-to-b from-blue-800 via-blue-900 to-blue-950 rounded-2xl overflow-hidden flex flex-col shadow-2xl">
-                    {/* Decorative elements */}
-                    <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-                    <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-blue-700/8 blur-3xl pointer-events-none" />
-
-                    {/* Subtle dot pattern */}
-                    <div
-                        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-                        style={{
-                            backgroundImage:
-                                'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.5) 1px, transparent 0)',
-                            backgroundSize: '32px 32px',
-                        }}
+                <div className="relative flex-1 rounded-2xl overflow-hidden shadow-2xl">
+                    <Image
+                        fill
+                        src="/roles/policeF.jpeg"
+                        alt="Via wallpaper"
+                        className="object-cover"
+                        sizes="50vw"
+                        priority
                     />
-
-                    {/* Top accent line */}
-                    <div className="relative z-10 h-[3px] bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500/20 shrink-0" />
-
-                    <div className="relative z-10 flex-1 flex flex-col justify-between px-8 py-12 lg:px-14 lg:py-20">
-                        {/* ─── Collage de imágenes ─── */}
-                        <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-                            {/* Tablet collage — images principales */}
-                            <div className="lg:hidden">
-                                <div
-                                    style={{
-                                        transform:
-                                            'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
-                                    }}
-                                    className="absolute left-[42%] top-[70%] -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[420px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-                                >
-                                    <Image
-                                        fill
-                                        src="/login-preview/01-dashboard.png"
-                                        alt="Dashboard oficial"
-                                        className="object-cover"
-                                        sizes="30vw"
-                                    />
-                                </div>
-                                <div
-                                    style={{
-                                        transform:
-                                            'perspective(1300px) rotateY(-15deg) rotateX(10deg) rotate(0deg)',
-                                    }}
-                                    className="absolute left-[45%] top-[28%] -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[420px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-                                >
-                                    <Image
-                                        fill
-                                        src="/login-preview/07-dashboard-admin.png"
-                                        alt="Dashboard administración"
-                                        className="object-cover"
-                                        sizes="30vw"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Desktop collage — todas las imágenes */}
-                            <div className="hidden lg:block">
-                                <div
-                                    style={{
-                                        transform:
-                                            'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
-                                    }}
-                                    className="absolute left-[40%] top-[80%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-                                >
-                                    <Image
-                                        fill
-                                        src="/login-preview/01-dashboard.png"
-                                        alt="Dashboard oficial"
-                                        className="object-cover"
-                                        sizes="(max-width: 1024px) 50vw, 25vw"
-                                    />
-                                </div>
-
-                                <div
-                                    style={{
-                                        transform:
-                                            'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
-                                    }}
-                                    className="absolute left-[80%] top-[80%] -translate-x-1/2 -translate-y-1/2 w-[50%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-                                >
-                                    <Image
-                                        fill
-                                        src="/login-preview/02-ubicacion.png"
-                                        alt="Mapa ubicación"
-                                        className="object-cover"
-                                        sizes="(max-width: 1024px) 50vw, 25vw"
-                                    />
-                                </div>
-
-                                <div
-                                    style={{
-                                        transform:
-                                            'perspective(1300px) rotateY(-20deg) rotateX(10deg) rotate(1deg)',
-                                    }}
-                                    className="absolute left-[80%] top-[99%] -translate-x-1/2 -translate-y-1/2 w-[50%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-                                >
-                                    <Image
-                                        fill
-                                        src="/login-preview/03-orden-pago.png"
-                                        alt="Orden de pago"
-                                        className="object-cover"
-                                        sizes="(max-width: 1024px) 50vw, 25vw"
-                                    />
-                                </div>
-
-                                <div
-                                    style={{
-                                        transform:
-                                            'perspective(1300px) rotateY(-15deg) rotateX(10deg) rotate(0deg)',
-                                    }}
-                                    className="absolute left-[45%] top-[30%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-                                >
-                                    <Image
-                                        fill
-                                        src="/login-preview/07-dashboard-admin.png"
-                                        alt="Dashboard administración"
-                                        className="object-cover"
-                                        sizes="(max-width: 1024px) 50vw, 25vw"
-                                    />
-                                </div>
-
-                                <div
-                                    style={{
-                                        transform:
-                                            'perspective(1300px) rotateY(-15deg) rotateX(10deg) rotate(0deg)',
-                                    }}
-                                    className="absolute left-[70%] top-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[700px] aspect-[16/10] bg-white/[0.08] backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden shadow-2xl rotate-[1.8deg] z-[1]"
-                                >
-                                    <Image
-                                        fill
-                                        src="/login-preview/06-dashboard-admin.png"
-                                        alt="Dashboard administración"
-                                        className="object-cover"
-                                        sizes="(max-width: 1024px) 50vw, 25vw"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-blue-950/5 via-blue-950/40 to-blue-950/95" />
-                        </div>
-                    </div>
+                    <div className="absolute inset-0 bg-black/20" />
                 </div>
             </div>
         </main>

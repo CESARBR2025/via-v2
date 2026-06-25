@@ -73,10 +73,12 @@ export function EfectividadCobroChart() {
                 contentStyle={{
                   backgroundColor: "#FFFFFF",
                   border: "1px solid #E2E8F0",
-                  borderRadius: 8,
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.07)",
+                  borderRadius: 10,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.04)",
+                  padding: "10px 14px",
                   fontSize: 13,
                 }}
+                labelStyle={{ color: "#64748B", fontSize: 12, fontWeight: 600, marginBottom: 4 }}
               />
             </PieChart>
           </ResponsiveContainer>

@@ -66,19 +66,21 @@ export function TopFraccionesChart() {
                 }
               />
               <Tooltip
-                formatter={(value) => [value, "Infracciones"]}
+                formatter={(value) => [Number(value ?? 0).toLocaleString(), "Infracciones"]}
                 contentStyle={{
                   backgroundColor: "#FFFFFF",
                   border: "1px solid #E2E8F0",
-                  borderRadius: 8,
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.07)",
+                  borderRadius: 10,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.04)",
+                  padding: "10px 14px",
                   fontSize: 13,
                 }}
+                labelStyle={{ color: "#64748B", fontSize: 12, fontWeight: 600, marginBottom: 4 }}
               />
               <Bar
                 dataKey="total"
-                fill="#2563EB"
-                radius={[0, 4, 4, 0]}
+                fill="#8B5CF6"
+                radius={[0, 6, 6, 0]}
                 maxBarSize={20}
               />
             </BarChart>

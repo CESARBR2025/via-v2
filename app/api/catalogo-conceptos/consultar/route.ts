@@ -19,6 +19,7 @@ const CLASIFICACION_MAP: Record<string, "Leve" | "Media" | "Grave"> = {
 
 export async function GET() {
   try {
+    console.log("entro");
     // Obteniendo Bearer token
 
     const baseUrl =

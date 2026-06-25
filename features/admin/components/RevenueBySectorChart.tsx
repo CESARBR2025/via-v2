@@ -2,10 +2,17 @@
 
 import { useEffect, useState } from "react"
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from "recharts"
 
-import type { RevenueByDay } from "../types"
+import type { RevenueBySector } from "../types"
+
+const SECTOR_COLORS: Record<string, string> = {
+  PONIENTE: "#3B82F6",
+  ORIENTE: "#0EA5E9",
+  CENTRO: "#6366F1",
+  "SIN ASIGNAR": "#CBD5E1",
+}
 
 const formatPesos = (v: number) =>
   new Intl.NumberFormat("es-MX", {
@@ -15,18 +22,18 @@ const formatPesos = (v: number) =>
     maximumFractionDigits: 0,
   }).format(v)
 
-export function RevenueByDayChart() {
-  const [data, setData] = useState<RevenueByDay[]>([])
+export function RevenueBySectorChart() {
+  const [data, setData] = useState<RevenueBySector[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/admin/financiero")
+        const res = await fetch("/api/admin/recaudacion-por-sector")
         const json = await res.json()
-        if (json?.revenueByDay) setData(json.revenueByDay)
+        if (Array.isArray(json)) setData(json)
       } catch (err) {
-        console.error("Error fetching revenue by day:", err)
+        console.error("Error fetching revenue by sector:", err)
       } finally {
         setLoading(false)
       }
@@ -37,7 +44,7 @@ export function RevenueByDayChart() {
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
       <h3 className="text-[16px] font-semibold text-[#0F172A] mb-4">
-        Ingreso por día de la semana
+        Recaudación por sector
       </h3>
 
       {loading ? (
@@ -51,22 +58,28 @@ export function RevenueByDayChart() {
       ) : (
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
+            <BarChart
+              data={data}
+              layout="vertical"
+              margin={{ top: 4, right: 8, left: 8, bottom: 0 }}
+            >
               <XAxis
-                dataKey="label"
+                type="number"
+                tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
                 tick={{ fontSize: 12, fill: "#94A3B8" }}
                 axisLine={{ stroke: "#E2E8F0" }}
                 tickLine={false}
               />
               <YAxis
-                tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
-                tick={{ fontSize: 12, fill: "#94A3B8" }}
+                type="category"
+                dataKey="sector"
+                width={100}
+                tick={{ fontSize: 12, fill: "#64748B", fontWeight: 600 }}
                 axisLine={false}
                 tickLine={false}
-                width={48}
               />
               <Tooltip
-                formatter={(value) => [formatPesos(Number(value)), "Ingreso"]}
+                formatter={(value) => [formatPesos(Number(value)), "Recaudación"]}
                 contentStyle={{
                   backgroundColor: "#FFFFFF",
                   border: "1px solid #E2E8F0",
@@ -77,16 +90,30 @@ export function RevenueByDayChart() {
                 }}
                 labelStyle={{ color: "#64748B", fontSize: 12, fontWeight: 600, marginBottom: 4 }}
               />
-              <Bar
-                dataKey="total"
-                fill="#0EA5E9"
-                radius={[6, 6, 0, 0]}
-                maxBarSize={36}
-              />
+              <Bar dataKey="total" radius={[0, 4, 4, 0]} maxBarSize={20}>
+                {data.map((entry) => (
+                  <Cell
+                    key={entry.sector}
+                    fill={SECTOR_COLORS[entry.sector] ?? "#94A3B8"}
+                  />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
       )}
+
+      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[#E2E8F0] text-xs text-[#64748B]">
+        {data.map((entry) => (
+          <span key={entry.sector} className="flex items-center gap-1.5">
+            <span
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: SECTOR_COLORS[entry.sector] ?? "#94A3B8" }}
+            />
+            {entry.infracciones} infracciones
+          </span>
+        ))}
+      </div>
     </div>
   )
 }
