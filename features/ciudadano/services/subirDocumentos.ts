@@ -1,7 +1,7 @@
 import { POOL_PG } from "@/lib/db";
 import { getExpedienteToken } from "@/lib/expediente-digital/expediente";
 
-async function subirArchivo(
+export async function subirArchivo(
   archivo: File,
   carpeta: string,
   idInfraccion: string,
@@ -37,7 +37,7 @@ async function subirArchivo(
   return data.ruta_relativa;
 }
 
-function validarArchivo(file: File | null, nombre: string) {
+export function validarArchivo(file: File | null, nombre: string) {
   if (!file) return;
   const esValido =
     file.type.startsWith("image/") || file.type === "application/pdf";
