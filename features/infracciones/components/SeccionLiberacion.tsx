@@ -25,34 +25,33 @@ type DocConfig = {
     id: string;
     label: string;
     formKey: string;
+    tipoDocumento: string;
 };
 
 type SubtipoTitular = 'infraccion' | 'delito' | 'accidente';
 
 const DOCS_EMPRESA: DocConfig[] = [
-    { id: 'factura', label: 'Factura', formKey: 'archivoFactura' },
-    { id: 'ine_representante', label: 'INE del representante legal', formKey: 'archivoIneRepresentanteLegal' },
-    { id: 'poder_notarial', label: 'Poder notarial o acta constitutiva', formKey: 'archivoPoderNotarial' },
-    { id: 'constancia_fiscal', label: 'Constancia de situación fiscal', formKey: 'archivoConstanciaSituacionFiscal' },
+    { id: 'factura', label: 'Factura', formKey: 'archivoFactura', tipoDocumento: 'factura' },
+    { id: 'ine_representante', label: 'INE del representante legal', formKey: 'archivoIneRepresentanteLegal', tipoDocumento: 'ine_representante_legal' },
+    { id: 'poder_notarial', label: 'Poder notarial o acta constitutiva', formKey: 'archivoPoderNotarial', tipoDocumento: 'poder_notarial' },
+    { id: 'constancia_fiscal', label: 'Constancia de situación fiscal', formKey: 'archivoConstanciaSituacionFiscal', tipoDocumento: 'constancia_situacion_fiscal' },
 ];
 
 const DOCS_INFRACCION: DocConfig[] = [
-    { id: 'factura', label: 'Factura original', formKey: 'archivoFactura' },
-    { id: 'ine', label: 'INE', formKey: 'archivoIneTitular' },
-    { id: 'comprobante_domicilio', label: 'Comprobante de domicilio', formKey: 'archivoComprobanteDomicilio' },
-    { id: 'tarjeta_circulacion', label: 'Tarjeta de circulación', formKey: 'archivoTarjetaCirculacion' },
+    { id: 'factura', label: 'Factura original', formKey: 'archivoFactura', tipoDocumento: 'factura' },
+    { id: 'ine', label: 'INE', formKey: 'archivoIneTitular', tipoDocumento: 'ine_titular' },
+    { id: 'comprobante_domicilio', label: 'Comprobante de domicilio', formKey: 'archivoComprobanteDomicilio', tipoDocumento: 'comprobante_domicilio' },
+    { id: 'tarjeta_circulacion', label: 'Tarjeta de circulación', formKey: 'archivoTarjetaCirculacion', tipoDocumento: 'tarjeta_circulacion' },
 ];
 
 const DOCS_DELITO: DocConfig[] = [
-    { id: 'factura', label: 'Factura', formKey: 'archivoFactura' },
-    { id: 'ine', label: 'INE', formKey: 'archivoIneTitular' },
-
+    { id: 'factura', label: 'Factura', formKey: 'archivoFactura', tipoDocumento: 'factura' },
+    { id: 'ine', label: 'INE', formKey: 'archivoIneTitular', tipoDocumento: 'ine_titular' },
 ];
 
 const DOCS_ACCIDENTE: DocConfig[] = [
-    { id: 'factura', label: 'Factura', formKey: 'archivoFactura' },
-    { id: 'ine', label: 'INE', formKey: 'archivoIneTitular' },
-
+    { id: 'factura', label: 'Factura', formKey: 'archivoFactura', tipoDocumento: 'factura' },
+    { id: 'ine', label: 'INE', formKey: 'archivoIneTitular', tipoDocumento: 'ine_titular' },
 ];
 
 const SUBTIPOS_TITULAR: Record<SubtipoTitular, { label: string; docs: DocConfig[] }> = {
@@ -193,7 +192,7 @@ export default function SeccionLiberacion({
 
     const motivoSubtipo = motivoRetencion ? MOTIVO_TO_SUBTIPO[motivoRetencion] : undefined;
 
-    const CARTA_PODER: DocConfig = { id: 'carta_poder', label: 'Carta poder', formKey: 'archivoCartaPoder' };
+    const CARTA_PODER: DocConfig = { id: 'carta_poder', label: 'Carta poder', formKey: 'archivoCartaPoder', tipoDocumento: 'carta_poder' };
 
     const currentDocs: DocConfig[] = (() => {
         if (selectedType === 'empresa') return DOCS_EMPRESA;
@@ -266,50 +265,78 @@ export default function SeccionLiberacion({
         setError(null);
 
         try {
-            const formData = new FormData();
-            formData.append('idInfraccion', infraccionId);
-            formData.append('tipoLiberacion', motivoRetencion || 'INFRACCION');
-            formData.append('esEmpresa', selectedType === 'empresa' ? 'true' : 'false');
+            // 1. Crear solicitud (solo metadata, sin archivos)
+            const solicitudRes = await fetch('/api/ciudadano/iniciar-solicitud', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    infraccionId,
+                    tipoLiberacion: motivoRetencion || 'INFRACCION',
+                    esEmpresa: selectedType === 'empresa',
+                    ...(selectedType === 'empresa' ? {
+                        nombreEmpresa: nombreEmpresa.trim(),
+                        rfcEmpresa: rfcEmpresa.trim(),
+                        nombreRespFiscal: nombreRespFiscal.trim(),
+                        appaternoRespFiscal: apPaternoRespFiscal.trim(),
+                        apmaternoRespFiscal: apMaternoRespFiscal.trim(),
+                    } : {}),
+                }),
+            });
 
-            if (selectedType === 'empresa') {
-                formData.append('nombreEmpresa', nombreEmpresa.trim());
-                formData.append('rfcEmpresa', rfcEmpresa.trim());
-                formData.append('nombreRespFiscal', nombreRespFiscal.trim());
-                formData.append('apPaternoRespFiscal', apPaternoRespFiscal.trim());
-                formData.append('apMaternoRespFiscal', apMaternoRespFiscal.trim());
-            }
+            const solicitudData = await solicitudRes.json();
+            if (!solicitudRes.ok) throw new Error(solicitudData.message);
+            const { solicitudId } = solicitudData;
 
-            if (selectedType === 'titular' && esTitular === false) {
-                formData.append('nombreTitular', titularNombre.trim());
-                formData.append('appaternoTitular', titularAppaterno.trim());
-                formData.append('apmaternoTitular', titularApmaterno.trim());
-                formData.append('curpTitular', titularCurp.trim());
-                formData.append('correoTitular', titularCorreo.trim());
-            }
-
+            // 2. Subir cada archivo uno por uno
             for (const doc of currentDocs) {
                 const file = selectedFiles[doc.id];
-                if (file) {
-                    formData.append(doc.formKey, file);
+                if (!file) continue;
+
+                const fileForm = new FormData();
+                fileForm.append('solicitudId', solicitudId);
+                fileForm.append('tipoDocumento', doc.tipoDocumento);
+                fileForm.append('file', file);
+
+                const fileRes = await fetch('/api/ciudadano/subir-archivo', {
+                    method: 'POST',
+                    body: fileForm,
+                });
+
+                const fileData = await fileRes.json();
+                if (!fileRes.ok) {
+                    throw new Error(`Error al subir ${doc.label}: ${fileData.message}`);
                 }
             }
 
-            let endpoint = '/api/ciudadano/subirDocumentos'
+            // 3. Completar solicitud (actualizar estatus de infracción)
+            const completarBody: Record<string, unknown> = {
+                infraccionId,
+                estatusDependencia:
+                    estatusInfraccion === 'REGISTRADA' && estatusDependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS'
+                        ? 'MESA_DE_CONTROL_REVISION'
+                        : 'ESPERA_REVISION',
+            };
 
-            if (estatusInfraccion === 'REGISTRADA' && estatusDependencia === 'MESA_DE_CONTROL_PENDIENTE_DOCS') {
-                endpoint = '/api/ciudadano/subirDocumentosInfraccion'
+            if (estatusInfraccion === 'REGISTRADA') {
+                completarBody.estatus = 'REGISTRADA';
             }
 
-            const res = await fetch(endpoint, {
+            if (selectedType === 'titular' && esTitular === false) {
+                completarBody.nombreTitular = titularNombre.trim();
+                completarBody.appaternoTitular = titularAppaterno.trim();
+                completarBody.apmaternoTitular = titularApmaterno.trim() || undefined;
+                completarBody.curpTitular = titularCurp.trim();
+                completarBody.correoTitular = titularCorreo.trim() || undefined;
+            }
+
+            const finalRes = await fetch('/api/ciudadano/completar-solicitud', {
                 method: 'POST',
-                body: formData,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(completarBody),
             });
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.message || 'Error al subir documentos');
-            }
+            const finalData = await finalRes.json();
+            if (!finalRes.ok) throw new Error(finalData.message);
 
             setSubmitted(true);
         } catch (err) {
@@ -327,23 +354,43 @@ export default function SeccionLiberacion({
         setError(null);
 
         try {
-            const formData = new FormData();
-            formData.append('infraccionId', infraccionId);
+            // Obtener solicitudId
+            const libRes = await fetch(`/api/liberaciones/documentos/${infraccionId}`);
+            const libData = await libRes.json();
+            const solicitudId = libData?.solicitud?.id;
+            if (!solicitudId) throw new Error('No se encontró solicitud de liberación');
 
+            // Subir cada archivo uno por uno
             for (const tipo of docsAReenviar) {
-                formData.append(tipo, reuploadFiles[tipo]);
+                const fileForm = new FormData();
+                fileForm.append('solicitudId', solicitudId);
+                fileForm.append('tipoDocumento', tipo);
+                fileForm.append('file', reuploadFiles[tipo]);
+
+                const res = await fetch('/api/ciudadano/subir-archivo', {
+                    method: 'POST',
+                    body: fileForm,
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(`Error al subir ${tipo}: ${data.message}`);
+                }
             }
 
-            const res = await fetch('/api/ciudadano/reintentarDocumentos', {
-                method: 'PATCH',
-                body: formData,
+            // Finalizar: actualizar estatus de infracción
+            const finalRes = await fetch('/api/ciudadano/completar-solicitud', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    infraccionId,
+                    estatus: 'REGISTRADA',
+                    estatusDependencia: 'MESA_DE_CONTROL_REVISION',
+                }),
             });
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.message || 'Error al reenviar documentos');
-            }
+            const finalData = await finalRes.json();
+            if (!finalRes.ok) throw new Error(finalData.message);
 
             setReuploadFiles({});
             // Refrescar estatus
